@@ -28,6 +28,5 @@ Thumbs.db
 !.vscode/extensions.json
 
 *.tsbuildinfo
-next-env.d.ts
 
 docker/data/

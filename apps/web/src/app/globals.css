@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-base text-white/90;
+    font-family: var(--font-onest), system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-geologica), system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  h3,
+  .logo {
+    font-family: var(--font-geologica), system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+}
