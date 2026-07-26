@@ -9,16 +9,19 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import {
   AccessTokenPayload,
   AuthResponse,
   CaptchaRequiredResponse,
   PublicUser,
+  RoleGroup,
 } from '@twomc/shared';
 import { compare, hash } from 'bcrypt';
 import { createHmac, randomBytes } from 'node:crypto';
 import { durationToSeconds } from '../../common/duration.util';
+import { toPublicPosition } from '../positions/position.mapper';
+import { PositionsService } from '../positions/positions.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { BCRYPT_ROUNDS, BLOCK_AFTER_ATTEMPTS, CAPTCHA_AFTER_ATTEMPTS } from './auth.constants';
 import { BruteForceService } from './brute-force.service';
@@ -32,6 +35,8 @@ export interface AuthSession extends AuthResponse {
   refreshExpiresAt: Date;
 }
 
+type UserWithPosition = Prisma.UserGetPayload<{ include: { position: true } }>;
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -42,6 +47,7 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly captcha: CaptchaService,
     private readonly bruteForce: BruteForceService,
+    private readonly positions: PositionsService,
   ) {}
 
   async register(dto: RegisterDto, context: RequestContext): Promise<AuthSession> {
@@ -65,7 +71,9 @@ export class AuthService {
           email,
           username: dto.username,
           password: await hash(dto.password, BCRYPT_ROUNDS),
+          positionId: await this.positions.getDefaultId(RoleGroup.PLAYER),
         },
+        include: { position: true },
       });
 
       return await this.issueSession(user, context);
@@ -103,6 +111,7 @@ export class AuthService {
     const login = dto.emailOrUsername.trim();
     const user = await this.prisma.user.findFirst({
       where: { OR: [{ email: login.toLowerCase() }, { username: login }] },
+      include: { position: true },
     });
 
     if (!user || !(await compare(dto.password, user.password))) {
@@ -123,6 +132,7 @@ export class AuthService {
     const loggedIn = await this.prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date(), lastLoginIp: context.ip },
+      include: { position: true },
     });
 
     return this.issueSession(loggedIn, context);
@@ -135,7 +145,7 @@ export class AuthService {
 
     const stored = await this.prisma.refreshToken.findUnique({
       where: { tokenHash: this.hashRefreshToken(token) },
-      include: { user: true },
+      include: { user: { include: { position: true } } },
     });
 
     if (!stored) {
@@ -173,17 +183,21 @@ export class AuthService {
   }
 
   async findById(userId: string): Promise<PublicUser | null> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { position: true },
+    });
 
     return user ? this.toPublicUser(user) : null;
   }
 
-  toPublicUser(user: User): PublicUser {
+  toPublicUser(user: UserWithPosition): PublicUser {
     return {
       id: user.id,
       email: user.email,
       username: user.username,
       roleGroup: user.roleGroup,
+      position: toPublicPosition(user.position),
       minecraftNick: user.minecraftNick,
       avatar: user.avatar,
       isVerified: user.isVerified,
@@ -212,7 +226,10 @@ export class AuthService {
     }
   }
 
-  private async issueSession(user: User, context: RequestContext): Promise<AuthSession> {
+  private async issueSession(
+    user: UserWithPosition,
+    context: RequestContext,
+  ): Promise<AuthSession> {
     const payload: AccessTokenPayload = {
       sub: user.id,
       email: user.email,
