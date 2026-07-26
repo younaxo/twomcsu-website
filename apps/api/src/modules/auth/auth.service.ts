@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -33,6 +34,8 @@ export interface AuthSession extends AuthResponse {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
@@ -125,6 +128,39 @@ export class AuthService {
     return this.issueSession(loggedIn, context);
   }
 
+  async refresh(token: string | undefined, context: RequestContext): Promise<AuthSession> {
+    if (!token) {
+      throw new UnauthorizedException('Сессия не найдена');
+    }
+
+    const stored = await this.prisma.refreshToken.findUnique({
+      where: { tokenHash: this.hashRefreshToken(token) },
+      include: { user: true },
+    });
+
+    if (!stored) {
+      throw new UnauthorizedException('Сессия не найдена');
+    }
+
+    if (stored.revokedAt) {
+      // someone replays an old token, safest move is to drop every session of that user
+      await this.revokeAllSessions(stored.userId);
+      this.logger.warn(`Refresh token reuse detected for user ${stored.userId}`);
+      throw new UnauthorizedException('Сессия недействительна');
+    }
+
+    if (stored.expiresAt <= new Date()) {
+      throw new UnauthorizedException('Сессия истекла');
+    }
+
+    await this.prisma.refreshToken.update({
+      where: { id: stored.id },
+      data: { revokedAt: new Date() },
+    });
+
+    return this.issueSession(stored.user, context);
+  }
+
   async findById(userId: string): Promise<PublicUser | null> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
@@ -143,6 +179,13 @@ export class AuthService {
       isBanned: user.isBanned,
       createdAt: user.createdAt.toISOString(),
     };
+  }
+
+  private async revokeAllSessions(userId: string): Promise<void> {
+    await this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
   }
 
   private async handleFailedAttempt(ip: string): Promise<void> {

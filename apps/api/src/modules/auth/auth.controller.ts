@@ -1,9 +1,11 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthResponse, LoginResponse } from '@twomc/shared';
+import { AuthResponse, LoginResponse, RefreshResponse } from '@twomc/shared';
 import { Request, Response } from 'express';
+import { REFRESH_COOKIE_NAME } from './auth.constants';
 import { AuthService, AuthSession } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
 import { CookieConfig, setRefreshCookie } from './refresh-cookie';
 import { getRequestContext } from './request-context';
@@ -41,6 +43,23 @@ export class AuthController {
     }
 
     return this.withRefreshCookie(result, res);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(
+    @Body() dto: RefreshDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<RefreshResponse> {
+    const token = this.readRefreshToken(req) ?? dto.refreshToken;
+    const session = await this.authService.refresh(token, getRequestContext(req));
+
+    return { accessToken: this.withRefreshCookie(session, res).accessToken };
+  }
+
+  private readRefreshToken(req: Request): string | undefined {
+    return req.cookies?.[REFRESH_COOKIE_NAME] as string | undefined;
   }
 
   private withRefreshCookie(session: AuthSession, res: Response): AuthResponse {
