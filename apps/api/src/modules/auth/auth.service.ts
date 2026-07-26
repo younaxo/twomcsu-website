@@ -161,6 +161,17 @@ export class AuthService {
     return this.issueSession(stored.user, context);
   }
 
+  async logout(token: string | undefined): Promise<void> {
+    if (!token) {
+      return;
+    }
+
+    await this.prisma.refreshToken.updateMany({
+      where: { tokenHash: this.hashRefreshToken(token), revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  }
+
   async findById(userId: string): Promise<PublicUser | null> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
