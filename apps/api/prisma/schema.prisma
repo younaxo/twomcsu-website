@@ -15,12 +15,39 @@ enum RoleGroup {
   OWNER
 }
 
+/// Title inside a role group: purely cosmetic, permissions come from roleGroup
+model Position {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  slug            String    @unique
+  displayName     String
+  group           RoleGroup
+  color           String    @db.VarChar(7)
+  backgroundColor String?   @db.VarChar(9)
+  icon            String?
+  priority        Int       @default(0)
+  description     String?
+  isVisible       Boolean   @default(true)
+  /// Given to new users of the group, one per group
+  isDefault       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  users User[]
+
+  @@index([slug])
+  @@index([group])
+  @@index([priority])
+  @@map("positions")
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
   username      String    @unique @db.VarChar(16)
   password      String
   roleGroup     RoleGroup @default(PLAYER)
+  positionId    String
   minecraftNick String?   @unique @db.VarChar(16)
   avatar        String?
   isVerified    Boolean   @default(false)
@@ -32,11 +59,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  position      Position       @relation(fields: [positionId], references: [id])
   refreshTokens RefreshToken[]
 
   @@index([email])
   @@index([username])
   @@index([minecraftNick])
+  @@index([positionId])
   @@map("users")
 }
 
