@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Throttle } from '@nestjs/throttler';
 import { AuthResponse, LoginResponse, PublicUser, RefreshResponse } from '@twomc/shared';
 import { Request, Response } from 'express';
 import { REFRESH_COOKIE_NAME } from './auth.constants';
@@ -32,6 +33,7 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @Throttle({ default: { limit: 3, ttl: 3_600_000 } })
   @HttpCode(HttpStatus.CREATED)
   async register(
     @Body() dto: RegisterDto,
@@ -44,6 +46,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,
@@ -60,6 +63,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   async refresh(
     @Body() dto: RefreshDto,
