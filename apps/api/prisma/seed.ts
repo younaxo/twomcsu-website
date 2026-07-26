@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, RoleGroup } from '@prisma/client';
 import { hash } from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -15,12 +15,12 @@ async function main() {
   const owner = await prisma.user.upsert({
     where: { email },
     // пароль повторным сидом не перетираем, только добираем роль
-    update: { username, role: UserRole.OWNER },
+    update: { username, roleGroup: RoleGroup.OWNER },
     create: {
       email,
       username,
       password: await hash(password, 12),
-      role: UserRole.OWNER,
+      roleGroup: RoleGroup.OWNER,
     },
   });
 
