@@ -1,3 +1,5 @@
+import type { Position } from './position';
+
 export const RoleGroup = {
   PLAYER: 'PLAYER',
   HELPER: 'HELPER',
@@ -27,9 +29,20 @@ export interface PublicUser {
   email: string;
   username: string;
   roleGroup: RoleGroup;
+  position: Position;
   minecraftNick: string | null;
   avatar: string | null;
   isVerified: boolean;
   isBanned: boolean;
+  createdAt: string;
+}
+
+/** Anyone can read this one, the owner of the account included */
+export interface UserProfile {
+  id: string;
+  username: string;
+  avatar: string | null;
+  minecraftNick: string | null;
+  position: Position;
   createdAt: string;
 }
