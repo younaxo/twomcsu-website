@@ -8,7 +8,7 @@
     "pnpm": ">=9"
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "dev": "pnpm --filter @twomc/shared build && pnpm --parallel --filter \"./apps/*\" dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
