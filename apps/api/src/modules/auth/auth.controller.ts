@@ -1,9 +1,22 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthResponse, LoginResponse, RefreshResponse } from '@twomc/shared';
+import { AuthResponse, LoginResponse, PublicUser, RefreshResponse } from '@twomc/shared';
 import { Request, Response } from 'express';
 import { REFRESH_COOKIE_NAME } from './auth.constants';
 import { AuthService, AuthSession } from './auth.service';
+import { AuthenticatedUser } from './authenticated-user';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -70,6 +83,18 @@ export class AuthController {
     clearRefreshCookie(res, this.cookieConfig());
 
     return { success: true };
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@CurrentUser() current: AuthenticatedUser): Promise<PublicUser> {
+    const user = await this.authService.findById(current.id);
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    return user;
   }
 
   private cookieConfig(): CookieConfig {
