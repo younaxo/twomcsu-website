@@ -1,14 +1,28 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, User } from '@prisma/client';
-import { AccessTokenPayload, AuthResponse, PublicUser } from '@twomc/shared';
-import { hash } from 'bcrypt';
+import {
+  AccessTokenPayload,
+  AuthResponse,
+  CaptchaRequiredResponse,
+  PublicUser,
+} from '@twomc/shared';
+import { compare, hash } from 'bcrypt';
 import { createHmac, randomBytes } from 'node:crypto';
 import { durationToSeconds } from '../../common/duration.util';
 import { PrismaService } from '../prisma/prisma.service';
-import { BCRYPT_ROUNDS } from './auth.constants';
+import { BCRYPT_ROUNDS, BLOCK_AFTER_ATTEMPTS, CAPTCHA_AFTER_ATTEMPTS } from './auth.constants';
+import { BruteForceService } from './brute-force.service';
 import { CaptchaService } from './captcha.service';
+import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestContext } from './request-context';
 
@@ -24,6 +38,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly captcha: CaptchaService,
+    private readonly bruteForce: BruteForceService,
   ) {}
 
   async register(dto: RegisterDto, context: RequestContext): Promise<AuthSession> {
@@ -61,6 +76,55 @@ export class AuthService {
     }
   }
 
+  async login(
+    dto: LoginDto,
+    context: RequestContext,
+  ): Promise<AuthSession | CaptchaRequiredResponse> {
+    if (await this.bruteForce.isBlocked(context.ip)) {
+      throw new HttpException(
+        'Слишком много попыток входа. Попробуйте через 15 минут',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const failedAttempts = await this.bruteForce.getFailedAttempts(context.ip);
+
+    if (failedAttempts >= CAPTCHA_AFTER_ATTEMPTS && !dto.captchaToken) {
+      return { requiresCaptcha: true };
+    }
+
+    if (dto.captchaToken) {
+      await this.captcha.verify(dto.captchaToken, context.ip);
+    }
+
+    const login = dto.emailOrUsername.trim();
+    const user = await this.prisma.user.findFirst({
+      where: { OR: [{ email: login.toLowerCase() }, { username: login }] },
+    });
+
+    if (!user || !(await compare(dto.password, user.password))) {
+      await this.handleFailedAttempt(context.ip);
+      throw new UnauthorizedException('Неверный логин или пароль');
+    }
+
+    if (user.isBanned && (!user.bannedUntil || user.bannedUntil > new Date())) {
+      throw new ForbiddenException({
+        message: 'Аккаунт заблокирован',
+        reason: user.banReason,
+        bannedUntil: user.bannedUntil,
+      });
+    }
+
+    await this.bruteForce.resetFailedAttempts(context.ip);
+
+    const loggedIn = await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date(), lastLoginIp: context.ip },
+    });
+
+    return this.issueSession(loggedIn, context);
+  }
+
   async findById(userId: string): Promise<PublicUser | null> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
@@ -79,6 +143,19 @@ export class AuthService {
       isBanned: user.isBanned,
       createdAt: user.createdAt.toISOString(),
     };
+  }
+
+  private async handleFailedAttempt(ip: string): Promise<void> {
+    const attempts = await this.bruteForce.incrementFailedAttempts(ip);
+
+    if (attempts >= BLOCK_AFTER_ATTEMPTS) {
+      await this.bruteForce.blockIp(ip);
+
+      throw new HttpException(
+        'Слишком много попыток входа. Попробуйте через 15 минут',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
   }
 
   private async issueSession(user: User, context: RequestContext): Promise<AuthSession> {
