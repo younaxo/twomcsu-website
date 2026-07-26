@@ -1,8 +1,11 @@
 'use client';
 
+import { RoleGroup, hasRoleGroup } from '@twomc/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { PositionBadge } from '@/components/shared/PositionBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -62,21 +65,31 @@ export function SiteHeader() {
                   <AvatarImage src={skinUrl} alt={user.username} />
                   <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <span className="max-w-32 truncate">{user.username}</span>
+                <ColoredUsername user={user} size="sm" linkToProfile={false} className="max-w-32" />
+                <PositionBadge
+                  position={user.position}
+                  size="sm"
+                  className="hidden md:inline-flex"
+                />
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel className="text-muted-foreground">
-                {user.roleGroup}
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuLabel>
+                <PositionBadge position={user.position} size="sm" />
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/profile">Профиль</Link>
+                <Link href={`/users/${user.username}`}>Профиль</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/profile/settings">Настройки</Link>
               </DropdownMenuItem>
+              {hasRoleGroup(user.roleGroup, RoleGroup.ADMIN) ? (
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/positions">Позиции</Link>
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={handleLogout}>Выйти</DropdownMenuItem>
             </DropdownMenuContent>
