@@ -37,6 +37,15 @@ export interface PublicUser {
   createdAt: string;
 }
 
+/** Row of the username lookup in the admin panel */
+export interface UserSearchResult {
+  id: string;
+  username: string;
+  avatar: string | null;
+  roleGroup: RoleGroup;
+  position: Position;
+}
+
 /** Anyone can read this one, the owner of the account included */
 export interface UserProfile {
   id: string;

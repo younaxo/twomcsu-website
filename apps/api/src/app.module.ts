@@ -9,6 +9,7 @@ import { HealthModule } from './modules/health/health.module';
 import { PositionsModule } from './modules/positions/positions.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RedisModule } from './modules/redis/redis.module';
     HealthModule,
     AuthModule,
     PositionsModule,
+    UsersModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
