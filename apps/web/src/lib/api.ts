@@ -18,6 +18,7 @@ export const api = axios.create({
 // access token never leaves memory, the store pushes it here on every change
 let accessToken: string | null = null;
 let sessionLostHandler: (() => void) | null = null;
+let tokenRefreshedHandler: ((token: string) => void) | null = null;
 let refreshRequest: Promise<string> | null = null;
 
 export function setApiAccessToken(token: string | null): void {
@@ -28,12 +29,18 @@ export function setSessionLostHandler(handler: () => void): void {
   sessionLostHandler = handler;
 }
 
+export function setTokenRefreshedHandler(handler: (token: string) => void): void {
+  tokenRefreshedHandler = handler;
+}
+
 export function refreshAccessToken(): Promise<string> {
   if (!refreshRequest) {
     refreshRequest = api
       .post<RefreshResponse>('/auth/refresh')
       .then(({ data }) => {
         accessToken = data.accessToken;
+        tokenRefreshedHandler?.(data.accessToken);
+
         return data.accessToken;
       })
       .finally(() => {
