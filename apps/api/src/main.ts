@@ -1,6 +1,7 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
@@ -14,10 +15,19 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   app.use(helmet());
+  app.use(cookieParser());
   app.enableCors({
     origin: config.getOrThrow<string>('webOrigin'),
     credentials: true,
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   // корректно закрываем соединения по SIGTERM/SIGINT
   app.enableShutdownHooks();
