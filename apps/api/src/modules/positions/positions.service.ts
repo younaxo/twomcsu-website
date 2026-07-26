@@ -82,10 +82,10 @@ export class PositionsService {
       displayName: dto.displayName ?? dto.name,
       group: dto.group,
       color: dto.color,
-      backgroundColor: dto.backgroundColor ?? null,
-      icon: dto.icon ?? null,
+      backgroundColor: dto.backgroundColor || null,
+      icon: dto.icon || null,
       priority: dto.priority ?? 0,
-      description: dto.description ?? null,
+      description: dto.description || null,
       isVisible: dto.isVisible ?? true,
       isDefault: dto.isDefault ?? false,
     };
@@ -140,7 +140,20 @@ export class PositionsService {
 
         return tx.position.update({
           where: { id },
-          data: { ...dto, group, isDefault },
+          data: {
+            name: dto.name,
+            slug: dto.slug,
+            displayName: dto.displayName,
+            color: dto.color,
+            icon: dto.icon === undefined ? undefined : dto.icon || null,
+            backgroundColor:
+              dto.backgroundColor === undefined ? undefined : dto.backgroundColor || null,
+            description: dto.description === undefined ? undefined : dto.description || null,
+            priority: dto.priority,
+            isVisible: dto.isVisible,
+            group,
+            isDefault,
+          },
           select: summarySelect,
         });
       })

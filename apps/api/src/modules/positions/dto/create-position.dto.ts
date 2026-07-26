@@ -36,8 +36,9 @@ export class CreatePositionDto {
   @Matches(HEX_COLOR_PATTERN, { message: 'Цвет должен быть в формате #RRGGBB' })
   color: string;
 
+  /** Empty string clears the field */
   @IsOptional()
-  @Matches(/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/, {
+  @Matches(/^$|^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/, {
     message: 'Фон должен быть в формате #RRGGBB или #RRGGBBAA',
   })
   backgroundColor?: string;
