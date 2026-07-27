@@ -11,6 +11,7 @@ import { hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { seedAwards } from './awards.data';
 import { seedBannerPresets } from './banner-presets.data';
+import { seedChat } from './chat.data';
 import { seedCurrencyRates } from './currency-rates.data';
 import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
@@ -784,6 +785,7 @@ async function main() {
   }
 
   await seedProfileComments(userIds);
+  await seedChat(prisma);
 }
 
 /** Idempotent demo comments for local profiles */

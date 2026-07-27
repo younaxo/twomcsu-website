@@ -139,6 +139,10 @@ model User {
   orders      Order[]
   giftedItems OrderItem[] @relation("GiftedItems")
 
+  authoredMessages ChatMessage[] @relation("AuthoredMessages")
+  chatMutes        ChatMute[]
+  chatBans         ChatBan[]
+
   @@index([email])
   @@index([username])
   @@index([tag])
@@ -902,6 +906,7 @@ enum NotificationType {
   FRIEND_ACCEPTED
   GIFT_RECEIVED
   ORDER_STATUS_CHANGED
+  CHAT_MENTION
   SYSTEM
 }
 
@@ -1019,4 +1024,130 @@ model SiteSetting {
   updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+enum ChatChannelType {
+  GENERAL
+  TRADE
+  HELP
+  ANNOUNCEMENTS
+  GAME
+  FLOOD
+}
+
+enum ChatMessageType {
+  MESSAGE
+  SYSTEM
+  ANNOUNCEMENT
+  MOD_ACTION
+}
+
+enum ChatMuteReason {
+  SPAM
+  TOXIC
+  ADVERTISING
+  CAPS
+  OTHER
+}
+
+model ChatChannel {
+  id           String          @id @default(cuid())
+  slug         String          @unique
+  name         String
+  description  String?
+  type         ChatChannelType
+  icon         String?
+  isActive     Boolean         @default(true)
+  isReadOnly   Boolean         @default(false)
+  slowMode     Int?
+  order        Int             @default(0)
+  minRoleGroup String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  messages ChatMessage[]
+  mutes    ChatMute[]
+
+  @@index([slug])
+  @@index([isActive, order])
+  @@map("chat_channels")
+}
+
+model ChatMessage {
+  id            String          @id @default(cuid())
+  channelId     String
+  channel       ChatChannel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  authorId      String?
+  author        User?           @relation("AuthoredMessages", fields: [authorId], references: [id], onDelete: SetNull)
+  type          ChatMessageType @default(MESSAGE)
+  content       String
+  contentHtml   String
+  parentId      String?
+  parent        ChatMessage?    @relation("MessageReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies       ChatMessage[]   @relation("MessageReplies")
+  mentions      String[]
+  isPinned      Boolean         @default(false)
+  pinnedAt      DateTime?
+  pinnedBy      String?
+  isEdited      Boolean         @default(false)
+  editedAt      DateTime?
+  isDeleted     Boolean         @default(false)
+  deletedAt     DateTime?
+  deletedBy     String?
+  deletedReason String?
+  metadata      Json?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  reactions ChatMessageReaction[]
+
+  @@index([channelId, createdAt])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("chat_messages")
+}
+
+model ChatMessageReaction {
+  id        String      @id @default(cuid())
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  emoji     String
+  createdAt DateTime    @default(now())
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@map("chat_message_reactions")
+}
+
+model ChatMute {
+  id         String         @id @default(cuid())
+  userId     String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channelId  String?
+  channel    ChatChannel?   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  reason     ChatMuteReason
+  reasonNote String?
+  mutedBy    String
+  mutedUntil DateTime?
+  isActive   Boolean        @default(true)
+  createdAt  DateTime       @default(now())
+
+  @@index([userId, isActive])
+  @@index([mutedUntil])
+  @@map("chat_mutes")
+}
+
+model ChatBan {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reason      String
+  bannedBy    String
+  bannedUntil DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, isActive])
+  @@map("chat_bans")
 }
