@@ -24,6 +24,7 @@ import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { SkinHead } from '@/components/shared/SkinHead';
+import { CommentsList } from '@/components/comments/CommentsList';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
 import { ReportProfileDialog } from '@/components/profile/ReportProfileDialog';
 import { RestrictedProfileView } from '@/components/profile/RestrictedProfileView';
@@ -255,6 +256,9 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
       <Tabs defaultValue="info">
         <TabsList>
           <TabsTrigger value="info">Информация</TabsTrigger>
+          <TabsTrigger value="comments" disabled={profile.hideComments && !profile.isOwner}>
+            Комментарии
+          </TabsTrigger>
           <TabsTrigger value="inventory" disabled={profile.hideInventory && !profile.isOwner}>
             Инвентарь
           </TabsTrigger>
@@ -398,6 +402,16 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
               </div>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="comments" className="mt-4">
+          <CommentsList
+            profileUsername={profile.username}
+            hideComments={profile.hideComments}
+            isOwner={profile.isOwner}
+            commentsEnabled={profile.commentsEnabled}
+            commentsForcedReason={profile.commentsForcedReason}
+          />
         </TabsContent>
 
         <TabsContent value="inventory">

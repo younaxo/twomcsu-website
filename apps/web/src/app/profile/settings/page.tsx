@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  CommentPolicy,
   FriendRequestPolicy,
   MediaGroup,
   type MyProfile,
@@ -40,6 +41,7 @@ import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -139,6 +141,10 @@ export default function ProfileSettingsPage() {
         showBirthDate: profile.showBirthDate,
         profileVisibility: profile.profileVisibility,
         friendRequestPolicy: profile.friendRequestPolicy,
+        commentPolicy: profile.commentPolicy,
+        notifyOnComment: profile.notifyOnComment,
+        notifyOnMention: profile.notifyOnMention,
+        notifyOnReply: profile.notifyOnReply,
         hideEmail: profile.hideEmail,
         hideCountry: profile.hideCountry,
         hideCity: profile.hideCity,
@@ -474,6 +480,109 @@ export default function ProfileSettingsPage() {
                     );
                   })}
                 </RadioGroup>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <p className="font-medium">Комментарии</p>
+                  <p className="text-sm text-muted-foreground">Кто может писать на вашем профиле</p>
+                </div>
+                <RadioGroup
+                  value={profile.commentPolicy}
+                  onValueChange={(value) =>
+                    setProfile({
+                      ...profile,
+                      commentPolicy: value as MyProfile['commentPolicy'],
+                    })
+                  }
+                  className="grid gap-3"
+                >
+                  {(
+                    [
+                      {
+                        value: CommentPolicy.EVERYONE,
+                        icon: Globe,
+                        title: 'Все',
+                        description: 'Любой может писать',
+                      },
+                      {
+                        value: CommentPolicy.FRIENDS,
+                        icon: Users,
+                        title: 'Только друзья',
+                        description: 'Комментарии доступны только друзьям',
+                      },
+                      {
+                        value: CommentPolicy.FRIENDS_OF_FRIENDS,
+                        icon: Users,
+                        title: 'Друзья друзей',
+                        description: 'Друзья и друзья друзей',
+                      },
+                      {
+                        value: CommentPolicy.NOBODY,
+                        icon: Lock,
+                        title: 'Никто',
+                        description: 'Комментарии отключены для всех',
+                      },
+                    ] as const
+                  ).map((option) => {
+                    const Icon = option.icon;
+                    const selected = profile.commentPolicy === option.value;
+
+                    return (
+                      <label
+                        key={option.value}
+                        className={cn(
+                          'flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors',
+                          selected
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-muted-foreground/40',
+                        )}
+                      >
+                        <RadioGroupItem value={option.value} className="mt-1" />
+                        <Icon
+                          className={cn(
+                            'mt-0.5 h-5 w-5 shrink-0',
+                            selected ? 'text-primary' : 'text-muted-foreground',
+                          )}
+                        />
+                        <div className="space-y-0.5">
+                          <p className="font-medium leading-none">{option.title}</p>
+                          <p className="text-sm text-muted-foreground">{option.description}</p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </RadioGroup>
+
+                <div className="space-y-3 pt-2">
+                  <label className="flex items-center justify-between gap-4 text-sm">
+                    <span>Уведомлять о новых комментариях на моём профиле</span>
+                    <Switch
+                      checked={profile.notifyOnComment}
+                      onCheckedChange={(checked) =>
+                        setProfile({ ...profile, notifyOnComment: checked })
+                      }
+                    />
+                  </label>
+                  <label className="flex items-center justify-between gap-4 text-sm">
+                    <span>Уведомлять когда меня упомянули</span>
+                    <Switch
+                      checked={profile.notifyOnMention}
+                      onCheckedChange={(checked) =>
+                        setProfile({ ...profile, notifyOnMention: checked })
+                      }
+                    />
+                  </label>
+                  <label className="flex items-center justify-between gap-4 text-sm">
+                    <span>Уведомлять о ответах на мои комментарии</span>
+                    <Switch
+                      checked={profile.notifyOnReply}
+                      onCheckedChange={(checked) =>
+                        setProfile({ ...profile, notifyOnReply: checked })
+                      }
+                    />
+                  </label>
+                </div>
               </div>
 
               <div className="space-y-3">
