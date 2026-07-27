@@ -2,13 +2,13 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
   CommentPolicy,
   CommentReportReason,
   CommentReportStatus,
+  NotificationType,
   Prisma,
 } from '@prisma/client';
 import {
@@ -34,6 +34,7 @@ import { toPublicPosition } from '../positions/position.mapper';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { FriendsService } from '../friends/friends.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateCommentDto,
@@ -67,14 +68,13 @@ type CommentRow = Prisma.ProfileCommentGetPayload<{
 
 @Injectable()
 export class CommentsService {
-  private readonly logger = new Logger(CommentsService.name);
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
     private readonly friends: FriendsService,
     private readonly markdown: MarkdownService,
     private readonly mentions: MentionsService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async getComments(
@@ -886,13 +886,26 @@ export class CommentsService {
     parentId: string | undefined,
     mentionIds: string[],
   ) {
+    const author = await this.prisma.user.findUnique({
+      where: { id: authorId },
+      select: { username: true },
+    });
+    const authorName = author?.username ?? 'Пользователь';
+    const profileLink = `/users/${profile.username}`;
+
     if (profile.notifyOnComment && profile.id !== authorId) {
-      this.logger.log(
-        `[notify] comment on ${profile.username} by ${authorId} (${commentId})`,
-      );
+      await this.notifications.createNotification({
+        userId: profile.id,
+        type: NotificationType.COMMENT_ON_PROFILE,
+        title: 'Новый комментарий',
+        message: `${authorName} оставил(а) комментарий на вашем профиле`,
+        link: profileLink,
+        fromUserId: authorId,
+        metadata: { commentId, profileId: profile.id },
+      });
     }
 
-    if (parentId && profile.notifyOnReply) {
+    if (parentId) {
       const parent = await this.prisma.profileComment.findUnique({
         where: { id: parentId },
         select: { authorId: true },
@@ -905,22 +918,41 @@ export class CommentsService {
         });
 
         if (parentAuthor?.notifyOnReply) {
-          this.logger.log(`[notify] reply to ${parentAuthor.username} (${commentId})`);
+          await this.notifications.createNotification({
+            userId: parent.authorId,
+            type: NotificationType.COMMENT_REPLY,
+            title: 'Ответ на комментарий',
+            message: `${authorName} ответил(а) на ваш комментарий`,
+            link: profileLink,
+            fromUserId: authorId,
+            metadata: { commentId, parentId, profileId: profile.id },
+          });
         }
       }
     }
 
     if (mentionIds.length > 0) {
       const mentioned = await this.prisma.user.findMany({
-        where: { id: { in: mentionIds }, notifyOnMention: true },
+        where: {
+          id: { in: mentionIds.filter((id) => id !== authorId) },
+          notifyOnMention: true,
+        },
         select: { id: true, username: true },
       });
 
-      for (const user of mentioned) {
-        if (user.id !== authorId) {
-          this.logger.log(`[notify] mention ${user.username} in ${commentId}`);
-        }
-      }
+      await Promise.all(
+        mentioned.map((user) =>
+          this.notifications.createNotification({
+            userId: user.id,
+            type: NotificationType.COMMENT_MENTION,
+            title: 'Вас упомянули',
+            message: `${authorName} упомянул(а) вас в комментарии`,
+            link: profileLink,
+            fromUserId: authorId,
+            metadata: { commentId, profileId: profile.id },
+          }),
+        ),
+      );
     }
   }
 

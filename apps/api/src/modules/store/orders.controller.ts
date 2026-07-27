@@ -77,8 +77,9 @@ export class AdminOrdersController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('status') status?: OrderStatus,
+    @Query('search') search?: string,
   ): Promise<OrdersResponse> {
-    return this.orders.listAdmin(page, limit, status);
+    return this.orders.listAdmin(page, limit, status, search);
   }
 
   @Get('stats')

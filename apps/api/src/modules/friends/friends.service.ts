@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { FriendshipStatus, Prisma } from '@prisma/client';
+import { FriendshipStatus, NotificationType, Prisma } from '@prisma/client';
 import {
   BlockedUserItem,
   FriendListItem,
@@ -27,6 +27,7 @@ import {
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { toPublicPosition } from '../positions/position.mapper';
 import { PrismaService } from '../prisma/prisma.service';
 import { toUserBadge } from '../users/profile.mapper';
@@ -38,6 +39,7 @@ export class FriendsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async sendRequest(requesterId: string, addresseeUsername: string): Promise<FriendRequestItem> {
@@ -81,6 +83,29 @@ export class FriendsService {
 
     await this.invalidateUserCaches(requesterId, addressee.id);
 
+    const [requester, addresseePrefs] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: requesterId },
+        select: { username: true },
+      }),
+      this.prisma.user.findUnique({
+        where: { id: addressee.id },
+        select: { notifyOnFriendRequest: true },
+      }),
+    ]);
+
+    if (addresseePrefs?.notifyOnFriendRequest && requester) {
+      await this.notifications.createNotification({
+        userId: addressee.id,
+        type: NotificationType.FRIEND_REQUEST,
+        title: 'Запрос в друзья',
+        message: `${requester.username} хочет добавить вас в друзья`,
+        link: `/users/${requester.username}`,
+        fromUserId: requesterId,
+        metadata: { friendshipId: friendship.id },
+      });
+    }
+
     return {
       id: friendship.id,
       status: friendship.status,
@@ -117,6 +142,23 @@ export class FriendsService {
     });
 
     await this.invalidateUserCaches(updated.requesterId, updated.addresseeId);
+
+    const accepter = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    });
+
+    if (accepter) {
+      await this.notifications.createNotification({
+        userId: updated.requesterId,
+        type: NotificationType.FRIEND_ACCEPTED,
+        title: 'Запрос принят',
+        message: `${accepter.username} принял(а) ваш запрос в друзья`,
+        link: `/users/${accepter.username}`,
+        fromUserId: userId,
+        metadata: { friendshipId: updated.id },
+      });
+    }
 
     return {
       id: updated.id,

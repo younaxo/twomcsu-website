@@ -4,12 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus, Prisma } from '@prisma/client';
+import { NotificationType, OrderStatus, Prisma } from '@prisma/client';
 import {
   CreateOrderResponse,
   OrdersResponse,
   StoreOrder,
 } from '@twomc/shared';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PricingService } from './pricing.service';
 import { decimalToNumber, toStoreOrder } from './store.mapper';
@@ -34,6 +35,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pricing: PricingService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async createFromCart(
@@ -236,14 +238,33 @@ export class OrdersService {
       return result;
     });
 
+    await this.emitOrderNotifications(updated, OrderStatus.COMPLETED);
     return toStoreOrder(updated);
   }
 
-  async listAdmin(page = 1, limit = 20, status?: OrderStatus): Promise<OrdersResponse> {
+  async listAdmin(
+    page = 1,
+    limit = 20,
+    status?: OrderStatus,
+    search?: string,
+  ): Promise<OrdersResponse> {
     const take = Math.min(100, Math.max(1, limit));
     const currentPage = Math.max(1, page);
     const skip = (currentPage - 1) * take;
-    const where: Prisma.OrderWhereInput = status ? { status } : {};
+    const q = search?.trim();
+    const where: Prisma.OrderWhereInput = {
+      ...(status ? { status } : {}),
+      ...(q
+        ? {
+            OR: [
+              { orderNumber: { contains: q, mode: 'insensitive' } },
+              { guestMinecraftNick: { contains: q, mode: 'insensitive' } },
+              { user: { username: { contains: q, mode: 'insensitive' } } },
+              { user: { minecraftNick: { contains: q, mode: 'insensitive' } } },
+            ],
+          }
+        : {}),
+    };
 
     const [total, rows] = await this.prisma.$transaction([
       this.prisma.order.count({ where }),
@@ -302,6 +323,7 @@ export class OrdersService {
       include: orderInclude,
     });
 
+    await this.emitOrderNotifications(updated, OrderStatus.CANCELLED);
     return toStoreOrder(updated);
   }
 
@@ -321,7 +343,87 @@ export class OrdersService {
       include: orderInclude,
     });
 
+    await this.emitOrderNotifications(updated, OrderStatus.REFUNDED);
     return toStoreOrder(updated);
+  }
+
+  private async emitOrderNotifications(
+    order: Prisma.OrderGetPayload<{ include: typeof orderInclude }>,
+    status: OrderStatus,
+  ) {
+    const statusLabels: Partial<Record<OrderStatus, string>> = {
+      [OrderStatus.COMPLETED]: 'оплачен',
+      [OrderStatus.CANCELLED]: 'отменён',
+      [OrderStatus.REFUNDED]: 'возвращён',
+      [OrderStatus.FAILED]: 'не удался',
+      [OrderStatus.PENDING]: 'ожидает оплаты',
+    };
+
+    if (order.userId) {
+      const owner = await this.prisma.user.findUnique({
+        where: { id: order.userId },
+        select: { notifyOnOrder: true },
+      });
+
+      if (owner?.notifyOnOrder) {
+        await this.notifications.createNotification({
+          userId: order.userId,
+          type: NotificationType.ORDER_STATUS_CHANGED,
+          title: 'Статус заказа изменён',
+          message: `Заказ ${order.orderNumber} ${statusLabels[status] ?? status}`,
+          link: `/store/orders/${order.orderNumber}`,
+          metadata: { orderId: order.id, orderNumber: order.orderNumber, status },
+        });
+      }
+    }
+
+    if (status !== OrderStatus.COMPLETED) {
+      return;
+    }
+
+    const giftItems = order.items.filter((item) => item.giftToUserId);
+    if (giftItems.length === 0) {
+      return;
+    }
+
+    const giftUserIds = [...new Set(giftItems.map((item) => item.giftToUserId!))];
+    const recipients = await this.prisma.user.findMany({
+      where: { id: { in: giftUserIds } },
+      select: { id: true, username: true, notifyOnGift: true },
+    });
+    const recipientMap = new Map(recipients.map((u) => [u.id, u]));
+
+    const fromUser = order.userId
+      ? await this.prisma.user.findUnique({
+          where: { id: order.userId },
+          select: { username: true },
+        })
+      : null;
+
+    for (const item of giftItems) {
+      const recipient = recipientMap.get(item.giftToUserId!);
+      if (!recipient?.notifyOnGift) continue;
+
+      const productName =
+        item.product?.name ?? item.bundle?.name ?? 'Подарок';
+
+      await this.notifications.createNotification({
+        userId: recipient.id,
+        type: NotificationType.GIFT_RECEIVED,
+        title: 'Вам подарок!',
+        message: fromUser
+          ? `${fromUser.username} отправил(а) вам «${productName}»`
+          : `Вам подарили «${productName}»`,
+        link: `/users/${recipient.username}`,
+        fromUserId: order.userId,
+        imageUrl: item.product?.image ?? item.bundle?.image ?? null,
+        metadata: {
+          orderId: order.id,
+          productId: item.productId,
+          bundleId: item.bundleId,
+        },
+      });
+    }
   }
 
   private async requireOrder(id: string) {

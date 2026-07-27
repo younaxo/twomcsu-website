@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { AdminBundlesController, BundlesController } from './bundles.controller';
 import { BundlesService } from './bundles.service';
 import { CartController } from './cart.controller';
@@ -30,6 +31,7 @@ import { WishlistController } from './wishlist.controller';
 import { WishlistService } from './wishlist.service';
 
 @Module({
+  imports: [NotificationsModule],
   controllers: [
     CategoriesController,
     AdminCategoriesController,
