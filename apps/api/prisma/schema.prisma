@@ -59,10 +59,46 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  /// Uploaded image, wins over bannerPreset when both are set
+  banner       String?
+  bannerPreset String?
+  statusText   String?   @db.VarChar(128)
+  bio          String?   @db.VarChar(500)
+  country      String?
+  city         String?   @db.VarChar(100)
+  gender       Gender?
+  birthDate    DateTime?
+  showBirthDate Boolean  @default(false)
+
+  /// Hides the whole page from everyone but the owner and the staff
+  isProfilePrivate Boolean @default(false)
+  hideEmail        Boolean @default(true)
+  hideCountry      Boolean @default(false)
+  hideCity         Boolean @default(false)
+  hideBirthDate    Boolean @default(true)
+  hideGender       Boolean @default(false)
+  hideStatistics   Boolean @default(false)
+  hideSocials      Boolean @default(false)
+  hideInventory    Boolean @default(false)
+  hideServices     Boolean @default(false)
+  hideComments     Boolean @default(false)
+
   position            Position             @relation(fields: [positionId], references: [id])
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
   promoCodeUsages     PromoCodeUsage[]
+  badges              UserBadge[]
+  socialLinks         SocialLink[]
+  mediaBadges         UserMediaBadge[]
+  mediaBadgeRequests  MediaBadgeRequest[]
+  statistics          PlayerStatistics?
+  awards              UserAward[]
+  profileViews        ProfileView[]        @relation("ProfileViewsReceived")
+  viewedProfiles      ProfileView[]        @relation("ProfileViewsSent")
+  profileReactions    ProfileReaction[]    @relation("ProfileReactionsReceived")
+  givenReactions      ProfileReaction[]    @relation("ProfileReactionsSent")
+  profileReports      ProfileReport[]      @relation("ProfileReportsReceived")
+  sentReports         ProfileReport[]      @relation("ProfileReportsSent")
 
   @@index([email])
   @@index([username])
@@ -201,4 +237,21 @@ model PromoCodeUsage {
   @@index([promoCodeId])
   @@index([userId])
   @@map("promo_code_usages")
+}
+
+/// Staff granted marks shown next to the nickname
+model UserBadge {
+  id        String        @id @default(cuid())
+  userId    String
+  type      UserBadgeType
+  grantedBy String?
+  grantedAt DateTime      @default(now())
+  expiresAt DateTime?
+  isActive  Boolean       @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@map("user_badges")
 }
