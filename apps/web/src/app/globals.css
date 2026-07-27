@@ -116,3 +116,13 @@
     padding: 0.75rem;
   }
 }
+
+@layer utilities {
+  button:disabled,
+  [role='button'][aria-disabled='true'],
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
+}
