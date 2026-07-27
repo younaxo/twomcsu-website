@@ -18,13 +18,14 @@ interface CommentReactionsProps {
 
 export function CommentReactions({ reactions, disabled, onToggle }: CommentReactionsProps) {
   const byEmoji = new Map(reactions.map((reaction) => [reaction.emoji, reaction]));
+  const myEmoji = reactions.find((reaction) => reaction.reacted)?.emoji ?? null;
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {COMMENT_EMOJIS.map((emoji) => {
         const current = byEmoji.get(emoji);
         const count = current?.count ?? 0;
-        const reacted = current?.reacted ?? false;
+        const reacted = myEmoji === emoji;
         const users = current?.users.map((user) => user.username).filter(Boolean) ?? [];
 
         return (

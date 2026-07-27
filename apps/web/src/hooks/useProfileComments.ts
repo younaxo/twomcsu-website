@@ -32,9 +32,15 @@ export function useProfileComments(
           skipAuthRedirect: true,
         },
       );
+
+      if (!data || !Array.isArray(data.data) || !Array.isArray(data.pinned)) {
+        throw new Error('Некорректный ответ сервера для комментариев');
+      }
+
       return data;
     },
     enabled: enabled && Boolean(username),
+    refetchOnMount: 'always',
   });
 }
 
@@ -131,14 +137,17 @@ export function useAddReaction(username: string, commentId: string) {
         queryKey: ['comments', username],
       });
 
-      queryClient.setQueriesData<ProfileCommentsResponse>({ queryKey: ['comments', username] }, (current) => {
-        if (!current) return current;
-        return {
-          ...current,
-          data: current.data.map((comment) => patchReaction(comment, commentId, emoji, true)),
-          pinned: current.pinned.map((comment) => patchReaction(comment, commentId, emoji, true)),
-        };
-      });
+      queryClient.setQueriesData<ProfileCommentsResponse>(
+        { queryKey: ['comments', username] },
+        (current) => {
+          if (!current) return current;
+          return {
+            ...current,
+            data: current.data.map((comment) => replaceMyReaction(comment, commentId, emoji)),
+            pinned: current.pinned.map((comment) => replaceMyReaction(comment, commentId, emoji)),
+          };
+        },
+      );
 
       return { previous };
     },
@@ -215,6 +224,35 @@ function patchReaction(
   return {
     ...comment,
     replies: comment.replies.map((reply) => patchReaction(reply, commentId, emoji, add)),
+  };
+}
+
+/** Single active reaction per viewer: toggle same emoji off, otherwise replace */
+function replaceMyReaction(
+  comment: ProfileComment,
+  commentId: string,
+  emoji: CommentEmoji,
+): ProfileComment {
+  if (comment.id === commentId) {
+    const current = comment.reactions.find((reaction) => reaction.reacted);
+    if (current?.emoji === emoji) {
+      return {
+        ...comment,
+        reactions: upsertReactionList(comment.reactions, emoji, false),
+      };
+    }
+
+    let next = comment.reactions;
+    if (current) {
+      next = upsertReactionList(next, current.emoji, false);
+    }
+    next = upsertReactionList(next, emoji, true);
+    return { ...comment, reactions: next };
+  }
+
+  return {
+    ...comment,
+    replies: comment.replies.map((reply) => replaceMyReaction(reply, commentId, emoji)),
   };
 }
 

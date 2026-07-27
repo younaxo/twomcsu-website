@@ -26,7 +26,6 @@ import {
   useCreateComment,
   useDeleteComment,
   usePinComment,
-  useRemoveReaction,
   useUnpinComment,
   useUpdateComment,
 } from '@/hooks/useProfileComments';
@@ -52,7 +51,6 @@ export function CommentCard({ comment, profileUsername, isReply }: CommentCardPr
   const pinComment = usePinComment(profileUsername, comment.id);
   const unpinComment = useUnpinComment(profileUsername, comment.id);
   const addReaction = useAddReaction(profileUsername, comment.id);
-  const removeReaction = useRemoveReaction(profileUsername, comment.id);
 
   const onToggleReaction = async (emoji: Parameters<typeof addReaction.mutateAsync>[0]['emoji']) => {
     if (!isAuthenticated) {
@@ -60,13 +58,8 @@ export function CommentCard({ comment, profileUsername, isReply }: CommentCardPr
       return;
     }
 
-    const current = comment.reactions.find((reaction) => reaction.emoji === emoji);
     try {
-      if (current?.reacted) {
-        await removeReaction.mutateAsync(emoji);
-      } else {
-        await addReaction.mutateAsync({ emoji });
-      }
+      await addReaction.mutateAsync({ emoji });
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось обновить реакцию'));
     }
