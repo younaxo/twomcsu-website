@@ -323,14 +323,135 @@ async function main() {
     return;
   }
 
+  const userIds = new Map<string, string>([[username, ownerId]]);
+
   for (const user of staffAndPlayers) {
     const userId = await upsertUser(user, positionIds);
+    userIds.set(user.username, userId);
     const showcase = showcases[user.username];
 
     if (showcase) {
       await applyShowcase(userId, showcase, awardIds);
     }
   }
+
+  await seedProfileComments(userIds);
+}
+
+/** Idempotent demo comments for local profiles */
+async function seedProfileComments(userIds: Map<string, string>) {
+  const ownerId = userIds.get('owner');
+  const adminId = userIds.get('admin');
+  const moderatorId = userIds.get('moderator');
+  const player1Id = userIds.get('player1');
+  const player2Id = userIds.get('player2');
+  const helperId = userIds.get('helper');
+
+  if (!ownerId || !adminId || !moderatorId || !player1Id || !player2Id || !helperId) {
+    console.log('comments: skipped (missing seed users)');
+    return;
+  }
+
+  const existing = await prisma.profileComment.count({
+    where: { profileId: { in: [ownerId, player2Id] }, parentId: null },
+  });
+
+  if (existing > 0) {
+    console.log(`comments: skipped (${existing} already present)`);
+    return;
+  }
+
+  const ownerPinned = await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: adminId,
+      content: 'Добро пожаловать на сервер! Читайте правила и удачной игры.',
+      contentHtml: '<p>Добро пожаловать на сервер! Читайте правила и удачной игры.</p>',
+      isPinned: true,
+      pinnedAt: new Date(),
+      pinnedBy: ownerId,
+      mentions: [],
+    },
+  });
+
+  await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: player1Id,
+      content: 'Спасибо за проект! **Очень** крутой сервер.',
+      contentHtml: '<p>Спасибо за проект! <strong>Очень</strong> крутой сервер.</p>',
+      mentions: [],
+    },
+  });
+
+  const ownerThread = await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: helperId,
+      content: 'Если нужна помощь — пишите @moderator или в тикеты.',
+      contentHtml:
+        '<p>Если нужна помощь — пишите <span class="mention">@moderator</span> или в тикеты.</p>',
+      mentions: [moderatorId],
+    },
+  });
+
+  await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: moderatorId,
+      parentId: ownerThread.id,
+      content: 'Да, всегда на связи. ||секретный ответ||',
+      contentHtml: '<p>Да, всегда на связи. <span class="spoiler">секретный ответ</span></p>',
+      mentions: [],
+    },
+  });
+
+  await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: player2Id,
+      content: 'Залетел с Anarchy — огонь 🔥',
+      contentHtml: '<p>Залетел с Anarchy — огонь 🔥</p>',
+      mentions: [],
+    },
+  });
+
+  await prisma.commentReaction.createMany({
+    data: [
+      { commentId: ownerPinned.id, userId: player1Id, emoji: 'thumbs_up' },
+      { commentId: ownerPinned.id, userId: helperId, emoji: 'heart' },
+      { commentId: ownerPinned.id, userId: player2Id, emoji: 'fire' },
+      { commentId: ownerThread.id, userId: ownerId, emoji: 'thumbs_up' },
+    ],
+  });
+
+  await prisma.profileComment.createMany({
+    data: [
+      {
+        profileId: player2Id,
+        authorId: player1Id,
+        content: 'Крутой скин и статистика!',
+        contentHtml: '<p>Крутой скин и статистика!</p>',
+        mentions: [],
+      },
+      {
+        profileId: player2Id,
+        authorId: adminId,
+        content: 'Хороший контент на YouTube.',
+        contentHtml: '<p>Хороший контент на YouTube.</p>',
+        mentions: [],
+      },
+      {
+        profileId: player2Id,
+        authorId: ownerId,
+        content: 'Держи *лайк* за активность.',
+        contentHtml: '<p>Держи <em>лайк</em> за активность.</p>',
+        mentions: [],
+      },
+    ],
+  });
+
+  console.log('comments: seeded owner + player2 profiles');
 }
 
 main()
