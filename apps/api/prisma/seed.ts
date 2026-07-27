@@ -2,6 +2,7 @@ import {
   FriendRequestPolicy,
   MediaGroup,
   PrismaClient,
+  ProductDuration,
   ProfileVisibility,
   RoleGroup,
   UserBadgeType,
@@ -11,6 +12,10 @@ import { seedAwards } from './awards.data';
 import { seedBannerPresets } from './banner-presets.data';
 import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
+import { seedBundles } from './store-bundles.data';
+import { seedCategories } from './store-categories.data';
+import { seedBulkDiscounts, seedLoyaltyDiscounts } from './store-discounts.data';
+import { seedProducts } from './store-products.data';';
 
 const prisma = new PrismaClient();
 
@@ -151,16 +156,287 @@ async function upsertPositions(): Promise<Map<string, string>> {
 }
 
 async function upsertPromoCodes() {
-  for (const { code, description, discountType, discountValue, maxUses } of seedPromoCodes) {
+  for (const promo of seedPromoCodes) {
+    const {
+      code,
+      description,
+      discountType,
+      discountValue,
+      maxUses,
+      applicableToTypes,
+      minOrderAmount,
+      firstPurchaseOnly,
+    } = promo;
+
     // usedCount повторным сидом не сбрасываем
     await prisma.promoCode.upsert({
       where: { code },
-      update: { description, discountType, discountValue, maxUses: maxUses ?? null },
-      create: { code, description, discountType, discountValue, maxUses: maxUses ?? null },
+      update: {
+        description,
+        discountType,
+        discountValue,
+        maxUses: maxUses ?? null,
+        applicableToTypes: applicableToTypes ?? [],
+        minOrderAmount: minOrderAmount ?? null,
+        firstPurchaseOnly: firstPurchaseOnly ?? false,
+      },
+      create: {
+        code,
+        description,
+        discountType,
+        discountValue,
+        maxUses: maxUses ?? null,
+        applicableToTypes: applicableToTypes ?? [],
+        minOrderAmount: minOrderAmount ?? null,
+        firstPurchaseOnly: firstPurchaseOnly ?? false,
+      },
     });
   }
 
   console.log(`promo codes: ${seedPromoCodes.length}`);
+}
+
+async function upsertStoreCategories(): Promise<Map<string, string>> {
+  const ids = new Map<string, string>();
+
+  for (const category of seedCategories.filter((c) => !c.parentSlug)) {
+    const row = await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        icon: category.icon,
+        order: category.order,
+        isActive: true,
+      },
+      create: {
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        icon: category.icon,
+        order: category.order,
+      },
+    });
+    ids.set(row.slug, row.id);
+  }
+
+  for (const category of seedCategories.filter((c) => c.parentSlug)) {
+    const parentId = ids.get(category.parentSlug!);
+    if (!parentId) {
+      throw new Error(`Unknown parent category: ${category.parentSlug}`);
+    }
+
+    const row = await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        icon: category.icon,
+        order: category.order,
+        parentId,
+        isActive: true,
+      },
+      create: {
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        icon: category.icon,
+        order: category.order,
+        parentId,
+      },
+    });
+    ids.set(row.slug, row.id);
+  }
+
+  console.log(`categories: ${ids.size}`);
+  return ids;
+}
+
+async function upsertStoreProducts(
+  categoryIds: Map<string, string>,
+  positionIds: Map<string, string>,
+): Promise<Map<string, { productId: string; variants: Map<string, string> }>> {
+  const result = new Map<string, { productId: string; variants: Map<string, string> }>();
+
+  for (const product of seedProducts) {
+    const categoryId = categoryIds.get(product.categorySlug);
+    if (!categoryId) {
+      throw new Error(`Unknown category: ${product.categorySlug}`);
+    }
+
+    const positionId = product.positionSlug ? positionIds.get(product.positionSlug) : undefined;
+    if (product.positionSlug && !positionId) {
+      throw new Error(`Unknown position: ${product.positionSlug}`);
+    }
+
+    const row = await prisma.product.upsert({
+      where: { slug: product.slug },
+      update: {
+        name: product.name,
+        description: product.description,
+        fullDescription: product.fullDescription,
+        type: product.type,
+        categoryId,
+        positionId: positionId ?? null,
+        isGiftable: product.isGiftable ?? true,
+        isSelfOnly: product.isSelfOnly ?? false,
+        isUnique: product.isUnique ?? false,
+        isSeasonalOnly: product.isSeasonalOnly ?? false,
+        maxPerPurchase: product.maxPerPurchase ?? null,
+        currencyType: product.currencyType ?? null,
+        currencyAmount: product.currencyAmount ?? null,
+        isFeatured: product.isFeatured ?? false,
+        isNew: product.isNew ?? false,
+        isPopular: product.isPopular ?? false,
+        order: product.order ?? 0,
+        isActive: true,
+      },
+      create: {
+        name: product.name,
+        slug: product.slug,
+        description: product.description,
+        fullDescription: product.fullDescription,
+        type: product.type,
+        categoryId,
+        positionId: positionId ?? null,
+        isGiftable: product.isGiftable ?? true,
+        isSelfOnly: product.isSelfOnly ?? false,
+        isUnique: product.isUnique ?? false,
+        isSeasonalOnly: product.isSeasonalOnly ?? false,
+        maxPerPurchase: product.maxPerPurchase ?? null,
+        currencyType: product.currencyType ?? null,
+        currencyAmount: product.currencyAmount ?? null,
+        isFeatured: product.isFeatured ?? false,
+        isNew: product.isNew ?? false,
+        isPopular: product.isPopular ?? false,
+        order: product.order ?? 0,
+      },
+    });
+
+    const variants = new Map<string, string>();
+
+    for (const variant of product.variants) {
+      const v = await prisma.productVariant.upsert({
+        where: {
+          productId_duration: { productId: row.id, duration: variant.duration },
+        },
+        update: {
+          price: variant.price,
+          oldPrice: variant.oldPrice ?? null,
+          order: variant.order ?? 0,
+          isActive: true,
+        },
+        create: {
+          productId: row.id,
+          duration: variant.duration,
+          price: variant.price,
+          oldPrice: variant.oldPrice ?? null,
+          order: variant.order ?? 0,
+        },
+      });
+      variants.set(variant.duration, v.id);
+    }
+
+    result.set(product.slug, { productId: row.id, variants });
+  }
+
+  console.log(`products: ${result.size}`);
+  return result;
+}
+
+async function upsertStoreBundles(
+  products: Map<string, { productId: string; variants: Map<string, string> }>,
+) {
+  for (const bundle of seedBundles) {
+    const row = await prisma.bundle.upsert({
+      where: { slug: bundle.slug },
+      update: {
+        name: bundle.name,
+        description: bundle.description,
+        totalPrice: bundle.totalPrice,
+        originalPrice: bundle.originalPrice,
+        isFeatured: bundle.isFeatured ?? false,
+        isActive: true,
+      },
+      create: {
+        name: bundle.name,
+        slug: bundle.slug,
+        description: bundle.description,
+        totalPrice: bundle.totalPrice,
+        originalPrice: bundle.originalPrice,
+        isFeatured: bundle.isFeatured ?? false,
+      },
+    });
+
+    await prisma.bundleItem.deleteMany({ where: { bundleId: row.id } });
+
+    for (const item of bundle.items) {
+      const product = products.get(item.productSlug);
+      if (!product) {
+        throw new Error(`Unknown bundle product: ${item.productSlug}`);
+      }
+
+      const duration = (item.variantDuration ?? 'ONE_TIME') as ProductDuration;
+      const variantId = product.variants.get(duration) ?? null;
+
+      await prisma.bundleItem.create({
+        data: {
+          bundleId: row.id,
+          productId: product.productId,
+          variantId,
+          quantity: item.quantity,
+        },
+      });
+    }
+  }
+
+  console.log(`bundles: ${seedBundles.length}`);
+}
+
+async function upsertStoreDiscounts() {
+  const existingBulk = await prisma.bulkDiscount.count();
+  if (existingBulk === 0) {
+    await prisma.bulkDiscount.createMany({
+      data: seedBulkDiscounts.map((d) => ({
+        productType: d.productType,
+        minQuantity: d.minQuantity ?? 0,
+        minAmount: d.minAmount ?? null,
+        discountType: d.discountType,
+        discountValue: d.discountValue,
+      })),
+    });
+  }
+
+  for (const loyalty of seedLoyaltyDiscounts) {
+    const existing = await prisma.loyaltyDiscount.findFirst({
+      where: { minPurchases: loyalty.minPurchases },
+    });
+
+    if (existing) {
+      await prisma.loyaltyDiscount.update({
+        where: { id: existing.id },
+        data: {
+          discountPercent: loyalty.discountPercent,
+          name: loyalty.name,
+          description: loyalty.description,
+          isActive: true,
+        },
+      });
+    } else {
+      await prisma.loyaltyDiscount.create({
+        data: {
+          minPurchases: loyalty.minPurchases,
+          discountPercent: loyalty.discountPercent,
+          name: loyalty.name,
+          description: loyalty.description,
+        },
+      });
+    }
+  }
+
+  console.log(
+    `discounts: bulk=${seedBulkDiscounts.length}, loyalty=${seedLoyaltyDiscounts.length}`,
+  );
 }
 
 /** Пресеты не имеют бизнес-ключа, ищем по имени, чтобы повторный сид не плодил дубли */
@@ -299,6 +575,11 @@ async function main() {
 
   await upsertPromoCodes();
   await upsertBannerPresets();
+
+  const categoryIds = await upsertStoreCategories();
+  const storeProducts = await upsertStoreProducts(categoryIds, positionIds);
+  await upsertStoreBundles(storeProducts);
+  await upsertStoreDiscounts();
 
   const awardIds = await upsertAwards();
 

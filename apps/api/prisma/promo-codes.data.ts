@@ -1,4 +1,4 @@
-import { DiscountType, Prisma } from '@prisma/client';
+import { DiscountType, Prisma, ProductType } from '@prisma/client';
 
 export interface SeedPromoCode {
   code: string;
@@ -6,6 +6,9 @@ export interface SeedPromoCode {
   discountType: DiscountType;
   discountValue: Prisma.Decimal.Value;
   maxUses?: number;
+  applicableToTypes?: ProductType[];
+  minOrderAmount?: Prisma.Decimal.Value;
+  firstPurchaseOnly?: boolean;
 }
 
 export const seedPromoCodes: SeedPromoCode[] = [
@@ -14,6 +17,22 @@ export const seedPromoCodes: SeedPromoCode[] = [
     description: '10% на первую покупку',
     discountType: DiscountType.PERCENT,
     discountValue: 10,
+    firstPurchaseOnly: true,
+  },
+  {
+    code: 'SUMMER20',
+    description: '20% на все ранги',
+    discountType: DiscountType.PERCENT,
+    discountValue: 20,
+    applicableToTypes: [ProductType.PRIVILEGE],
+  },
+  {
+    code: 'KEYS50',
+    description: '50% на любой ключ (1 использование на юзера)',
+    discountType: DiscountType.PERCENT,
+    discountValue: 50,
+    applicableToTypes: [ProductType.KEY],
+    maxUses: undefined,
   },
   {
     code: 'VIP50',
