@@ -19,7 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api, extractErrorMessage } from '@/lib/api';
 
@@ -108,9 +108,9 @@ function ResetPasswordForm() {
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Пароль</FormLabel>
+                  <FormLabel>Новый пароль</FormLabel>
                   <FormControl>
-                    <Input type="password" autoComplete="new-password" {...field} />
+                    <PasswordInput autoComplete="new-password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,7 +124,7 @@ function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel>Повторите пароль</FormLabel>
                   <FormControl>
-                    <Input type="password" autoComplete="new-password" {...field} />
+                    <PasswordInput autoComplete="new-password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
