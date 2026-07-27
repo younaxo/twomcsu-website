@@ -12,5 +12,7 @@ export const queryKeys = {
   incomingCount: ['friends', 'incoming-count'] as const,
   positions: (group?: string) => ['positions', group ?? 'all'] as const,
   position: (slug: string) => ['positions', 'slug', slug] as const,
+  comments: (username: string, page?: number, sort?: string) =>
+    ['comments', username, page ?? 1, sort ?? 'newest'] as const,
   awards: ['awards'] as const,
 };
