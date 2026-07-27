@@ -9,6 +9,7 @@ import type { StoreSort } from '@/stores/storeUiStore';
 export interface ProductFilters {
   category?: string | null;
   type?: ProductType | null;
+  search?: string | null;
   page?: number;
   limit?: number;
   sort?: StoreSort;
@@ -18,6 +19,7 @@ export interface ProductFilters {
 export function useProducts({
   category,
   type,
+  search,
   page = 1,
   limit = 24,
   sort = 'popular',
@@ -26,6 +28,7 @@ export function useProducts({
   const filters = {
     category: category ?? undefined,
     type: type ?? undefined,
+    search: search || undefined,
     page,
     limit,
     sort,

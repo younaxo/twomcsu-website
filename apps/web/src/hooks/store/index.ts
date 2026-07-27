@@ -30,3 +30,12 @@ export {
 } from './useOrders';
 export { useValidatePromoCode } from './useValidatePromoCode';
 export { useBulkDiscounts } from './useBulkDiscounts';
+export {
+  useCurrencies,
+  useRecentPurchases,
+  useBoughtTogether,
+  useQuickBuy,
+  useAdminStoreStats,
+} from './useStoreExtras';
+export { useCurrencyPreference } from './useCurrencyPreference';
+export type { DisplayCurrencyCode } from './useCurrencyPreference';

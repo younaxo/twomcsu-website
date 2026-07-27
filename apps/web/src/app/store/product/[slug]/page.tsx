@@ -1,5 +1,6 @@
 'use client';
 
+import type { ProductType } from '@twomc/shared';
 import { Gift, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,6 +9,7 @@ import { useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
+import { ProductCard } from '@/components/store/ProductCard';
 import { GiftDialog } from '@/components/store/GiftDialog';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ProductVariantSelector } from '@/components/store/ProductVariantSelector';
@@ -15,13 +17,38 @@ import { QuantitySelector } from '@/components/store/QuantitySelector';
 import { WishlistButton } from '@/components/store/WishlistButton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddToCart, useProduct, useProducts } from '@/hooks/store';
+import { useAddToCart, useBoughtTogether, useProduct, useQuickBuy } from '@/hooks/store';
 import { extractErrorMessage } from '@/lib/api';
 import { PRODUCT_TYPE_LABELS } from '@/lib/store';
 import { resolveMediaUrl } from '@/lib/profile';
 import { useStoreUiStore } from '@/stores/storeUiStore';
+
+const NO_QUICK_BUY: ProductType[] = [
+  'DECORATION',
+  'SUBSCRIPTION',
+  'BADGE',
+  'UNMUTE',
+  'UNBAN',
+  'BATTLE_PASS_BOOSTER',
+];
+
+function hideQty(type: ProductType, maxPerPurchase: number | null): boolean {
+  if (maxPerPurchase === 1) return true;
+  return [
+    'PRIVILEGE',
+    'DECORATION',
+    'SUBSCRIPTION',
+    'BADGE',
+    'UNMUTE',
+    'UNBAN',
+    'BATTLE_PASS',
+    'BATTLE_PASS_BOOSTER',
+  ].includes(type);
+}
 
 export default function ProductPage() {
   const params = useParams<{ slug: string }>();
@@ -30,7 +57,9 @@ export default function ProductPage() {
   const productQuery = useProduct(slug);
   const product = productQuery.data;
   const addToCart = useAddToCart();
+  const quickBuy = useQuickBuy();
   const openCartDrawer = useStoreUiStore((s) => s.openCartDrawer);
+  const boughtTogether = useBoughtTogether(product?.id, Boolean(product?.id));
 
   const variants = useMemo(
     () => (product?.variants ?? []).filter((v) => v.isActive).sort((a, b) => a.order - b.order),
@@ -42,17 +71,13 @@ export default function ProductPage() {
   const [qty, setQty] = useState(1);
   const [giftOpen, setGiftOpen] = useState(false);
   const [imageIdx, setImageIdx] = useState(0);
-
-  const related = useProducts({
-    category: product?.category?.slug,
-    limit: 4,
-    enabled: Boolean(product?.category?.slug),
-  });
+  const [nick, setNick] = useState('');
 
   const images = product
     ? [product.image, ...product.images].filter(Boolean).map((src) => resolveMediaUrl(src)!)
     : [];
   const mainImage = images[imageIdx] ?? images[0];
+  const allowQuickBuy = product ? !NO_QUICK_BUY.includes(product.type) && product.type !== 'CURRENCY' : false;
 
   const add = async (gift?: { giftToUserId: string; giftMessage: string }) => {
     if (!isAuthenticated) {
@@ -73,6 +98,28 @@ export default function ProductPage() {
       openCartDrawer();
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось добавить в корзину'));
+    }
+  };
+
+  const doQuickBuy = async () => {
+    if (!product || !nick.trim()) {
+      toast.error('Укажите Minecraft ник');
+      return;
+    }
+    try {
+      const result = await quickBuy.mutateAsync({
+        productId: product.id,
+        variantId: selected?.id,
+        quantity: qty,
+        minecraftNick: nick.trim(),
+      });
+      if (result.paymentUrl) {
+        window.location.href = result.paymentUrl;
+        return;
+      }
+      toast.success(result.message ?? 'Заказ создан');
+    } catch (error) {
+      toast.error(extractErrorMessage(error, 'Не удалось оформить быструю покупку'));
     }
   };
 
@@ -154,6 +201,7 @@ export default function ProductPage() {
             <QuantitySelector
               value={qty}
               max={product.maxPerPurchase}
+              hideControls={hideQty(product.type, product.maxPerPurchase)}
               onChange={setQty}
             />
             <Button disabled={addToCart.isPending} onClick={() => void add()}>
@@ -169,6 +217,32 @@ export default function ProductPage() {
             ) : null}
           </div>
 
+          {allowQuickBuy ? (
+            <div className="space-y-3 rounded-xl border border-border bg-card/50 p-4">
+              <p className="text-sm font-medium text-white">Быстрая покупка</p>
+              <p className="text-xs text-muted-foreground">
+                Укажите Minecraft ник — без регистрации на сайте
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="quick-nick">Minecraft ник</Label>
+                <Input
+                  id="quick-nick"
+                  value={nick}
+                  onChange={(e) => setNick(e.target.value)}
+                  placeholder="Steve"
+                  maxLength={16}
+                />
+              </div>
+              <Button
+                variant="outline"
+                disabled={quickBuy.isPending || !nick.trim()}
+                onClick={() => void doQuickBuy()}
+              >
+                Купить по нику
+              </Button>
+            </div>
+          ) : null}
+
           {product.fullDescription ? (
             <div className="prose prose-invert max-w-none rounded-xl border border-border bg-card/50 p-4 text-sm">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{product.fullDescription}</ReactMarkdown>
@@ -177,22 +251,13 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {(related.data?.items.filter((p) => p.id !== product.id).length ?? 0) > 0 ? (
+      {(boughtTogether.data?.length ?? 0) > 0 ? (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">Похожие товары</h2>
+          <h2 className="text-xl font-semibold text-white">С этим покупают</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {related.data!.items
-              .filter((p) => p.id !== product.id)
-              .slice(0, 4)
-              .map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/store/product/${p.slug}`}
-                  className="rounded-xl border border-border bg-card/50 p-3 text-sm hover:bg-accent"
-                >
-                  {p.name}
-                </Link>
-              ))}
+            {boughtTogether.data!.slice(0, 4).map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
           </div>
         </section>
       ) : null}

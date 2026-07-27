@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useAuth } from '@/hooks/useAuth';
 import { useAddToCart } from '@/hooks/store';
 import { extractErrorMessage } from '@/lib/api';
-import { KEY_BULK_FALLBACK } from '@/lib/store';
+import { formatPrice, KEY_BULK_FALLBACK } from '@/lib/store';
 import { resolveMediaUrl } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 import { useStoreUiStore } from '@/stores/storeUiStore';
@@ -29,7 +29,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
   const addToCart = useAddToCart();
   const openCartDrawer = useStoreUiStore((s) => s.openCartDrawer);
 
-  const variant = product.variants.find((v) => v.isActive) ?? product.variants[0];
+  const activeVariants = product.variants.filter((v) => v.isActive);
+  const variant = activeVariants[0] ?? product.variants[0];
   const accent = product.position?.color;
   const imageUrl = resolveMediaUrl(product.image);
 
@@ -117,7 +118,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           {variant ? (
-            <PriceDisplay price={variant.price} oldPrice={variant.oldPrice} size="sm" />
+            activeVariants.length > 1 ? (
+              <span className="text-sm font-medium text-white">
+                от {formatPrice(Math.min(...activeVariants.map((v) => v.price)))}
+              </span>
+            ) : (
+              <PriceDisplay price={variant.price} oldPrice={variant.oldPrice} size="sm" />
+            )
           ) : (
             <span className="text-sm text-muted-foreground">—</span>
           )}

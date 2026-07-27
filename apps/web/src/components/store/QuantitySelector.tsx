@@ -12,6 +12,8 @@ interface QuantitySelectorProps {
   max?: number | null;
   disabled?: boolean;
   className?: string;
+  /** Hide +/- when quantity is fixed (unique items, maxPerPurchase === 1) */
+  hideControls?: boolean;
 }
 
 export function QuantitySelector({
@@ -21,12 +23,25 @@ export function QuantitySelector({
   max,
   disabled,
   className,
+  hideControls,
 }: QuantitySelectorProps) {
+  const locked = hideControls || max === 1;
+
   const clamp = (next: number) => {
     let n = Math.max(min, next);
     if (max != null) n = Math.min(max, n);
     return n;
   };
+
+  if (locked) {
+    return (
+      <div className={cn('flex items-center', className)}>
+        <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-md border border-border px-2 text-sm">
+          {value}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('flex items-center gap-1', className)}>
