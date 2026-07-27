@@ -8,17 +8,21 @@ import {
   CategoriesController,
 } from './categories.controller';
 import { CategoriesService } from './categories.service';
+import { AdminOrdersController, OrdersController } from './orders.controller';
+import { OrdersService } from './orders.service';
+import { PricingService } from './pricing.service';
 import {
   AdminProductsController,
   ProductsController,
 } from './products.controller';
 import { ProductsService } from './products.service';
-import { PricingService } from './pricing.service';
 import {
   AdminPromocodesController,
   PromocodesController,
 } from './promocodes.controller';
 import { PromocodesService } from './promocodes.service';
+import { WishlistController } from './wishlist.controller';
+import { WishlistService } from './wishlist.service';
 
 @Module({
   controllers: [
@@ -31,6 +35,9 @@ import { PromocodesService } from './promocodes.service';
     CartController,
     PromocodesController,
     AdminPromocodesController,
+    WishlistController,
+    OrdersController,
+    AdminOrdersController,
   ],
   providers: [
     CategoriesService,
@@ -39,12 +46,15 @@ import { PromocodesService } from './promocodes.service';
     PricingService,
     CartService,
     PromocodesService,
+    WishlistService,
+    OrdersService,
   ],
   exports: [
     CategoriesService,
     ProductsService,
     BundlesService,
     CartService,
+    OrdersService,
     PricingService,
   ],
 })
