@@ -165,6 +165,27 @@ enum FriendRequestPolicy {
   NOBODY
 }
 
+enum CommentPolicy {
+  EVERYONE
+  FRIENDS
+  FRIENDS_OF_FRIENDS
+  NOBODY
+}
+
+enum CommentReportReason {
+  SPAM
+  INAPPROPRIATE
+  HARASSMENT
+  IMPERSONATION
+  OTHER
+}
+
+enum CommentReportStatus {
+  PENDING
+  RESOLVED
+  REJECTED
+}
+
 enum SocialPlatform {
   DISCORD
   TELEGRAM
