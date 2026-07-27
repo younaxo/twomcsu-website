@@ -1,36 +1,43 @@
-import type { UserProfile } from '@twomc/shared';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProfileClient } from '@/app/users/[username]/profile-client';
-import { fetchPublic } from '@/lib/server-api';
+import { RestrictedProfileView } from '@/components/profile/RestrictedProfileView';
+import { fetchPublicProfile } from '@/lib/server-api';
 
 interface PageProps {
   params: { username: string };
 }
 
-async function getProfile(username: string): Promise<UserProfile | null> {
-  return fetchPublic<UserProfile>(`/users/${encodeURIComponent(username)}/public`);
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const profile = await getProfile(params.username);
+  const result = await fetchPublicProfile(params.username);
 
-  if (!profile) {
+  if (result.kind === 'not_found') {
     return { title: 'Игрок не найден — twomc.su' };
   }
 
+  if (result.kind === 'restricted') {
+    return {
+      title: `${result.data.user.username} — twomc.su`,
+      description: 'Приватный профиль',
+    };
+  }
+
   return {
-    title: `${profile.username} — twomc.su`,
-    description: profile.statusText ?? `${profile.username} на twomc.su`,
+    title: `${result.profile.username} — twomc.su`,
+    description: result.profile.statusText ?? `${result.profile.username} на twomc.su`,
   };
 }
 
 export default async function UserProfilePage({ params }: PageProps) {
-  const profile = await getProfile(params.username);
+  const result = await fetchPublicProfile(params.username);
 
-  if (!profile) {
+  if (result.kind === 'not_found') {
     notFound();
   }
 
-  return <ProfileClient username={params.username} initial={profile} />;
+  if (result.kind === 'restricted') {
+    return <RestrictedProfileView data={result.data} />;
+  }
+
+  return <ProfileClient username={params.username} initial={result.profile} />;
 }

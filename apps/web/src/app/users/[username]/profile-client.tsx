@@ -1,6 +1,6 @@
 'use client';
 
-import type { FriendsCountResponse, UserProfile } from '@twomc/shared';
+import type { FriendsCountResponse, RestrictedProfileResponse, UserProfile } from '@twomc/shared';
 import {
   Coins,
   Eye,
@@ -17,6 +17,7 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { AwardsList } from '@/components/shared/AwardsList';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
@@ -25,6 +26,7 @@ import { PositionBadge } from '@/components/shared/PositionBadge';
 import { SkinHead } from '@/components/shared/SkinHead';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
 import { ReportProfileDialog } from '@/components/profile/ReportProfileDialog';
+import { RestrictedProfileView } from '@/components/profile/RestrictedProfileView';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -52,9 +54,30 @@ interface ProfileClientProps {
   initial: UserProfile;
 }
 
+function parseRestricted(error: unknown): RestrictedProfileResponse | null {
+  if (!axios.isAxiosError(error) || error.response?.status !== 403) {
+    return null;
+  }
+
+  const body = error.response.data as RestrictedProfileResponse & {
+    message?: RestrictedProfileResponse;
+  };
+
+  if (body.restricted === true) {
+    return body;
+  }
+
+  if (typeof body.message === 'object' && body.message?.restricted) {
+    return body.message;
+  }
+
+  return null;
+}
+
 export function ProfileClient({ username, initial }: ProfileClientProps) {
   const { isAuthenticated } = useAuth();
-  const [profile, setProfile] = useState(initial);
+  const [profile, setProfile] = useState<UserProfile | null>(initial);
+  const [restricted, setRestricted] = useState<RestrictedProfileResponse | null>(null);
   const [friendsCount, setFriendsCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -62,29 +85,53 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
       .get<UserProfile>(`/users/${encodeURIComponent(username)}/public`, {
         skipAuthRedirect: true,
       })
-      .then(({ data }) => setProfile(data))
-      .catch(() => undefined);
+      .then(({ data }) => {
+        // TODO: после Friends System — если не друг, показывать friends-only view
+        setRestricted(null);
+        setProfile(data);
+      })
+      .catch((error) => {
+        const privateProfile = parseRestricted(error);
+        if (privateProfile) {
+          setRestricted(privateProfile);
+          setProfile(null);
+        }
+      });
   }, [username, isAuthenticated]);
 
   useEffect(() => {
-    if (!isAuthenticated || profile.isOwner) {
+    if (!isAuthenticated || !profile || profile.isOwner) {
       return;
     }
 
     void api
       .post(`/users/${encodeURIComponent(username)}/view`, undefined, { skipAuthRedirect: true })
       .catch(() => undefined);
-  }, [username, isAuthenticated, profile.isOwner]);
+  }, [username, isAuthenticated, profile]);
 
   useEffect(() => {
+    if (restricted) {
+      setFriendsCount(null);
+      return;
+    }
+
     void api
       .get<FriendsCountResponse>(`/friends/count/${encodeURIComponent(username)}`, {
         skipAuthRedirect: true,
       })
       .then(({ data }) => setFriendsCount(data.count))
       .catch(() => setFriendsCount(null));
-  }, [username]);
+  }, [username, restricted]);
 
+  if (restricted) {
+    return <RestrictedProfileView data={restricted} />;
+  }
+
+  if (!profile) {
+    return <Skeleton className="h-[32rem] w-full" />;
+  }
+
+  // TODO: после Friends System — если не друг, показывать friends-only view
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const statsHidden = profile.statistics === null && !profile.isOwner;
 
