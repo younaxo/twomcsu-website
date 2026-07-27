@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,7 +17,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
+import { useFriendRequestsCount } from '@/hooks/useFriendRequestsCount';
 
 // TODO: заменить заглушку на реальную навигацию
 const navItems = [
@@ -28,6 +31,7 @@ const navItems = [
 export function SiteHeader() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const incomingCount = useFriendRequestsCount();
 
   const handleLogout = async () => {
     await logout();
@@ -60,7 +64,7 @@ export function SiteHeader() {
         ) : isAuthenticated && user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-2 px-2">
+              <Button variant="ghost" className="relative gap-2 px-2">
                 <Avatar className="h-7 w-7">
                   <AvatarImage src={skinUrl} alt={user.username} />
                   <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
@@ -71,6 +75,21 @@ export function SiteHeader() {
                   size="sm"
                   className="hidden md:inline-flex"
                 />
+                {incomingCount > 0 ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="absolute -right-1 -top-1">
+                        <Badge
+                          variant="destructive"
+                          className="h-5 min-w-5 justify-center px-1 text-[10px]"
+                        >
+                          {incomingCount}
+                        </Badge>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>Входящие запросы в друзья</TooltipContent>
+                  </Tooltip>
+                ) : null}
               </Button>
             </DropdownMenuTrigger>
 
@@ -81,6 +100,25 @@ export function SiteHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href={`/users/${user.username}`}>Мой профиль</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/profile/friends" className="flex w-full items-center justify-between">
+                  <span>Друзья</span>
+                  {incomingCount > 0 ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant="destructive"
+                          className="h-5 min-w-5 justify-center px-1.5"
+                          onClick={(e) => e.preventDefault()}
+                        >
+                          {incomingCount}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>Новые запросы</TooltipContent>
+                    </Tooltip>
+                  ) : null}
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/profile/settings">Настройки</Link>
