@@ -62,6 +62,7 @@ export const selectFullProfile = {
   isBanned: true,
   createdAt: true,
   updatedAt: true,
+  lastLoginAt: true,
   banner: true,
   bannerPreset: true,
   statusText: true,

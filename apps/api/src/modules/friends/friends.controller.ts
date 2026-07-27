@@ -41,6 +41,7 @@ export class FriendsController {
   }
 
   @Post('accept/:requestId')
+  @Throttle({ default: { limit: 60, ttl: 3_600_000 } })
   acceptRequest(
     @CurrentUser('id') userId: string,
     @Param('requestId') requestId: string,
@@ -99,23 +100,41 @@ export class FriendsController {
     @CurrentUser('id') userId: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
   ): Promise<PaginatedResponse<FriendListItem>> {
-    return this.friends.getFriendsList(userId, page, limit);
+    return this.friends.getFriendsList(userId, page, limit, search);
   }
 
   @Get('requests/incoming')
-  getIncoming(@CurrentUser('id') userId: string): Promise<FriendRequestItem[]> {
-    return this.friends.getIncomingRequests(userId);
+  getIncoming(
+    @CurrentUser('id') userId: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
+  ): Promise<PaginatedResponse<FriendRequestItem>> {
+    return this.friends.getIncomingRequests(userId, page, limit);
+  }
+
+  @Get('requests/incoming/count')
+  getIncomingCount(@CurrentUser('id') userId: string): Promise<FriendsCountResponse> {
+    return this.friends.getIncomingCount(userId);
   }
 
   @Get('requests/outgoing')
-  getOutgoing(@CurrentUser('id') userId: string): Promise<FriendRequestItem[]> {
-    return this.friends.getOutgoingRequests(userId);
+  getOutgoing(
+    @CurrentUser('id') userId: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
+  ): Promise<PaginatedResponse<FriendRequestItem>> {
+    return this.friends.getOutgoingRequests(userId, page, limit);
   }
 
   @Get('blocked')
-  getBlocked(@CurrentUser('id') userId: string): Promise<BlockedUserItem[]> {
-    return this.friends.getBlockedUsers(userId);
+  getBlocked(
+    @CurrentUser('id') userId: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
+  ): Promise<PaginatedResponse<BlockedUserItem>> {
+    return this.friends.getBlockedUsers(userId, page, limit);
   }
 
   @Get('status/:username')
