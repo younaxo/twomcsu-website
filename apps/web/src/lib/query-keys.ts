@@ -15,6 +15,9 @@ export const queryKeys = {
   comments: (username: string, page?: number, sort?: string) =>
     ['comments', username, page ?? 1, sort ?? 'newest'] as const,
   awards: ['awards'] as const,
+  notifications: (filters: Record<string, unknown>) =>
+    ['notifications', 'list', filters] as const,
+  notificationsUnreadCount: ['notifications', 'unread-count'] as const,
   storeCategories: ['store', 'categories'] as const,
   storeProducts: (filters: Record<string, unknown>) =>
     ['store', 'products', filters] as const,
@@ -28,6 +31,11 @@ export const queryKeys = {
   storeOrders: (page?: number) => ['store', 'orders', page ?? 1] as const,
   storeOrder: (orderNumber: string) => ['store', 'order', orderNumber] as const,
   storeBulkDiscounts: ['store', 'bulk-discounts'] as const,
+  storeCurrencies: ['store', 'currencies'] as const,
+  storeRecentPurchases: (limit?: number) =>
+    ['store', 'recent-purchases', limit ?? 12] as const,
+  storeBoughtTogether: (productId: string) =>
+    ['store', 'bought-together', productId] as const,
   adminStoreCategories: ['admin', 'store', 'categories'] as const,
   adminStoreProducts: ['admin', 'store', 'products'] as const,
   adminStoreBundles: ['admin', 'store', 'bundles'] as const,
@@ -37,4 +45,5 @@ export const queryKeys = {
   adminOrders: (filters?: Record<string, unknown>) =>
     ['admin', 'orders', filters ?? {}] as const,
   adminOrderStats: ['admin', 'orders', 'stats'] as const,
+  adminStoreStats: ['admin', 'store', 'stats'] as const,
 };
