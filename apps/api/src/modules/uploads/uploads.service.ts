@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'node:crypto';
 import { mkdir, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import sharp from 'sharp';
+import sharp, { type Sharp } from 'sharp';
 import {
   ALLOWED_IMAGE_MIME_TYPES,
   AVATAR_SIZE,
@@ -69,7 +69,7 @@ export class UploadsService {
     }
   }
 
-  private store(kind: UploadKind, userId: string, transform: (image: sharp.Sharp) => sharp.Sharp) {
+  private store(kind: UploadKind, userId: string, transform: (image: Sharp) => Sharp) {
     return async (file: Express.Multer.File): Promise<string> => {
       const directory = join(this.rootDir, kind);
       await mkdir(directory, { recursive: true });
