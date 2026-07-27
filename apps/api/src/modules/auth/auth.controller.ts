@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
+  Param,
   Post,
   Req,
   Res,
@@ -18,6 +20,7 @@ import {
   PublicUser,
   RefreshResponse,
   RegisterResponse,
+  SessionInfo,
   SuccessResponse,
 } from '@twomc/shared';
 import { Request, Response } from 'express';
@@ -25,6 +28,7 @@ import { REFRESH_COOKIE_NAME } from './auth.constants';
 import { AuthService, AuthSession } from './auth.service';
 import { AuthenticatedUser } from './authenticated-user';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
@@ -110,6 +114,52 @@ export class AuthController {
     await this.authService.resetPassword(dto, getRequestContext(req));
 
     return { success: true };
+  }
+
+  @Post('change-password')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 5, ttl: 3_600_000 } })
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentUser() current: AuthenticatedUser,
+    @Body() dto: ChangePasswordDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<SuccessResponse> {
+    await this.authService.changePassword(current.id, dto, getRequestContext(req));
+    clearRefreshCookie(res, this.cookieConfig());
+
+    return { success: true, message: 'Пароль изменён, войдите снова' };
+  }
+
+  @Get('sessions')
+  @UseGuards(JwtAuthGuard)
+  listSessions(
+    @CurrentUser() current: AuthenticatedUser,
+    @Req() req: Request,
+  ): Promise<SessionInfo[]> {
+    return this.authService.listSessions(current.id, this.readRefreshToken(req));
+  }
+
+  @Delete('sessions')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async revokeAllSessions(
+    @CurrentUser() current: AuthenticatedUser,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    await this.authService.revokeAllSessions(current.id);
+    clearRefreshCookie(res, this.cookieConfig());
+  }
+
+  @Delete('sessions/:id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  revokeSession(
+    @CurrentUser() current: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.authService.revokeSession(current.id, id);
   }
 
   @Post('logout')

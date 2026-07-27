@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -18,6 +19,7 @@ import {
   PublicUser,
   RegisterResponse,
   RoleGroup,
+  SessionInfo,
 } from '@twomc/shared';
 import { compare, hash } from 'bcrypt';
 import { createHash, createHmac, randomBytes } from 'node:crypto';
@@ -33,6 +35,7 @@ import {
 } from './auth.constants';
 import { BruteForceService } from './brute-force.service';
 import { CaptchaService } from './captcha.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -267,6 +270,83 @@ export class AuthService {
     ]);
   }
 
+  async changePassword(
+    userId: string,
+    dto: ChangePasswordDto,
+    context: RequestContext,
+  ): Promise<void> {
+    await this.captcha.verify(dto.captchaToken, context.ip);
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { password: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
+    if (!(await compare(dto.currentPassword, user.password))) {
+      throw new BadRequestException('Неверный текущий пароль');
+    }
+
+    if (dto.currentPassword === dto.newPassword) {
+      throw new BadRequestException('Новый пароль должен отличаться от текущего');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { password: await hash(dto.newPassword, BCRYPT_ROUNDS) },
+      }),
+      this.prisma.refreshToken.updateMany({
+        where: { userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+    ]);
+  }
+
+  async listSessions(userId: string, currentRefreshToken?: string): Promise<SessionInfo[]> {
+    const currentHash = currentRefreshToken
+      ? this.hashRefreshToken(currentRefreshToken)
+      : null;
+
+    const rows = await this.prisma.refreshToken.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return rows.map((row) => ({
+      id: row.id,
+      userAgent: row.userAgent,
+      ipAddress: row.ipAddress,
+      createdAt: row.createdAt.toISOString(),
+      isCurrent: currentHash !== null && row.tokenHash === currentHash,
+    }));
+  }
+
+  async revokeSession(userId: string, sessionId: string): Promise<void> {
+    const row = await this.prisma.refreshToken.findFirst({
+      where: { id: sessionId, userId, revokedAt: null },
+    });
+
+    if (!row) {
+      throw new NotFoundException('Сессия не найдена');
+    }
+
+    await this.prisma.refreshToken.update({
+      where: { id: row.id },
+      data: { revokedAt: new Date() },
+    });
+  }
+
+  async revokeAllSessions(userId: string): Promise<void> {
+    await this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  }
+
   async findById(userId: string): Promise<PublicUser | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -329,13 +409,6 @@ export class AuthService {
     }
 
     return { applied: true, message: `Промокод ${promo.code} активирован` };
-  }
-
-  private async revokeAllSessions(userId: string): Promise<void> {
-    await this.prisma.refreshToken.updateMany({
-      where: { userId, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
   }
 
   private async handleFailedAttempt(ip: string): Promise<void> {
