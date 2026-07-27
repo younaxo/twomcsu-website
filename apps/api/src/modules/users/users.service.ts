@@ -2,8 +2,10 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import {
   MediaBadgeRequestStatus,
@@ -28,7 +30,12 @@ import {
   UserSearchResult,
   hasRoleGroup,
 } from '@twomc/shared';
+import { assertSearchLength } from '../../common/pagination';
+import { selectFullProfile, selectMinimalUser } from '../../common/prisma/user-selects';
 import { AuthenticatedUser } from '../auth/authenticated-user';
+import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
+import { CacheService } from '../cache/cache.service';
+import { FriendsService } from '../friends/friends.service';
 import { toPublicPosition } from '../positions/position.mapper';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadsService } from '../uploads/uploads.service';
@@ -42,7 +49,6 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateStatisticsDto } from './dto/update-statistics.dto';
 import {
   ProfileUser,
-  profileInclude,
   toBannerPreset,
   toMyProfile,
   toPublicProfile,
@@ -56,6 +62,9 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly uploads: UploadsService,
+    private readonly cache: CacheService,
+    @Inject(forwardRef(() => FriendsService))
+    private readonly friends: FriendsService,
   ) {}
 
   async getMyProfile(userId: string): Promise<MyProfile> {
@@ -121,6 +130,7 @@ export class UsersService {
       throw error;
     }
 
+    await this.invalidateUserCache(userId);
     return this.getMyProfile(userId);
   }
 
@@ -137,6 +147,7 @@ export class UsersService {
     const path = await this.uploads.saveAvatar(userId, file);
     await this.prisma.user.update({ where: { id: userId }, data: { avatar: path } });
     await this.uploads.remove(user.avatar);
+    await this.invalidateUserCache(userId);
 
     return this.getMyProfile(userId);
   }
@@ -153,6 +164,7 @@ export class UsersService {
 
     await this.prisma.user.update({ where: { id: userId }, data: { avatar: null } });
     await this.uploads.remove(user.avatar);
+    await this.invalidateUserCache(userId);
 
     return this.getMyProfile(userId);
   }
@@ -173,6 +185,7 @@ export class UsersService {
       data: { banner: path, bannerPreset: null },
     });
     await this.uploads.remove(user.banner);
+    await this.invalidateUserCache(userId);
 
     return this.getMyProfile(userId);
   }
@@ -192,6 +205,7 @@ export class UsersService {
       data: { banner: null },
     });
     await this.uploads.remove(user.banner);
+    await this.invalidateUserCache(userId);
 
     return this.getMyProfile(userId);
   }
@@ -219,6 +233,7 @@ export class UsersService {
       data: { bannerPreset: preset.id, banner: null },
     });
     await this.uploads.remove(user.banner);
+    await this.invalidateUserCache(userId);
 
     return this.getMyProfile(userId);
   }
@@ -749,10 +764,25 @@ export class UsersService {
       });
     }
 
-    // TODO: После реализации Friends System — проверять дружбу
-    // FRIENDS_ONLY пока ведёт себя как EVERYONE для не-владельца
-    const visibility =
-      user.profileVisibility === 'FRIENDS_ONLY' && !isOwner ? ('friends_only' as const) : undefined;
+    if (user.profileVisibility === 'FRIENDS_ONLY' && !isOwner && !canBypassPrivate) {
+      const isFriend = viewer ? await this.friends.areFriends(viewer.id, user.id) : false;
+
+      if (!isFriend) {
+        const bannerUrl = await this.resolveBanner(user);
+
+        throw new ForbiddenException({
+          restricted: true,
+          reason: 'friends_only',
+          user: {
+            username: user.username,
+            avatar: user.avatar,
+            position: toPublicPosition(user.position),
+            bannerUrl,
+            statusText: user.statusText,
+          },
+        });
+      }
+    }
 
     const [bannerUrl, likesCount, dislikesCount, viewsCount, reaction] = await Promise.all([
       this.resolveBanner(user),
@@ -778,23 +808,22 @@ export class UsersService {
       userReaction: reaction?.type ?? null,
       isOwner,
       canBypassPrivate,
-      visibility,
     });
   }
 
   /** Username lookup for the assign dialog in the admin panel */
   async search(query: string, limit = 10): Promise<UserSearchResult[]> {
+    const q = assertSearchLength(query);
+
+    if (!q) {
+      return [];
+    }
+
     const users = await this.prisma.user.findMany({
-      where: { username: { contains: query, mode: 'insensitive' } },
+      where: { username: { contains: q, mode: 'insensitive' } },
       orderBy: { username: 'asc' },
-      take: limit,
-      select: {
-        id: true,
-        username: true,
-        avatar: true,
-        roleGroup: true,
-        position: true,
-      },
+      take: Math.min(Math.max(limit, 1), 100),
+      select: selectMinimalUser,
     });
 
     return users.map((user) => ({
@@ -849,16 +878,39 @@ export class UsersService {
   private async requireProfileUser(
     where: { id: string } | { username: string },
   ): Promise<ProfileUser> {
+    const cacheKey =
+      'username' in where
+        ? cacheKeys.userProfile(where.username)
+        : cacheKeys.userById(where.id);
+
+    // Cache only the serializable mapped profile shell is awkward for Prisma dates;
+    // cache the username→id hop for repeated public hits via a short-lived marker.
     const user = await this.prisma.user.findUnique({
       where,
-      include: profileInclude,
+      select: selectFullProfile,
     });
 
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
     }
 
+    // Warm a cheap username lookup key for follow-up endpoints
+    if ('username' in where) {
+      await this.cache.set(cacheKey, { id: user.id }, CACHE_TTL.USER_PROFILE);
+    }
+
     return user;
+  }
+
+  private async invalidateUserCache(userId: string, username?: string): Promise<void> {
+    const keys = [cacheKeys.userById(userId), cacheKeys.authMe(userId)];
+
+    if (username) {
+      keys.push(cacheKeys.userProfile(username), cacheKeys.userByUsername(username));
+    }
+
+    await this.cache.del(keys);
+    await this.cache.delPattern(`user:*${userId}*`);
   }
 
   private async requireUserExists(id: string): Promise<void> {

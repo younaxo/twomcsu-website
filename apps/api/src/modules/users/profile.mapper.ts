@@ -4,7 +4,6 @@ import {
   Gender,
   MediaGroup,
   PlayerStatistics as StatsRow,
-  Position,
   SocialLink as SocialLinkRow,
   SocialPlatform,
   User,
@@ -21,16 +20,11 @@ import {
   UserBadge,
   UserProfile,
 } from '@twomc/shared';
+import { FullProfileRow } from '../../common/prisma/user-selects';
 import { toPublicPosition } from '../positions/position.mapper';
 
-export type ProfileUser = User & {
-  position: Position;
-  badges: UserBadgeRow[];
-  awards: (UserAwardRow & { award: AwardRow })[];
-  mediaBadges: MediaBadgeRow[];
-  socialLinks: SocialLinkRow[];
-  statistics: StatsRow | null;
-};
+/** Profile page payload — selected fields only, no password */
+export type ProfileUser = FullProfileRow;
 
 export function resolveBannerUrl(
   user: Pick<User, 'banner' | 'bannerPreset'>,
@@ -214,14 +208,4 @@ export function toBannerPreset(row: BannerPreset) {
   };
 }
 
-export const profileInclude = {
-  position: true,
-  badges: { where: { isActive: true }, orderBy: { grantedAt: 'asc' as const } },
-  awards: {
-    include: { award: true },
-    orderBy: { grantedAt: 'desc' as const },
-  },
-  mediaBadges: { where: { isApproved: true } },
-  socialLinks: { orderBy: { platform: 'asc' as const } },
-  statistics: true,
-} satisfies Record<string, unknown>;
+export { selectFullProfile as profileSelect } from '../../common/prisma/user-selects';
