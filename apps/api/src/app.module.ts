@@ -6,6 +6,7 @@ import { configuration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { AuthModule } from './modules/auth/auth.module';
 import { AwardsModule } from './modules/awards/awards.module';
+import { CacheModule } from './modules/cache/cache.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
 import { PositionsModule } from './modules/positions/positions.module';
@@ -27,6 +28,7 @@ import { UsersModule } from './modules/users/users.module';
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
     PrismaModule,
     RedisModule,
+    CacheModule,
     UploadsModule,
     HealthModule,
     AuthModule,
