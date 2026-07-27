@@ -81,9 +81,6 @@ model User {
   hideGender          Boolean             @default(false)
   hideStatistics      Boolean             @default(false)
   hideSocials         Boolean             @default(false)
-  hideInventory       Boolean             @default(false)
-  hideServices        Boolean             @default(false)
-  hideComments        Boolean             @default(false)
 
   /// Who can leave comments on this profile
   commentPolicy             CommentPolicy @default(EVERYONE)
