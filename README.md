@@ -308,7 +308,12 @@ curl -i -X POST http://localhost:4000/auth/logout \
 
 ## Магазин
 
-Каталог товаров, корзина, wishlist, промокоды, бандлы, оптовые и лояльностные скидки.
+Единая страница `/store` с вкладками: Все | Привилегии | Ключи | Валюта | Украшения | Наборы | Другое.
+Поиск с debounce 300 мс, лента недавних покупок, селектор валюты отображения (localStorage).
+Корзина — центрированный диалог. Wishlist в UI называется «Желаемое».
+На карточке товара: «С этим покупают» и быстрая покупка по Minecraft нику (не для decorations/plus/verify/unmute/unban/booster).
+`/store/currency` редиректит на `/store?tab=currency`.
+
 Оплата пока заглушка (UnitPay — этап 31): заказ создаётся со статусом `PENDING`,
 страница `/store/mock-payment` умеет симулировать успешную оплату.
 
@@ -318,23 +323,39 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | Метод и путь | Доступ | Что делает |
 | --- | --- | --- |
 | `GET /store/categories` | публичный | Дерево категорий |
-| `GET /store/products` | публичный | Каталог (`category`, `type`, `sort`, пагинация) |
+| `GET /store/products` | публичный | Каталог (`category`, `type`, `search`, `sort`, пагинация) |
 | `GET /store/products/:slug` | публичный (+optional JWT) | Карточка товара |
+| `GET /store/products/:id/bought-together` | публичный | «С этим покупают» |
 | `GET /store/bundles` | публичный | Список бандлов |
 | `GET /store/bundles/:slug` | публичный | Детали бандла |
+| `GET /store/currencies` | публичный | Курсы валют отображения |
+| `GET /store/recent-purchases` | публичный | Лента недавних покупок |
+| `POST /store/quick-buy` | публичный | Быстрая покупка по нику |
 | `GET /store/discounts/bulk` | публичный | Оптовые скидки |
 | `GET /store/discounts/loyalty` | публичный | Уровни лояльности |
 | `GET/POST/PATCH/DELETE /store/cart...` | авторизованный | Корзина, промокод, расчёт |
-| `GET/POST/DELETE/PATCH /store/wishlist...` | авторизованный | Избранное |
-| `GET /store/wishlist/:username` | публичный | Публичный wishlist |
+| `GET/POST/DELETE/PATCH /store/wishlist...` | авторизованный | Желаемое |
+| `GET /store/wishlist/:username` | публичный | Публичное желаемое |
 | `POST /store/orders` | авторизованный | Создать заказ (`PENDING` + mock paymentUrl) |
 | `GET /store/orders` | авторизованный | Мои заказы |
 | `GET /store/orders/:orderNumber` | авторизованный | Детали заказа |
 | `POST /store/orders/:orderId/mock-complete` | авторизованный | Симуляция оплаты |
 | `POST /store/promocodes/validate` | авторизованный | Проверка промокода |
-| `CRUD /admin/store/categories\|products\|bundles\|discounts` | ADMIN+ | Админка каталога |
+| `CRUD /admin/store/categories\|products\|bundles\|discounts\|currencies` | ADMIN+ | Админка каталога |
+| `GET /admin/store/stats` | ADMIN+ | Статистика с графиками |
 | `CRUD /admin/promocodes` | ADMIN+ | Промокоды |
-| `GET /admin/orders`, `GET /admin/orders/stats` | ADMIN+ | Заказы и статистика |
+| `GET /admin/orders`, `GET /admin/orders/stats` | ADMIN+ | Заказы и сводка |
+
+## Уведомления
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /notifications` | авторизованный | Список (`page`, `limit`, `unreadOnly`) |
+| `GET /notifications/unread-count` | авторизованный | Счётчик непрочитанных (poll 30 с в шапке) |
+| `PATCH /notifications/:id/read` | авторизованный | Прочитать одно |
+| `POST /notifications/read-all` | авторизованный | Прочитать все |
+
+Страницы: `/profile/notifications`. В шапке — колокольчик и пункт «Уведомления» в меню.
 
 Промокоды магазина из сида:
 
@@ -346,12 +367,12 @@ curl -i -X POST http://localhost:4000/auth/logout \
 
 Страницы:
 
-- `/store`, `/store/product/[slug]`, `/store/bundle/[slug]`, `/store/currency`
+- `/store` (вкладки), `/store/product/[slug]`, `/store/bundle/[slug]`
 - `/store/cart`, `/store/checkout`, `/store/success`, `/store/mock-payment`
-- `/profile/orders`, `/profile/orders/[orderNumber]`, `/profile/wishlist`
-- `/admin/store/*`, `/admin/promocodes`, `/admin/orders`, `/admin/orders/stats`
+- `/profile/orders`, `/profile/orders/[orderNumber]`, `/profile/wishlist`, `/profile/notifications`
+- `/admin/store/*` (включая `stats`, `currencies`), `/admin/promocodes`, `/admin/orders`
 
-В шапке — ссылка «Магазин» и иконка корзины с badge количества.
+В шапке — «Магазин», колокольчик уведомлений, корзина (диалог) и dropdown профиля с ChevronDown.
 
 ## Performance
 
