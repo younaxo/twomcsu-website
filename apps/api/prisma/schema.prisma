@@ -85,6 +85,16 @@ model User {
   hideServices        Boolean             @default(false)
   hideComments        Boolean             @default(false)
 
+  /// Who can leave comments on this profile
+  commentPolicy             CommentPolicy @default(EVERYONE)
+  /// Forced off by staff; owner cannot re-enable while false
+  commentsEnabled           Boolean       @default(true)
+  commentsForcedDisabledBy  String?
+  commentsForcedReason      String?
+  notifyOnComment           Boolean       @default(true)
+  notifyOnMention           Boolean       @default(true)
+  notifyOnReply             Boolean       @default(true)
+
   position            Position             @relation(fields: [positionId], references: [id])
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
