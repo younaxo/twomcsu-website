@@ -46,4 +46,14 @@ export const queryKeys = {
     ['admin', 'orders', filters ?? {}] as const,
   adminOrderStats: ['admin', 'orders', 'stats'] as const,
   adminStoreStats: ['admin', 'store', 'stats'] as const,
+  servers: ['servers', 'list'] as const,
+  serversOverview: ['servers', 'overview'] as const,
+  server: (slug: string) => ['servers', 'detail', slug] as const,
+  serverStatus: (slug: string) => ['servers', 'status', slug] as const,
+  serverHistory: (slug: string, days: number) =>
+    ['servers', 'history', slug, days] as const,
+  serverPlayers: (slug: string) => ['servers', 'players', slug] as const,
+  adminServers: ['admin', 'servers'] as const,
+  adminServerLogs: (id: string, filters?: Record<string, unknown>) =>
+    ['admin', 'servers', 'logs', id, filters ?? {}] as const,
 };
