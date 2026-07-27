@@ -121,6 +121,7 @@ model User {
   authoredComments       ProfileComment[]     @relation("AuthoredComments")
   notifications          Notification[]       @relation("NotificationsReceived")
   sentNotifications      Notification[]       @relation("NotificationsFrom")
+  auditLogs              AuditLog[]           @relation("AuditLogActor")
 
   /// Referral code shown to friends; generated on registration
   referralCode String? @unique
@@ -976,4 +977,46 @@ model ServerStatusLog {
 
   @@index([serverId, timestamp])
   @@map("server_status_logs")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation("AuditLogActor", fields: [actorId], references: [id])
+  action     String
+  targetType String?
+  targetId   String?
+  changes    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Announcement {
+  id        String    @id @default(cuid())
+  title     String
+  message   String
+  type      String    @default("info")
+  link      String?
+  isActive  Boolean   @default(true)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([isActive, startsAt, endsAt])
+  @@map("announcements")
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
 }
