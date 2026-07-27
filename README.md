@@ -238,6 +238,36 @@ curl -i -X POST http://localhost:4000/auth/logout \
 - `/users/[username]` — баннер, статистика, 3D скин, информация, реакции
 - `/admin/badges`, `/admin/awards`, `/admin/media-requests`, `/admin/profile-reports`
 
+## Друзья
+
+Система друзей: запросы, принятие/отклонение, удаление, блокировка.
+Статусы связи: `none`, `friends`, `pending_sent`, `pending_received`, `blocked_by_me`,
+`blocked_by_them`, `self`.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `POST /friends/request/:username` | авторизованный, 20/час | Отправить запрос |
+| `POST /friends/accept/:requestId` | авторизованный | Принять входящий |
+| `POST /friends/reject/:requestId` | авторизованный | Отклонить входящий |
+| `DELETE /friends/requests/:requestId` | авторизованный | Отменить исходящий |
+| `DELETE /friends/:username` | авторизованный | Удалить из друзей |
+| `POST /friends/block/:username` | авторизованный, 30/час | Заблокировать |
+| `DELETE /friends/block/:username` | авторизованный | Разблокировать |
+| `GET /friends?page=&limit=` | авторизованный | Список друзей |
+| `GET /friends/requests/incoming` | авторизованный | Входящие запросы |
+| `GET /friends/requests/outgoing` | авторизованный | Исходящие запросы |
+| `GET /friends/blocked` | авторизованный | Чёрный список |
+| `GET /friends/status/:username` | авторизованный | Статус относительно пользователя |
+| `GET /friends/count` | авторизованный | Число своих друзей |
+| `GET /friends/count/:username` | публичный | Число друзей пользователя |
+
+Страницы:
+
+- `/profile/friends` — табы Друзья / Входящие / Исходящие / Заблокированные
+- `/users/[username]` — кнопка `FriendButton` и счётчик друзей в карточке «Информация»
+
+В шапке пункт «Друзья» и красный badge с числом входящих запросов (поллинг раз в 30 сек).
+
 ## Структура
 
 ```
@@ -250,6 +280,7 @@ apps/
       modules/
         auth/         эндпоинты, гварды, стратегии, капча, брутфорс, сессии
         awards/       каталог наград и выдача
+        friends/      запросы, друзья, блокировки
         health/       GET /health
         positions/    титулы, их crud и назначение игрокам
         prisma/       PrismaService (глобальный модуль)
@@ -257,11 +288,11 @@ apps/
         uploads/      sharp + раздача /uploads
         users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
-    src/app/          (auth), /users/[username], /profile/settings, /admin/*
+    src/app/          (auth), /users/[username], /profile/settings, /profile/friends, /admin/*
     src/components/   ui kit, profile, shared, admin, шапка
-    src/hooks/        useAuth
+    src/hooks/        useAuth, useFriendRequestsCount
     src/lib/          axios клиент, profile helpers
-    src/stores/       zustand стор авторизации
+    src/stores/       zustand: auth, friends
 packages/
-  shared/             RoleGroup, Position, Profile, Auth типы
+  shared/             RoleGroup, Position, Profile, Friends, Auth типы
 ```
