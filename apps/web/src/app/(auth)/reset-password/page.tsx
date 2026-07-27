@@ -22,20 +22,16 @@ import {
 import { PasswordInput } from '@/components/ui/password-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api, extractErrorMessage } from '@/lib/api';
+import { checkPasswordPair } from '@/lib/validation';
 
 const resetSchema = z
   .object({
-    newPassword: z
-      .string()
-      .min(8, 'Пароль от 8 символов')
-      .regex(/[A-Z]/, 'Нужна хотя бы одна заглавная буква')
-      .regex(/\d/, 'Нужна хотя бы одна цифра'),
+    newPassword: z.string(),
     confirmPassword: z.string(),
     captchaToken: z.string().min(1, 'Подтвердите, что вы не робот'),
   })
-  .refine((values) => values.newPassword === values.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'Пароли не совпадают',
+  .superRefine((values, ctx) => {
+    checkPasswordPair(ctx, values.newPassword, values.confirmPassword, 'newPassword');
   });
 
 type ResetValues = z.infer<typeof resetSchema>;
