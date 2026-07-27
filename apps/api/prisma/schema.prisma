@@ -33,7 +33,8 @@ model Position {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  users User[]
+  users    User[]
+  products Product[]
 
   @@index([slug])
   @@index([group])
@@ -83,35 +84,45 @@ model User {
   hideSocials         Boolean             @default(false)
 
   /// Who can leave comments on this profile
-  commentPolicy             CommentPolicy @default(EVERYONE)
+  commentPolicy            CommentPolicy @default(EVERYONE)
   /// Forced off by staff; owner cannot re-enable while false
-  commentsEnabled           Boolean       @default(true)
-  commentsForcedDisabledBy  String?
-  commentsForcedReason      String?
-  notifyOnComment           Boolean       @default(true)
-  notifyOnMention           Boolean       @default(true)
-  notifyOnReply             Boolean       @default(true)
+  commentsEnabled          Boolean       @default(true)
+  commentsForcedDisabledBy String?
+  commentsForcedReason     String?
+  notifyOnComment          Boolean       @default(true)
+  notifyOnMention          Boolean       @default(true)
+  notifyOnReply            Boolean       @default(true)
 
-  position            Position             @relation(fields: [positionId], references: [id])
-  refreshTokens       RefreshToken[]
-  passwordResetTokens PasswordResetToken[]
-  promoCodeUsages     PromoCodeUsage[]
-  badges              UserBadge[]
-  socialLinks         SocialLink[]
-  mediaBadges         UserMediaBadge[]
-  mediaBadgeRequests  MediaBadgeRequest[]
-  statistics          PlayerStatistics?
-  awards              UserAward[]
-  profileViews        ProfileView[]        @relation("ProfileViewsReceived")
-  viewedProfiles      ProfileView[]        @relation("ProfileViewsSent")
-  profileReactions    ProfileReaction[]    @relation("ProfileReactionsReceived")
-  givenReactions      ProfileReaction[]    @relation("ProfileReactionsSent")
-  profileReports          ProfileReport[] @relation("ProfileReportsReceived")
-  sentReports             ProfileReport[] @relation("ProfileReportsSent")
-  sentFriendRequests      Friendship[]    @relation("FriendshipRequester")
-  receivedFriendRequests  Friendship[]    @relation("FriendshipAddressee")
-  profileComments         ProfileComment[] @relation("ProfileComments")
-  authoredComments        ProfileComment[] @relation("AuthoredComments")
+  position               Position             @relation(fields: [positionId], references: [id])
+  refreshTokens          RefreshToken[]
+  passwordResetTokens    PasswordResetToken[]
+  promoCodeUsages        PromoCodeUsage[]
+  badges                 UserBadge[]
+  socialLinks            SocialLink[]
+  mediaBadges            UserMediaBadge[]
+  mediaBadgeRequests     MediaBadgeRequest[]
+  statistics             PlayerStatistics?
+  awards                 UserAward[]
+  profileViews           ProfileView[]        @relation("ProfileViewsReceived")
+  viewedProfiles         ProfileView[]        @relation("ProfileViewsSent")
+  profileReactions       ProfileReaction[]    @relation("ProfileReactionsReceived")
+  givenReactions         ProfileReaction[]    @relation("ProfileReactionsSent")
+  profileReports         ProfileReport[]      @relation("ProfileReportsReceived")
+  sentReports            ProfileReport[]      @relation("ProfileReportsSent")
+  sentFriendRequests     Friendship[]         @relation("FriendshipRequester")
+  receivedFriendRequests Friendship[]         @relation("FriendshipAddressee")
+  profileComments        ProfileComment[]     @relation("ProfileComments")
+  authoredComments       ProfileComment[]     @relation("AuthoredComments")
+
+  /// Referral code shown to friends; generated on registration
+  referralCode String? @unique
+  /// User id of whoever invited this account
+  referredBy   String?
+
+  cart        Cart?
+  wishlist    Wishlist?
+  orders      Order[]
+  giftedItems OrderItem[] @relation("GiftedItems")
 
   @@index([email])
   @@index([username])
@@ -251,21 +262,27 @@ enum DiscountType {
 }
 
 model PromoCode {
-  id            String       @id @default(cuid())
-  code          String       @unique
-  description   String?
-  discountType  DiscountType
-  discountValue Decimal      @db.Decimal(10, 2)
+  id                String        @id @default(cuid())
+  code              String        @unique
+  description       String?
+  discountType      DiscountType
+  discountValue     Decimal       @db.Decimal(10, 2)
   /// null means unlimited
-  maxUses       Int?
-  usedCount     Int          @default(0)
-  validFrom     DateTime?
-  validUntil    DateTime?
-  isActive      Boolean      @default(true)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  maxUses           Int?
+  usedCount         Int           @default(0)
+  validFrom         DateTime?
+  validUntil        DateTime?
+  isActive          Boolean       @default(true)
+  /// Empty = applies to every product type
+  applicableToTypes ProductType[]
+  minOrderAmount    Decimal?      @db.Decimal(10, 2)
+  firstPurchaseOnly Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   usages PromoCodeUsage[]
+  orders Order[]
+  carts  Cart[]
 
   @@index([code])
   @@index([isActive])
@@ -503,28 +520,28 @@ model Friendship {
 }
 
 model ProfileComment {
-  id            String    @id @default(cuid())
+  id            String           @id @default(cuid())
   profileId     String
-  profile       User      @relation("ProfileComments", fields: [profileId], references: [id], onDelete: Cascade)
+  profile       User             @relation("ProfileComments", fields: [profileId], references: [id], onDelete: Cascade)
   authorId      String
-  author        User      @relation("AuthoredComments", fields: [authorId], references: [id], onDelete: Cascade)
+  author        User             @relation("AuthoredComments", fields: [authorId], references: [id], onDelete: Cascade)
   content       String
   contentHtml   String
   parentId      String?
   parent        ProfileComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies       ProfileComment[] @relation("CommentReplies")
-  isPinned      Boolean   @default(false)
+  isPinned      Boolean          @default(false)
   pinnedAt      DateTime?
   pinnedBy      String?
-  isEdited      Boolean   @default(false)
+  isEdited      Boolean          @default(false)
   editedAt      DateTime?
-  isDeleted     Boolean   @default(false)
+  isDeleted     Boolean          @default(false)
   deletedAt     DateTime?
   deletedBy     String?
   deletedReason String?
   mentions      String[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
   reactions CommentReaction[]
   reports   CommentReport[]
@@ -566,4 +583,294 @@ model CommentReport {
   @@index([commentId])
   @@index([status])
   @@map("comment_reports")
+}
+
+enum ProductType {
+  PRIVILEGE
+  KEY
+  SUBSCRIPTION
+  BADGE
+  BATTLE_PASS
+  BATTLE_PASS_BOOSTER
+  UNMUTE
+  UNBAN
+  CURRENCY
+  DECORATION
+  BUNDLE
+}
+
+enum ProductDuration {
+  FOREVER
+  MONTHS_3
+  MONTH_1
+  WEEK_1
+  SEASON
+  ONE_TIME
+}
+
+enum CurrencyType {
+  RUBIES
+  COINS
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+model Category {
+  id            String     @id @default(cuid())
+  name          String
+  slug          String     @unique
+  description   String?
+  icon          String?
+  image         String?
+  order         Int        @default(0)
+  isActive      Boolean    @default(true)
+  parentId      String?
+  parent        Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  subcategories Category[] @relation("SubCategories")
+  products      Product[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Product {
+  id              String           @id @default(cuid())
+  name            String
+  slug            String           @unique
+  description     String?
+  fullDescription String?
+  type            ProductType
+  image           String?
+  images          String[]
+  categoryId      String
+  category        Category         @relation(fields: [categoryId], references: [id])
+  positionId      String?
+  position        Position?        @relation(fields: [positionId], references: [id])
+  isGiftable      Boolean          @default(true)
+  isSelfOnly      Boolean          @default(false)
+  isUnique        Boolean          @default(false)
+  isSeasonalOnly  Boolean          @default(false)
+  maxPerPurchase  Int?
+  currencyType    CurrencyType?
+  currencyAmount  Int?
+  isActive        Boolean          @default(true)
+  isFeatured      Boolean          @default(false)
+  isNew           Boolean          @default(false)
+  isPopular       Boolean          @default(false)
+  order           Int              @default(0)
+  gameCommands    String[]
+  server          String?
+  variants        ProductVariant[]
+  bundleItems     BundleItem[]     @relation("BundleProduct")
+  wishlistItems   WishlistItem[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  bulkDiscounts   BulkDiscount[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([type])
+  @@index([isActive, isFeatured])
+  @@map("products")
+}
+
+model ProductVariant {
+  id         String          @id @default(cuid())
+  productId  String
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  duration   ProductDuration
+  price      Decimal         @db.Decimal(10, 2)
+  oldPrice   Decimal?        @db.Decimal(10, 2)
+  isActive   Boolean         @default(true)
+  order      Int             @default(0)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@unique([productId, duration])
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model Bundle {
+  id            String       @id @default(cuid())
+  name          String
+  slug          String       @unique
+  description   String?
+  image         String?
+  totalPrice    Decimal      @db.Decimal(10, 2)
+  originalPrice Decimal      @db.Decimal(10, 2)
+  isActive      Boolean      @default(true)
+  isFeatured    Boolean      @default(false)
+  validFrom     DateTime?
+  validUntil    DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  items         BundleItem[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@index([slug])
+  @@map("bundles")
+}
+
+model BundleItem {
+  id        String  @id @default(cuid())
+  bundleId  String
+  bundle    Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation("BundleProduct", fields: [productId], references: [id])
+  variantId String?
+  quantity  Int     @default(1)
+
+  @@unique([bundleId, productId, variantId])
+  @@map("bundle_items")
+}
+
+model BulkDiscount {
+  id            String       @id @default(cuid())
+  productId     String?
+  product       Product?     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productType   ProductType?
+  minQuantity   Int          @default(0)
+  minAmount     Decimal?     @db.Decimal(10, 2)
+  discountType  DiscountType
+  discountValue Decimal      @db.Decimal(10, 2)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+
+  @@index([productId])
+  @@index([productType])
+  @@map("bulk_discounts")
+}
+
+model Cart {
+  id          String     @id @default(cuid())
+  userId      String     @unique
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promoCodeId String?
+  promoCode   PromoCode? @relation(fields: [promoCodeId], references: [id])
+  items       CartItem[]
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+  @@map("carts")
+}
+
+model CartItem {
+  id           String          @id @default(cuid())
+  cartId       String
+  cart         Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product?        @relation(fields: [productId], references: [id])
+  variantId    String?
+  variant      ProductVariant? @relation(fields: [variantId], references: [id])
+  bundleId     String?
+  bundle       Bundle?         @relation(fields: [bundleId], references: [id])
+  quantity     Int             @default(1)
+  giftToUserId String?
+  giftMessage  String?         @db.VarChar(500)
+  addedAt      DateTime        @default(now())
+
+  @@index([cartId])
+  @@map("cart_items")
+}
+
+model Wishlist {
+  id        String         @id @default(cuid())
+  userId    String         @unique
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isPublic  Boolean        @default(true)
+  items     WishlistItem[]
+  updatedAt DateTime       @updatedAt
+
+  @@index([userId])
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlistId String
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  addedAt    DateTime @default(now())
+
+  @@unique([wishlistId, productId])
+  @@index([wishlistId])
+  @@map("wishlist_items")
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  orderNumber    String      @unique
+  userId         String
+  user           User        @relation(fields: [userId], references: [id])
+  status         OrderStatus @default(PENDING)
+  subtotal       Decimal     @db.Decimal(10, 2)
+  discountAmount Decimal     @default(0) @db.Decimal(10, 2)
+  promoCodeId    String?
+  promoCode      PromoCode?  @relation(fields: [promoCodeId], references: [id])
+  total          Decimal     @db.Decimal(10, 2)
+  paymentMethod  String?
+  paymentId      String?
+  paidAt         DateTime?
+  cancelledAt    DateTime?
+  refundedAt     DateTime?
+  cancelReason   String?
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String          @id @default(cuid())
+  orderId      String
+  order        Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product?        @relation(fields: [productId], references: [id])
+  variantId    String?
+  variant      ProductVariant? @relation(fields: [variantId], references: [id])
+  bundleId     String?
+  bundle       Bundle?         @relation(fields: [bundleId], references: [id])
+  quantity     Int
+  unitPrice    Decimal         @db.Decimal(10, 2)
+  totalPrice   Decimal         @db.Decimal(10, 2)
+  giftToUserId String?
+  giftToUser   User?           @relation("GiftedItems", fields: [giftToUserId], references: [id])
+  giftMessage  String?         @db.VarChar(500)
+  isDelivered  Boolean         @default(false)
+  deliveredAt  DateTime?
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model LoyaltyDiscount {
+  id              String  @id @default(cuid())
+  minPurchases    Int
+  discountPercent Decimal @db.Decimal(5, 2)
+  name            String
+  description     String?
+  isActive        Boolean @default(true)
+
+  @@index([minPurchases])
+  @@map("loyalty_discounts")
 }
