@@ -5,28 +5,20 @@ import { Pencil, Plus, ScrollText, Server, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { EmptyState } from '@/components/shared/EmptyState';
+import {
+  AdminCreateEditDialog,
+  AdminDeleteConfirm,
+  AdminEmptyState,
+  AdminFilters,
+  AdminPageHeader,
+  AdminTable,
+  type AdminTableColumn,
+} from '@/components/admin';
 import { ServerStatusBadge } from '@/components/servers/ServerStatusBadge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import {
   useAdminServers,
@@ -56,6 +48,7 @@ export default function AdminServersPage() {
   const remove = useDeleteServer();
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<GameServer | null>(null);
   const [editing, setEditing] = useState<GameServer | null>(null);
   const [form, setForm] = useState<CreateServerPayload>(emptyForm);
 
@@ -71,6 +64,40 @@ export default function AdminServersPage() {
         s.type.toLowerCase().includes(q),
     );
   }, [list.data, search]);
+
+  const columns: AdminTableColumn<GameServer>[] = [
+    {
+      id: 'name',
+      header: 'Название',
+      cell: (server) => (
+        <div>
+          <p className="font-medium text-white">{server.name}</p>
+          <p className="text-xs text-muted-foreground">{server.slug}</p>
+        </div>
+      ),
+    },
+    {
+      id: 'address',
+      header: 'Адрес',
+      cell: (server) => (
+        <span className="font-mono text-sm">
+          {server.address}:{server.port}
+        </span>
+      ),
+    },
+    { id: 'type', header: 'Тип', cell: (server) => server.type },
+    {
+      id: 'status',
+      header: 'Статус',
+      cell: (server) => (
+        <ServerStatusBadge
+          online={server.status?.online ?? false}
+          playerCount={server.status?.playerCount}
+        />
+      ),
+    },
+    { id: 'order', header: 'Порядок', cell: (server) => server.order },
+  ];
 
   const openCreate = () => {
     setEditing(null);
@@ -110,11 +137,12 @@ export default function AdminServersPage() {
     }
   };
 
-  const onDelete = async (server: GameServer) => {
-    if (!window.confirm(`Удалить сервер «${server.name}»?`)) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await remove.mutateAsync(server.id);
+      await remove.mutateAsync(deleteTarget.id);
       toast.success('Сервер удалён');
+      setDeleteTarget(null);
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось удалить сервер'));
     }
@@ -122,204 +150,159 @@ export default function AdminServersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Серверы</h1>
-          <p className="text-sm text-muted-foreground">Мониторинг и управление игровыми серверами</p>
-        </div>
-        <Button onClick={openCreate}>
-          <Plus className="mr-2 h-4 w-4" />
-          Добавить сервер
-        </Button>
-      </div>
+      <AdminPageHeader
+        title="Серверы"
+        description="Мониторинг и управление игровыми серверами"
+        actions={
+          <Button onClick={openCreate}>
+            <Plus className="mr-2 h-4 w-4" />
+            Добавить сервер
+          </Button>
+        }
+      />
 
-      <div className="rounded-xl border border-border bg-card/40 p-4">
-        <Input
-          placeholder="Поиск по названию, slug, адресу…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      <AdminFilters
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Поиск по названию, slug, адресу…"
+        onReset={() => setSearch('')}
+      />
 
-      {list.isLoading ? (
-        <Skeleton className="h-64 w-full" />
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          icon={Server}
-          title="Нет серверов"
-          description="Добавьте первый сервер для мониторинга"
-          action={
-            <Button onClick={openCreate}>
-              <Plus className="mr-2 h-4 w-4" />
-              Добавить
-            </Button>
-          }
-        />
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Название</TableHead>
-                <TableHead>Адрес</TableHead>
-                <TableHead>Тип</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead>Порядок</TableHead>
-                <TableHead className="text-right">Действия</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((server) => (
-                <TableRow key={server.id} className="hover:bg-accent/30">
-                  <TableCell>
-                    <div>
-                      <p className="font-medium text-white">{server.name}</p>
-                      <p className="text-xs text-muted-foreground">{server.slug}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {server.address}:{server.port}
-                  </TableCell>
-                  <TableCell>{server.type}</TableCell>
-                  <TableCell>
-                    <ServerStatusBadge
-                      online={server.status?.online ?? false}
-                      playerCount={server.status?.playerCount}
-                    />
-                  </TableCell>
-                  <TableCell>{server.order}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button asChild variant="ghost" size="icon" aria-label="Логи">
-                        <Link href={`/admin/servers/${server.id}/logs`}>
-                          <ScrollText className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Редактировать"
-                        onClick={() => openEdit(server)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Удалить"
-                        onClick={() => void onDelete(server)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Редактировать сервер' : 'Новый сервер'}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-3 py-2">
-            <div className="space-y-1.5">
-              <Label>Название</Label>
-              <Input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Slug</Label>
-              <Input
-                value={form.slug}
-                onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                disabled={Boolean(editing)}
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="col-span-2 space-y-1.5">
-                <Label>Адрес</Label>
-                <Input
-                  value={form.address}
-                  onChange={(e) => setForm({ ...form, address: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Порт</Label>
-                <Input
-                  type="number"
-                  value={form.port ?? 25565}
-                  onChange={(e) => setForm({ ...form, port: Number(e.target.value) })}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1.5">
-                <Label>Тип</Label>
-                <Input
-                  value={form.type}
-                  onChange={(e) => setForm({ ...form, type: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Макс. игроков</Label>
-                <Input
-                  type="number"
-                  value={form.maxPlayers ?? 100}
-                  onChange={(e) => setForm({ ...form, maxPlayers: Number(e.target.value) })}
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Иконка URL</Label>
-              <Input
-                value={form.iconUrl ?? ''}
-                onChange={(e) => setForm({ ...form, iconUrl: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Описание</Label>
-              <Textarea
-                value={form.description ?? ''}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1.5">
-                <Label>Порядок</Label>
-                <Input
-                  type="number"
-                  value={form.order ?? 0}
-                  onChange={(e) => setForm({ ...form, order: Number(e.target.value) })}
-                />
-              </div>
-              <div className="flex items-end gap-2 pb-2">
-                <Switch
-                  checked={form.isActive ?? true}
-                  onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
-                />
-                <Label>Активен</Label>
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setDialogOpen(false)}>
-              Отмена
+      <AdminTable
+        columns={columns}
+        data={filtered}
+        rowKey={(s) => s.id}
+        isLoading={list.isLoading}
+        empty={
+          <AdminEmptyState
+            icon={Server}
+            title="Нет серверов"
+            description="Добавьте первый сервер для мониторинга"
+            action={
+              <Button onClick={openCreate}>
+                <Plus className="mr-2 h-4 w-4" />
+                Добавить
+              </Button>
+            }
+          />
+        }
+        actions={(server) => (
+          <>
+            <Button asChild variant="ghost" size="icon" aria-label="Логи">
+              <Link href={`/admin/servers/${server.id}/logs`}>
+                <ScrollText className="h-4 w-4" />
+              </Link>
             </Button>
             <Button
-              onClick={() => void save()}
-              disabled={create.isPending || update.isPending}
+              variant="ghost"
+              size="icon"
+              aria-label="Редактировать"
+              onClick={() => openEdit(server)}
             >
-              Сохранить
+              <Pencil className="h-4 w-4" />
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Удалить"
+              onClick={() => setDeleteTarget(server)}
+            >
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </>
+        )}
+      />
+
+      <AdminCreateEditDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={editing ? 'Редактировать сервер' : 'Новый сервер'}
+        onSubmit={() => void save()}
+        isPending={create.isPending || update.isPending}
+      >
+        <div className="space-y-1.5">
+          <Label>Название</Label>
+          <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Slug</Label>
+          <Input
+            value={form.slug}
+            onChange={(e) => setForm({ ...form, slug: e.target.value })}
+            disabled={Boolean(editing)}
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="col-span-2 space-y-1.5">
+            <Label>Адрес</Label>
+            <Input
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Порт</Label>
+            <Input
+              type="number"
+              value={form.port ?? 25565}
+              onChange={(e) => setForm({ ...form, port: Number(e.target.value) })}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1.5">
+            <Label>Тип</Label>
+            <Input value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Макс. игроков</Label>
+            <Input
+              type="number"
+              value={form.maxPlayers ?? 100}
+              onChange={(e) => setForm({ ...form, maxPlayers: Number(e.target.value) })}
+            />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Иконка URL</Label>
+          <Input
+            value={form.iconUrl ?? ''}
+            onChange={(e) => setForm({ ...form, iconUrl: e.target.value })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Описание</Label>
+          <Textarea
+            value={form.description ?? ''}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1.5">
+            <Label>Порядок</Label>
+            <Input
+              type="number"
+              value={form.order ?? 0}
+              onChange={(e) => setForm({ ...form, order: Number(e.target.value) })}
+            />
+          </div>
+          <div className="flex items-end gap-2 pb-2">
+            <Switch
+              checked={form.isActive ?? true}
+              onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
+            />
+            <Label>Активен</Label>
+          </div>
+        </div>
+      </AdminCreateEditDialog>
+
+      <AdminDeleteConfirm
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        title={deleteTarget ? `Удалить «${deleteTarget.name}»?` : 'Удалить?'}
+        onConfirm={() => void confirmDelete()}
+        isPending={remove.isPending}
+      />
     </div>
   );
 }

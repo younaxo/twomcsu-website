@@ -11,10 +11,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 
 const adminLinks = [
+  { href: '/admin/dashboard', label: 'Дашборд' },
   { href: '/admin/positions', label: 'Позиции' },
   { href: '/admin/badges', label: 'Бейджи' },
   { href: '/admin/awards', label: 'Награды' },
   { href: '/admin/servers', label: 'Серверы' },
+  { href: '/admin/broadcast', label: 'Рассылка' },
+  { href: '/admin/announcements', label: 'Объявления' },
+  { href: '/admin/settings', label: 'Настройки' },
+  { href: '/admin/audit-log', label: 'Audit log' },
   { href: '/admin/store/categories', label: 'Категории' },
   { href: '/admin/store/products', label: 'Товары' },
   { href: '/admin/store/bundles', label: 'Наборы' },
