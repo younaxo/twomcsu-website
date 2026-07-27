@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { CommentCard } from '@/components/comments/CommentCard';
 import { CommentEditor } from '@/components/comments/CommentEditor';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -138,9 +139,12 @@ export function CommentsList({
       ) : null}
 
       {!hasComments ? (
-        <div className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-          Пока нет комментариев. Будьте первым!
-        </div>
+        <EmptyState
+          icon={MessageSquare}
+          title="Пока нет комментариев"
+          description="Будьте первым!"
+          className="py-10"
+        />
       ) : null}
 
       {data?.pagination.hasNext ? (

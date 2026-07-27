@@ -37,20 +37,20 @@ export function WishlistButton({
 
   const toggle = async () => {
     if (!isAuthenticated) {
-      toast.error('Войдите, чтобы добавить в избранное');
+      toast.error('Войдите, чтобы добавить в желаемое');
       return;
     }
 
     try {
       if (active) {
         await remove.mutateAsync(productId);
-        toast.success('Убрано из избранного');
+        toast.success('Убрано из желаемого');
       } else {
         await add.mutateAsync(productId);
-        toast.success('Добавлено в избранное');
+        toast.success('Добавлено в желаемое');
       }
     } catch (error) {
-      toast.error(extractErrorMessage(error, 'Не удалось обновить избранное'));
+      toast.error(extractErrorMessage(error, 'Не удалось обновить желаемое'));
     }
   };
 
@@ -71,12 +71,12 @@ export function WishlistButton({
         >
           <Heart className={cn('h-4 w-4', active && 'fill-current')} />
           {size !== 'icon' ? (
-            <span>{active ? 'В избранном' : 'В избранное'}</span>
+            <span>{active ? 'В желаемом' : 'В желаемое'}</span>
           ) : null}
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        {active ? 'Убрать из избранного' : 'Добавить в избранное'}
+        {active ? 'Убрать из желаемого' : 'Добавить в желаемое'}
       </TooltipContent>
     </Tooltip>
   );

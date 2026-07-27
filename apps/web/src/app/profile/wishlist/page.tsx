@@ -1,8 +1,10 @@
 'use client';
 
+import { Heart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -31,12 +33,16 @@ export default function WishlistPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="space-y-4 text-center">
-        <p className="text-muted-foreground">Войдите, чтобы увидеть избранное</p>
-        <Button asChild>
-          <Link href="/login">Войти</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={Heart}
+        title="Желаемое"
+        description="Войдите, чтобы увидеть желаемое"
+        action={
+          <Button asChild>
+            <Link href="/login">Войти</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -46,7 +52,7 @@ export default function WishlistPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Избранное</h1>
+          <h1 className="text-2xl font-semibold text-white">Желаемое</h1>
           <p className="text-sm text-muted-foreground">Товары, которые вы хотите</p>
         </div>
         <div className="flex items-center gap-2">
@@ -57,7 +63,7 @@ export default function WishlistPage() {
             onCheckedChange={async (checked) => {
               try {
                 await updateVisibility.mutateAsync({ isPublic: checked });
-                toast.success(checked ? 'Вишлист открыт в профиле' : 'Вишлист скрыт');
+                toast.success(checked ? 'Желаемое открыто в профиле' : 'Желаемое скрыто');
               } catch (error) {
                 toast.error(extractErrorMessage(error));
               }
@@ -72,12 +78,16 @@ export default function WishlistPage() {
       {wishlist.isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border py-16 text-center">
-          <p className="mb-4 text-muted-foreground">Список пуст</p>
-          <Button asChild>
-            <Link href="/store">В магазин</Link>
-          </Button>
-        </div>
+        <EmptyState
+          icon={Heart}
+          title="Список пуст"
+          description="Добавляйте товары из магазина в желаемое"
+          action={
+            <Button asChild>
+              <Link href="/store">В магазин</Link>
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-3">
           {items.map((item) => {

@@ -7,12 +7,12 @@ import {
   Gift,
   Heart,
   Package,
-  ShoppingBag,
   Skull,
   Sword,
   TrendingUp,
   Tv,
   Video,
+  Wrench,
 } from 'lucide-react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -24,6 +24,9 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { AwardsList } from '@/components/shared/AwardsList';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { CopyableId } from '@/components/shared/CopyableId';
+import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { SkinHead } from '@/components/shared/SkinHead';
@@ -48,12 +51,13 @@ import {
   socialPlatformLabels,
 } from '@/lib/profile';
 import { useStoreUiStore } from '@/stores/storeUiStore';
+import { cn } from '@/lib/utils';
 
 const SkinViewer3D = dynamic(
   () => import('@/components/shared/SkinViewer').then((mod) => mod.SkinViewer3D),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-[400px] w-[280px]" />,
+    loading: () => <Skeleton className="h-full min-h-[400px] w-full" />,
   },
 );
 
@@ -82,6 +86,11 @@ function parseRestricted(error: unknown): RestrictedProfileResponse | null {
   return null;
 }
 
+function truncateId(id: string): string {
+  if (id.length <= 12) return id;
+  return `${id.slice(0, 6)}…${id.slice(-4)}`;
+}
+
 export function ProfileClient({ username, initial }: ProfileClientProps) {
   const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(initial);
@@ -94,7 +103,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
         skipAuthRedirect: true,
       })
       .then(({ data }) => {
-        // TODO: после Friends System — если не друг, показывать friends-only view
         setRestricted(null);
         setProfile(data);
       })
@@ -139,9 +147,9 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
     return <Skeleton className="h-[32rem] w-full" />;
   }
 
-  // TODO: после Friends System — если не друг, показывать friends-only view
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const statsHidden = profile.statistics === null && !profile.isOwner;
+  const isOnline = profile.isOnlineInGame ?? false;
 
   return (
     <div className="space-y-6">
@@ -157,13 +165,53 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
         <div className="relative px-4 pb-6 sm:px-6">
           <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-              <SkinHead
-                username={profile.username}
-                minecraftNick={profile.minecraftNick}
-                avatar={resolveMediaUrl(profile.avatar) ?? null}
-                size={112}
-                className="border-4 border-card shadow-lg"
-              />
+              <div className="relative shrink-0">
+                <div className="relative h-32 w-32">
+                  <div
+                    className={cn(
+                      'h-full w-full overflow-hidden rounded-2xl border-4 border-card shadow-lg',
+                      isOnline
+                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-card'
+                        : 'ring-2 ring-muted-foreground/35 ring-offset-2 ring-offset-card',
+                    )}
+                  >
+                    {resolveMediaUrl(profile.avatar) || profile.minecraftNick ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={
+                          profile.minecraftNick
+                            ? `https://mc-heads.net/avatar/${encodeURIComponent(profile.minecraftNick)}/128`
+                            : resolveMediaUrl(profile.avatar)!
+                        }
+                        alt={profile.username}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <DefaultAvatar username={profile.username} letterClassName="text-4xl" />
+                    )}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 rounded-lg border-2 border-card shadow-md">
+                    <SkinHead
+                      username={profile.username}
+                      minecraftNick={profile.minecraftNick}
+                      avatar={resolveMediaUrl(profile.avatar) ?? null}
+                      size={40}
+                      isOnline={isOnline}
+                      className="rounded-lg border-0 shadow-none"
+                    />
+                  </div>
+                </div>
+
+                {profile.statusText ? (
+                  <div className="absolute left-[calc(100%+0.75rem)] top-2 hidden max-w-[14rem] sm:block">
+                    <div className="relative rounded-2xl rounded-bl-sm border border-border bg-secondary/90 px-3 py-2 text-sm text-foreground shadow-md">
+                      <span className="absolute -left-1.5 bottom-3 h-3 w-3 rotate-45 border-b border-l border-border bg-secondary/90" />
+                      {profile.statusText}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
               <div className="space-y-2 pb-1">
                 <ColoredUsername
                   user={profile}
@@ -198,7 +246,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                   ))}
                 </div>
                 {profile.statusText ? (
-                  <p className="text-sm text-muted-foreground">{profile.statusText}</p>
+                  <p className="text-sm text-muted-foreground sm:hidden">{profile.statusText}</p>
                 ) : null}
               </div>
             </div>
@@ -257,15 +305,19 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
       <Tabs defaultValue="info">
         <TabsList>
           <TabsTrigger value="info">Информация</TabsTrigger>
-          <TabsTrigger value="comments">Комментарии</TabsTrigger>
-          <TabsTrigger value="wants">Хочет</TabsTrigger>
+          <TabsTrigger value="wants">Желаемое</TabsTrigger>
           <TabsTrigger value="inventory">Инвентарь</TabsTrigger>
-          <TabsTrigger value="services">Услуги</TabsTrigger>
         </TabsList>
 
         <TabsContent value="info" className="mt-4">
-          <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-            <SkinViewer3D minecraftNick={profile.minecraftNick} className="mx-auto" />
+          <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(240px,280px)_1fr]">
+            <div className="min-h-[400px]">
+              <SkinViewer3D
+                minecraftNick={profile.minecraftNick}
+                fill
+                className="h-full w-full"
+              />
+            </div>
 
             <div className="space-y-4">
               {profile.bio ? (
@@ -281,10 +333,23 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                 <CardHeader>
                   <CardTitle className="text-base">Информация</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col gap-2 text-sm">
+                    {profile.shortId != null ? (
+                      <CopyableId
+                        label="ID"
+                        value={`#${profile.shortId}`}
+                        display={`#${profile.shortId}`}
+                      />
+                    ) : null}
+                    {profile.tag ? <CopyableId label="Тег" value={profile.tag} /> : null}
+                    <CopyableId
+                      label="Длинный ID"
+                      value={profile.id}
+                      display={truncateId(profile.id)}
+                    />
+                  </div>
                   <dl className="grid gap-2 text-sm sm:grid-cols-[140px_1fr]">
-                    <dt className="text-muted-foreground">ID</dt>
-                    <dd>{profile.id.slice(0, 8)}</dd>
                     <dt className="text-muted-foreground">Роль</dt>
                     <dd style={{ color: profile.position.color }}>{profile.position.displayName}</dd>
                     <dt className="text-muted-foreground">Регистрация</dt>
@@ -302,6 +367,16 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                     <dt className="text-muted-foreground">Друзей</dt>
                     <dd>{friendsCount === null ? '—' : formatNumber(friendsCount)}</dd>
                   </dl>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Услуги</CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Wrench className="h-4 w-4" />
+                  В разработке
                 </CardContent>
               </Card>
 
@@ -400,14 +475,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
           </div>
         </TabsContent>
 
-        <TabsContent value="comments" className="mt-4">
-          <CommentsList
-            profileUsername={profile.username}
-            commentsEnabled={profile.commentsEnabled}
-            commentsForcedReason={profile.commentsForcedReason}
-          />
-        </TabsContent>
-
         <TabsContent value="wants" className="mt-4">
           <ProfileWishlistSection
             username={profile.username}
@@ -416,14 +483,19 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
           />
         </TabsContent>
 
-        <TabsContent value="inventory">
-          <Placeholder icon={Package} title="Инвентарь" />
-        </TabsContent>
-
-        <TabsContent value="services">
-          <Placeholder icon={ShoppingBag} title="Услуги" />
+        <TabsContent value="inventory" className="mt-4">
+          <EmptyState icon={Package} title="Инвентарь" description="В разработке" />
         </TabsContent>
       </Tabs>
+
+      <section className="space-y-3 border-t border-border pt-6">
+        <h2 className="text-lg font-semibold text-white">Комментарии</h2>
+        <CommentsList
+          profileUsername={profile.username}
+          commentsEnabled={profile.commentsEnabled}
+          commentsForcedReason={profile.commentsForcedReason}
+        />
+      </section>
     </div>
   );
 }
@@ -480,33 +552,25 @@ function ProfileWishlistSection({
 
   if (wishlist.isError || !wishlist.data?.isPublic) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
-          <Heart className="h-10 w-10" />
-          <p className="text-lg font-medium">Хочет</p>
-          <p className="text-sm">Вишлист скрыт или пуст</p>
-          {isOwner ? (
+      <EmptyState
+        icon={Heart}
+        title="Желаемое"
+        description="Список скрыт или пуст"
+        action={
+          isOwner ? (
             <Button asChild variant="secondary" size="sm">
-              <Link href="/profile/wishlist">Настроить избранное</Link>
+              <Link href="/profile/wishlist">Настроить желаемое</Link>
             </Button>
-          ) : null}
-        </CardContent>
-      </Card>
+          ) : undefined
+        }
+      />
     );
   }
 
   const items = wishlist.data.items;
 
   if (items.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
-          <Heart className="h-10 w-10" />
-          <p className="text-lg font-medium">Хочет</p>
-          <p className="text-sm">Пока ничего нет</p>
-        </CardContent>
-      </Card>
-    );
+    return <EmptyState icon={Heart} title="Желаемое" description="Пока ничего нет" />;
   }
 
   const giftToOwner = async (productId: string) => {
@@ -564,24 +628,6 @@ function ProfileWishlistSection({
         );
       })}
     </div>
-  );
-}
-
-function Placeholder({
-  icon: Icon,
-  title,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
-        <Icon className="h-10 w-10" />
-        <p className="text-lg font-medium">{title}</p>
-        <p className="text-sm">В разработке</p>
-      </CardContent>
-    </Card>
   );
 }
 
