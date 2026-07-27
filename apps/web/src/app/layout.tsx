@@ -7,18 +7,21 @@ import { SiteHeader } from '@/components/site-header';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
 
-const onest = Onest({
-  subsets: ['latin', 'cyrillic'],
-  display: 'swap',
-  variable: '--font-onest',
-});
-
 const geologica = Geologica({
   subsets: ['latin', 'cyrillic'],
   display: 'swap',
   variable: '--font-geologica',
-  // у next/font нет метрик Geologica, автоподбор фолбэка только сыпет ошибками в сборку
+  // next/font has no override metrics for Geologica
   adjustFontFallback: false,
+  fallback: ['system-ui', 'Arial', 'sans-serif'],
+});
+
+const onest = Onest({
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  variable: '--font-onest',
+  adjustFontFallback: false,
+  fallback: ['system-ui', 'Arial', 'sans-serif'],
 });
 
 export const metadata: Metadata = {
