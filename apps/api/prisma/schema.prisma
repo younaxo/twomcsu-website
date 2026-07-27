@@ -309,3 +309,15 @@ model MediaBadgeRequest {
   @@index([status])
   @@map("media_badge_requests")
 }
+
+/// Ready made banners a player can pick instead of uploading their own
+model BannerPreset {
+  id        String   @id @default(cuid())
+  name      String
+  imageUrl  String
+  category  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("banner_presets")
+}
