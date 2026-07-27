@@ -353,7 +353,7 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | `GET /notifications` | авторизованный | Список (`page`, `limit`, `unreadOnly`) |
 | `GET /notifications/unread-count` | авторизованный | Счётчик непрочитанных (poll 30 с в шапке) |
 | `PATCH /notifications/:id/read` | авторизованный | Прочитать одно |
-| `POST /notifications/read-all` | авторизованный | Прочитать все |
+| `PATCH /notifications/read-all` | авторизованный | Прочитать все → `{ count }` |
 
 Страницы: `/profile/notifications`. В шапке — колокольчик и пункт «Уведомления» в меню.
 
@@ -373,6 +373,42 @@ curl -i -X POST http://localhost:4000/auth/logout \
 - `/admin/store/*` (включая `stats`, `currencies`), `/admin/promocodes`, `/admin/orders`
 
 В шапке — «Магазин», колокольчик уведомлений, корзина (диалог) и dropdown профиля с ChevronDown.
+
+## Мониторинг серверов
+
+Опрос Minecraft-серверов каждые 30 секунд (`minecraft-server-util` + `@nestjs/schedule`).
+Статус кэшируется в Redis (`server:{id}:status`, TTL 60 с), история пишется в `ServerStatusLog`.
+
+Никнейм на сайте = Minecraft ник (`username`). Поле `minecraftNick` удалено.
+В настройках профиля ник только для чтения.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /servers` | публичный | Активные серверы + статус |
+| `GET /servers/overview` | публичный | Общий онлайн, пик 24ч, топ |
+| `GET /servers/:slug` | публичный | Детали сервера |
+| `GET /servers/:slug/status` | публичный | Только статус |
+| `GET /servers/:slug/players` | публичный | Онлайн-игроки |
+| `GET /servers/:slug/history?days=` | публичный | История для графика |
+| `GET /servers/widget?ids=` | публичный | HTML-виджет |
+| `GET/POST/PATCH/DELETE /admin/servers` | ADMIN+ | CRUD серверов |
+| `GET /admin/servers/:id/logs` | ADMIN+ | Логи мониторинга |
+
+Страницы: `/servers`, `/servers/[slug]`, `/admin/servers`, `/admin/servers/[id]/logs`.
+На главной — счётчик онлайна и топ серверов. В профиле — «Играет на …» / «Не в игре».
+
+## Админка (расширения)
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /admin/dashboard` | ADMIN+ | Метрики и графики |
+| `GET /admin/audit-log` | ADMIN+ | Журнал действий |
+| `POST /admin/broadcast` | ADMIN+ | Массовые уведомления |
+| `GET/PATCH /admin/settings` | ADMIN+ | SiteSettings (key-value) |
+| `GET/POST/PATCH/DELETE /admin/announcements` | ADMIN+ | Объявления на сайте |
+
+Страницы: `/admin/dashboard`, `/admin/audit-log`, `/admin/broadcast`, `/admin/settings`, `/admin/announcements`.
+Общие UI-компоненты: `AdminPageHeader`, `AdminFilters`, `AdminTable`, `AdminEmptyState`, `AdminCreateEditDialog`, `AdminDeleteConfirm`.
 
 ## Performance
 
@@ -420,10 +456,12 @@ apps/
       modules/
         auth/         эндпоинты, гварды, стратегии, капча, брутфорс, сессии
         awards/       каталог наград и выдача
+        admin/        дашборд, audit log, broadcast, settings, announcements
         cache/        Redis CacheService (global)
         comments/     комментарии профиля
         friends/      запросы, друзья, блокировки
         health/       GET /health
+        minecraft/    мониторинг серверов (cron + CRUD)
         positions/    титулы, их crud и назначение игрокам
         prisma/       PrismaService (глобальный модуль)
         redis/        ioredis клиент (глобальный модуль)
@@ -431,11 +469,11 @@ apps/
         uploads/      sharp + раздача /uploads
         users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
-    src/app/          (auth), /store/*, /users/[username], /profile/*, /admin/*
-    src/components/   ui kit, store, profile, shared, admin, шапка
-    src/hooks/        useAuth, friends, comments, store/*
+    src/app/          (auth), /servers/*, /store/*, /users/[username], /profile/*, /admin/*
+    src/components/   ui kit, servers, store, profile, shared, admin, шапка
+    src/hooks/        useAuth, friends, comments, store/*, servers/*
     src/lib/          axios клиент, query-keys, profile helpers
     src/stores/       zustand: auth, storeUi
 packages/
-  shared/             RoleGroup, Position, Profile, Friends, Store, Auth типы
+  shared/             RoleGroup, Position, Profile, Friends, Store, Servers, Auth типы
 ```
