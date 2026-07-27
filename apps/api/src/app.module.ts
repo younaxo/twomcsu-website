@@ -8,6 +8,7 @@ import { validateEnv } from './config/env.validation';
 import { AuthModule } from './modules/auth/auth.module';
 import { AwardsModule } from './modules/awards/awards.module';
 import { CacheModule } from './modules/cache/cache.module';
+import { CommentsModule } from './modules/comments/comments.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
 import { PositionsModule } from './modules/positions/positions.module';
@@ -37,6 +38,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     AwardsModule,
     FriendsModule,
+    CommentsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

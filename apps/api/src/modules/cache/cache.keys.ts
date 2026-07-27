@@ -11,6 +11,8 @@ export const CACHE_TTL = {
   FRIENDS_COUNT: 60,
   /** Incoming pending requests count */
   INCOMING_REQUESTS_COUNT: 30,
+  /** Profile comments list */
+  PROFILE_COMMENTS: 30,
   /** Server status / monitoring */
   SERVER_STATUS: 30,
 } as const;
@@ -27,4 +29,7 @@ export const cacheKeys = {
   friendsCount: (userId: string) => `friends:count:${userId}`,
   incomingCount: (userId: string) => `friends:incoming-count:${userId}`,
   authMe: (userId: string) => `auth:me:${userId}`,
+  profileComments: (username: string, page: number, limit: number, sort: string) =>
+    `comments:${username.toLowerCase()}:${page}:${limit}:${sort}`,
+  profileCommentsPattern: (username: string) => `comments:${username.toLowerCase()}:*`,
 } as const;

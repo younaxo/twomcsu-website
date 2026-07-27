@@ -505,6 +505,33 @@ export class FriendsService {
     return friendship !== null;
   }
 
+  /** True when A and B share at least one accepted friend */
+  async areFriendsOfFriends(userA: string, userB: string): Promise<boolean> {
+    if (userA === userB || (await this.areFriends(userA, userB))) {
+      return true;
+    }
+
+    const [friendsA, friendsB] = await Promise.all([
+      this.listAcceptedFriendIds(userA),
+      this.listAcceptedFriendIds(userB),
+    ]);
+
+    const setB = new Set(friendsB);
+    return friendsA.some((id) => setB.has(id));
+  }
+
+  private async listAcceptedFriendIds(userId: string): Promise<string[]> {
+    const rows = await this.prisma.friendship.findMany({
+      where: {
+        status: FriendshipStatus.ACCEPTED,
+        OR: [{ requesterId: userId }, { addresseeId: userId }],
+      },
+      select: { requesterId: true, addresseeId: true },
+    });
+
+    return rows.map((row) => (row.requesterId === userId ? row.addresseeId : row.requesterId));
+  }
+
   private async invalidateUserCaches(...userIds: string[]): Promise<void> {
     const keys = userIds.flatMap((id) => [
       cacheKeys.friendsCount(id),
