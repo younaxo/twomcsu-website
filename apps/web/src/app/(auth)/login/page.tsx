@@ -3,11 +3,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Captcha, CaptchaHandle } from '@/components/shared/Captcha';
+import { CaptchaField, CaptchaFieldHandle } from '@/components/shared/CaptchaField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -25,6 +25,7 @@ import { extractErrorMessage } from '@/lib/api';
 const loginSchema = z.object({
   emailOrUsername: z.string().min(1, 'Укажите email или никнейм'),
   password: z.string().min(1, 'Укажите пароль'),
+  captchaToken: z.string().min(1, 'Подтвердите, что вы не робот'),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
@@ -32,28 +33,22 @@ type LoginValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
-  const captcha = useRef<CaptchaHandle>(null);
-  const [requiresCaptcha, setRequiresCaptcha] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState<string>();
+  const captcha = useRef<CaptchaFieldHandle>(null);
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { emailOrUsername: '', password: '' },
+    defaultValues: { emailOrUsername: '', password: '', captchaToken: '' },
   });
 
+  const captchaToken = form.watch('captchaToken');
+
   const onSubmit = async (values: LoginValues) => {
-    if (requiresCaptcha && !captchaToken) {
-      toast.error('Подтвердите, что вы не робот');
-
-      return;
-    }
-
     try {
-      const result = await login(values.emailOrUsername, values.password, captchaToken);
+      const result = await login(values.emailOrUsername, values.password, values.captchaToken);
 
       if (result.requiresCaptcha) {
-        setRequiresCaptcha(true);
-        toast.warning('Слишком много попыток входа, подтвердите капчу');
+        captcha.current?.reset();
+        toast.warning('Капча устарела, подтвердите ещё раз');
 
         return;
       }
@@ -62,7 +57,6 @@ export default function LoginPage() {
       router.refresh();
     } catch (error) {
       captcha.current?.reset();
-      setCaptchaToken(undefined);
       toast.error(extractErrorMessage(error, 'Не удалось войти'));
     }
   };
@@ -96,7 +90,15 @@ export default function LoginPage() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Пароль</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Пароль</FormLabel>
+                    <Link
+                      href="/forgot-password"
+                      className="text-sm text-muted-foreground hover:text-primary hover:underline"
+                    >
+                      Забыли пароль?
+                    </Link>
+                  </div>
                   <FormControl>
                     <Input type="password" autoComplete="current-password" {...field} />
                   </FormControl>
@@ -105,15 +107,13 @@ export default function LoginPage() {
               )}
             />
 
-            {requiresCaptcha && (
-              <Captcha
-                ref={captcha}
-                onVerify={setCaptchaToken}
-                onExpire={() => setCaptchaToken(undefined)}
-              />
-            )}
+            <CaptchaField ref={captcha} />
 
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={!captchaToken || form.formState.isSubmitting}
+            >
               {form.formState.isSubmitting ? 'Входим...' : 'Войти'}
             </Button>
           </form>
