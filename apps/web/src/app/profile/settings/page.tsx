@@ -1,8 +1,15 @@
 'use client';
 
-import type { MyProfile, SessionInfo } from '@twomc/shared';
+import {
+  FriendRequestPolicy,
+  MediaGroup,
+  type MyProfile,
+  ProfileVisibility,
+  type SessionInfo,
+} from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { Globe, Lock, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -31,8 +38,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -45,8 +52,8 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { api, extractErrorMessage } from '@/lib/api';
 import { mediaGroupLabels } from '@/lib/profile';
+import { cn } from '@/lib/utils';
 import { checkPasswordPair } from '@/lib/validation';
-import { MediaGroup } from '@twomc/shared';
 
 const passwordSchema = z
   .object({
@@ -130,7 +137,8 @@ export default function ProfileSettingsPage() {
         gender: profile.gender,
         birthDate: profile.birthDate,
         showBirthDate: profile.showBirthDate,
-        isProfilePrivate: profile.isProfilePrivate,
+        profileVisibility: profile.profileVisibility,
+        friendRequestPolicy: profile.friendRequestPolicy,
         hideEmail: profile.hideEmail,
         hideCountry: profile.hideCountry,
         hideCity: profile.hideCity,
@@ -329,51 +337,186 @@ export default function ProfileSettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Приватность</CardTitle>
-              <CardDescription>
-                Если профиль приватный, его видите только вы и модерация
-              </CardDescription>
+              <CardDescription>Управляйте видимостью профиля и заявками в друзья</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="flex items-center justify-between gap-4">
+            <CardContent className="space-y-8">
+              <div className="space-y-3">
                 <div>
-                  <p className="font-medium">Приватный профиль</p>
-                  <p className="text-sm text-muted-foreground">Скрыть страницу от остальных игроков</p>
+                  <p className="font-medium">Кто может видеть ваш профиль</p>
+                  <p className="text-sm text-muted-foreground">Выберите уровень видимости страницы</p>
                 </div>
-                <Switch
-                  checked={profile.isProfilePrivate}
-                  onCheckedChange={(checked) =>
-                    setProfile({ ...profile, isProfilePrivate: checked })
+                <RadioGroup
+                  value={profile.profileVisibility}
+                  onValueChange={(value) =>
+                    setProfile({
+                      ...profile,
+                      profileVisibility: value as MyProfile['profileVisibility'],
+                    })
                   }
-                />
-              </div>
-
-              {!profile.isProfilePrivate ? (
-                <div className="space-y-3">
+                  className="grid gap-3"
+                >
                   {(
                     [
-                      ['hideCountry', 'Скрыть страну'],
-                      ['hideCity', 'Скрыть город'],
-                      ['hideBirthDate', 'Скрыть возраст'],
-                      ['hideGender', 'Скрыть пол'],
-                      ['hideStatistics', 'Скрыть статистику'],
-                      ['hideSocials', 'Скрыть соц сети'],
-                      ['hideInventory', 'Скрыть инвентарь'],
-                      ['hideServices', 'Скрыть услуги'],
-                      ['hideComments', 'Скрыть комментарии'],
+                      {
+                        value: ProfileVisibility.EVERYONE,
+                        icon: Globe,
+                        title: 'Все',
+                        description: 'Ваш профиль виден всем пользователям',
+                      },
+                      {
+                        value: ProfileVisibility.FRIENDS_ONLY,
+                        icon: Users,
+                        title: 'Только друзья',
+                        description: 'Профиль виден только вашим друзьям',
+                      },
+                      {
+                        value: ProfileVisibility.NOBODY,
+                        icon: Lock,
+                        title: 'Никто',
+                        description: 'Профиль виден только вам',
+                      },
                     ] as const
-                  ).map(([key, label]) => (
-                    <label key={key} className="flex items-center gap-2 text-sm">
-                      <Checkbox
-                        checked={profile[key]}
-                        onCheckedChange={(checked) =>
-                          setProfile({ ...profile, [key]: checked === true })
-                        }
-                      />
-                      {label}
-                    </label>
-                  ))}
+                  ).map((option) => {
+                    const Icon = option.icon;
+                    const selected = profile.profileVisibility === option.value;
+
+                    return (
+                      <label
+                        key={option.value}
+                        className={cn(
+                          'flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors',
+                          selected
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-muted-foreground/40',
+                        )}
+                      >
+                        <RadioGroupItem value={option.value} className="mt-1" />
+                        <Icon
+                          className={cn(
+                            'mt-0.5 h-5 w-5 shrink-0',
+                            selected ? 'text-primary' : 'text-muted-foreground',
+                          )}
+                        />
+                        <div className="space-y-0.5">
+                          <p className="font-medium leading-none">{option.title}</p>
+                          <p className="text-sm text-muted-foreground">{option.description}</p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <p className="font-medium">Кто может отправлять вам заявки в друзья</p>
+                  <p className="text-sm text-muted-foreground">
+                    Это будет применяться после запуска системы друзей
+                  </p>
                 </div>
-              ) : null}
+                <RadioGroup
+                  value={profile.friendRequestPolicy}
+                  onValueChange={(value) =>
+                    setProfile({
+                      ...profile,
+                      friendRequestPolicy: value as MyProfile['friendRequestPolicy'],
+                    })
+                  }
+                  className="grid gap-3"
+                >
+                  {(
+                    [
+                      {
+                        value: FriendRequestPolicy.EVERYONE,
+                        icon: Globe,
+                        title: 'Все',
+                        description: 'Любой пользователь может отправить заявку',
+                      },
+                      {
+                        value: FriendRequestPolicy.FRIENDS_OF_FRIENDS,
+                        icon: Users,
+                        title: 'Только друзья друзей',
+                        description: 'Заявку могут отправить только через общих друзей',
+                      },
+                      {
+                        value: FriendRequestPolicy.NOBODY,
+                        icon: Lock,
+                        title: 'Никто',
+                        description: 'Никто не может отправить заявку',
+                      },
+                    ] as const
+                  ).map((option) => {
+                    const Icon = option.icon;
+                    const selected = profile.friendRequestPolicy === option.value;
+
+                    return (
+                      <label
+                        key={option.value}
+                        className={cn(
+                          'flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors',
+                          selected
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-muted-foreground/40',
+                        )}
+                      >
+                        <RadioGroupItem value={option.value} className="mt-1" />
+                        <Icon
+                          className={cn(
+                            'mt-0.5 h-5 w-5 shrink-0',
+                            selected ? 'text-primary' : 'text-muted-foreground',
+                          )}
+                        />
+                        <div className="space-y-0.5">
+                          <p className="font-medium leading-none">{option.title}</p>
+                          <p className="text-sm text-muted-foreground">{option.description}</p>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <p className="font-medium">Скрыть отдельные поля</p>
+                  <p className="text-sm text-muted-foreground">
+                    Доступно только при видимости «Все»
+                  </p>
+                </div>
+
+                {profile.profileVisibility === ProfileVisibility.EVERYONE ? (
+                  <div className="space-y-3">
+                    {(
+                      [
+                        ['hideEmail', 'Скрыть email'],
+                        ['hideCountry', 'Скрыть страну'],
+                        ['hideCity', 'Скрыть город'],
+                        ['hideBirthDate', 'Скрыть возраст'],
+                        ['hideGender', 'Скрыть пол'],
+                        ['hideStatistics', 'Скрыть статистику'],
+                        ['hideSocials', 'Скрыть соц сети'],
+                        ['hideInventory', 'Скрыть инвентарь'],
+                        ['hideServices', 'Скрыть услуги'],
+                        ['hideComments', 'Скрыть комментарии'],
+                      ] as const
+                    ).map(([key, label]) => (
+                      <label key={key} className="flex items-center gap-2 text-sm">
+                        <Checkbox
+                          checked={profile[key]}
+                          onCheckedChange={(checked) =>
+                            setProfile({ ...profile, [key]: checked === true })
+                          }
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                    Настройка отдельных полей доступна только при видимости «Все»
+                  </div>
+                )}
+              </div>
 
               <Button type="button" onClick={() => void saveProfile()} disabled={isSaving}>
                 {isSaving ? 'Сохраняем...' : 'Сохранить'}
