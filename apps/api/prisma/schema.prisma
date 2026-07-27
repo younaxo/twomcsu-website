@@ -108,6 +108,8 @@ model User {
   @@index([username])
   @@index([minecraftNick])
   @@index([positionId])
+  @@index([roleGroup, isBanned])
+  @@index([lastLoginAt])
   @@map("users")
 }
 
@@ -350,6 +352,7 @@ model ProfileView {
 
   @@unique([profileId, viewerId])
   @@index([profileId])
+  @@index([profileId, viewedAt])
   @@map("profile_views")
 }
 
@@ -464,5 +467,7 @@ model Friendship {
   @@index([requesterId])
   @@index([addresseeId])
   @@index([status])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
   @@map("friendships")
 }
