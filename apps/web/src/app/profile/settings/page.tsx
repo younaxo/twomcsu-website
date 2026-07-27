@@ -131,7 +131,6 @@ export default function ProfileSettingsPage() {
     setSaving(true);
     try {
       const { data } = await api.patch<MyProfile>('/users/me/profile', {
-        minecraftNick: profile.minecraftNick,
         statusText: profile.statusText,
         bio: profile.bio,
         country: profile.country,
@@ -262,14 +261,20 @@ export default function ProfileSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Minecraft ник</Label>
+                <Label htmlFor="username-readonly" className="flex items-center gap-2">
+                  <Lock className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                  Никнейм
+                </Label>
                 <Input
-                  value={profile.minecraftNick ?? ''}
-                  maxLength={16}
-                  onChange={(event) =>
-                    setProfile({ ...profile, minecraftNick: event.target.value || null })
-                  }
+                  id="username-readonly"
+                  value={profile.username}
+                  readOnly
+                  disabled
+                  className="cursor-not-allowed opacity-80"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Никнейм нельзя изменить. Если нужен другой ник — создайте новый аккаунт.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label>Статус</Label>
