@@ -78,6 +78,21 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
+  notifyOnFriendRequest?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  notifyOnGift?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  notifyOnOrder?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
   hideEmail?: boolean;
 
   @IsOptional()

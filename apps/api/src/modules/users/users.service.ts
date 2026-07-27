@@ -114,6 +114,9 @@ export class UsersService {
     if (dto.notifyOnComment !== undefined) data.notifyOnComment = dto.notifyOnComment;
     if (dto.notifyOnMention !== undefined) data.notifyOnMention = dto.notifyOnMention;
     if (dto.notifyOnReply !== undefined) data.notifyOnReply = dto.notifyOnReply;
+    if (dto.notifyOnFriendRequest !== undefined) data.notifyOnFriendRequest = dto.notifyOnFriendRequest;
+    if (dto.notifyOnGift !== undefined) data.notifyOnGift = dto.notifyOnGift;
+    if (dto.notifyOnOrder !== undefined) data.notifyOnOrder = dto.notifyOnOrder;
     if (dto.hideEmail !== undefined) data.hideEmail = dto.hideEmail;
     if (dto.hideCountry !== undefined) data.hideCountry = dto.hideCountry;
     if (dto.hideCity !== undefined) data.hideCity = dto.hideCity;
