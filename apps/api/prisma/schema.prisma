@@ -70,18 +70,20 @@ model User {
   birthDate     DateTime?
   showBirthDate Boolean   @default(false)
 
-  /// Hides the whole page from everyone but the owner and the staff
-  isProfilePrivate Boolean @default(false)
-  hideEmail        Boolean @default(true)
-  hideCountry      Boolean @default(false)
-  hideCity         Boolean @default(false)
-  hideBirthDate    Boolean @default(true)
-  hideGender       Boolean @default(false)
-  hideStatistics   Boolean @default(false)
-  hideSocials      Boolean @default(false)
-  hideInventory    Boolean @default(false)
-  hideServices     Boolean @default(false)
-  hideComments     Boolean @default(false)
+  /// Who can open the public profile page
+  profileVisibility   ProfileVisibility   @default(EVERYONE)
+  /// Who is allowed to send friend requests
+  friendRequestPolicy FriendRequestPolicy @default(EVERYONE)
+  hideEmail           Boolean             @default(true)
+  hideCountry         Boolean             @default(false)
+  hideCity            Boolean             @default(false)
+  hideBirthDate       Boolean             @default(true)
+  hideGender          Boolean             @default(false)
+  hideStatistics      Boolean             @default(false)
+  hideSocials         Boolean             @default(false)
+  hideInventory       Boolean             @default(false)
+  hideServices        Boolean             @default(false)
+  hideComments        Boolean             @default(false)
 
   position            Position             @relation(fields: [positionId], references: [id])
   refreshTokens       RefreshToken[]
@@ -147,6 +149,18 @@ enum Gender {
   FEMALE
   OTHER
   PREFER_NOT_TO_SAY
+}
+
+enum ProfileVisibility {
+  EVERYONE
+  FRIENDS_ONLY
+  NOBODY
+}
+
+enum FriendRequestPolicy {
+  EVERYONE
+  FRIENDS_OF_FRIENDS
+  NOBODY
 }
 
 enum SocialPlatform {
