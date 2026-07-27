@@ -1,5 +1,6 @@
-import type { Position } from '@twomc/shared';
+import type { Position, UserBadge } from '@twomc/shared';
 import Link from 'next/link';
+import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +11,7 @@ interface ColoredUsernameProps {
   size?: UsernameSize;
   showBadge?: boolean;
   linkToProfile?: boolean;
+  badges?: UserBadge[];
   className?: string;
 }
 
@@ -19,11 +21,18 @@ const sizeClasses: Record<UsernameSize, string> = {
   lg: 'text-2xl',
 };
 
+const badgeSize: Record<UsernameSize, number> = {
+  sm: 14,
+  md: 16,
+  lg: 20,
+};
+
 export function ColoredUsername({
   user,
   size = 'md',
   showBadge = false,
   linkToProfile = true,
+  badges,
   className,
 }: ColoredUsernameProps) {
   const name = (
@@ -44,6 +53,10 @@ export function ColoredUsername({
       ) : (
         name
       )}
+
+      {badges?.map((badge) => (
+        <UserBadgeIcon key={badge.id} type={badge.type} size={badgeSize[size]} />
+      ))}
 
       {showBadge ? (
         <PositionBadge position={user.position} size={size === 'lg' ? 'md' : 'sm'} />
