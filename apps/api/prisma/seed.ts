@@ -650,6 +650,70 @@ async function upsertCurrencyRates() {
   console.log(`currency rates: ${seedCurrencyRates.length}`);
 }
 
+async function upsertServers() {
+  const servers = [
+    {
+      name: 'Hypixel',
+      slug: 'hypixel',
+      address: 'mc.hypixel.net',
+      port: 25565,
+      type: 'minigames',
+      description: 'Тестовый публичный сервер для проверки мониторинга',
+      maxPlayers: 200000,
+      order: 0,
+    },
+    {
+      name: 'Survival',
+      slug: 'survival',
+      address: 'play.minehut.com',
+      port: 25565,
+      type: 'survival',
+      description: 'Выживание с экономикой и квестами',
+      maxPlayers: 200,
+      order: 1,
+    },
+    {
+      name: 'SkyBlock',
+      slug: 'skyblock',
+      address: 'play.cubecraft.net',
+      port: 25565,
+      type: 'skyblock',
+      description: 'Небесные острова и островные войны',
+      maxPlayers: 100,
+      order: 2,
+    },
+    {
+      name: 'PvP Arena',
+      slug: 'pvp',
+      address: 'mc.hypixel.net',
+      port: 25565,
+      type: 'pvp',
+      description: 'Арены и дуэли',
+      maxPlayers: 50,
+      order: 3,
+    },
+  ];
+
+  for (const server of servers) {
+    await prisma.server.upsert({
+      where: { slug: server.slug },
+      update: {
+        name: server.name,
+        address: server.address,
+        port: server.port,
+        type: server.type,
+        description: server.description,
+        maxPlayers: server.maxPlayers,
+        order: server.order,
+        isActive: true,
+      },
+      create: server,
+    });
+  }
+
+  console.log(`servers: ${servers.length}`);
+}
+
 async function main() {
   const positionIds = await upsertPositions();
 
@@ -661,6 +725,8 @@ async function main() {
   await upsertStoreBundles(storeProducts);
   await upsertStoreDiscounts();
   await upsertCurrencyRates();
+
+  await upsertServers();
 
   const awardIds = await upsertAwards();
 
