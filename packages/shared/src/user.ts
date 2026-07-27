@@ -45,13 +45,3 @@ export interface UserSearchResult {
   roleGroup: RoleGroup;
   position: Position;
 }
-
-/** Anyone can read this one, the owner of the account included */
-export interface UserProfile {
-  id: string;
-  username: string;
-  avatar: string | null;
-  minecraftNick: string | null;
-  position: Position;
-  createdAt: string;
-}
