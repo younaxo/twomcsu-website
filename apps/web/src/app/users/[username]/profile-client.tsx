@@ -1,6 +1,6 @@
 'use client';
 
-import type { UserProfile } from '@twomc/shared';
+import type { FriendsCountResponse, UserProfile } from '@twomc/shared';
 import {
   Coins,
   Eye,
@@ -20,6 +20,7 @@ import { ru } from 'date-fns/locale';
 import { useEffect, useState } from 'react';
 import { AwardsList } from '@/components/shared/AwardsList';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { FriendButton } from '@/components/shared/FriendButton';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { SkinHead } from '@/components/shared/SkinHead';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
@@ -45,6 +46,7 @@ const SkinViewer3D = dynamic(
     loading: () => <Skeleton className="h-[400px] w-[280px]" />,
   },
 );
+
 interface ProfileClientProps {
   username: string;
   initial: UserProfile;
@@ -53,6 +55,7 @@ interface ProfileClientProps {
 export function ProfileClient({ username, initial }: ProfileClientProps) {
   const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState(initial);
+  const [friendsCount, setFriendsCount] = useState<number | null>(null);
 
   useEffect(() => {
     void api
@@ -72,6 +75,15 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
       .post(`/users/${encodeURIComponent(username)}/view`, undefined, { skipAuthRedirect: true })
       .catch(() => undefined);
   }, [username, isAuthenticated, profile.isOwner]);
+
+  useEffect(() => {
+    void api
+      .get<FriendsCountResponse>(`/friends/count/${encodeURIComponent(username)}`, {
+        skipAuthRedirect: true,
+      })
+      .then(({ data }) => setFriendsCount(data.count))
+      .catch(() => setFriendsCount(null));
+  }, [username]);
 
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const statsHidden = profile.statistics === null && !profile.isOwner;
@@ -139,7 +151,10 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
             <div className="flex flex-col items-start gap-3 sm:items-end">
               <AwardsList awards={profile.awards} size={28} />
               {isAuthenticated && !profile.isOwner ? (
-                <ReportProfileDialog username={profile.username} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <FriendButton username={profile.username} />
+                  <ReportProfileDialog username={profile.username} />
+                </div>
               ) : null}
             </div>
           </div>
@@ -237,6 +252,8 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                     <dd>{profile.statistics?.lastServer ?? '—'}</dd>
                     <dt className="text-muted-foreground">Клан</dt>
                     <dd className="text-muted-foreground">В разработке</dd>
+                    <dt className="text-muted-foreground">Друзей</dt>
+                    <dd>{friendsCount === null ? '—' : formatNumber(friendsCount)}</dd>
                   </dl>
                 </CardContent>
               </Card>
