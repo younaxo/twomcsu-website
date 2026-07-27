@@ -1,4 +1,5 @@
 import type { Position } from '@twomc/shared';
+import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
 type BadgeSize = 'sm' | 'md' | 'lg';
@@ -18,11 +19,10 @@ const sizeClasses: Record<BadgeSize, string> = {
 
 const iconSizes: Record<BadgeSize, number> = { sm: 12, md: 14, lg: 18 };
 
-// hex alpha suffixes, position.color is always #RRGGBB
 const FILL_ALPHA = '1f';
 const BORDER_ALPHA = '4d';
 
-export function PositionBadge({
+function PositionBadgeComponent({
   position,
   size = 'md',
   showIcon = true,
@@ -49,7 +49,6 @@ export function PositionBadge({
   );
 }
 
-/** Icon is either an image url or an emoji typed in the admin panel */
 function PositionIcon({ icon, size }: { icon: string; size: number }) {
   if (icon.startsWith('http') || icon.startsWith('/')) {
     return (
@@ -60,3 +59,5 @@ function PositionIcon({ icon, size }: { icon: string; size: number }) {
 
   return <span aria-hidden>{icon}</span>;
 }
+
+export const PositionBadge = memo(PositionBadgeComponent);

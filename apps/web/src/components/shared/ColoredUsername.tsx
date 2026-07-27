@@ -1,7 +1,11 @@
+'use client';
+
 import type { Position, UserBadge } from '@twomc/shared';
 import Link from 'next/link';
+import { memo } from 'react';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { PositionBadge } from '@/components/shared/PositionBadge';
+import { usePrefetchProfile } from '@/hooks/useFriendsQueries';
 import { cn } from '@/lib/utils';
 
 type UsernameSize = 'sm' | 'md' | 'lg';
@@ -27,7 +31,7 @@ const badgeSize: Record<UsernameSize, number> = {
   lg: 20,
 };
 
-export function ColoredUsername({
+function ColoredUsernameComponent({
   user,
   size = 'md',
   showBadge = false,
@@ -35,6 +39,8 @@ export function ColoredUsername({
   badges,
   className,
 }: ColoredUsernameProps) {
+  const prefetchProfile = usePrefetchProfile();
+
   const name = (
     <span
       className={cn('truncate font-semibold', sizeClasses[size], className)}
@@ -47,7 +53,11 @@ export function ColoredUsername({
   return (
     <span className="inline-flex items-center gap-2">
       {linkToProfile ? (
-        <Link href={`/users/${user.username}`} className="transition-opacity hover:opacity-80">
+        <Link
+          href={`/users/${user.username}`}
+          className="transition-opacity hover:opacity-80"
+          onMouseEnter={() => prefetchProfile(user.username)}
+        >
           {name}
         </Link>
       ) : (
@@ -64,3 +74,5 @@ export function ColoredUsername({
     </span>
   );
 }
+
+export const ColoredUsername = memo(ColoredUsernameComponent);

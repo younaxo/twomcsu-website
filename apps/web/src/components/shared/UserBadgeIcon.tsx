@@ -2,6 +2,7 @@
 
 import { UserBadgeType } from '@twomc/shared';
 import Image from 'next/image';
+import { memo } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { userBadgeIcons, userBadgeLabels } from '@/lib/profile';
 import { cn } from '@/lib/utils';
@@ -12,7 +13,7 @@ interface UserBadgeIconProps {
   className?: string;
 }
 
-export function UserBadgeIcon({ type, size = 20, className }: UserBadgeIconProps) {
+function UserBadgeIconComponent({ type, size = 20, className }: UserBadgeIconProps) {
   return (
     <TooltipProvider delayDuration={200}>
       <Tooltip>
@@ -26,3 +27,5 @@ export function UserBadgeIcon({ type, size = 20, className }: UserBadgeIconProps
     </TooltipProvider>
   );
 }
+
+export const UserBadgeIcon = memo(UserBadgeIconComponent);

@@ -2,6 +2,7 @@
 
 import type { Award } from '@twomc/shared';
 import Image from 'next/image';
+import { memo } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { rarityBorder } from '@/lib/profile';
 import { cn } from '@/lib/utils';
@@ -12,7 +13,7 @@ interface AwardIconProps {
   className?: string;
 }
 
-export function AwardIcon({ award, size = 32, className }: AwardIconProps) {
+function AwardIconComponent({ award, size = 32, className }: AwardIconProps) {
   const border = award.rarity ? rarityBorder[award.rarity] : undefined;
 
   return (
@@ -45,3 +46,5 @@ export function AwardIcon({ award, size = 32, className }: AwardIconProps) {
     </TooltipProvider>
   );
 }
+
+export const AwardIcon = memo(AwardIconComponent);
