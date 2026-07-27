@@ -14,6 +14,7 @@ import { HealthModule } from './modules/health/health.module';
 import { PositionsModule } from './modules/positions/positions.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { StoreModule } from './modules/store/store.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -39,6 +40,7 @@ import { UsersModule } from './modules/users/users.module';
     AwardsModule,
     FriendsModule,
     CommentsModule,
+    StoreModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

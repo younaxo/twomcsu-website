@@ -15,6 +15,14 @@ export const CACHE_TTL = {
   PROFILE_COMMENTS: 30,
   /** Server status / monitoring */
   SERVER_STATUS: 30,
+  /** Store category tree */
+  STORE_CATEGORIES: 120,
+  /** Store product list / detail */
+  STORE_PRODUCTS: 60,
+  /** Store bundles list / detail */
+  STORE_BUNDLES: 60,
+  /** Bulk and loyalty discounts */
+  STORE_DISCOUNTS: 120,
 } as const;
 
 export const cacheKeys = {
@@ -32,4 +40,12 @@ export const cacheKeys = {
   profileComments: (username: string, page: number, limit: number, sort: string) =>
     `comments:${username.toLowerCase()}:${page}:${limit}:${sort}`,
   profileCommentsPattern: (username: string) => `comments:${username.toLowerCase()}:*`,
+  storeCategories: () => 'store:categories',
+  storeProductsList: (hash: string) => `store:products:list:${hash}`,
+  storeProductsListPattern: () => 'store:products:list:*',
+  storeProductBySlug: (slug: string) => `store:products:slug:${slug}`,
+  storeBundlesList: () => 'store:bundles:list',
+  storeBundleBySlug: (slug: string) => `store:bundles:slug:${slug}`,
+  storeBulkDiscounts: () => 'store:discounts:bulk',
+  storeLoyaltyDiscounts: () => 'store:discounts:loyalty',
 } as const;
