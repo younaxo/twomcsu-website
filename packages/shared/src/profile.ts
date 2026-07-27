@@ -192,6 +192,10 @@ export interface ProfileReport {
 export interface PrivacySettings {
   profileVisibility: ProfileVisibility;
   friendRequestPolicy: FriendRequestPolicy;
+  commentPolicy: import('./comments').CommentPolicy;
+  notifyOnComment: boolean;
+  notifyOnMention: boolean;
+  notifyOnReply: boolean;
   hideEmail: boolean;
   hideCountry: boolean;
   hideCity: boolean;
@@ -260,6 +264,9 @@ export interface UserProfile {
   hideInventory: boolean;
   hideServices: boolean;
   hideComments: boolean;
+  commentsEnabled: boolean;
+  commentsForcedReason: string | null;
+  commentPolicy: import('./comments').CommentPolicy;
   /** Present while FRIENDS_ONLY still behaves like EVERYONE for non-friends */
   visibility?: 'friends_only';
 }
