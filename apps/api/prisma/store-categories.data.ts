@@ -55,9 +55,9 @@ export const seedCategories: SeedCategory[] = [
     order: 1,
   },
   {
-    name: 'Украшения профиля',
+    name: 'Украшения аватарок',
     slug: 'decorations',
-    description: 'Декорации для профиля',
+    description: 'Декорации для аватарок профиля',
     icon: 'Sparkles',
     order: 0,
     parentSlug: 'site',

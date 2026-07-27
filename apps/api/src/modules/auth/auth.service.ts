@@ -25,6 +25,7 @@ import { compare, hash } from 'bcrypt';
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { durationToSeconds } from '../../common/duration.util';
 import { AuthUserRow, selectAuthUser } from '../../common/prisma/user-selects';
+import { generateUserTag } from '../../common/user-identifier';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { toPublicPosition } from '../positions/position.mapper';
@@ -94,6 +95,7 @@ export class AuthService {
           username: dto.username,
           password: await hash(dto.password, BCRYPT_ROUNDS),
           positionId: await this.positions.getDefaultId(RoleGroup.PLAYER),
+          tag: generateUserTag(dto.username),
         },
         include: { position: true },
       });

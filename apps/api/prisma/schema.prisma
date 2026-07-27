@@ -44,6 +44,10 @@ model Position {
 
 model User {
   id            String    @id @default(cuid())
+  /// Public numeric id shown as #1, #2, ...
+  shortId       Int       @unique @default(autoincrement())
+  /// Public tag like youn#4a2b
+  tag           String    @unique @db.VarChar(32)
   email         String    @unique
   username      String    @unique @db.VarChar(16)
   password      String
@@ -92,6 +96,9 @@ model User {
   notifyOnComment          Boolean       @default(true)
   notifyOnMention          Boolean       @default(true)
   notifyOnReply            Boolean       @default(true)
+  notifyOnFriendRequest    Boolean       @default(true)
+  notifyOnGift             Boolean       @default(true)
+  notifyOnOrder            Boolean       @default(true)
 
   position               Position             @relation(fields: [positionId], references: [id])
   refreshTokens          RefreshToken[]
@@ -113,6 +120,8 @@ model User {
   receivedFriendRequests Friendship[]         @relation("FriendshipAddressee")
   profileComments        ProfileComment[]     @relation("ProfileComments")
   authoredComments       ProfileComment[]     @relation("AuthoredComments")
+  notifications          Notification[]       @relation("NotificationsReceived")
+  sentNotifications      Notification[]       @relation("NotificationsFrom")
 
   /// Referral code shown to friends; generated on registration
   referralCode String? @unique
@@ -126,6 +135,8 @@ model User {
 
   @@index([email])
   @@index([username])
+  @@index([tag])
+  @@index([shortId])
   @@index([minecraftNick])
   @@index([positionId])
   @@index([roleGroup, isBanned])
@@ -814,25 +825,26 @@ model WishlistItem {
 }
 
 model Order {
-  id             String      @id @default(cuid())
-  orderNumber    String      @unique
-  userId         String
-  user           User        @relation(fields: [userId], references: [id])
-  status         OrderStatus @default(PENDING)
-  subtotal       Decimal     @db.Decimal(10, 2)
-  discountAmount Decimal     @default(0) @db.Decimal(10, 2)
-  promoCodeId    String?
-  promoCode      PromoCode?  @relation(fields: [promoCodeId], references: [id])
-  total          Decimal     @db.Decimal(10, 2)
-  paymentMethod  String?
-  paymentId      String?
-  paidAt         DateTime?
-  cancelledAt    DateTime?
-  refundedAt     DateTime?
-  cancelReason   String?
-  items          OrderItem[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id                 String      @id @default(cuid())
+  orderNumber        String      @unique
+  userId             String?
+  user               User?       @relation(fields: [userId], references: [id])
+  guestMinecraftNick String?     @db.VarChar(16)
+  status             OrderStatus @default(PENDING)
+  subtotal           Decimal     @db.Decimal(10, 2)
+  discountAmount     Decimal     @default(0) @db.Decimal(10, 2)
+  promoCodeId        String?
+  promoCode          PromoCode?  @relation(fields: [promoCodeId], references: [id])
+  total              Decimal     @db.Decimal(10, 2)
+  paymentMethod      String?
+  paymentId          String?
+  paidAt             DateTime?
+  cancelledAt        DateTime?
+  refundedAt         DateTime?
+  cancelReason       String?
+  items              OrderItem[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -873,4 +885,48 @@ model LoyaltyDiscount {
 
   @@index([minPurchases])
   @@map("loyalty_discounts")
+}
+
+enum NotificationType {
+  COMMENT_ON_PROFILE
+  COMMENT_MENTION
+  COMMENT_REPLY
+  FRIEND_REQUEST
+  FRIEND_ACCEPTED
+  GIFT_RECEIVED
+  ORDER_STATUS_CHANGED
+  SYSTEM
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation("NotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
+  type       NotificationType
+  title      String
+  message    String?
+  link       String?
+  imageUrl   String?
+  fromUserId String?
+  fromUser   User?            @relation("NotificationsFrom", fields: [fromUserId], references: [id])
+  metadata   Json?
+  isRead     Boolean          @default(false)
+  readAt     DateTime?
+  createdAt  DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model CurrencyRate {
+  id        String   @id @default(cuid())
+  currency  String   @unique
+  rate      Decimal  @db.Decimal(10, 4)
+  symbol    String
+  flag      String
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@map("currency_rates")
 }

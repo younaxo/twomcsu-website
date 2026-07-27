@@ -8,8 +8,10 @@ import {
   UserBadgeType,
 } from '@prisma/client';
 import { hash } from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { seedAwards } from './awards.data';
 import { seedBannerPresets } from './banner-presets.data';
+import { seedCurrencyRates } from './currency-rates.data';
 import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
 import { seedBundles } from './store-bundles.data';
@@ -29,6 +31,12 @@ interface SeedUser {
   positionSlug: string;
   profileVisibility?: ProfileVisibility;
   friendRequestPolicy?: FriendRequestPolicy;
+  shortId?: number;
+}
+
+function makeTag(username: string): string {
+  const base = username.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 4) || 'user';
+  return `${base}#${randomBytes(2).toString('hex')}`;
 }
 
 interface SeedStatistics {
@@ -486,6 +494,7 @@ async function upsertUser(
     positionSlug,
     profileVisibility = ProfileVisibility.EVERYONE,
     friendRequestPolicy = FriendRequestPolicy.EVERYONE,
+    shortId,
   }: SeedUser,
   positionIds: Map<string, string>,
 ): Promise<string> {
@@ -494,6 +503,8 @@ async function upsertUser(
   if (!positionId) {
     throw new Error(`Unknown position slug: ${positionSlug}`);
   }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
 
   const user = await prisma.user.upsert({
     where: { email },
@@ -504,6 +515,7 @@ async function upsertUser(
       positionId,
       profileVisibility,
       friendRequestPolicy,
+      ...(existing?.tag ? {} : { tag: makeTag(username) }),
     },
     create: {
       email,
@@ -513,9 +525,21 @@ async function upsertUser(
       positionId,
       profileVisibility,
       friendRequestPolicy,
+      tag: makeTag(username),
+      ...(shortId != null ? { shortId } : {}),
     },
     include: { position: true },
   });
+
+  if (shortId != null && user.shortId !== shortId) {
+    // Free the target shortId if another row holds it
+    await prisma.$executeRaw`
+      UPDATE users SET "shortId" = (SELECT COALESCE(MAX("shortId"), 2) + 1 FROM users)
+      WHERE "shortId" = ${shortId} AND id <> ${user.id}
+    `;
+    await prisma.user.update({ where: { id: user.id }, data: { shortId } });
+    await prisma.$executeRaw`SELECT setval('"users_shortId_seq"', (SELECT MAX("shortId") FROM users))`;
+  }
 
   console.log(
     `${user.roleGroup.padEnd(9)} ${user.username} <${user.email}> — ${user.position.name}`,
@@ -570,6 +594,28 @@ async function applyShowcase(
   }
 }
 
+async function upsertCurrencyRates() {
+  for (const rate of seedCurrencyRates) {
+    await prisma.currencyRate.upsert({
+      where: { currency: rate.currency },
+      update: {
+        rate: rate.rate,
+        symbol: rate.symbol,
+        flag: rate.flag,
+        isActive: true,
+      },
+      create: {
+        currency: rate.currency,
+        rate: rate.rate,
+        symbol: rate.symbol,
+        flag: rate.flag,
+      },
+    });
+  }
+
+  console.log(`currency rates: ${seedCurrencyRates.length}`);
+}
+
 async function main() {
   const positionIds = await upsertPositions();
 
@@ -580,6 +626,7 @@ async function main() {
   const storeProducts = await upsertStoreProducts(categoryIds, positionIds);
   await upsertStoreBundles(storeProducts);
   await upsertStoreDiscounts();
+  await upsertCurrencyRates();
 
   const awardIds = await upsertAwards();
 
@@ -597,6 +644,32 @@ async function main() {
   );
 
   await applyShowcase(ownerId, ownerShowcase, awardIds);
+
+  // Reserved public ids: KleekYT=#1, younaxo_=#2
+  await upsertUser(
+    {
+      email: 'kleekyt@localhost',
+      username: 'KleekYT',
+      password: 'Owner1234',
+      roleGroup: RoleGroup.OWNER,
+      positionSlug: 'owner',
+      shortId: 1,
+      profileVisibility: ProfileVisibility.EVERYONE,
+    },
+    positionIds,
+  );
+  await upsertUser(
+    {
+      email: 'younaxo@localhost',
+      username: 'younaxo_',
+      password: 'Owner1234',
+      roleGroup: RoleGroup.OWNER,
+      positionSlug: 'chief-developer',
+      shortId: 2,
+      profileVisibility: ProfileVisibility.EVERYONE,
+    },
+    positionIds,
+  );
 
   if (process.env.NODE_ENV === 'production') {
     console.log('production run: test accounts are skipped');
