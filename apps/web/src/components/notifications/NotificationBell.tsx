@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ import {
   useNotifications,
   useUnreadNotificationsCount,
 } from '@/hooks/useNotifications';
+import { extractErrorMessage } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 export function NotificationBell() {
@@ -65,7 +67,15 @@ export function NotificationBell() {
               size="sm"
               className="h-7 text-xs"
               disabled={markAll.isPending}
-              onClick={() => void markAll.mutateAsync()}
+              onClick={() => {
+                void markAll
+                  .mutateAsync()
+                  .then(() => toast.success('Все уведомления прочитаны'))
+                  .catch((error: unknown) => {
+                    console.error('markAllNotificationsRead failed', error);
+                    toast.error(extractErrorMessage(error, 'Не удалось отметить уведомления'));
+                  });
+              }}
             >
               Прочитать все
             </Button>

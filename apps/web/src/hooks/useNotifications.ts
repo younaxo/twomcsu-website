@@ -65,7 +65,8 @@ export function useMarkAllNotificationsRead() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      await api.post('/notifications/read-all');
+      const { data } = await api.patch<{ count: number }>('/notifications/read-all');
+      return data;
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['notifications'] });

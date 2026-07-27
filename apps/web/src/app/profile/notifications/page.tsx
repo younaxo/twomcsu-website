@@ -5,6 +5,7 @@ import { ru } from 'date-fns/locale';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import {
   useMarkNotificationRead,
   useNotifications,
 } from '@/hooks/useNotifications';
+import { extractErrorMessage } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 type Filter = 'all' | 'unread';
@@ -64,7 +66,15 @@ export default function NotificationsPage() {
           variant="secondary"
           size="sm"
           disabled={markAll.isPending}
-          onClick={() => void markAll.mutateAsync()}
+          onClick={() => {
+            void markAll
+              .mutateAsync()
+              .then(() => toast.success('Все уведомления прочитаны'))
+              .catch((error: unknown) => {
+                console.error('markAllNotificationsRead failed', error);
+                toast.error(extractErrorMessage(error, 'Не удалось отметить уведомления'));
+              });
+          }}
         >
           Прочитать все
         </Button>

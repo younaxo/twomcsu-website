@@ -42,7 +42,7 @@ export class NotificationsController {
   }
 
   @Patch('read-all')
-  markAllRead(@CurrentUser('id') userId: string): Promise<{ success: true }> {
+  markAllRead(@CurrentUser('id') userId: string): Promise<{ count: number }> {
     return this.notifications.markAllRead(userId);
   }
 

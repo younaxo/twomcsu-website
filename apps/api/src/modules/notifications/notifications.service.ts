@@ -117,14 +117,14 @@ export class NotificationsService {
     return this.mapNotification(row);
   }
 
-  async markAllRead(userId: string): Promise<{ success: true }> {
-    await this.prisma.notification.updateMany({
+  async markAllRead(userId: string): Promise<{ count: number }> {
+    const result = await this.prisma.notification.updateMany({
       where: { userId, isRead: false },
       data: { isRead: true, readAt: new Date() },
     });
 
     await this.invalidateUnread(userId);
-    return { success: true };
+    return { count: result.count };
   }
 
   async remove(userId: string, id: string): Promise<void> {
