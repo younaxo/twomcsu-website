@@ -17,6 +17,12 @@ export class RegisterDto {
   })
   password: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(32, { message: 'Промокод до 32 символов' })
+  @Matches(/^[A-Za-z0-9_-]+$/, { message: 'Промокод: латиница, цифры, дефис и _' })
+  promoCode?: string;
+
   // required in prod, ignored when HCAPTCHA_DISABLED=true
   @IsOptional()
   @IsString()

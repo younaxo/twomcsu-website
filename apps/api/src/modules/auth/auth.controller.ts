@@ -12,15 +12,24 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
-import { AuthResponse, LoginResponse, PublicUser, RefreshResponse } from '@twomc/shared';
+import {
+  AuthResponse,
+  LoginResponse,
+  PublicUser,
+  RefreshResponse,
+  RegisterResponse,
+  SuccessResponse,
+} from '@twomc/shared';
 import { Request, Response } from 'express';
 import { REFRESH_COOKIE_NAME } from './auth.constants';
 import { AuthService, AuthSession } from './auth.service';
 import { AuthenticatedUser } from './authenticated-user';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CookieConfig, clearRefreshCookie, setRefreshCookie } from './refresh-cookie';
 import { getRequestContext } from './request-context';
@@ -39,10 +48,10 @@ export class AuthController {
     @Body() dto: RegisterDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<AuthResponse> {
+  ): Promise<RegisterResponse> {
     const session = await this.authService.register(dto, getRequestContext(req));
 
-    return this.withRefreshCookie(session, res);
+    return { ...this.withRefreshCookie(session, res), promoCode: session.promoCode };
   }
 
   @Post('login')
@@ -74,6 +83,33 @@ export class AuthController {
     const session = await this.authService.refresh(token, getRequestContext(req));
 
     return { accessToken: this.withRefreshCookie(session, res).accessToken };
+  }
+
+  @Post('forgot-password')
+  @Throttle({ default: { limit: 3, ttl: 3_600_000 } })
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(
+    @Body() dto: ForgotPasswordDto,
+    @Req() req: Request,
+  ): Promise<SuccessResponse> {
+    await this.authService.forgotPassword(dto, getRequestContext(req));
+
+    return {
+      success: true,
+      message: 'Если такой email существует, мы отправили ссылку для сброса',
+    };
+  }
+
+  @Post('reset-password')
+  @Throttle({ default: { limit: 10, ttl: 3_600_000 } })
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body() dto: ResetPasswordDto,
+    @Req() req: Request,
+  ): Promise<SuccessResponse> {
+    await this.authService.resetPassword(dto, getRequestContext(req));
+
+    return { success: true };
   }
 
   @Post('logout')

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   HttpException,
@@ -15,25 +16,39 @@ import {
   AuthResponse,
   CaptchaRequiredResponse,
   PublicUser,
+  RegisterResponse,
   RoleGroup,
 } from '@twomc/shared';
 import { compare, hash } from 'bcrypt';
-import { createHmac, randomBytes } from 'node:crypto';
+import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { durationToSeconds } from '../../common/duration.util';
 import { toPublicPosition } from '../positions/position.mapper';
 import { PositionsService } from '../positions/positions.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { BCRYPT_ROUNDS, BLOCK_AFTER_ATTEMPTS, CAPTCHA_AFTER_ATTEMPTS } from './auth.constants';
+import {
+  BCRYPT_ROUNDS,
+  BLOCK_AFTER_ATTEMPTS,
+  CAPTCHA_AFTER_ATTEMPTS,
+  PASSWORD_RESET_TTL_MS,
+} from './auth.constants';
 import { BruteForceService } from './brute-force.service';
 import { CaptchaService } from './captcha.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RequestContext } from './request-context';
 
 export interface AuthSession extends AuthResponse {
   refreshToken: string;
   refreshExpiresAt: Date;
 }
+
+export interface RegisterSession extends AuthSession {
+  promoCode?: RegisterResponse['promoCode'];
+}
+
+type PromoCodeResult = NonNullable<RegisterResponse['promoCode']>;
 
 type UserWithPosition = Prisma.UserGetPayload<{ include: { position: true } }>;
 
@@ -50,7 +65,7 @@ export class AuthService {
     private readonly positions: PositionsService,
   ) {}
 
-  async register(dto: RegisterDto, context: RequestContext): Promise<AuthSession> {
+  async register(dto: RegisterDto, context: RequestContext): Promise<RegisterSession> {
     await this.captcha.verify(dto.captchaToken, context.ip);
 
     const email = dto.email.trim().toLowerCase();
@@ -76,7 +91,11 @@ export class AuthService {
         include: { position: true },
       });
 
-      return await this.issueSession(user, context);
+      const promoCode = dto.promoCode
+        ? await this.applyPromoCode(user.id, dto.promoCode)
+        : undefined;
+
+      return { ...(await this.issueSession(user, context)), promoCode };
     } catch (error) {
       // two parallel registrations with the same email slip past the check above
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
@@ -182,6 +201,72 @@ export class AuthService {
     });
   }
 
+  /** Silent on unknown emails: the response must not tell whether an account exists */
+  async forgotPassword(dto: ForgotPasswordDto, context: RequestContext): Promise<void> {
+    await this.captcha.verify(dto.captchaToken, context.ip);
+
+    const email = dto.email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return;
+    }
+
+    const token = randomBytes(32).toString('hex');
+
+    await this.prisma.$transaction([
+      // requesting a new link kills the previous ones
+      this.prisma.passwordResetToken.updateMany({
+        where: { userId: user.id, usedAt: null },
+        data: { usedAt: new Date() },
+      }),
+      this.prisma.passwordResetToken.create({
+        data: {
+          tokenHash: this.hashResetToken(token),
+          userId: user.id,
+          expiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_MS),
+        },
+      }),
+    ]);
+
+    const link = `${this.config.getOrThrow<string>('frontendUrl')}/reset-password?token=${token}`;
+
+    // TODO: send this link by email, the dev log is the only delivery channel for now
+    if (this.config.get<string>('nodeEnv') !== 'production') {
+      this.logger.warn(`Password reset for ${email}: ${link}`);
+    }
+  }
+
+  async resetPassword(dto: ResetPasswordDto, context: RequestContext): Promise<void> {
+    await this.captcha.verify(dto.captchaToken, context.ip);
+
+    const stored = await this.prisma.passwordResetToken.findUnique({
+      where: { tokenHash: this.hashResetToken(dto.token) },
+    });
+
+    if (!stored || stored.usedAt || stored.expiresAt <= new Date()) {
+      throw new BadRequestException('Ссылка недействительна или устарела');
+    }
+
+    const password = await hash(dto.newPassword, BCRYPT_ROUNDS);
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: stored.userId }, data: { password } }),
+      this.prisma.passwordResetToken.update({
+        where: { id: stored.id },
+        data: { usedAt: new Date() },
+      }),
+      // whoever knew the old password loses every live session
+      this.prisma.refreshToken.updateMany({
+        where: { userId: stored.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+    ]);
+  }
+
   async findById(userId: string): Promise<PublicUser | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -204,6 +289,46 @@ export class AuthService {
       isBanned: user.isBanned,
       createdAt: user.createdAt.toISOString(),
     };
+  }
+
+  /** A dead code never blocks registration, the user just gets a notice */
+  private async applyPromoCode(userId: string, code: string): Promise<PromoCodeResult> {
+    const promo = await this.prisma.promoCode.findFirst({
+      where: { code: { equals: code.trim(), mode: 'insensitive' } },
+    });
+
+    if (!promo || !promo.isActive) {
+      return { applied: false, message: 'Промокод не найден или больше не действует' };
+    }
+
+    const now = new Date();
+    const outOfWindow =
+      (promo.validFrom !== null && promo.validFrom > now) ||
+      (promo.validUntil !== null && promo.validUntil < now);
+    const exhausted = promo.maxUses !== null && promo.usedCount >= promo.maxUses;
+
+    if (outOfWindow || exhausted) {
+      return { applied: false, message: 'Промокод не найден или больше не действует' };
+    }
+
+    try {
+      // TODO: apply the actual discount once the store module exists
+      await this.prisma.$transaction([
+        this.prisma.promoCodeUsage.create({ data: { promoCodeId: promo.id, userId } }),
+        this.prisma.promoCode.update({
+          where: { id: promo.id },
+          data: { usedCount: { increment: 1 } },
+        }),
+      ]);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        return { applied: false, message: 'Этот промокод уже использован' };
+      }
+
+      throw error;
+    }
+
+    return { applied: true, message: `Промокод ${promo.code} активирован` };
   }
 
   private async revokeAllSessions(userId: string): Promise<void> {
@@ -269,6 +394,11 @@ export class AuthService {
     return createHmac('sha256', this.config.getOrThrow<string>('jwt.refreshSecret'))
       .update(token)
       .digest('hex');
+  }
+
+  /** 32 random bytes are unguessable on their own, so a plain digest is enough here */
+  private hashResetToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
   }
 
   private get refreshTtlSeconds(): number {

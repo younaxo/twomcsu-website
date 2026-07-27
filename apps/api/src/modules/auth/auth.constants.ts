@@ -9,3 +9,6 @@ export const CAPTCHA_AFTER_ATTEMPTS = 3;
 export const BLOCK_AFTER_ATTEMPTS = 10;
 
 export const BRUTE_FORCE_WINDOW_SECONDS = 900;
+
+/** Lifetime of a password reset link */
+export const PASSWORD_RESET_TTL_MS = 3_600_000;

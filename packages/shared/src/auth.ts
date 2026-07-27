@@ -22,3 +22,16 @@ export interface AccessTokenPayload {
   username: string;
   roleGroup: RoleGroup;
 }
+
+export interface SuccessResponse {
+  success: true;
+  message?: string;
+}
+
+/** Promo code result travels next to the session, a bad code never fails registration */
+export interface RegisterResponse extends AuthResponse {
+  promoCode?: {
+    applied: boolean;
+    message: string;
+  };
+}
