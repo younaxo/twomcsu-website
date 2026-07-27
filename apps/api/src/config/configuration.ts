@@ -30,6 +30,12 @@ export const configuration = () => ({
     secure: process.env.COOKIE_SECURE === 'true',
     sameSite: (process.env.COOKIE_SAMESITE ?? 'lax') as 'lax' | 'strict' | 'none',
   },
+  uploads: {
+    // относительный путь считается от рабочей директории apps/api
+    dir: process.env.UPLOADS_DIR ?? './uploads',
+    maxAvatarSize: toInt(process.env.UPLOAD_MAX_AVATAR_SIZE, 5 * 1024 * 1024),
+    maxBannerSize: toInt(process.env.UPLOAD_MAX_BANNER_SIZE, 10 * 1024 * 1024),
+  },
 });
 
 export type AppConfig = ReturnType<typeof configuration>;
