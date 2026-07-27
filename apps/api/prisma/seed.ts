@@ -1,4 +1,11 @@
-import { MediaGroup, PrismaClient, RoleGroup, UserBadgeType } from '@prisma/client';
+import {
+  FriendRequestPolicy,
+  MediaGroup,
+  PrismaClient,
+  ProfileVisibility,
+  RoleGroup,
+  UserBadgeType,
+} from '@prisma/client';
 import { hash } from 'bcrypt';
 import { seedAwards } from './awards.data';
 import { seedBannerPresets } from './banner-presets.data';
@@ -15,6 +22,8 @@ interface SeedUser {
   password: string;
   roleGroup: RoleGroup;
   positionSlug: string;
+  profileVisibility?: ProfileVisibility;
+  friendRequestPolicy?: FriendRequestPolicy;
 }
 
 interface SeedStatistics {
@@ -40,6 +49,8 @@ const staffAndPlayers: SeedUser[] = [
     password: 'Admin1234',
     roleGroup: RoleGroup.ADMIN,
     positionSlug: 'special-administrator',
+    profileVisibility: ProfileVisibility.EVERYONE,
+    friendRequestPolicy: FriendRequestPolicy.EVERYONE,
   },
   {
     email: 'moderator@localhost',
@@ -47,6 +58,8 @@ const staffAndPlayers: SeedUser[] = [
     password: 'Moder1234',
     roleGroup: RoleGroup.MODERATOR,
     positionSlug: 'head-cheat-hunter',
+    profileVisibility: ProfileVisibility.EVERYONE,
+    friendRequestPolicy: FriendRequestPolicy.EVERYONE,
   },
   {
     email: 'helper@localhost',
@@ -54,6 +67,8 @@ const staffAndPlayers: SeedUser[] = [
     password: 'Helper1234',
     roleGroup: RoleGroup.HELPER,
     positionSlug: 'chief-helper',
+    profileVisibility: ProfileVisibility.EVERYONE,
+    friendRequestPolicy: FriendRequestPolicy.EVERYONE,
   },
   {
     email: 'player1@localhost',
@@ -61,6 +76,8 @@ const staffAndPlayers: SeedUser[] = [
     password: 'Player1234',
     roleGroup: RoleGroup.PLAYER,
     positionSlug: 'default',
+    profileVisibility: ProfileVisibility.EVERYONE,
+    friendRequestPolicy: FriendRequestPolicy.EVERYONE,
   },
   {
     email: 'player2@localhost',
@@ -68,6 +85,8 @@ const staffAndPlayers: SeedUser[] = [
     password: 'Player1234',
     roleGroup: RoleGroup.PLAYER,
     positionSlug: 'svarog',
+    profileVisibility: ProfileVisibility.FRIENDS_ONLY,
+    friendRequestPolicy: FriendRequestPolicy.FRIENDS_OF_FRIENDS,
   },
 ];
 
@@ -183,7 +202,15 @@ async function upsertAwards(): Promise<Map<string, string>> {
 }
 
 async function upsertUser(
-  { email, username, password, roleGroup, positionSlug }: SeedUser,
+  {
+    email,
+    username,
+    password,
+    roleGroup,
+    positionSlug,
+    profileVisibility = ProfileVisibility.EVERYONE,
+    friendRequestPolicy = FriendRequestPolicy.EVERYONE,
+  }: SeedUser,
   positionIds: Map<string, string>,
 ): Promise<string> {
   const positionId = positionIds.get(positionSlug);
@@ -195,13 +222,21 @@ async function upsertUser(
   const user = await prisma.user.upsert({
     where: { email },
     // пароль повторным сидом не перетираем, только добираем роль и позицию
-    update: { username, roleGroup, positionId },
+    update: {
+      username,
+      roleGroup,
+      positionId,
+      profileVisibility,
+      friendRequestPolicy,
+    },
     create: {
       email,
       username,
       password: await hash(password, BCRYPT_ROUNDS),
       roleGroup,
       positionId,
+      profileVisibility,
+      friendRequestPolicy,
     },
     include: { position: true },
   });
