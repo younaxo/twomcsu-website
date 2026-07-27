@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Geologica, Onest } from 'next/font/google';
+import { Toaster } from 'sonner';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import { SiteHeader } from '@/components/site-header';
 import './globals.css';
 
@@ -26,8 +28,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru" className={`dark ${onest.variable} ${geologica.variable}`}>
       <body className="min-h-screen antialiased">
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-5xl px-6 py-16">{children}</main>
+        <AuthProvider>
+          <SiteHeader />
+          <main className="mx-auto w-full max-w-5xl px-6 py-16">{children}</main>
+          <Toaster theme="dark" position="top-center" richColors />
+        </AuthProvider>
       </body>
     </html>
   );
