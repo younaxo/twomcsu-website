@@ -392,3 +392,36 @@ model PlayerStatistics {
 
   @@map("player_statistics")
 }
+
+model Award {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  /// External url or a path inside the web public folder
+  iconUrl     String
+  color       String?
+  /// common, rare, epic or legendary, drives the border in the ui
+  rarity      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  userAwards UserAward[]
+
+  @@map("awards")
+}
+
+model UserAward {
+  id        String   @id @default(cuid())
+  userId    String
+  awardId   String
+  grantedBy String?
+  grantedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  award Award @relation(fields: [awardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, awardId])
+  @@index([userId])
+  @@map("user_awards")
+}
