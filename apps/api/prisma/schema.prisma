@@ -113,6 +113,8 @@ model User {
   sentReports             ProfileReport[] @relation("ProfileReportsSent")
   sentFriendRequests      Friendship[]    @relation("FriendshipRequester")
   receivedFriendRequests  Friendship[]    @relation("FriendshipAddressee")
+  profileComments         ProfileComment[] @relation("ProfileComments")
+  authoredComments        ProfileComment[] @relation("AuthoredComments")
 
   @@index([email])
   @@index([username])
@@ -501,4 +503,70 @@ model Friendship {
   @@index([addresseeId, status])
   @@index([requesterId, status])
   @@map("friendships")
+}
+
+model ProfileComment {
+  id            String    @id @default(cuid())
+  profileId     String
+  profile       User      @relation("ProfileComments", fields: [profileId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User      @relation("AuthoredComments", fields: [authorId], references: [id], onDelete: Cascade)
+  content       String
+  contentHtml   String
+  parentId      String?
+  parent        ProfileComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies       ProfileComment[] @relation("CommentReplies")
+  isPinned      Boolean   @default(false)
+  pinnedAt      DateTime?
+  pinnedBy      String?
+  isEdited      Boolean   @default(false)
+  editedAt      DateTime?
+  isDeleted     Boolean   @default(false)
+  deletedAt     DateTime?
+  deletedBy     String?
+  deletedReason String?
+  mentions      String[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reactions CommentReaction[]
+  reports   CommentReport[]
+
+  @@index([profileId, createdAt])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([isPinned])
+  @@map("profile_comments")
+}
+
+model CommentReaction {
+  id        String         @id @default(cuid())
+  commentId String
+  comment   ProfileComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  emoji     String
+  createdAt DateTime       @default(now())
+
+  @@unique([commentId, userId, emoji])
+  @@index([commentId])
+  @@map("comment_reactions")
+}
+
+model CommentReport {
+  id          String              @id @default(cuid())
+  commentId   String
+  comment     ProfileComment      @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  reporterId  String
+  reason      CommentReportReason
+  description String?
+  status      CommentReportStatus @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNote  String?
+  createdAt   DateTime            @default(now())
+
+  @@unique([commentId, reporterId])
+  @@index([commentId])
+  @@index([status])
+  @@map("comment_reports")
 }
