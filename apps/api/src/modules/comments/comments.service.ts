@@ -125,10 +125,15 @@ export class CommentsService {
         [...pinnedRows, ...rows].flatMap((row) => [
           ...row.mentions,
           ...row.replies.flatMap((reply) => reply.mentions),
+          ...row.reactions.map((reaction) => reaction.userId),
+          ...row.replies.flatMap((reply) => reply.reactions.map((reaction) => reaction.userId)),
         ]),
       ),
     ];
     const mentionUsers = await this.loadMentionUsers(mentionIds);
+    const reactionUsernames = new Map(
+      [...mentionUsers.entries()].map(([id, user]) => [id, user.username]),
+    );
     const isOwner = viewerId === profile.id;
     const isMod = viewerId
       ? await this.isModerator(viewerId)
@@ -140,6 +145,7 @@ export class CommentsService {
       isOwner,
       isMod,
       mentionUsers,
+      reactionUsernames,
     };
 
     const result: ProfileCommentsResponse = {
@@ -211,6 +217,9 @@ export class CommentsService {
       isOwner: authorId === profile.id,
       isMod: false,
       mentionUsers,
+      reactionUsernames: new Map(
+        [...mentionUsers.entries()].map(([id, user]) => [id, user.username]),
+      ),
     });
   }
 
@@ -267,6 +276,9 @@ export class CommentsService {
       isOwner: userId === profile.id,
       isMod: await this.isModerator(userId),
       mentionUsers,
+      reactionUsernames: new Map(
+        [...mentionUsers.entries()].map(([id, user]) => [id, user.username]),
+      ),
     });
   }
 
@@ -361,6 +373,9 @@ export class CommentsService {
       isOwner: true,
       isMod: false,
       mentionUsers,
+      reactionUsernames: new Map(
+        [...mentionUsers.entries()].map(([id, user]) => [id, user.username]),
+      ),
     });
   }
 
@@ -400,6 +415,9 @@ export class CommentsService {
       isOwner: true,
       isMod: false,
       mentionUsers,
+      reactionUsernames: new Map(
+        [...mentionUsers.entries()].map(([id, user]) => [id, user.username]),
+      ),
     });
   }
 
@@ -954,6 +972,8 @@ export class CommentsService {
     const mentionUsers = await this.loadMentionUsers([
       ...row.mentions,
       ...row.replies.flatMap((r) => r.mentions),
+      ...row.reactions.map((r) => r.userId),
+      ...row.replies.flatMap((r) => r.reactions.map((reaction) => reaction.userId)),
     ]);
 
     return this.mapComment(row, {
@@ -962,6 +982,9 @@ export class CommentsService {
       isOwner: viewerId === profile.id,
       isMod: await this.isModerator(viewerId),
       mentionUsers,
+      reactionUsernames: new Map(
+        [...mentionUsers.entries()].map(([id, user]) => [id, user.username]),
+      ),
     });
   }
 
@@ -976,6 +999,7 @@ export class CommentsService {
         string,
         { id: string; username: string; position: ReturnType<typeof toPublicPosition> }
       >;
+      reactionUsernames: Map<string, string>;
     },
   ): ProfileComment {
     const isDeleted = row.isDeleted;
@@ -1007,7 +1031,7 @@ export class CommentsService {
         .filter((m): m is NonNullable<typeof m> => Boolean(m)),
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
-      reactions: this.mapReactions(row.reactions, opts.viewerId),
+      reactions: this.mapReactions(row.reactions, opts.viewerId, opts.reactionUsernames),
       replies,
       canEdit:
         Boolean(opts.viewerId) &&
@@ -1025,6 +1049,7 @@ export class CommentsService {
   private mapReactions(
     reactions: Array<{ userId: string; emoji: string }>,
     viewerId: string | null,
+    usernames: Map<string, string>,
   ): ProfileComment['reactions'] {
     const grouped = new Map<string, { count: number; reacted: boolean; users: string[] }>();
 
@@ -1048,7 +1073,10 @@ export class CommentsService {
       emoji: emoji as CommentEmoji,
       count: entry.count,
       reacted: entry.reacted,
-      users: entry.users.map((id) => ({ id, username: id.slice(0, 8) })),
+      users: entry.users.map((id) => ({
+        id,
+        username: usernames.get(id) ?? 'игрок',
+      })),
     }));
   }
 }
