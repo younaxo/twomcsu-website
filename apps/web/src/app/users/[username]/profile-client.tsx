@@ -8,7 +8,6 @@ import {
   ShoppingBag,
   Skull,
   Sword,
-  Target,
   TrendingUp,
   Tv,
   Video,
@@ -209,9 +208,9 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {statsHidden ? (
-          <Card className="sm:col-span-2 lg:col-span-5">
+          <Card className="sm:col-span-2 lg:col-span-4">
             <CardContent className="py-6 text-center text-sm text-muted-foreground">
               Статистика скрыта
             </CardContent>
@@ -237,12 +236,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
               tip="Количество смертей"
             />
             <StatCard
-              title="Попаданий"
-              value={profile.statistics?.hits ?? 0}
-              icon={Target}
-              tip="Количество попаданий"
-            />
-            <StatCard
               title="У/С"
               value={profile.statistics?.killDeathRatio ?? 0}
               icon={TrendingUp}
@@ -256,15 +249,9 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
       <Tabs defaultValue="info">
         <TabsList>
           <TabsTrigger value="info">Информация</TabsTrigger>
-          <TabsTrigger value="comments" disabled={profile.hideComments && !profile.isOwner}>
-            Комментарии
-          </TabsTrigger>
-          <TabsTrigger value="inventory" disabled={profile.hideInventory && !profile.isOwner}>
-            Инвентарь
-          </TabsTrigger>
-          <TabsTrigger value="services" disabled={profile.hideServices && !profile.isOwner}>
-            Услуги
-          </TabsTrigger>
+          <TabsTrigger value="comments">Комментарии</TabsTrigger>
+          <TabsTrigger value="inventory">Инвентарь</TabsTrigger>
+          <TabsTrigger value="services">Услуги</TabsTrigger>
         </TabsList>
 
         <TabsContent value="info" className="mt-4">
@@ -407,8 +394,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
         <TabsContent value="comments" className="mt-4">
           <CommentsList
             profileUsername={profile.username}
-            hideComments={profile.hideComments}
-            isOwner={profile.isOwner}
             commentsEnabled={profile.commentsEnabled}
             commentsForcedReason={profile.commentsForcedReason}
           />

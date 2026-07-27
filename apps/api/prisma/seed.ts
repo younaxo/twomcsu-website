@@ -361,6 +361,8 @@ async function seedProfileComments(userIds: Map<string, string>) {
     return;
   }
 
+  const before = await prisma.profileComment.count();
+
   const ownerPinned = await prisma.profileComment.create({
     data: {
       profileId: ownerId,
@@ -452,6 +454,13 @@ async function seedProfileComments(userIds: Map<string, string>) {
   });
 
   console.log('comments: seeded owner + player2 profiles');
+
+  const after = await prisma.profileComment.count();
+  const created = after - before;
+  if (created < 8) {
+    throw new Error(`comments seed incomplete: expected >= 8 new rows, got ${created}`);
+  }
+  console.log(`comments: verified ${created} rows created (total ${after})`);
 }
 
 main()

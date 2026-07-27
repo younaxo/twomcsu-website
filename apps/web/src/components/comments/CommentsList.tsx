@@ -3,6 +3,7 @@
 import { CommentSort } from '@twomc/shared';
 import { MessageSquare } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { CommentCard } from '@/components/comments/CommentCard';
 import { CommentEditor } from '@/components/comments/CommentEditor';
 import { Button } from '@/components/ui/button';
@@ -16,20 +17,16 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateComment, useProfileComments } from '@/hooks/useProfileComments';
-import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/api';
 
 interface CommentsListProps {
   profileUsername: string;
-  hideComments?: boolean;
-  isOwner?: boolean;
   commentsEnabled?: boolean;
   commentsForcedReason?: string | null;
 }
 
 export function CommentsList({
   profileUsername,
-  hideComments,
-  isOwner,
   commentsEnabled = true,
   commentsForcedReason,
 }: CommentsListProps) {
@@ -38,14 +35,6 @@ export function CommentsList({
   const [sort, setSort] = useState<CommentSort>(CommentSort.NEWEST);
   const commentsQuery = useProfileComments(profileUsername, { page, sort });
   const createComment = useCreateComment(profileUsername);
-
-  if (hideComments && !isOwner) {
-    return (
-      <div className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-        Комментарии скрыты владельцем профиля
-      </div>
-    );
-  }
 
   if (!commentsEnabled) {
     return (
@@ -58,7 +47,7 @@ export function CommentsList({
     );
   }
 
-  if (commentsQuery.isLoading) {
+  if (commentsQuery.isPending || (commentsQuery.isLoading && !commentsQuery.data)) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-28 w-full" />
@@ -68,7 +57,24 @@ export function CommentsList({
     );
   }
 
+  if (commentsQuery.isError) {
+    return (
+      <div className="space-y-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-8 text-center">
+        <p className="font-medium">Не удалось загрузить комментарии</p>
+        <p className="text-sm text-muted-foreground">
+          {extractErrorMessage(commentsQuery.error, 'Попробуйте обновить страницу')}
+        </p>
+        <Button type="button" variant="outline" size="sm" onClick={() => void commentsQuery.refetch()}>
+          Повторить
+        </Button>
+      </div>
+    );
+  }
+
   const data = commentsQuery.data;
+  const pinned = data?.pinned ?? [];
+  const items = data?.data ?? [];
+  const hasComments = pinned.length > 0 || items.length > 0;
   const canComment = Boolean(isAuthenticated && data?.canComment);
 
   return (
@@ -100,12 +106,8 @@ export function CommentsList({
         <CommentEditor
           isSubmitting={createComment.isPending}
           onSubmit={async (content) => {
-            try {
-              await createComment.mutateAsync({ content });
-              toast.success('Комментарий опубликован');
-            } catch (error) {
-              throw error;
-            }
+            await createComment.mutateAsync({ content });
+            toast.success('Комментарий опубликован');
           }}
         />
       ) : isAuthenticated ? (
@@ -118,34 +120,28 @@ export function CommentsList({
         </div>
       )}
 
-      {data?.pinned.length ? (
+      {pinned.length > 0 ? (
         <div className="space-y-4">
           <p className="text-sm font-medium text-muted-foreground">Закреплённые</p>
-          {data.pinned.map((comment) => (
-            <CommentCard
-              key={comment.id}
-              comment={comment}
-              profileUsername={profileUsername}
-            />
+          {pinned.map((comment) => (
+            <CommentCard key={comment.id} comment={comment} profileUsername={profileUsername} />
           ))}
         </div>
       ) : null}
 
-      {data?.data.length ? (
+      {items.length > 0 ? (
         <div className="space-y-5">
-          {data.data.map((comment) => (
-            <CommentCard
-              key={comment.id}
-              comment={comment}
-              profileUsername={profileUsername}
-            />
+          {items.map((comment) => (
+            <CommentCard key={comment.id} comment={comment} profileUsername={profileUsername} />
           ))}
         </div>
-      ) : (
+      ) : null}
+
+      {!hasComments ? (
         <div className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
           Пока нет комментариев. Будьте первым!
         </div>
-      )}
+      ) : null}
 
       {data?.pagination.hasNext ? (
         <div className="flex justify-center">
