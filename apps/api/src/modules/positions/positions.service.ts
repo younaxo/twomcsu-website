@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PositionDetails, PositionSummary, RoleGroup, hasRoleGroup } from '@twomc/shared';
+import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
+import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
@@ -50,29 +52,40 @@ const listOrder: Prisma.PositionOrderByWithRelationInput[] = [
 
 @Injectable()
 export class PositionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: CacheService,
+  ) {}
 
   async findAll(group?: RoleGroup, includeHidden = false): Promise<PositionSummary[]> {
-    const positions = await this.prisma.position.findMany({
-      where: { group, ...(includeHidden ? {} : { isVisible: true }) },
-      orderBy: listOrder,
-      select: summarySelect,
-    });
+    return this.cache.wrap(
+      cacheKeys.positionsList(group, includeHidden),
+      CACHE_TTL.POSITIONS_LIST,
+      async () => {
+        const positions = await this.prisma.position.findMany({
+          where: { group, ...(includeHidden ? {} : { isVisible: true }) },
+          orderBy: listOrder,
+          select: summarySelect,
+        });
 
-    return positions.map((position) => this.toSummary(position));
+        return positions.map((position) => this.toSummary(position));
+      },
+    );
   }
 
   async findBySlug(slug: string): Promise<PositionDetails> {
-    const position = await this.prisma.position.findUnique({
-      where: { slug },
-      select: detailsSelect,
+    return this.cache.wrap(cacheKeys.positionBySlug(slug), CACHE_TTL.POSITION, async () => {
+      const position = await this.prisma.position.findUnique({
+        where: { slug },
+        select: detailsSelect,
+      });
+
+      if (!position) {
+        throw new NotFoundException('Позиция не найдена');
+      }
+
+      return this.toDetails(position);
     });
-
-    if (!position) {
-      throw new NotFoundException('Позиция не найдена');
-    }
-
-    return this.toDetails(position);
   }
 
   async create(dto: CreatePositionDto): Promise<PositionSummary> {
@@ -105,6 +118,7 @@ export class PositionsService {
         throw this.mapUniqueViolation(error);
       });
 
+    await this.invalidatePositionsCache();
     return this.toSummary(position);
   }
 
@@ -161,6 +175,7 @@ export class PositionsService {
         throw this.mapUniqueViolation(error);
       });
 
+    await this.invalidatePositionsCache(position.slug, position.id);
     return this.toSummary(position);
   }
 
@@ -185,6 +200,7 @@ export class PositionsService {
     }
 
     await this.prisma.position.delete({ where: { id } });
+    await this.invalidatePositionsCache();
   }
 
   async assign(positionId: string, userId: string, actorRole: RoleGroup): Promise<void> {
@@ -215,6 +231,9 @@ export class PositionsService {
       where: { id: userId },
       data: { positionId: position.id, roleGroup: position.group },
     });
+
+    await this.invalidatePositionsCache();
+    await this.cache.del(cacheKeys.authMe(userId));
   }
 
   /** Position every new account starts with */
@@ -229,6 +248,18 @@ export class PositionsService {
     }
 
     return position.id;
+  }
+
+  private async invalidatePositionsCache(slug?: string, id?: string): Promise<void> {
+    await this.cache.delPattern('positions:*');
+
+    if (slug) {
+      await this.cache.del(cacheKeys.positionBySlug(slug));
+    }
+
+    if (id) {
+      await this.cache.del(cacheKeys.positionById(id));
+    }
   }
 
   private mapUniqueViolation(error: unknown): unknown {
