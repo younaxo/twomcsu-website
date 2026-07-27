@@ -547,7 +547,7 @@ model CommentReaction {
   emoji     String
   createdAt DateTime       @default(now())
 
-  @@unique([commentId, userId, emoji])
+  @@unique([commentId, userId])
   @@index([commentId])
   @@map("comment_reactions")
 }
