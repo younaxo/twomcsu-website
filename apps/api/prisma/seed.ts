@@ -1,6 +1,7 @@
 import { PrismaClient, RoleGroup } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { seedPositions } from './positions.data';
+import { seedPromoCodes } from './promo-codes.data';
 
 const prisma = new PrismaClient();
 
@@ -70,6 +71,19 @@ async function upsertPositions(): Promise<Map<string, string>> {
   return ids;
 }
 
+async function upsertPromoCodes() {
+  for (const { code, description, discountType, discountValue, maxUses } of seedPromoCodes) {
+    // usedCount повторным сидом не сбрасываем
+    await prisma.promoCode.upsert({
+      where: { code },
+      update: { description, discountType, discountValue, maxUses: maxUses ?? null },
+      create: { code, description, discountType, discountValue, maxUses: maxUses ?? null },
+    });
+  }
+
+  console.log(`promo codes: ${seedPromoCodes.length}`);
+}
+
 async function upsertUser(
   { email, username, password, roleGroup, positionSlug }: SeedUser,
   positionIds: Map<string, string>,
@@ -101,6 +115,8 @@ async function upsertUser(
 
 async function main() {
   const positionIds = await upsertPositions();
+
+  await upsertPromoCodes();
 
   const email = process.env.SEED_OWNER_EMAIL;
   const username = process.env.SEED_OWNER_USERNAME;
