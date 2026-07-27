@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { ScrollText } from 'lucide-react';
 import { AdminEmptyState, AdminFilters, AdminPageHeader, AdminTable } from '@/components/admin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
@@ -71,7 +72,13 @@ export default function AdminAuditLogPage() {
           ]}
           data={list.data?.items ?? []}
           rowKey={(r) => r.id}
-          empty={<AdminEmptyState title="Записей пока нет" />}
+          empty={
+            <AdminEmptyState
+              icon={ScrollText}
+              title="Записей пока нет"
+              description="Действия администраторов появятся здесь"
+            />
+          }
           page={page}
           totalPages={list.data?.totalPages ?? 1}
           onPageChange={setPage}

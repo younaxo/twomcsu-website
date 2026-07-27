@@ -1,9 +1,10 @@
 'use client';
 
 import type { StoreCategory } from '@twomc/shared';
-import { Plus, Trash2 } from 'lucide-react';
+import { FolderTree, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -96,6 +97,12 @@ export default function AdminStoreCategoriesPage() {
 
       {loading ? (
         <Skeleton className="h-64 w-full" />
+      ) : rows.length === 0 ? (
+        <AdminEmptyState
+          icon={FolderTree}
+          title="Нет категорий"
+          description="Создайте первую категорию выше"
+        />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>

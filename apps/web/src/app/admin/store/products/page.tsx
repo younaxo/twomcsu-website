@@ -1,9 +1,10 @@
 'use client';
 
 import type { StoreProduct } from '@twomc/shared';
-import { Trash2 } from 'lucide-react';
+import { Package, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,6 +91,12 @@ export default function AdminStoreProductsPage() {
 
       {loading ? (
         <Skeleton className="h-96 w-full" />
+      ) : items.length === 0 ? (
+        <AdminEmptyState
+          icon={Package}
+          title="Нет товаров"
+          description="Создайте товар или измените поиск"
+        />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>

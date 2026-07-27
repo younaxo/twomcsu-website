@@ -1,8 +1,9 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Ticket, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -116,6 +117,12 @@ export default function AdminPromocodesPage() {
 
       {loading ? (
         <Skeleton className="h-64 w-full" />
+      ) : items.length === 0 ? (
+        <AdminEmptyState
+          icon={Ticket}
+          title="Промокоды не найдены"
+          description="Создайте промокод в форме выше"
+        />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>

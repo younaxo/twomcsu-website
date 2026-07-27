@@ -9,6 +9,7 @@ interface AdminEmptyStateProps {
   description?: string;
   icon?: LucideIcon;
   action?: React.ReactNode;
+  className?: string;
 }
 
 export function AdminEmptyState({
@@ -16,6 +17,15 @@ export function AdminEmptyState({
   description = 'Измените фильтры или создайте первую запись',
   icon = Inbox,
   action,
+  className,
 }: AdminEmptyStateProps) {
-  return <EmptyState icon={icon} title={title} description={description} action={action} />;
+  return (
+    <EmptyState
+      icon={icon}
+      title={title}
+      description={description}
+      action={action}
+      className={className}
+    />
+  );
 }

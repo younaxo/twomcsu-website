@@ -2,8 +2,10 @@
 
 import type { UserBadge, UserBadgeType, UserSearchResult } from '@twomc/shared';
 import { userBadgeTypeOrder } from '@twomc/shared';
+import { BadgeCheck, Search } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +32,7 @@ import { userBadgeLabels } from '@/lib/profile';
 export default function AdminBadgesPage() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserSearchResult[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
   const [selected, setSelected] = useState<UserSearchResult | null>(null);
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const [type, setType] = useState<UserBadgeType>('VERIFIED');
@@ -43,6 +46,7 @@ export default function AdminBadgesPage() {
         params: { q: query.trim() },
       });
       setResults(data);
+      setHasSearched(true);
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось найти игроков'));
     }
@@ -134,17 +138,26 @@ export default function AdminBadgesPage() {
             </Button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {results.map((user) => (
-              <Button
-                key={user.id}
-                type="button"
-                variant={selected?.id === user.id ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => void openUser(user)}
-              >
-                {user.username}
-              </Button>
-            ))}
+            {hasSearched && results.length === 0 ? (
+              <AdminEmptyState
+                icon={Search}
+                title="Игроки не найдены"
+                description="Попробуйте другой никнейм"
+                className="w-full py-8"
+              />
+            ) : (
+              results.map((user) => (
+                <Button
+                  key={user.id}
+                  type="button"
+                  variant={selected?.id === user.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => void openUser(user)}
+                >
+                  {user.username}
+                </Button>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
@@ -171,7 +184,12 @@ export default function AdminBadgesPage() {
                 </div>
               ))}
               {badges.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Бейджей нет</p>
+                <AdminEmptyState
+                  icon={BadgeCheck}
+                  title="Бейджей нет"
+                  description="Выдайте бейдж этому игроку"
+                  className="w-full py-8"
+                />
               ) : null}
             </div>
 

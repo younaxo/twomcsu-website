@@ -4,7 +4,9 @@ import type { OrderStatus, OrdersResponse, StoreOrder } from '@twomc/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -116,6 +118,12 @@ export default function AdminOrdersPage() {
 
       {loading ? (
         <Skeleton className="h-96 w-full" />
+      ) : items.length === 0 ? (
+        <AdminEmptyState
+          icon={ShoppingBag}
+          title="Нет заказов"
+          description="Заказы с выбранным статусом не найдены"
+        />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>

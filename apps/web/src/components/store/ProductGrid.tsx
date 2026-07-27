@@ -1,6 +1,8 @@
 'use client';
 
 import type { StoreProduct } from '@twomc/shared';
+import { Package } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { ProductCard } from '@/components/store/ProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -8,12 +10,14 @@ interface ProductGridProps {
   products: StoreProduct[];
   isLoading?: boolean;
   emptyMessage?: string;
+  emptyDescription?: string;
 }
 
 export function ProductGrid({
   products,
   isLoading,
   emptyMessage = 'Товары не найдены',
+  emptyDescription = 'Попробуйте изменить фильтры',
 }: ProductGridProps) {
   if (isLoading) {
     return (
@@ -27,9 +31,11 @@ export function ProductGrid({
 
   if (products.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
-        {emptyMessage}
-      </div>
+      <EmptyState
+        icon={Package}
+        title={emptyMessage}
+        description={emptyDescription}
+      />
     );
   }
 

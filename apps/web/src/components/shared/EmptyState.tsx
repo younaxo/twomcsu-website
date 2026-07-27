@@ -25,7 +25,7 @@ export function EmptyState({
         className,
       )}
     >
-      {Icon ? <Icon className="h-10 w-10 text-muted-foreground" /> : null}
+      {Icon ? <Icon className="h-16 w-16 text-muted-foreground" /> : null}
       <div className="space-y-1">
         <p className="text-lg font-medium text-white">{title}</p>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}

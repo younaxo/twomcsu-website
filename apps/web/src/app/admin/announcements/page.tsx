@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
+import { Megaphone, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -115,7 +115,13 @@ export default function AdminAnnouncementsPage() {
         data={items}
         rowKey={(r) => r.id}
         isLoading={loading}
-        empty={<AdminEmptyState title="Нет объявлений" />}
+        empty={
+          <AdminEmptyState
+            icon={Megaphone}
+            title="Нет объявлений"
+            description="Создайте объявление для главной страницы"
+          />
+        }
         actions={(row) => (
           <Button
             variant="ghost"

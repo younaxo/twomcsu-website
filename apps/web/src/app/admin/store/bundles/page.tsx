@@ -1,9 +1,10 @@
 'use client';
 
 import type { StoreBundle } from '@twomc/shared';
-import { Trash2 } from 'lucide-react';
+import { Boxes, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -66,6 +67,12 @@ export default function AdminStoreBundlesPage() {
 
       {loading ? (
         <Skeleton className="h-64 w-full" />
+      ) : items.length === 0 ? (
+        <AdminEmptyState
+          icon={Boxes}
+          title="Нет наборов"
+          description="Создайте бандл товаров со скидкой"
+        />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>

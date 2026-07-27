@@ -2,9 +2,10 @@
 
 import type { Award, UserSearchResult } from '@twomc/shared';
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Trophy } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { AwardIcon } from '@/components/shared/AwardIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -123,36 +124,44 @@ export default function AdminAwardsPage() {
           <CardTitle>Каталог</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Иконка</TableHead>
-                <TableHead>Название</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Rarity</TableHead>
-                {isOwner ? <TableHead /> : null}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {awards.map((award) => (
-                <TableRow key={award.id}>
-                  <TableCell>
-                    <AwardIcon award={award} size={28} />
-                  </TableCell>
-                  <TableCell>{award.name}</TableCell>
-                  <TableCell>{award.slug}</TableCell>
-                  <TableCell>{award.rarity ?? '—'}</TableCell>
-                  {isOwner ? (
-                    <TableCell>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => void remove(award.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  ) : null}
+          {awards.length === 0 ? (
+            <AdminEmptyState
+              icon={Trophy}
+              title="Нет наград"
+              description="Создайте первую награду в каталоге"
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Иконка</TableHead>
+                  <TableHead>Название</TableHead>
+                  <TableHead>Slug</TableHead>
+                  <TableHead>Rarity</TableHead>
+                  {isOwner ? <TableHead /> : null}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {awards.map((award) => (
+                  <TableRow key={award.id}>
+                    <TableCell>
+                      <AwardIcon award={award} size={28} />
+                    </TableCell>
+                    <TableCell>{award.name}</TableCell>
+                    <TableCell>{award.slug}</TableCell>
+                    <TableCell>{award.rarity ?? '—'}</TableCell>
+                    {isOwner ? (
+                      <TableCell>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => void remove(award.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    ) : null}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

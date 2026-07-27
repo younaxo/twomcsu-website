@@ -3,8 +3,10 @@
 import type { ProfileReport } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { ShieldAlert } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,52 +59,60 @@ export default function AdminProfileReportsPage() {
           <CardTitle>Очередь</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Профиль</TableHead>
-                <TableHead>От кого</TableHead>
-                <TableHead>Причина</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead>Дата</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>
-                    <ColoredUsername user={row.profile} size="sm" />
-                  </TableCell>
-                  <TableCell>
-                    <ColoredUsername user={row.reporter} size="sm" />
-                  </TableCell>
-                  <TableCell>{profileReportLabels[row.reason]}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell>
-                    {format(new Date(row.createdAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
-                  </TableCell>
-                  <TableCell className="space-x-2">
-                    {row.status === 'PENDING' ? (
-                      <>
-                        <Button type="button" size="sm" onClick={() => void review(row.id, 'RESOLVED')}>
-                          Закрыть
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => void review(row.id, 'REJECTED')}
-                        >
-                          Отклонить
-                        </Button>
-                      </>
-                    ) : null}
-                  </TableCell>
+          {rows.length === 0 ? (
+            <AdminEmptyState
+              icon={ShieldAlert}
+              title="Жалоб нет"
+              description="Очередь модерации пуста"
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Профиль</TableHead>
+                  <TableHead>От кого</TableHead>
+                  <TableHead>Причина</TableHead>
+                  <TableHead>Статус</TableHead>
+                  <TableHead>Дата</TableHead>
+                  <TableHead />
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>
+                      <ColoredUsername user={row.profile} size="sm" />
+                    </TableCell>
+                    <TableCell>
+                      <ColoredUsername user={row.reporter} size="sm" />
+                    </TableCell>
+                    <TableCell>{profileReportLabels[row.reason]}</TableCell>
+                    <TableCell>{row.status}</TableCell>
+                    <TableCell>
+                      {format(new Date(row.createdAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                    </TableCell>
+                    <TableCell className="space-x-2">
+                      {row.status === 'PENDING' ? (
+                        <>
+                          <Button type="button" size="sm" onClick={() => void review(row.id, 'RESOLVED')}>
+                            Закрыть
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => void review(row.id, 'REJECTED')}
+                          >
+                            Отклонить
+                          </Button>
+                        </>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

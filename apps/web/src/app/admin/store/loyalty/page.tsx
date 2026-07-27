@@ -1,9 +1,10 @@
 'use client';
 
 import type { LoyaltyDiscount } from '@twomc/shared';
-import { Plus, Trash2 } from 'lucide-react';
+import { Award, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -99,6 +100,12 @@ export default function AdminLoyaltyPage() {
 
       {loading ? (
         <Skeleton className="h-64 w-full" />
+      ) : items.length === 0 ? (
+        <AdminEmptyState
+          icon={Award}
+          title="Нет уровней лояльности"
+          description="Добавьте уровень скидки за покупки выше"
+        />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>

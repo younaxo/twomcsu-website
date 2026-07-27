@@ -1,9 +1,10 @@
 'use client';
 
 import { PositionSummary, RoleGroup, hasRoleGroup, roleGroupOrder } from '@twomc/shared';
-import { Pencil, Plus, Trash2, UserPlus } from 'lucide-react';
+import { Briefcase, Pencil, Plus, Trash2, UserPlus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AdminEmptyState } from '@/components/admin';
 import { AssignPositionDialog } from '@/components/admin/AssignPositionDialog';
 import { PositionFormDialog } from '@/components/admin/PositionFormDialog';
 import { PositionBadge } from '@/components/shared/PositionBadge';
@@ -99,6 +100,20 @@ export default function AdminPositionsPage() {
 
       {isLoading ? (
         <Skeleton className="h-96 w-full" />
+      ) : positions.length === 0 ? (
+        <AdminEmptyState
+          icon={Briefcase}
+          title="Нет позиций"
+          description="Создайте позицию или назначьте игроку"
+          action={
+            isOwner ? (
+              <Button onClick={openCreate}>
+                <Plus className="mr-2 h-4 w-4" />
+                Создать
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         groupsTopDown.map((group) => {
           const rows = positions.filter((position) => position.group === group);
