@@ -60,15 +60,15 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   /// Uploaded image, wins over bannerPreset when both are set
-  banner       String?
-  bannerPreset String?
-  statusText   String?   @db.VarChar(128)
-  bio          String?   @db.VarChar(500)
-  country      String?
-  city         String?   @db.VarChar(100)
-  gender       Gender?
-  birthDate    DateTime?
-  showBirthDate Boolean  @default(false)
+  banner        String?
+  bannerPreset  String?
+  statusText    String?   @db.VarChar(128)
+  bio           String?   @db.VarChar(500)
+  country       String?
+  city          String?   @db.VarChar(100)
+  gender        Gender?
+  birthDate     DateTime?
+  showBirthDate Boolean   @default(false)
 
   /// Hides the whole page from everyone but the owner and the staff
   isProfilePrivate Boolean @default(false)
