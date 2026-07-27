@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { PerformanceMiddleware } from './common/middleware/performance.middleware';
 import { configuration } from './config/configuration';
@@ -11,6 +12,7 @@ import { CacheModule } from './modules/cache/cache.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
+import { MinecraftModule } from './modules/minecraft/minecraft.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PositionsModule } from './modules/positions/positions.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
@@ -29,6 +31,7 @@ import { UsersModule } from './modules/users/users.module';
       load: [configuration],
       validate: validateEnv,
     }),
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
     PrismaModule,
     RedisModule,
@@ -43,6 +46,7 @@ import { UsersModule } from './modules/users/users.module';
     CommentsModule,
     NotificationsModule,
     StoreModule,
+    MinecraftModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

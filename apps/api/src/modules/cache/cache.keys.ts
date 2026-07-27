@@ -15,8 +15,12 @@ export const CACHE_TTL = {
   PROFILE_COMMENTS: 30,
   /** Unread notifications counter */
   NOTIFICATIONS_UNREAD: 30,
-  /** Server status / monitoring */
-  SERVER_STATUS: 30,
+  /** Live server status snapshot */
+  SERVER_STATUS: 60,
+  /** Servers list with status */
+  SERVERS_LIST: 30,
+  /** Servers overview stats */
+  SERVERS_OVERVIEW: 300,
   /** Store category tree */
   STORE_CATEGORIES: 120,
   /** Store product list / detail */
@@ -44,6 +48,9 @@ export const cacheKeys = {
   incomingCount: (userId: string) => `friends:incoming-count:${userId}`,
   authMe: (userId: string) => `auth:me:${userId}`,
   notificationsUnread: (userId: string) => `notifications:unread:${userId}`,
+  serverStatus: (serverId: string) => `server:${serverId}:status`,
+  serversList: () => 'servers:list',
+  serversOverview: () => 'servers:overview',
   profileComments: (username: string, page: number, limit: number, sort: string) =>
     `comments:${username.toLowerCase()}:${page}:${limit}:${sort}`,
   profileCommentsPattern: (username: string) => `comments:${username.toLowerCase()}:*`,
