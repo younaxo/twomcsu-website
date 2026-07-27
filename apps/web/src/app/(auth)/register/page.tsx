@@ -13,7 +13,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -107,12 +106,7 @@ export default function RegisterPage() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      autoComplete="email"
-                      placeholder="steve@mail.ru"
-                      {...field}
-                    />
+                    <Input type="email" autoComplete="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -126,7 +120,7 @@ export default function RegisterPage() {
                 <FormItem>
                   <FormLabel>Никнейм</FormLabel>
                   <FormControl>
-                    <Input autoComplete="username" placeholder="steve" {...field} />
+                    <Input autoComplete="username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -170,12 +164,10 @@ export default function RegisterPage() {
                   <FormControl>
                     <Input
                       autoComplete="off"
-                      placeholder="WELCOME2024"
                       {...field}
                       onChange={(event) => field.onChange(event.target.value.toUpperCase())}
                     />
                   </FormControl>
-                  <FormDescription>Скидка применится при первой покупке в магазине</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
