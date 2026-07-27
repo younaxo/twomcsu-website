@@ -104,6 +104,62 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum SocialPlatform {
+  DISCORD
+  TELEGRAM
+  VK
+  YOUTUBE
+  TWITCH
+  TIKTOK
+  STEAM
+}
+
+/// Platforms a creator can be verified on, a subset of SocialPlatform
+enum MediaGroup {
+  YOUTUBE
+  TWITCH
+  TIKTOK
+}
+
+enum UserBadgeType {
+  VERIFIED
+  SUBSCRIBER_PLUS
+  PROJECT_TEAM
+  DEVELOPERS_TEAM
+}
+
+enum MediaBadgeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ProfileReportReason {
+  SPAM
+  INAPPROPRIATE_CONTENT
+  HARASSMENT
+  IMPERSONATION
+  OTHER
+}
+
+enum ProfileReportStatus {
+  PENDING
+  RESOLVED
+  REJECTED
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
 enum DiscountType {
   PERCENT
   FIXED
