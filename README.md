@@ -82,6 +82,10 @@ API читает его через `@nestjs/config`, Next — через `next.c
 | `POST /auth/reset-password`  | Смена пароля по токену из ссылки                                |
 | `POST /auth/logout`          | Отзывает refresh токен и чистит cookie (нужен access token)     |
 | `GET /auth/me`               | Текущий пользователь (нужен access token)                       |
+| `POST /auth/change-password` | Смена пароля, отзывает все сессии                               |
+| `GET /auth/sessions`         | Список активных сессий                                          |
+| `DELETE /auth/sessions`      | Выйти со всех устройств                                         |
+| `DELETE /auth/sessions/:id`  | Завершить конкретную сессию                                     |
 
 Как это устроено:
 
@@ -197,6 +201,43 @@ curl -i -X POST http://localhost:4000/auth/logout \
 Страницы: `/users/<никнейм>` — публичный профиль, `/admin/positions` — управление
 (ADMIN видит список и назначение, кнопки создания и удаления только у OWNER).
 
+## Расширенный профиль
+
+Профиль игрока: баннер, аватар, статус, био, страна/город, пол, возраст, приватность,
+соцсети, медиа-бейджи, награды, статистика, лайки/дизлайки, просмотры и жалобы.
+
+Загрузки картинок лежат в `UPLOADS_DIR` (по умолчанию `./uploads` относительно `apps/api`)
+и отдаются по `/uploads/...`. Лимиты: `UPLOAD_MAX_AVATAR_SIZE` (5 МБ) и `UPLOAD_MAX_BANNER_SIZE` (10 МБ).
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /users/me/profile` | авторизованный | Свой профиль для редактирования |
+| `PATCH /users/me/profile` | авторизованный | Обновить поля и приватность |
+| `POST/DELETE /users/me/avatar` | авторизованный | Загрузить / удалить аватар |
+| `POST/DELETE /users/me/banner` | авторизованный | Загрузить / удалить баннер |
+| `PATCH /users/me/banner/preset` | авторизованный | Выбрать пресет баннера |
+| `GET /banners/presets` | публичный | Список активных пресетов |
+| `GET/PUT/DELETE /users/me/socials...` | авторизованный | Соцсети |
+| `POST /users/me/media-request` | авторизованный | Заявка на медиа-бейдж |
+| `GET /users/me/media-requests` | авторизованный | Мои заявки |
+| `GET /users/:username/public` | публичный (+optional JWT) | Полный публичный профиль |
+| `GET /users/:username/statistics` | публичный | Статистика с учётом приватности |
+| `POST /users/:username/view` | авторизованный | Уникальный просмотр |
+| `PUT /users/:username/reaction` | авторизованный | Like / dislike / сброс |
+| `POST /users/:username/report` | авторизованный | Жалоба на профиль |
+| `GET /awards` | публичный | Активные награды |
+| `GET/POST/PATCH/DELETE /admin/awards...` | ADMIN/OWNER | Каталог и выдача наград |
+| `GET/POST/DELETE /admin/users/:userId/badges...` | ADMIN+ | Выдача UserBadge |
+| `GET/PATCH /admin/media-requests...` | ADMIN+ | Модерация медиа-заявок |
+| `GET/PATCH /admin/profile-reports...` | ADMIN+ | Модерация жалоб |
+| `PATCH /admin/users/:userId/statistics` | ADMIN+ | Правка статистики |
+
+Страницы:
+
+- `/profile/settings` — табы Профиль / Приватность / Соц сети / Медиа / Безопасность
+- `/users/[username]` — баннер, статистика, 3D скин, информация, реакции
+- `/admin/badges`, `/admin/awards`, `/admin/media-requests`, `/admin/profile-reports`
+
 ## Структура
 
 ```
@@ -207,18 +248,20 @@ apps/
       common/         мелкие утилиты
       config/         конфиг и валидация env
       modules/
-        auth/         эндпоинты, гварды, стратегии, капча, брутфорс
+        auth/         эндпоинты, гварды, стратегии, капча, брутфорс, сессии
+        awards/       каталог наград и выдача
         health/       GET /health
         positions/    титулы, их crud и назначение игрокам
         prisma/       PrismaService (глобальный модуль)
         redis/        ioredis клиент (глобальный модуль)
-        users/        публичный профиль и поиск по никнейму
+        uploads/      sharp + раздача /uploads
+        users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
-    src/app/          App Router, (auth), /users/[username], /admin/positions
-    src/components/   ui kit (shadcn), admin модалки, shared, провайдеры, шапка
+    src/app/          (auth), /users/[username], /profile/settings, /admin/*
+    src/components/   ui kit, profile, shared, admin, шапка
     src/hooks/        useAuth
-    src/lib/          axios клиент, fetch для серверных компонентов
+    src/lib/          axios клиент, profile helpers
     src/stores/       zustand стор авторизации
 packages/
-  shared/             общие типы (RoleGroup, Position, контракты auth)
+  shared/             RoleGroup, Position, Profile, Auth типы
 ```
