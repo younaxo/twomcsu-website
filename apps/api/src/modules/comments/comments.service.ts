@@ -28,6 +28,7 @@ import {
 } from '@twomc/shared';
 import { buildPaginatedResult } from '../../common/pagination';
 import { selectMinimalUser } from '../../common/prisma/user-selects';
+import { findUserByIdentifier } from '../../common/user-identifier';
 import { toUserBadge } from '../users/profile.mapper';
 import { toPublicPosition } from '../positions/position.mapper';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
@@ -769,8 +770,7 @@ export class CommentsService {
   }
 
   private async requireProfileByUsername(username: string) {
-    const profile = await this.prisma.user.findFirst({
-      where: { username: { equals: username, mode: 'insensitive' } },
+    const profile = await findUserByIdentifier(this.prisma, username, {
       select: {
         id: true,
         username: true,

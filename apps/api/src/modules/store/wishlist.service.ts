@@ -8,6 +8,7 @@ import {
   PublicWishlistResponse,
   WishlistResponse,
 } from '@twomc/shared';
+import { findUserByIdentifier } from '../../common/user-identifier';
 import { PrismaService } from '../prisma/prisma.service';
 import { CartService } from './cart.service';
 import { toStoreProduct } from './store.mapper';
@@ -82,8 +83,7 @@ export class WishlistService {
     let ownerId: string;
 
     if (wishlistUsername) {
-      const owner = await this.prisma.user.findUnique({
-        where: { username: wishlistUsername },
+      const owner = await findUserByIdentifier(this.prisma, wishlistUsername, {
         select: { id: true },
       });
       if (!owner) {
@@ -135,8 +135,7 @@ export class WishlistService {
   }
 
   async getPublicByUsername(username: string): Promise<PublicWishlistResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
+    const user = await findUserByIdentifier(this.prisma, username, {
       select: { id: true, username: true },
     });
     if (!user) {

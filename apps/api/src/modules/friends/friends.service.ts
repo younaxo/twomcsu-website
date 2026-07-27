@@ -24,6 +24,7 @@ import {
   MinimalUserRow,
   selectMinimalUser,
 } from '../../common/prisma/user-selects';
+import { findUserByIdentifier } from '../../common/user-identifier';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { toPublicPosition } from '../positions/position.mapper';
@@ -547,8 +548,7 @@ export class FriendsService {
   }
 
   private async requireUserByUsername(username: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
+    const user = await findUserByIdentifier(this.prisma, username, {
       select: { id: true, username: true },
     });
 

@@ -32,6 +32,7 @@ import {
 } from '@twomc/shared';
 import { assertSearchLength } from '../../common/pagination';
 import { selectFullProfile, selectMinimalUser } from '../../common/prisma/user-selects';
+import { findUserByIdentifier } from '../../common/user-identifier';
 import { AuthenticatedUser } from '../auth/authenticated-user';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
@@ -496,8 +497,7 @@ export class UsersService {
   }
 
   async recordView(username: string, viewerId: string): Promise<SuccessResponse> {
-    const profile = await this.prisma.user.findUnique({
-      where: { username },
+    const profile = await findUserByIdentifier(this.prisma, username, {
       select: { id: true },
     });
 
@@ -523,8 +523,7 @@ export class UsersService {
     viewerId: string,
     type: ReactionType | null,
   ): Promise<ProfileReactionSummary> {
-    const profile = await this.prisma.user.findUnique({
-      where: { username },
+    const profile = await findUserByIdentifier(this.prisma, username, {
       select: { id: true },
     });
 
@@ -556,8 +555,7 @@ export class UsersService {
     reporterId: string,
     dto: CreateProfileReportDto,
   ): Promise<SuccessResponse> {
-    const profile = await this.prisma.user.findUnique({
-      where: { username },
+    const profile = await findUserByIdentifier(this.prisma, username, {
       select: { id: true },
     });
 
@@ -670,8 +668,7 @@ export class UsersService {
   }
 
   async getStatistics(username: string, viewer?: AuthenticatedUser | null): Promise<PlayerStatistics> {
-    const user = await this.prisma.user.findUnique({
-      where: { username },
+    const user = await findUserByIdentifier(this.prisma, username, {
       select: {
         id: true,
         hideStatistics: true,
@@ -879,15 +876,20 @@ export class UsersService {
   private async requireProfileUser(
     where: { id: string } | { username: string },
   ): Promise<ProfileUser> {
-    const cacheKey =
-      'username' in where
-        ? cacheKeys.userProfile(where.username)
-        : cacheKeys.userById(where.id);
+    if ('id' in where) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: where.id },
+        select: selectFullProfile,
+      });
 
-    // Cache only the serializable mapped profile shell is awkward for Prisma dates;
-    // cache the username→id hop for repeated public hits via a short-lived marker.
-    const user = await this.prisma.user.findUnique({
-      where,
+      if (!user) {
+        throw new NotFoundException('Пользователь не найден');
+      }
+
+      return user;
+    }
+
+    const user = await findUserByIdentifier(this.prisma, where.username, {
       select: selectFullProfile,
     });
 
@@ -895,10 +897,11 @@ export class UsersService {
       throw new NotFoundException('Пользователь не найден');
     }
 
-    // Warm a cheap username lookup key for follow-up endpoints
-    if ('username' in where) {
-      await this.cache.set(cacheKey, { id: user.id }, CACHE_TTL.USER_PROFILE);
-    }
+    await this.cache.set(
+      cacheKeys.userProfile(user.username),
+      { id: user.id },
+      CACHE_TTL.USER_PROFILE,
+    );
 
     return user;
   }
