@@ -1,6 +1,6 @@
 'use client';
 
-import type { CreateOrderResponse, WishlistResponse } from '@twomc/shared';
+import type { CartResponse, WishlistResponse } from '@twomc/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query-keys';
@@ -75,20 +75,19 @@ export function useGiftFromWishlist() {
   return useMutation({
     mutationFn: async ({
       productId,
-      giftMessage,
+      giftToUsername,
     }: {
       productId: string;
-      giftMessage?: string;
+      giftToUsername: string;
     }) => {
-      const { data } = await api.post<CreateOrderResponse>(
+      const { data } = await api.post<{ cart: CartResponse }>(
         `/store/wishlist/items/${productId}/gift`,
-        { giftMessage },
+        { giftToUsername },
       );
       return data;
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.storeCart });
-      void queryClient.invalidateQueries({ queryKey: ['store', 'orders'] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKeys.storeCart, data.cart);
     },
   });
 }

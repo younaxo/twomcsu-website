@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
+  useAddToCart,
   useCart,
   useClearCart,
   useRemoveFromCart,
@@ -45,6 +46,7 @@ export function CartDrawer() {
   const cart = useCart(open);
   const updateItem = useUpdateCartItem();
   const removeItem = useRemoveFromCart();
+  const addItem = useAddToCart();
   const clearCart = useClearCart();
   const [giftItemId, setGiftItemId] = useState<string | null>(null);
 
@@ -207,11 +209,16 @@ export function CartDrawer() {
           if (!next) setGiftItemId(null);
         }}
         onConfirm={async ({ giftToUserId, giftMessage }) => {
-          if (!giftItemId) return;
-          await updateItem.mutateAsync({
-            id: giftItemId,
+          const current = items.find((item) => item.id === giftItemId);
+          if (!current?.product) return;
+
+          await removeItem.mutateAsync(current.id);
+          await addItem.mutateAsync({
+            productId: current.product.id,
+            variantId: current.variant?.id,
+            quantity: current.quantity,
             giftToUserId,
-            giftMessage: giftMessage || null,
+            giftMessage: giftMessage || undefined,
           });
           toast.success('Подарок настроен');
           setGiftItemId(null);

@@ -56,7 +56,9 @@ export function useSimulatePayment() {
 
   return useMutation({
     mutationFn: async (orderId: string) => {
-      const { data } = await api.post<StoreOrder>('/store/mock-payment', { orderId });
+      const { data } = await api.post<StoreOrder>(
+        `/store/orders/${encodeURIComponent(orderId)}/mock-complete`,
+      );
       return data;
     },
     onSuccess: (data) => {

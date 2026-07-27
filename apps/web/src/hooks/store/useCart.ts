@@ -16,9 +16,7 @@ export interface AddCartItemInput {
 }
 
 export interface UpdateCartItemInput {
-  quantity?: number;
-  giftToUserId?: string | null;
-  giftMessage?: string | null;
+  quantity: number;
 }
 
 export function useCart(enabled = true) {
