@@ -90,7 +90,7 @@ export class CommentsService {
     const cacheKey = cacheKeys.profileComments(profileUsername, safePage, safeLimit, sort);
     const cached = await this.cache.get<ProfileCommentsResponse>(cacheKey);
 
-    if (cached && !viewerId) {
+    if (cached && !viewerId && (cached.data.length > 0 || cached.pinned.length > 0)) {
       return cached;
     }
 
@@ -158,7 +158,7 @@ export class CommentsService {
       canComment,
     };
 
-    if (!viewerId) {
+    if (!viewerId && (result.data.length > 0 || result.pinned.length > 0)) {
       await this.cache.set(cacheKey, result, CACHE_TTL.PROFILE_COMMENTS);
     }
 
@@ -431,13 +431,22 @@ export class CommentsService {
     const profile = await this.requireProfileByUsername(profileUsername);
     await this.requireCommentOnProfile(commentId, profile.id);
 
-    await this.prisma.commentReaction.upsert({
-      where: {
-        commentId_userId_emoji: { commentId, userId, emoji },
-      },
-      create: { commentId, userId, emoji },
-      update: {},
+    const existing = await this.prisma.commentReaction.findFirst({
+      where: { commentId, userId },
     });
+
+    if (existing && existing.emoji === emoji) {
+      await this.prisma.commentReaction.delete({ where: { id: existing.id } });
+    } else if (existing) {
+      await this.prisma.commentReaction.update({
+        where: { id: existing.id },
+        data: { emoji },
+      });
+    } else {
+      await this.prisma.commentReaction.create({
+        data: { commentId, userId, emoji },
+      });
+    }
 
     await this.invalidateCommentsCache(profile.username);
     return this.getMappedComment(commentId, profile, userId);

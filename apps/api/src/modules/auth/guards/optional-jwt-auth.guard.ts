@@ -11,7 +11,9 @@ export class OptionalJwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
 
-    return super.canActivate(context) as boolean | Promise<boolean>;
+    return Promise.resolve(super.canActivate(context) as boolean | Promise<boolean>).catch(
+      () => true,
+    );
   }
 
   override handleRequest<TUser>(err: Error | null, user: TUser): TUser | null {
