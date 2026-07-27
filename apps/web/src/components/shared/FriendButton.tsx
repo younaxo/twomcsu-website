@@ -1,8 +1,7 @@
 'use client';
 
-import type { FriendshipRelationStatus, FriendshipStatusResponse } from '@twomc/shared';
+import type { FriendshipRelationStatus } from '@twomc/shared';
 import { Check, Clock, MoreHorizontal, UserMinus, UserPlus, UserX } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,10 +10,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
-import { api, extractErrorMessage } from '@/lib/api';
-import { useFriendsStore } from '@/stores/friendsStore';
+import {
+  useAcceptFriendRequest,
+  useBlockUser,
+  useCancelFriendRequest,
+  useFriendStatus,
+  useRejectFriendRequest,
+  useRemoveFriend,
+  useSendFriendRequest,
+  useUnblockUser,
+} from '@/hooks/useFriendsQueries';
+import { extractErrorMessage } from '@/lib/api';
 
 interface FriendButtonProps {
   username: string;
@@ -23,51 +32,46 @@ interface FriendButtonProps {
 
 export function FriendButton({ username, onChanged }: FriendButtonProps) {
   const { isAuthenticated } = useAuth();
-  const refreshIncoming = useFriendsStore((s) => s.refresh);
-  const [status, setStatus] = useState<FriendshipRelationStatus | null>(null);
-  const [requestId, setRequestId] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const statusQuery = useFriendStatus(username, isAuthenticated);
+  const sendRequest = useSendFriendRequest();
+  const acceptRequest = useAcceptFriendRequest();
+  const rejectRequest = useRejectFriendRequest();
+  const cancelRequest = useCancelFriendRequest();
+  const removeFriend = useRemoveFriend();
+  const blockUser = useBlockUser();
+  const unblockUser = useUnblockUser();
 
-  const loadStatus = useCallback(async () => {
-    if (!isAuthenticated) {
-      setStatus(null);
-      setRequestId(null);
-      return;
-    }
+  const status = statusQuery.data?.status ?? null;
+  const requestId = statusQuery.data?.requestId ?? null;
+  const busy =
+    sendRequest.isPending ||
+    acceptRequest.isPending ||
+    rejectRequest.isPending ||
+    cancelRequest.isPending ||
+    removeFriend.isPending ||
+    blockUser.isPending ||
+    unblockUser.isPending;
 
-    try {
-      const { data } = await api.get<FriendshipStatusResponse>(
-        `/friends/status/${encodeURIComponent(username)}`,
-        { skipAuthRedirect: true },
-      );
-      setStatus(data.status);
-      setRequestId(data.requestId);
-    } catch {
-      setStatus(null);
-      setRequestId(null);
-    }
-  }, [isAuthenticated, username]);
-
-  useEffect(() => {
-    void loadStatus();
-  }, [loadStatus]);
-
-  const run = async (action: () => Promise<void>, success: string) => {
-    setBusy(true);
+  const run = async (action: () => Promise<unknown>, success: string) => {
     try {
       await action();
       toast.success(success);
-      await loadStatus();
-      await refreshIncoming();
+      await statusQuery.refetch();
       onChanged?.();
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось выполнить действие'));
-    } finally {
-      setBusy(false);
     }
   };
 
-  if (!isAuthenticated || status === null || status === 'self') {
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  if (statusQuery.isLoading) {
+    return <Skeleton className="h-9 w-36" />;
+  }
+
+  if (status === null || status === 'self') {
     return null;
   }
 
@@ -78,12 +82,7 @@ export function FriendButton({ username, onChanged }: FriendButtonProps) {
           <Button
             size="sm"
             disabled={busy}
-            onClick={() =>
-              void run(
-                () => api.post(`/friends/request/${encodeURIComponent(username)}`),
-                'Запрос в друзья отправлен',
-              )
-            }
+            onClick={() => void run(() => sendRequest.mutateAsync(username), 'Запрос в друзья отправлен')}
           >
             <UserPlus className="mr-1.5 h-4 w-4" />
             Добавить в друзья
@@ -113,10 +112,7 @@ export function FriendButton({ username, onChanged }: FriendButtonProps) {
             disabled={!requestId || busy}
             onSelect={() => {
               if (!requestId) return;
-              void run(
-                () => api.delete(`/friends/requests/${encodeURIComponent(requestId)}`),
-                'Запрос отменён',
-              );
+              void run(() => cancelRequest.mutateAsync(requestId), 'Запрос отменён');
             }}
           >
             Отменить
@@ -137,10 +133,7 @@ export function FriendButton({ username, onChanged }: FriendButtonProps) {
               disabled={!requestId || busy}
               onClick={() => {
                 if (!requestId) return;
-                void run(
-                  () => api.post(`/friends/accept/${encodeURIComponent(requestId)}`),
-                  'Запрос принят',
-                );
+                void run(() => acceptRequest.mutateAsync(requestId), 'Запрос принят');
               }}
             >
               <Check className="mr-1.5 h-4 w-4" />
@@ -157,10 +150,7 @@ export function FriendButton({ username, onChanged }: FriendButtonProps) {
               disabled={!requestId || busy}
               onClick={() => {
                 if (!requestId) return;
-                void run(
-                  () => api.post(`/friends/reject/${encodeURIComponent(requestId)}`),
-                  'Запрос отклонён',
-                );
+                void run(() => rejectRequest.mutateAsync(requestId), 'Запрос отклонён');
               }}
             >
               Отклонить
@@ -189,24 +179,14 @@ export function FriendButton({ username, onChanged }: FriendButtonProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             disabled={busy}
-            onSelect={() =>
-              void run(
-                () => api.delete(`/friends/${encodeURIComponent(username)}`),
-                'Пользователь удалён из друзей',
-              )
-            }
+            onSelect={() => void run(() => removeFriend.mutateAsync(username), 'Пользователь удалён из друзей')}
           >
             <UserMinus className="mr-2 h-4 w-4" />
             Удалить
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={busy}
-            onSelect={() =>
-              void run(
-                () => api.post(`/friends/block/${encodeURIComponent(username)}`),
-                'Пользователь заблокирован',
-              )
-            }
+            onSelect={() => void run(() => blockUser.mutateAsync(username), 'Пользователь заблокирован')}
           >
             <UserX className="mr-2 h-4 w-4" />
             Заблокировать
@@ -224,12 +204,7 @@ export function FriendButton({ username, onChanged }: FriendButtonProps) {
             size="sm"
             variant="outline"
             disabled={busy}
-            onClick={() =>
-              void run(
-                () => api.delete(`/friends/block/${encodeURIComponent(username)}`),
-                'Пользователь разблокирован',
-              )
-            }
+            onClick={() => void run(() => unblockUser.mutateAsync(username), 'Пользователь разблокирован')}
           >
             Разблокировать
           </Button>
@@ -250,3 +225,6 @@ export function FriendButton({ username, onChanged }: FriendButtonProps) {
     </Tooltip>
   );
 }
+
+// keep type export for consumers that narrow on status strings
+export type { FriendshipRelationStatus };

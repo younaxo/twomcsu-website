@@ -3,7 +3,7 @@
 import type { FriendUser } from '@twomc/shared';
 import { MoreHorizontal, UserMinus, UserX } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { PositionBadge } from '@/components/shared/PositionBadge';
@@ -16,43 +16,45 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { api, extractErrorMessage } from '@/lib/api';
+import {
+  useBlockUser,
+  usePrefetchProfile,
+  useRemoveFriend,
+} from '@/hooks/useFriendsQueries';
+import { extractErrorMessage } from '@/lib/api';
 import { resolveMediaUrl } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 
 interface FriendCardProps {
   friend: FriendUser;
-  onRemoved?: (username: string) => void;
-  onBlocked?: (username: string) => void;
+  onRemoved?: () => void;
+  onBlocked?: () => void;
   className?: string;
 }
 
-export function FriendCard({ friend, onRemoved, onBlocked, className }: FriendCardProps) {
-  const [busy, setBusy] = useState(false);
+function FriendCardComponent({ friend, onRemoved, onBlocked, className }: FriendCardProps) {
+  const removeFriend = useRemoveFriend();
+  const blockUser = useBlockUser();
+  const prefetchProfile = usePrefetchProfile();
+  const busy = removeFriend.isPending || blockUser.isPending;
 
   const remove = async () => {
-    setBusy(true);
     try {
-      await api.delete(`/friends/${encodeURIComponent(friend.username)}`);
+      await removeFriend.mutateAsync(friend.username);
       toast.success('Пользователь удалён из друзей');
-      onRemoved?.(friend.username);
+      onRemoved?.();
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось удалить из друзей'));
-    } finally {
-      setBusy(false);
     }
   };
 
   const block = async () => {
-    setBusy(true);
     try {
-      await api.post(`/friends/block/${encodeURIComponent(friend.username)}`);
+      await blockUser.mutateAsync(friend.username);
       toast.success('Пользователь заблокирован');
-      onBlocked?.(friend.username);
+      onBlocked?.();
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось заблокировать'));
-    } finally {
-      setBusy(false);
     }
   };
 
@@ -63,7 +65,11 @@ export function FriendCard({ friend, onRemoved, onBlocked, className }: FriendCa
         className,
       )}
     >
-      <Link href={`/users/${friend.username}`} className="shrink-0">
+      <Link
+        href={`/users/${friend.username}`}
+        className="shrink-0"
+        onMouseEnter={() => prefetchProfile(friend.username)}
+      >
         <SkinHead
           username={friend.username}
           minecraftNick={friend.minecraftNick}
@@ -86,13 +92,13 @@ export function FriendCard({ friend, onRemoved, onBlocked, className }: FriendCa
                 variant="ghost"
                 className="h-8 w-8 shrink-0"
                 disabled={busy}
-                aria-label="Действия"
+                aria-label="Управление"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent>Действия</TooltipContent>
+          <TooltipContent>Управление</TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="end">
           <DropdownMenuItem disabled={busy} onSelect={() => void remove()}>
@@ -108,3 +114,5 @@ export function FriendCard({ friend, onRemoved, onBlocked, className }: FriendCa
     </div>
   );
 }
+
+export const FriendCard = memo(FriendCardComponent);

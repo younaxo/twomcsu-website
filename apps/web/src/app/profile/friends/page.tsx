@@ -1,13 +1,8 @@
 'use client';
 
-import type {
-  BlockedUserItem,
-  FriendListItem,
-  FriendRequestItem,
-  PaginatedResponse,
-} from '@twomc/shared';
 import { Search } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useDebounce } from 'use-debounce';
 import { BlockedUserCard } from '@/components/shared/BlockedUserCard';
 import { FriendCard } from '@/components/shared/FriendCard';
 import { FriendRequestCard } from '@/components/shared/FriendRequestCard';
@@ -16,65 +11,52 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { api, extractErrorMessage } from '@/lib/api';
-import { useFriendsStore } from '@/stores/friendsStore';
-import { toast } from 'sonner';
+import {
+  useBlockedUsers,
+  useFriends,
+  useIncomingRequests,
+  useIncomingRequestsCount,
+  useOutgoingRequests,
+} from '@/hooks/useFriendsQueries';
 
 const PAGE_SIZE = 12;
 
 export default function FriendsPage() {
-  const refreshIncoming = useFriendsStore((s) => s.refresh);
-  const incomingBadge = useFriendsStore((s) => s.incomingCount);
-
-  const [friends, setFriends] = useState<FriendListItem[]>([]);
-  const [friendsTotal, setFriendsTotal] = useState(0);
   const [friendsPage, setFriendsPage] = useState(1);
-  const [incoming, setIncoming] = useState<FriendRequestItem[]>([]);
-  const [outgoing, setOutgoing] = useState<FriendRequestItem[]>([]);
-  const [blocked, setBlocked] = useState<BlockedUserItem[]>([]);
   const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [debouncedQuery] = useDebounce(query, 250);
 
-  const loadFriends = useCallback(async (page: number) => {
-    const { data } = await api.get<PaginatedResponse<FriendListItem>>('/friends', {
-      params: { page, limit: PAGE_SIZE },
-    });
-    setFriends(data.items);
-    setFriendsTotal(data.total);
-    setFriendsPage(data.page);
-  }, []);
+  const friendsQuery = useFriends(friendsPage, PAGE_SIZE, debouncedQuery);
+  const incomingQuery = useIncomingRequests();
+  const outgoingQuery = useOutgoingRequests();
+  const blockedQuery = useBlockedUsers();
+  const incomingCountQuery = useIncomingRequestsCount(true);
 
-  const loadAll = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [incomingRes, outgoingRes, blockedRes] = await Promise.all([
-        api.get<FriendRequestItem[]>('/friends/requests/incoming'),
-        api.get<FriendRequestItem[]>('/friends/requests/outgoing'),
-        api.get<BlockedUserItem[]>('/friends/blocked'),
-        loadFriends(1),
-        refreshIncoming(),
-      ]);
-      setIncoming(incomingRes.data);
-      setOutgoing(outgoingRes.data);
-      setBlocked(blockedRes.data);
-    } catch (error) {
-      toast.error(extractErrorMessage(error, 'Не удалось загрузить друзей'));
-    } finally {
-      setLoading(false);
-    }
-  }, [loadFriends, refreshIncoming]);
+  const friends = friendsQuery.data?.data ?? [];
+  const friendsTotal = friendsQuery.data?.pagination.total ?? 0;
+  const incoming = incomingQuery.data?.data ?? [];
+  const outgoing = outgoingQuery.data?.data ?? [];
+  const blocked = blockedQuery.data?.data ?? [];
+  const incomingBadge = incomingCountQuery.data ?? incoming.length;
 
-  useEffect(() => {
-    void loadAll();
-  }, [loadAll]);
+  const totalPages = useMemo(
+    () => friendsQuery.data?.pagination.totalPages ?? 1,
+    [friendsQuery.data?.pagination.totalPages],
+  );
 
-  const filteredFriends = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return friends;
-    return friends.filter((item) => item.user.username.toLowerCase().includes(q));
-  }, [friends, query]);
+  const loading =
+    friendsQuery.isLoading ||
+    incomingQuery.isLoading ||
+    outgoingQuery.isLoading ||
+    blockedQuery.isLoading;
 
-  const totalPages = Math.max(1, Math.ceil(friendsTotal / PAGE_SIZE));
+  const refreshLists = () => {
+    void friendsQuery.refetch();
+    void incomingQuery.refetch();
+    void outgoingQuery.refetch();
+    void blockedQuery.refetch();
+    void incomingCountQuery.refetch();
+  };
 
   if (loading) {
     return (
@@ -117,30 +99,21 @@ export default function FriendsPage() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setFriendsPage(1);
+              }}
               placeholder="Поиск по нику"
               className="pl-9"
             />
           </div>
 
-          {filteredFriends.length === 0 ? (
+          {friends.length === 0 ? (
             <EmptyState text="У вас пока нет друзей" />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredFriends.map((item) => (
-                <FriendCard
-                  key={item.id}
-                  friend={item.user}
-                  onRemoved={(username) => {
-                    setFriends((prev) => prev.filter((row) => row.user.username !== username));
-                    setFriendsTotal((n) => Math.max(0, n - 1));
-                  }}
-                  onBlocked={(username) => {
-                    setFriends((prev) => prev.filter((row) => row.user.username !== username));
-                    setFriendsTotal((n) => Math.max(0, n - 1));
-                    void loadAll();
-                  }}
-                />
+              {friends.map((item) => (
+                <FriendCard key={item.id} friend={item.user} onRemoved={refreshLists} onBlocked={refreshLists} />
               ))}
             </div>
           )}
@@ -150,8 +123,8 @@ export default function FriendsPage() {
               <Button
                 size="sm"
                 variant="outline"
-                disabled={friendsPage <= 1}
-                onClick={() => void loadFriends(friendsPage - 1)}
+                disabled={friendsPage <= 1 || friendsQuery.isFetching}
+                onClick={() => setFriendsPage((p) => Math.max(1, p - 1))}
               >
                 Назад
               </Button>
@@ -161,8 +134,8 @@ export default function FriendsPage() {
               <Button
                 size="sm"
                 variant="outline"
-                disabled={friendsPage >= totalPages}
-                onClick={() => void loadFriends(friendsPage + 1)}
+                disabled={friendsPage >= totalPages || friendsQuery.isFetching}
+                onClick={() => setFriendsPage((p) => p + 1)}
               >
                 Вперёд
               </Button>
@@ -175,15 +148,7 @@ export default function FriendsPage() {
             <EmptyState text="Нет входящих запросов" />
           ) : (
             incoming.map((request) => (
-              <FriendRequestCard
-                key={request.id}
-                request={request}
-                type="incoming"
-                onDone={(id) => {
-                  setIncoming((prev) => prev.filter((row) => row.id !== id));
-                  void loadFriends(friendsPage);
-                }}
-              />
+              <FriendRequestCard key={request.id} request={request} type="incoming" onDone={refreshLists} />
             ))
           )}
         </TabsContent>
@@ -193,12 +158,7 @@ export default function FriendsPage() {
             <EmptyState text="Нет исходящих запросов" />
           ) : (
             outgoing.map((request) => (
-              <FriendRequestCard
-                key={request.id}
-                request={request}
-                type="outgoing"
-                onDone={(id) => setOutgoing((prev) => prev.filter((row) => row.id !== id))}
-              />
+              <FriendRequestCard key={request.id} request={request} type="outgoing" onDone={refreshLists} />
             ))
           )}
         </TabsContent>
@@ -208,13 +168,7 @@ export default function FriendsPage() {
             <EmptyState text="Нет заблокированных" />
           ) : (
             blocked.map((item) => (
-              <BlockedUserCard
-                key={item.id}
-                item={item}
-                onUnblocked={(username) =>
-                  setBlocked((prev) => prev.filter((row) => row.user.username !== username))
-                }
-              />
+              <BlockedUserCard key={item.id} item={item} onUnblocked={refreshLists} />
             ))
           )}
         </TabsContent>

@@ -5,43 +5,51 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Check, X } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { SkinHead } from '@/components/shared/SkinHead';
 import { Button } from '@/components/ui/button';
-import { api, extractErrorMessage } from '@/lib/api';
+import {
+  useAcceptFriendRequest,
+  useCancelFriendRequest,
+  usePrefetchProfile,
+  useRejectFriendRequest,
+} from '@/hooks/useFriendsQueries';
+import { extractErrorMessage } from '@/lib/api';
 import { resolveMediaUrl } from '@/lib/profile';
-import { useFriendsStore } from '@/stores/friendsStore';
 
 interface FriendRequestCardProps {
   request: FriendRequestItem;
   type: 'incoming' | 'outgoing';
-  onDone?: (requestId: string) => void;
+  onDone?: () => void;
 }
 
-export function FriendRequestCard({ request, type, onDone }: FriendRequestCardProps) {
-  const refreshIncoming = useFriendsStore((s) => s.refresh);
-  const [busy, setBusy] = useState(false);
+function FriendRequestCardComponent({ request, type, onDone }: FriendRequestCardProps) {
+  const acceptRequest = useAcceptFriendRequest();
+  const rejectRequest = useRejectFriendRequest();
+  const cancelRequest = useCancelFriendRequest();
+  const prefetchProfile = usePrefetchProfile();
+  const busy = acceptRequest.isPending || rejectRequest.isPending || cancelRequest.isPending;
 
   const run = async (action: () => Promise<unknown>, success: string) => {
-    setBusy(true);
     try {
       await action();
       toast.success(success);
-      await refreshIncoming();
-      onDone?.(request.id);
+      onDone?.();
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось выполнить действие'));
-    } finally {
-      setBusy(false);
     }
   };
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-border bg-card/60 p-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-center gap-3">
-        <Link href={`/users/${request.user.username}`} className="shrink-0">
+        <Link
+          href={`/users/${request.user.username}`}
+          className="shrink-0"
+          onMouseEnter={() => prefetchProfile(request.user.username)}
+        >
           <SkinHead
             username={request.user.username}
             minecraftNick={request.user.minecraftNick}
@@ -64,12 +72,7 @@ export function FriendRequestCard({ request, type, onDone }: FriendRequestCardPr
               size="sm"
               className="bg-emerald-600 text-white hover:bg-emerald-600/90"
               disabled={busy}
-              onClick={() =>
-                void run(
-                  () => api.post(`/friends/accept/${encodeURIComponent(request.id)}`),
-                  'Запрос принят',
-                )
-              }
+              onClick={() => void run(() => acceptRequest.mutateAsync(request.id), 'Запрос принят')}
             >
               <Check className="mr-1.5 h-4 w-4" />
               Принять
@@ -79,10 +82,7 @@ export function FriendRequestCard({ request, type, onDone }: FriendRequestCardPr
               variant="destructive"
               disabled={busy}
               onClick={() =>
-                void run(
-                  () => api.post(`/friends/reject/${encodeURIComponent(request.id)}`),
-                  'Запрос отклонён',
-                )
+                void run(() => rejectRequest.mutateAsync(request.id), 'Запрос отклонён')
               }
             >
               <X className="mr-1.5 h-4 w-4" />
@@ -94,12 +94,7 @@ export function FriendRequestCard({ request, type, onDone }: FriendRequestCardPr
             size="sm"
             variant="outline"
             disabled={busy}
-            onClick={() =>
-              void run(
-                () => api.delete(`/friends/requests/${encodeURIComponent(request.id)}`),
-                'Запрос отменён',
-              )
-            }
+            onClick={() => void run(() => cancelRequest.mutateAsync(request.id), 'Запрос отменён')}
           >
             Отменить
           </Button>
@@ -108,3 +103,5 @@ export function FriendRequestCard({ request, type, onDone }: FriendRequestCardPr
     </div>
   );
 }
+
+export const FriendRequestCard = memo(FriendRequestCardComponent);
