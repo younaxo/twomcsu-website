@@ -171,7 +171,7 @@ export function PositionFormDialog({
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Head Developer"
+                      placeholder="Название позиции"
                       onChange={(event) => {
                         field.onChange(event);
                         syncSlug(event.target.value);
@@ -191,7 +191,7 @@ export function PositionFormDialog({
                   <FormItem>
                     <FormLabel>Slug</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="head-developer" />
+                      <Input {...field} placeholder="строчная латиница и дефис" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -205,7 +205,7 @@ export function PositionFormDialog({
                   <FormItem>
                     <FormLabel>Отображаемое название</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Head Developer" />
+                      <Input {...field} placeholder="Название в бейдже" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -279,7 +279,7 @@ export function PositionFormDialog({
                         aria-label="Выбрать цвет"
                       />
                       <FormControl>
-                        <Input {...field} placeholder="#FFD700" />
+                        <Input {...field} placeholder="#RRGGBB" />
                       </FormControl>
                     </div>
                     <FormMessage />

@@ -79,7 +79,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Email или никнейм</FormLabel>
                   <FormControl>
-                    <Input autoComplete="username" placeholder="steve" {...field} />
+                    <Input autoComplete="username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
