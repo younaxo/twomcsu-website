@@ -1,9 +1,10 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { Search, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { BlockedUserCard } from '@/components/shared/BlockedUserCard';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendCard } from '@/components/shared/FriendCard';
 import { FriendRequestCard } from '@/components/shared/FriendRequestCard';
 import { Badge } from '@/components/ui/badge';
@@ -109,7 +110,7 @@ export default function FriendsPage() {
           </div>
 
           {friends.length === 0 ? (
-            <EmptyState text="У вас пока нет друзей" />
+            <EmptyState icon={Users} title="У вас пока нет друзей" />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {friends.map((item) => (
@@ -145,7 +146,7 @@ export default function FriendsPage() {
 
         <TabsContent value="incoming" className="mt-4 space-y-3">
           {incoming.length === 0 ? (
-            <EmptyState text="Нет входящих запросов" />
+            <EmptyState icon={Users} title="Нет входящих запросов" />
           ) : (
             incoming.map((request) => (
               <FriendRequestCard key={request.id} request={request} type="incoming" onDone={refreshLists} />
@@ -155,7 +156,7 @@ export default function FriendsPage() {
 
         <TabsContent value="outgoing" className="mt-4 space-y-3">
           {outgoing.length === 0 ? (
-            <EmptyState text="Нет исходящих запросов" />
+            <EmptyState icon={Users} title="Нет исходящих запросов" />
           ) : (
             outgoing.map((request) => (
               <FriendRequestCard key={request.id} request={request} type="outgoing" onDone={refreshLists} />
@@ -165,7 +166,7 @@ export default function FriendsPage() {
 
         <TabsContent value="blocked" className="mt-4 space-y-3">
           {blocked.length === 0 ? (
-            <EmptyState text="Нет заблокированных" />
+            <EmptyState icon={Users} title="Нет заблокированных" />
           ) : (
             blocked.map((item) => (
               <BlockedUserCard key={item.id} item={item} onUnblocked={refreshLists} />
@@ -173,14 +174,6 @@ export default function FriendsPage() {
           )}
         </TabsContent>
       </Tabs>
-    </div>
-  );
-}
-
-function EmptyState({ text }: { text: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border px-6 py-12 text-center text-sm text-muted-foreground">
-      {text}
     </div>
   );
 }

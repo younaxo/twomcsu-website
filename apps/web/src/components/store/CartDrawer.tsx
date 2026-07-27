@@ -1,23 +1,24 @@
 'use client';
 
 import type { CartItem } from '@twomc/shared';
-import { Gift, Trash2 } from 'lucide-react';
+import { Gift, ShoppingBag, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { GiftDialog } from '@/components/store/GiftDialog';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { PromoCodeInput } from '@/components/store/PromoCodeInput';
 import { QuantitySelector } from '@/components/store/QuantitySelector';
 import { Button } from '@/components/ui/button';
 import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   useAddToCart,
@@ -38,6 +39,24 @@ function itemTitle(item: CartItem): string {
 
 function itemImage(item: CartItem): string | undefined {
   return resolveMediaUrl(item.bundle?.image ?? item.product?.image);
+}
+
+function hideQtyControls(item: CartItem): boolean {
+  if (item.bundle) return false;
+  const max = item.product?.maxPerPurchase;
+  if (max === 1) return true;
+  const type = item.product?.type;
+  if (!type) return false;
+  return [
+    'PRIVILEGE',
+    'DECORATION',
+    'SUBSCRIPTION',
+    'BADGE',
+    'UNMUTE',
+    'UNBAN',
+    'BATTLE_PASS',
+    'BATTLE_PASS_BOOSTER',
+  ].includes(type);
 }
 
 export function CartDrawer() {
@@ -81,11 +100,11 @@ export function CartDrawer() {
 
   return (
     <>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="flex w-full flex-col sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Корзина</SheetTitle>
-          </SheetHeader>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="flex max-h-[90vh] flex-col gap-0 overflow-hidden sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Корзина</DialogTitle>
+          </DialogHeader>
 
           <div className="flex-1 space-y-4 overflow-y-auto py-4">
             {cart.isLoading ? (
@@ -95,7 +114,17 @@ export function CartDrawer() {
                 ))}
               </div>
             ) : items.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">Корзина пуста</p>
+              <EmptyState
+                icon={ShoppingBag}
+                title="Ваша корзина пуста"
+                description="Время за покупками!"
+                action={
+                  <Button asChild onClick={() => setOpen(false)}>
+                    <Link href="/store">В магазин</Link>
+                  </Button>
+                }
+                className="border-0 bg-transparent py-10"
+              />
             ) : (
               items.map((item) => {
                 const img = itemImage(item);
@@ -141,6 +170,7 @@ export function CartDrawer() {
                         <QuantitySelector
                           value={item.quantity}
                           max={item.product?.maxPerPurchase}
+                          hideControls={hideQtyControls(item)}
                           onChange={(q) => void changeQty(item.id, q)}
                         />
                         <PriceDisplay price={item.lineTotal} size="sm" />
@@ -165,11 +195,11 @@ export function CartDrawer() {
           </div>
 
           {items.length > 0 ? (
-            <SheetFooter className="flex-col gap-3 border-t border-border pt-4 sm:flex-col">
+            <DialogFooter className="flex-col gap-3 border-t border-border pt-4 sm:flex-col">
               <PromoCodeInput appliedCode={cart.data?.promoCode} />
 
               {totals ? (
-                <div className="space-y-1 text-sm">
+                <div className="w-full space-y-1 text-sm">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Подытог</span>
                     <span>{formatPrice(totals.subtotal)}</span>
@@ -198,10 +228,10 @@ export function CartDrawer() {
               <Button variant="link" asChild className="h-auto p-0" onClick={() => setOpen(false)}>
                 <Link href="/store/cart">Открыть корзину</Link>
               </Button>
-            </SheetFooter>
+            </DialogFooter>
           ) : null}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
 
       <GiftDialog
         open={Boolean(giftItemId)}

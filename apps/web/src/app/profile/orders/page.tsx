@@ -1,7 +1,9 @@
 'use client';
 
+import { Package } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,12 +30,16 @@ export default function OrdersPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="space-y-4 text-center">
-        <p className="text-muted-foreground">Войдите, чтобы увидеть заказы</p>
-        <Button asChild>
-          <Link href="/login">Войти</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={Package}
+        title="Заказы"
+        description="Войдите, чтобы увидеть заказы"
+        action={
+          <Button asChild>
+            <Link href="/login">Войти</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -50,12 +56,16 @@ export default function OrdersPage() {
       {orders.isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border py-16 text-center">
-          <p className="mb-4 text-muted-foreground">Заказов пока нет</p>
-          <Button asChild>
-            <Link href="/store">В магазин</Link>
-          </Button>
-        </div>
+        <EmptyState
+          icon={Package}
+          title="Заказов пока нет"
+          description="Самое время заглянуть в магазин"
+          action={
+            <Button asChild>
+              <Link href="/store">В магазин</Link>
+            </Button>
+          }
+        />
       ) : (
         <>
           <div className="rounded-xl border border-border">
@@ -79,7 +89,7 @@ export default function OrdersPage() {
                         {order.orderNumber}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell>
                       {format(new Date(order.createdAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
                     </TableCell>
                     <TableCell>
@@ -87,9 +97,7 @@ export default function OrdersPage() {
                         {ORDER_STATUS_LABELS[order.status] ?? order.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatPrice(order.total)}
-                    </TableCell>
+                    <TableCell className="text-right">{formatPrice(order.total)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -97,7 +105,7 @@ export default function OrdersPage() {
           </div>
 
           {totalPages > 1 ? (
-            <div className="flex justify-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -106,7 +114,7 @@ export default function OrdersPage() {
               >
                 Назад
               </Button>
-              <span className="self-center text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 {page} / {totalPages}
               </span>
               <Button
