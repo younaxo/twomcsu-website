@@ -175,12 +175,12 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                         : 'ring-2 ring-muted-foreground/35 ring-offset-2 ring-offset-card',
                     )}
                   >
-                    {resolveMediaUrl(profile.avatar) || profile.minecraftNick ? (
+                    {resolveMediaUrl(profile.avatar) || profile.username ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={
-                          profile.minecraftNick
-                            ? `https://mc-heads.net/avatar/${encodeURIComponent(profile.minecraftNick)}/128`
+                          profile.username
+                            ? `https://mc-heads.net/avatar/${encodeURIComponent(profile.username)}/128`
                             : resolveMediaUrl(profile.avatar)!
                         }
                         alt={profile.username}
@@ -193,7 +193,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                   <div className="absolute -bottom-1 -right-1 rounded-lg border-2 border-card shadow-md">
                     <SkinHead
                       username={profile.username}
-                      minecraftNick={profile.minecraftNick}
                       avatar={resolveMediaUrl(profile.avatar) ?? null}
                       size={40}
                       isOnline={isOnline}
@@ -313,7 +312,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
           <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(240px,280px)_1fr]">
             <div className="min-h-[400px]">
               <SkinViewer3D
-                minecraftNick={profile.minecraftNick}
+                username={profile.username}
                 fill
                 className="h-full w-full"
               />

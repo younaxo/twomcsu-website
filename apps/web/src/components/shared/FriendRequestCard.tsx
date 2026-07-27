@@ -52,7 +52,6 @@ function FriendRequestCardComponent({ request, type, onDone }: FriendRequestCard
         >
           <SkinHead
             username={request.user.username}
-            minecraftNick={request.user.minecraftNick}
             avatar={resolveMediaUrl(request.user.avatar) ?? null}
             size={44}
           />

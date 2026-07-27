@@ -51,8 +51,8 @@ export function SiteHeader() {
     router.refresh();
   };
 
-  const skinUrl = user?.minecraftNick
-    ? `https://minotar.net/helm/${user.minecraftNick}/64.png`
+  const skinUrl = user?.username
+    ? `https://minotar.net/helm/${user.username}/64.png`
     : (user?.avatar ?? undefined);
 
   return (

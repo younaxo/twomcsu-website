@@ -42,7 +42,6 @@ function BlockedUserCardComponent({ item, onUnblocked }: BlockedUserCardProps) {
         >
           <SkinHead
             username={item.user.username}
-            minecraftNick={item.user.minecraftNick}
             avatar={resolveMediaUrl(item.user.avatar) ?? null}
             size={44}
           />

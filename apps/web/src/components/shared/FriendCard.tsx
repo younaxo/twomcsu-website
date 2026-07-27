@@ -72,7 +72,6 @@ function FriendCardComponent({ friend, onRemoved, onBlocked, className }: Friend
       >
         <SkinHead
           username={friend.username}
-          minecraftNick={friend.minecraftNick}
           avatar={resolveMediaUrl(friend.avatar) ?? null}
           size={48}
         />

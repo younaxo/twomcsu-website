@@ -124,7 +124,6 @@ export function GiftDialog({
               <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
                 <SkinHead
                   username={profile.username}
-                  minecraftNick={profile.minecraftNick}
                   avatar={resolveMediaUrl(profile.avatar) ?? null}
                   size={32}
                 />

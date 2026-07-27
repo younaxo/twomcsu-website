@@ -5,7 +5,6 @@ import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { cn } from '@/lib/utils';
 
 interface SkinHeadProps {
-  minecraftNick?: string | null;
   avatar?: string | null;
   username: string;
   size?: number;
@@ -15,15 +14,14 @@ interface SkinHeadProps {
 }
 
 export function SkinHead({
-  minecraftNick,
   avatar,
   username,
   size = 64,
   className,
   isOnline,
 }: SkinHeadProps) {
-  const src = minecraftNick
-    ? `https://mc-heads.net/avatar/${encodeURIComponent(minecraftNick)}/${size}`
+  const src = username
+    ? `https://mc-heads.net/avatar/${encodeURIComponent(username)}/${size}`
     : (avatar ?? undefined);
 
   return (

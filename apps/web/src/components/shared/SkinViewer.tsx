@@ -5,7 +5,7 @@ import { SkinViewer } from 'skinview3d';
 import { cn } from '@/lib/utils';
 
 interface SkinViewer3DProps {
-  minecraftNick: string | null;
+  username: string | null;
   className?: string;
   width?: number;
   height?: number;
@@ -14,7 +14,7 @@ interface SkinViewer3DProps {
 }
 
 export function SkinViewer3D({
-  minecraftNick,
+  username,
   className,
   width = 280,
   height = 400,
@@ -46,7 +46,7 @@ export function SkinViewer3D({
   }, [fill, width, height]);
 
   useEffect(() => {
-    if (!canvasRef.current || !minecraftNick) {
+    if (!canvasRef.current || !username) {
       return;
     }
 
@@ -54,7 +54,7 @@ export function SkinViewer3D({
       canvas: canvasRef.current,
       width: size.width,
       height: size.height,
-      skin: `https://mc-heads.net/skin/${encodeURIComponent(minecraftNick)}`,
+      skin: `https://mc-heads.net/skin/${encodeURIComponent(username)}`,
     });
 
     viewer.autoRotate = true;
@@ -65,9 +65,9 @@ export function SkinViewer3D({
       viewer.dispose();
       viewerRef.current = null;
     };
-  }, [minecraftNick, size.width, size.height]);
+  }, [username, size.width, size.height]);
 
-  if (!minecraftNick) {
+  if (!username) {
     return (
       <div
         ref={containerRef}
@@ -78,7 +78,7 @@ export function SkinViewer3D({
         )}
         style={fill ? undefined : { width, height }}
       >
-        Привяжите Minecraft ник
+        Нет ника для скина
       </div>
     );
   }
