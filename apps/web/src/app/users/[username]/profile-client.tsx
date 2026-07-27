@@ -4,6 +4,8 @@ import type { FriendsCountResponse, RestrictedProfileResponse, UserProfile } fro
 import {
   Coins,
   Eye,
+  Gift,
+  Heart,
   Package,
   ShoppingBag,
   Skull,
@@ -14,25 +16,30 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { AwardsList } from '@/components/shared/AwardsList';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { SkinHead } from '@/components/shared/SkinHead';
 import { CommentsList } from '@/components/comments/CommentsList';
+import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
 import { ReportProfileDialog } from '@/components/profile/ReportProfileDialog';
 import { RestrictedProfileView } from '@/components/profile/RestrictedProfileView';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
-import { api } from '@/lib/api';
+import { useGiftFromWishlist, useUserWishlist } from '@/hooks/store';
+import { api, extractErrorMessage } from '@/lib/api';
 import {
   formatNumber,
   genderLabels,
@@ -40,6 +47,7 @@ import {
   resolveMediaUrl,
   socialPlatformLabels,
 } from '@/lib/profile';
+import { useStoreUiStore } from '@/stores/storeUiStore';
 
 const SkinViewer3D = dynamic(
   () => import('@/components/shared/SkinViewer').then((mod) => mod.SkinViewer3D),
@@ -250,6 +258,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
         <TabsList>
           <TabsTrigger value="info">Информация</TabsTrigger>
           <TabsTrigger value="comments">Комментарии</TabsTrigger>
+          <TabsTrigger value="wants">Хочет</TabsTrigger>
           <TabsTrigger value="inventory">Инвентарь</TabsTrigger>
           <TabsTrigger value="services">Услуги</TabsTrigger>
         </TabsList>
@@ -399,6 +408,14 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
           />
         </TabsContent>
 
+        <TabsContent value="wants" className="mt-4">
+          <ProfileWishlistSection
+            username={profile.username}
+            isOwner={profile.isOwner}
+            canGift={isAuthenticated && !profile.isOwner}
+          />
+        </TabsContent>
+
         <TabsContent value="inventory">
           <Placeholder icon={Package} title="Инвентарь" />
         </TabsContent>
@@ -441,6 +458,112 @@ function StatCard({
       </TooltipTrigger>
       <TooltipContent>{tip}</TooltipContent>
     </Tooltip>
+  );
+}
+
+function ProfileWishlistSection({
+  username,
+  isOwner,
+  canGift,
+}: {
+  username: string;
+  isOwner: boolean;
+  canGift: boolean;
+}) {
+  const wishlist = useUserWishlist(username);
+  const gift = useGiftFromWishlist();
+  const openCartDrawer = useStoreUiStore((s) => s.openCartDrawer);
+
+  if (wishlist.isLoading) {
+    return <Skeleton className="h-40 w-full" />;
+  }
+
+  if (wishlist.isError || !wishlist.data?.isPublic) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
+          <Heart className="h-10 w-10" />
+          <p className="text-lg font-medium">Хочет</p>
+          <p className="text-sm">Вишлист скрыт или пуст</p>
+          {isOwner ? (
+            <Button asChild variant="secondary" size="sm">
+              <Link href="/profile/wishlist">Настроить избранное</Link>
+            </Button>
+          ) : null}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const items = wishlist.data.items;
+
+  if (items.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
+          <Heart className="h-10 w-10" />
+          <p className="text-lg font-medium">Хочет</p>
+          <p className="text-sm">Пока ничего нет</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const giftToOwner = async (productId: string) => {
+    try {
+      await gift.mutateAsync({ productId, giftToUsername: username });
+      toast.success('Подарок добавлен в корзину');
+      openCartDrawer();
+    } catch (error) {
+      toast.error(extractErrorMessage(error, 'Не удалось оформить подарок'));
+    }
+  };
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {items.map((item) => {
+        const product = item.product;
+        const variant = product.variants.find((v) => v.isActive) ?? product.variants[0];
+        const img = resolveMediaUrl(product.image);
+        return (
+          <div
+            key={item.id}
+            className="flex items-center gap-3 rounded-xl border border-border bg-card/50 p-3"
+          >
+            <Link
+              href={`/store/product/${product.slug}`}
+              className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-secondary"
+            >
+              {img ? (
+                <Image src={img} alt="" fill className="object-cover" unoptimized />
+              ) : null}
+            </Link>
+            <div className="min-w-0 flex-1">
+              <Link
+                href={`/store/product/${product.slug}`}
+                className="font-medium text-white hover:underline"
+              >
+                {product.name}
+              </Link>
+              {variant ? (
+                <PriceDisplay price={variant.price} oldPrice={variant.oldPrice} size="sm" />
+              ) : null}
+            </div>
+            {canGift && product.isGiftable && !product.isSelfOnly ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={gift.isPending}
+                onClick={() => void giftToOwner(product.id)}
+              >
+                <Gift className="mr-1 h-3.5 w-3.5" />
+                Подарить
+              </Button>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
