@@ -128,7 +128,8 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     showBirthDate: user.showBirthDate,
     createdAt: user.createdAt.toISOString(),
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
-    isProfilePrivate: user.isProfilePrivate,
+    profileVisibility: user.profileVisibility,
+    friendRequestPolicy: user.friendRequestPolicy,
     hideEmail: user.hideEmail,
     hideCountry: user.hideCountry,
     hideCity: user.hideCity,
@@ -156,6 +157,7 @@ interface PublicProfileOptions {
   isOwner: boolean;
   /** Staff can peek past the private-profile gate; hidden fields still apply */
   canBypassPrivate: boolean;
+  visibility?: UserProfile['visibility'];
 }
 
 export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions): UserProfile {
@@ -199,6 +201,7 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     hideInventory: user.hideInventory,
     hideServices: user.hideServices,
     hideComments: user.hideComments,
+    ...(options.visibility ? { visibility: options.visibility } : {}),
   };
 }
 

@@ -1,4 +1,4 @@
-import { Gender } from '@twomc/shared';
+import { FriendRequestPolicy, Gender, ProfileVisibility } from '@twomc/shared';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -49,9 +49,12 @@ export class UpdateProfileDto {
   showBirthDate?: boolean;
 
   @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  isProfilePrivate?: boolean;
+  @IsEnum(ProfileVisibility)
+  profileVisibility?: ProfileVisibility;
+
+  @IsOptional()
+  @IsEnum(FriendRequestPolicy)
+  friendRequestPolicy?: FriendRequestPolicy;
 
   @IsOptional()
   @IsBoolean()
