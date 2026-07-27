@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useAuth } from '@/hooks/useAuth';
 import { extractErrorMessage } from '@/lib/api';
+import { checkPasswordPair } from '@/lib/validation';
 
 const registerSchema = z
   .object({
@@ -32,11 +33,7 @@ const registerSchema = z
       .min(3, 'Никнейм от 3 символов')
       .max(16, 'Никнейм до 16 символов')
       .regex(/^[a-zA-Z0-9_]+$/, 'Только латиница, цифры и _'),
-    password: z
-      .string()
-      .min(8, 'Пароль от 8 символов')
-      .regex(/[A-Z]/, 'Нужна хотя бы одна заглавная буква')
-      .regex(/\d/, 'Нужна хотя бы одна цифра'),
+    password: z.string(),
     confirmPassword: z.string(),
     promoCode: z
       .string()
@@ -44,9 +41,8 @@ const registerSchema = z
       .regex(/^[A-Z0-9_-]*$/, 'Только заглавная латиница, цифры, дефис и _'),
     captchaToken: z.string().min(1, 'Подтвердите, что вы не робот'),
   })
-  .refine((values) => values.password === values.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'Пароли не совпадают',
+  .superRefine((values, ctx) => {
+    checkPasswordPair(ctx, values.password, values.confirmPassword);
   });
 
 type RegisterValues = z.infer<typeof registerSchema>;
