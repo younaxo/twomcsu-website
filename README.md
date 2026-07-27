@@ -410,6 +410,22 @@ curl -i -X POST http://localhost:4000/auth/logout \
 Страницы: `/admin/dashboard`, `/admin/audit-log`, `/admin/broadcast`, `/admin/settings`, `/admin/announcements`.
 Общие UI-компоненты: `AdminPageHeader`, `AdminFilters`, `AdminTable`, `AdminEmptyState`, `AdminCreateEditDialog`, `AdminDeleteConfirm`.
 
+## Чат (Socket.IO)
+
+Realtime-чат с каналами, реакциями, мутами/банами и превью ссылок.
+
+| Метод / событие | Что делает |
+| --- | --- |
+| `GET /chat/channels` | Список активных каналов |
+| `GET /chat/channels/:slug/messages` | История (infinite scroll, `before`) |
+| `GET /chat/channels/:slug/online` | Онлайн в канале |
+| `GET /chat/channels/:slug/pinned` | Закреплённые |
+| `WS /chat` namespace | `join_channel`, `send_message`, реакции, typing, pin/mute/ban |
+| `GET/POST/... /admin/chat/*` | Каналы, муты, баны, поиск, настройки |
+
+Страницы: `/chat`, виджет в углу на всём сайте, `/admin/chat/*`, настройки в `/profile/settings` (вкладка «Чат»).
+Курсы игровой валюты: `GET /store/currency-rates`, мок-обмен `POST /store/exchange`.
+
 ## Performance
 
 Кэш и лимиты, чтобы API и веб не дёргали БД лишний раз.
@@ -458,6 +474,7 @@ apps/
         awards/       каталог наград и выдача
         admin/        дашборд, audit log, broadcast, settings, announcements
         cache/        Redis CacheService (global)
+        chat/         Socket.IO чат, каналы, модерация, anti-spam
         comments/     комментарии профиля
         friends/      запросы, друзья, блокировки
         health/       GET /health
@@ -469,11 +486,11 @@ apps/
         uploads/      sharp + раздача /uploads
         users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
-    src/app/          (auth), /servers/*, /store/*, /users/[username], /profile/*, /admin/*
-    src/components/   ui kit, servers, store, profile, shared, admin, шапка
-    src/hooks/        useAuth, friends, comments, store/*, servers/*
+    src/app/          (auth), /chat, /servers/*, /store/*, /users/[username], /profile/*, /admin/*
+    src/components/   ui kit, chat, servers, store, profile, shared, admin, шапка
+    src/hooks/        useAuth, useSocket, useChat, friends, comments, store/*, servers/*
     src/lib/          axios клиент, query-keys, profile helpers
-    src/stores/       zustand: auth, storeUi
+    src/stores/       zustand: auth, storeUi, chat
 packages/
-  shared/             RoleGroup, Position, Profile, Friends, Store, Servers, Auth типы
+  shared/             RoleGroup, Position, Profile, Friends, Store, Servers, Chat, Auth типы
 ```
