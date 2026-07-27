@@ -7,12 +7,11 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { BundleCard } from '@/components/store/BundleCard';
-import { CurrencyBuyForm } from '@/components/store/CurrencyBuyForm';
+import { CurrencyConverter } from '@/components/store/CurrencyConverter';
 import { CurrencySelector } from '@/components/store/CurrencySelector';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -25,7 +24,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useBundles,
-  useCurrencies,
   useProducts,
   useRecentPurchases,
 } from '@/hooks/store';
@@ -119,7 +117,6 @@ export default function StorePageClient() {
   });
   const bundles = useBundles(tab === 'bundles' || tab === 'all');
   const recent = useRecentPurchases(12, true);
-  const rates = useCurrencies(tab === 'currency');
 
   const filteredItems = useMemo(() => {
     const items = products.data?.items ?? [];
@@ -239,72 +236,19 @@ export default function StorePageClient() {
       {tab === 'currency' ? (
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold text-white">Покупка валюты</h2>
+            <h2 className="text-xl font-semibold text-white">Валюта</h2>
             <CurrencySelector />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            {(rates.data ?? []).slice(0, 4).map((rate) => (
-              <Card key={rate.id || rate.currency}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">
-                    {rate.flag} {rate.currency}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg font-semibold text-white">
-                    1₽ = {rate.rate} {rate.symbol}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-            {!rates.data?.length ? (
-              <>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm text-muted-foreground">Рубины</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-lg font-semibold text-white">
-                      1₽ = {rubies?.currencyAmount ?? 2} 💎
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm text-muted-foreground">Монеты</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-lg font-semibold text-white">
-                      1₽ = {coins?.currencyAmount ?? 10} 🪙
-                    </p>
-                  </CardContent>
-                </Card>
-              </>
-            ) : null}
-          </div>
-
           {currencyProducts.isLoading ? (
-            <Skeleton className="h-72 w-full" />
+            <Skeleton className="h-96 w-full" />
           ) : (
-            <div className="grid gap-6 lg:grid-cols-2">
-              {rubies ? (
-                <CurrencyBuyForm
-                  currencyType="RUBIES"
-                  rate={rubies.currencyAmount ?? 2}
-                  productId={rubies.id}
-                  variantId={rubies.variants[0]?.id}
-                />
-              ) : null}
-              {coins ? (
-                <CurrencyBuyForm
-                  currencyType="COINS"
-                  rate={coins.currencyAmount ?? 10}
-                  productId={coins.id}
-                  variantId={coins.variants[0]?.id}
-                />
-              ) : null}
-            </div>
+            <CurrencyConverter
+              rubiesProductId={rubies?.id}
+              rubiesVariantId={rubies?.variants[0]?.id}
+              coinsProductId={coins?.id}
+              coinsVariantId={coins?.variants[0]?.id}
+            />
           )}
         </div>
       ) : tab === 'bundles' ? (

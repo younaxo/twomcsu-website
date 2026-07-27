@@ -32,6 +32,7 @@ export const queryKeys = {
   storeOrder: (orderNumber: string) => ['store', 'order', orderNumber] as const,
   storeBulkDiscounts: ['store', 'bulk-discounts'] as const,
   storeCurrencies: ['store', 'currencies'] as const,
+  storeCurrencyRates: ['store', 'currency-rates'] as const,
   storeRecentPurchases: (limit?: number) =>
     ['store', 'recent-purchases', limit ?? 12] as const,
   storeBoughtTogether: (productId: string) =>

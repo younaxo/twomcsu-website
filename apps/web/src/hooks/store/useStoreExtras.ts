@@ -2,7 +2,10 @@
 
 import type {
   AdminStoreStatsResponse,
+  CurrencyExchangeRequest,
+  CurrencyExchangeResponse,
   CurrencyRate,
+  GameCurrencyRates,
   QuickBuyRequest,
   QuickBuyResponse,
   RecentPurchaseItem,
@@ -22,6 +25,29 @@ export function useCurrencies(enabled = true) {
       return data;
     },
     enabled,
+  });
+}
+
+export function useCurrencyRates(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.storeCurrencyRates,
+    queryFn: async () => {
+      const { data } = await api.get<GameCurrencyRates>('/store/currency-rates', {
+        skipAuthRedirect: true,
+      });
+      return data;
+    },
+    enabled,
+    staleTime: 60_000,
+  });
+}
+
+export function useExchangeCurrency() {
+  return useMutation({
+    mutationFn: async (payload: CurrencyExchangeRequest) => {
+      const { data } = await api.post<CurrencyExchangeResponse>('/store/exchange', payload);
+      return data;
+    },
   });
 }
 

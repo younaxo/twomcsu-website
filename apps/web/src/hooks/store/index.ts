@@ -32,6 +32,8 @@ export { useValidatePromoCode } from './useValidatePromoCode';
 export { useBulkDiscounts } from './useBulkDiscounts';
 export {
   useCurrencies,
+  useCurrencyRates,
+  useExchangeCurrency,
   useRecentPurchases,
   useBoughtTogether,
   useQuickBuy,
