@@ -31,6 +31,13 @@ const nextConfig = {
       { protocol: 'http', hostname: '127.0.0.1', port: '4000' },
     ],
   },
+  webpack: (config, { dev }) => {
+    // PackFileCacheStrategy can OOM on Windows during long sessions
+    if (dev) {
+      config.cache = false;
+    }
+    return config;
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);
