@@ -269,6 +269,40 @@ curl -i -X POST http://localhost:4000/auth/logout \
 
 В шапке пункт «Друзья» и красный badge с числом входящих запросов (React Query, refetch раз в 30 сек).
 
+## Комментарии на профиле
+
+Комментарии с markdown, спойлерами (`||текст||`), упоминаниями `@username`, ответами
+(один уровень), реакциями, закреплением (до 3) и жалобами.
+
+Политика `commentPolicy`: `EVERYONE` / `FRIENDS` / `FRIENDS_OF_FRIENDS` / `NOBODY`.
+Админ/модератор может принудительно отключить комментарии (`commentsEnabled=false`).
+
+Лимиты: 2000 символов, 1 комментарий в минуту, 10 в час. Редактирование — 15 минут.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /users/:username/comments` | публичный (+optional JWT) | Список + закреплённые, пагинация до 150 |
+| `POST /users/:username/comments` | авторизованный | Создать комментарий / ответ |
+| `PATCH /users/:username/comments/:id` | автор, ≤15 мин | Редактировать |
+| `DELETE /users/:username/comments/:id` | автор или MODERATOR+ | Soft delete |
+| `POST /users/:username/comments/:id/pin` | владелец профиля | Закрепить |
+| `POST /users/:username/comments/:id/unpin` | владелец профиля | Открепить |
+| `POST /users/:username/comments/:id/reactions` | авторизованный | Добавить реакцию |
+| `DELETE /users/:username/comments/:id/reactions/:emoji` | авторизованный | Убрать реакцию |
+| `POST /users/:username/comments/:id/report` | авторизованный | Жалоба |
+| `POST /admin/users/:userId/comments/disable` | MODERATOR+ | Принудительно отключить |
+| `POST /admin/users/:userId/comments/enable` | MODERATOR+ | Включить обратно |
+| `GET /admin/comment-reports` | MODERATOR+ | Очередь жалоб |
+| `PATCH /admin/comment-reports/:id` | MODERATOR+ | Одобрить / отклонить |
+| `DELETE /admin/comments/:id` | MODERATOR+ | Hard delete |
+
+Страницы:
+
+- `/users/[username]` — таб «Комментарии»
+- `/profile/settings` — политика комментариев и уведомления (таб «Приватность»)
+- `/admin/comment-reports` — модерация жалоб
+- `/admin/badges` — отключение/включение комментариев выбранному игроку
+
 ## Performance
 
 Кэш и лимиты, чтобы API и веб не дёргали БД лишний раз.
