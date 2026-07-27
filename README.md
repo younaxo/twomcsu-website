@@ -124,15 +124,18 @@ case-insensitive. Невалидный код не ломает регистра
 `promoCode: { applied: false, message }`, фронт показывает это предупреждением.
 
 Один пользователь может активировать код один раз — это держит unique-индекс
-`[promoCodeId, userId]`. Сама скидка пока не применяется, ждёт модуль магазина.
+`[promoCodeId, userId]`. На регистрации бонусные коды (`BONUS`) учитываются отдельно;
+процентные и фиксированные скидки применяются в магазине при оформлении заказа.
 
 Тестовые коды из `pnpm db:seed`:
 
-| Код           | Тип     | Значение | Лимит      |
-| ------------- | ------- | -------- | ---------- |
-| `WELCOME2024` | PERCENT | 10       | без лимита |
-| `VIP50`       | FIXED   | 50       | 100        |
-| `BONUS100`    | BONUS   | 100      | 1000       |
+| Код           | Тип     | Значение | Лимит / заметка        |
+| ------------- | ------- | -------- | ---------------------- |
+| `WELCOME2024` | PERCENT | 10       | первая покупка в магазине |
+| `SUMMER20`    | PERCENT | 20       | только ранги           |
+| `KEYS50`      | PERCENT | 50       | только ключи, 1×/юзер  |
+| `VIP50`       | FIXED   | 50       | 100 использований      |
+| `BONUS100`    | BONUS   | 100      | 1000 (бонус при регистрации) |
 
 ### Тестовые аккаунты
 
@@ -303,6 +306,53 @@ curl -i -X POST http://localhost:4000/auth/logout \
 - `/admin/comment-reports` — модерация жалоб
 - `/admin/badges` — отключение/включение комментариев выбранному игроку
 
+## Магазин
+
+Каталог товаров, корзина, wishlist, промокоды, бандлы, оптовые и лояльностные скидки.
+Оплата пока заглушка (UnitPay — этап 31): заказ создаётся со статусом `PENDING`,
+страница `/store/mock-payment` умеет симулировать успешную оплату.
+
+Типы товаров: привилегии, ключи, подписка, значки, БП, валюта, украшения, бандлы и др.
+Цены в ₽. Для валюты `quantity` = сумма в рублях (от 50 до 50 000).
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /store/categories` | публичный | Дерево категорий |
+| `GET /store/products` | публичный | Каталог (`category`, `type`, `sort`, пагинация) |
+| `GET /store/products/:slug` | публичный (+optional JWT) | Карточка товара |
+| `GET /store/bundles` | публичный | Список бандлов |
+| `GET /store/bundles/:slug` | публичный | Детали бандла |
+| `GET /store/discounts/bulk` | публичный | Оптовые скидки |
+| `GET /store/discounts/loyalty` | публичный | Уровни лояльности |
+| `GET/POST/PATCH/DELETE /store/cart...` | авторизованный | Корзина, промокод, расчёт |
+| `GET/POST/DELETE/PATCH /store/wishlist...` | авторизованный | Избранное |
+| `GET /store/wishlist/:username` | публичный | Публичный wishlist |
+| `POST /store/orders` | авторизованный | Создать заказ (`PENDING` + mock paymentUrl) |
+| `GET /store/orders` | авторизованный | Мои заказы |
+| `GET /store/orders/:orderNumber` | авторизованный | Детали заказа |
+| `POST /store/orders/:orderId/mock-complete` | авторизованный | Симуляция оплаты |
+| `POST /store/promocodes/validate` | авторизованный | Проверка промокода |
+| `CRUD /admin/store/categories\|products\|bundles\|discounts` | ADMIN+ | Админка каталога |
+| `CRUD /admin/promocodes` | ADMIN+ | Промокоды |
+| `GET /admin/orders`, `GET /admin/orders/stats` | ADMIN+ | Заказы и статистика |
+
+Промокоды магазина из сида:
+
+| Код | Эффект |
+| --- | --- |
+| `WELCOME2024` | −10%, только первая покупка |
+| `SUMMER20` | −20% на ранги |
+| `KEYS50` | −50% на ключи (1 раз на юзера) |
+
+Страницы:
+
+- `/store`, `/store/product/[slug]`, `/store/bundle/[slug]`, `/store/currency`
+- `/store/cart`, `/store/checkout`, `/store/success`, `/store/mock-payment`
+- `/profile/orders`, `/profile/orders/[orderNumber]`, `/profile/wishlist`
+- `/admin/store/*`, `/admin/promocodes`, `/admin/orders`, `/admin/orders/stats`
+
+В шапке — ссылка «Магазин» и иконка корзины с badge количества.
+
 ## Performance
 
 Кэш и лимиты, чтобы API и веб не дёргали БД лишний раз.
@@ -350,19 +400,21 @@ apps/
         auth/         эндпоинты, гварды, стратегии, капча, брутфорс, сессии
         awards/       каталог наград и выдача
         cache/        Redis CacheService (global)
+        comments/     комментарии профиля
         friends/      запросы, друзья, блокировки
         health/       GET /health
         positions/    титулы, их crud и назначение игрокам
         prisma/       PrismaService (глобальный модуль)
         redis/        ioredis клиент (глобальный модуль)
+        store/        магазин: каталог, корзина, wishlist, заказы
         uploads/      sharp + раздача /uploads
         users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
-    src/app/          (auth), /users/[username], /profile/settings, /profile/friends, /admin/*
-    src/components/   ui kit, profile, shared, admin, шапка, QueryProvider
-    src/hooks/        useAuth, useFriendRequestsCount, useFriendsQueries
+    src/app/          (auth), /store/*, /users/[username], /profile/*, /admin/*
+    src/components/   ui kit, store, profile, shared, admin, шапка
+    src/hooks/        useAuth, friends, comments, store/*
     src/lib/          axios клиент, query-keys, profile helpers
-    src/stores/       zustand: auth
+    src/stores/       zustand: auth, storeUi
 packages/
-  shared/             RoleGroup, Position, Profile, Friends, Auth типы
+  shared/             RoleGroup, Position, Profile, Friends, Store, Auth типы
 ```
