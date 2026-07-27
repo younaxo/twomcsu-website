@@ -14,46 +14,45 @@ export function generateUserTag(username: string): string {
   return `${base}#${suffix}`;
 }
 
+type LookupArgs = {
+  select?: Prisma.UserSelect;
+  include?: Prisma.UserInclude;
+};
+
 /**
  * Resolve a user by username, #shortId, or tag (youn#4a2b).
+ * Callers should cast/narrow the result when using custom select/include.
  */
-export async function findUserByIdentifier<T extends Prisma.UserFindUniqueArgs>(
+export async function findUserByIdentifier(
   prisma: UserLookupClient,
   identifier: string,
-  args?: Omit<T, 'where'>,
-): Promise<Prisma.UserGetPayload<T> | null> {
+  args?: LookupArgs,
+): Promise<any | null> {
   const raw = identifier.trim();
   if (!raw) {
     return null;
   }
 
-  const select = args?.select;
-  const include = args?.include;
+  const query = {
+    ...(args?.select ? { select: args.select } : {}),
+    ...(args?.include ? { include: args.include } : {}),
+  };
 
   // #123 or plain digits → shortId
   const shortIdMatch = raw.match(/^#?(\d+)$/);
   if (shortIdMatch) {
     const shortId = Number.parseInt(shortIdMatch[1], 10);
-    return prisma.user.findUnique({
-      where: { shortId },
-      ...(select ? { select } : {}),
-      ...(include ? { include } : {}),
-    } as never) as Promise<Prisma.UserGetPayload<T> | null>;
+    return prisma.user.findUnique({ where: { shortId }, ...query });
   }
 
   // tag contains # with letters (not only digits after #)
   if (raw.includes('#')) {
-    return prisma.user.findUnique({
-      where: { tag: raw.toLowerCase() },
-      ...(select ? { select } : {}),
-      ...(include ? { include } : {}),
-    } as never) as Promise<Prisma.UserGetPayload<T> | null>;
+    return prisma.user.findUnique({ where: { tag: raw.toLowerCase() }, ...query });
   }
 
   // username (case-insensitive)
   return prisma.user.findFirst({
     where: { username: { equals: raw, mode: 'insensitive' } },
-    ...(select ? { select } : {}),
-    ...(include ? { include } : {}),
-  } as never) as Promise<Prisma.UserGetPayload<T> | null>;
+    ...query,
+  });
 }

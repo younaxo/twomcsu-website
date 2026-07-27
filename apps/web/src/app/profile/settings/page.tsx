@@ -145,6 +145,9 @@ export default function ProfileSettingsPage() {
         notifyOnComment: profile.notifyOnComment,
         notifyOnMention: profile.notifyOnMention,
         notifyOnReply: profile.notifyOnReply,
+        notifyOnFriendRequest: profile.notifyOnFriendRequest,
+        notifyOnGift: profile.notifyOnGift,
+        notifyOnOrder: profile.notifyOnOrder,
         hideEmail: profile.hideEmail,
         hideCountry: profile.hideCountry,
         hideCity: profile.hideCity,
@@ -576,6 +579,33 @@ export default function ProfileSettingsPage() {
                       checked={profile.notifyOnReply}
                       onCheckedChange={(checked) =>
                         setProfile({ ...profile, notifyOnReply: checked })
+                      }
+                    />
+                  </label>
+                  <label className="flex items-center justify-between gap-4 text-sm">
+                    <span>Уведомлять о заявках в друзья</span>
+                    <Switch
+                      checked={profile.notifyOnFriendRequest}
+                      onCheckedChange={(checked) =>
+                        setProfile({ ...profile, notifyOnFriendRequest: checked })
+                      }
+                    />
+                  </label>
+                  <label className="flex items-center justify-between gap-4 text-sm">
+                    <span>Уведомлять о подарках</span>
+                    <Switch
+                      checked={profile.notifyOnGift}
+                      onCheckedChange={(checked) =>
+                        setProfile({ ...profile, notifyOnGift: checked })
+                      }
+                    />
+                  </label>
+                  <label className="flex items-center justify-between gap-4 text-sm">
+                    <span>Уведомлять об изменении статуса заказа</span>
+                    <Switch
+                      checked={profile.notifyOnOrder}
+                      onCheckedChange={(checked) =>
+                        setProfile({ ...profile, notifyOnOrder: checked })
                       }
                     />
                   </label>
