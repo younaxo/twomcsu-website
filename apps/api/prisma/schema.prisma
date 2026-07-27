@@ -97,8 +97,10 @@ model User {
   viewedProfiles      ProfileView[]        @relation("ProfileViewsSent")
   profileReactions    ProfileReaction[]    @relation("ProfileReactionsReceived")
   givenReactions      ProfileReaction[]    @relation("ProfileReactionsSent")
-  profileReports      ProfileReport[]      @relation("ProfileReportsReceived")
-  sentReports         ProfileReport[]      @relation("ProfileReportsSent")
+  profileReports          ProfileReport[] @relation("ProfileReportsReceived")
+  sentReports             ProfileReport[] @relation("ProfileReportsSent")
+  sentFriendRequests      Friendship[]    @relation("FriendshipRequester")
+  receivedFriendRequests  Friendship[]    @relation("FriendshipAddressee")
 
   @@index([email])
   @@index([username])
@@ -424,4 +426,29 @@ model UserAward {
   @@unique([userId, awardId])
   @@index([userId])
   @@map("user_awards")
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+  REJECTED
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  acceptedAt  DateTime?
+
+  @@unique([requesterId, addresseeId])
+  @@index([requesterId])
+  @@index([addresseeId])
+  @@index([status])
+  @@map("friendships")
 }
