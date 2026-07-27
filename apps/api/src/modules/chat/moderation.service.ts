@@ -130,7 +130,13 @@ export class ModerationService {
     };
   }
 
-  async updateSettings(data: Record<string, string | number | undefined>) {
+  async updateSettings(data: {
+    blacklist?: string;
+    previewWhitelist?: string;
+    rateLimitCount?: number;
+    rateLimitWindowSec?: number;
+    defaultSlowMode?: number;
+  }) {
     const entries: Array<[string, string]> = [];
     if (data.blacklist !== undefined) entries.push(['chat.blacklist', String(data.blacklist)]);
     if (data.previewWhitelist !== undefined) {

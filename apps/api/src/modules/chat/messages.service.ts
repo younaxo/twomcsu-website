@@ -166,7 +166,7 @@ export class MessagesService {
         contentHtml,
         parentId: parentId ?? null,
         mentions: mentionIds,
-        metadata: links.length ? ({ links } as Prisma.InputJsonValue) : undefined,
+        metadata: links.length ? ({ links } as unknown as Prisma.InputJsonValue) : undefined,
       },
       include: authorInclude,
     });
@@ -217,7 +217,7 @@ export class MessagesService {
         mentions: mentionIds,
         isEdited: true,
         editedAt: new Date(),
-        metadata: links.length ? ({ links } as Prisma.InputJsonValue) : Prisma.JsonNull,
+        metadata: links.length ? ({ links } as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
       },
       include: authorInclude,
     });
