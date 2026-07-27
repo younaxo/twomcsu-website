@@ -1,5 +1,9 @@
 export interface HealthResponse {
-  status: 'ok';
+  status: 'ok' | 'degraded' | 'error';
+  uptime: number;
+  db: 'up' | 'down';
+  redis: 'up' | 'down';
+  timestamp: string;
 }
 
 export interface ApiErrorResponse {
@@ -8,9 +12,16 @@ export interface ApiErrorResponse {
   error?: string;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
+export interface PaginationMeta {
   page: number;
-  perPage: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: PaginationMeta;
 }
