@@ -3,6 +3,7 @@ import { Geologica, Onest } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { SiteHeader } from '@/components/site-header';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
 
 const onest = Onest({
@@ -29,9 +30,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ru" className={`dark ${onest.variable} ${geologica.variable}`}>
       <body className="min-h-screen antialiased">
         <AuthProvider>
-          <SiteHeader />
-          <main className="mx-auto w-full max-w-5xl px-6 py-16">{children}</main>
-          <Toaster theme="dark" position="top-center" richColors />
+          <TooltipProvider delayDuration={200}>
+            <SiteHeader />
+            <main className="mx-auto w-full max-w-5xl px-6 py-16">{children}</main>
+            <Toaster theme="dark" position="top-center" richColors />
+          </TooltipProvider>
         </AuthProvider>
       </body>
     </html>
