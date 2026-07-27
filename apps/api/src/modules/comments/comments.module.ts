@@ -10,6 +10,6 @@ import { MentionsService } from './mentions.service';
   imports: [forwardRef(() => FriendsModule), NotificationsModule],
   controllers: [CommentsController, AdminCommentsController],
   providers: [CommentsService, MarkdownService, MentionsService],
-  exports: [CommentsService],
+  exports: [CommentsService, MarkdownService, MentionsService],
 })
 export class CommentsModule {}

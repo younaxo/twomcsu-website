@@ -33,6 +33,10 @@ export const CACHE_TTL = {
   STORE_RECENT_PURCHASES: 60,
   /** Admin store stats */
   STORE_ADMIN_STATS: 300,
+  /** Chat channel metadata */
+  CHAT_CHANNEL: 1800,
+  /** Recent chat messages */
+  CHAT_MESSAGES: 600,
 } as const;
 
 export const cacheKeys = {
@@ -66,4 +70,8 @@ export const cacheKeys = {
   storeCurrencies: () => 'store:currencies',
   storeCurrencyRates: () => 'store:currency-rates',
   storeAdminStats: (key: string) => `store:admin-stats:${key}`,
+  chatChannel: (slug: string) => `chat:channel:${slug}`,
+  chatMessagesRecent: (channelId: string) => `chat:messages:${channelId}:recent`,
+  chatOnline: (channelId: string) => `chat:online:${channelId}`,
+  chatTyping: (channelId: string) => `chat:typing:${channelId}`,
 } as const;
