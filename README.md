@@ -254,9 +254,10 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | `POST /friends/block/:username` | авторизованный, 30/час | Заблокировать |
 | `DELETE /friends/block/:username` | авторизованный | Разблокировать |
 | `GET /friends?page=&limit=` | авторизованный | Список друзей |
-| `GET /friends/requests/incoming` | авторизованный | Входящие запросы |
-| `GET /friends/requests/outgoing` | авторизованный | Исходящие запросы |
-| `GET /friends/blocked` | авторизованный | Чёрный список |
+| `GET /friends/requests/incoming` | авторизованный | Входящие запросы (пагинация) |
+| `GET /friends/requests/incoming/count` | авторизованный | Число входящих (кэш 30с) |
+| `GET /friends/requests/outgoing` | авторизованный | Исходящие запросы (пагинация) |
+| `GET /friends/blocked` | авторизованный | Чёрный список (пагинация) |
 | `GET /friends/status/:username` | авторизованный | Статус относительно пользователя |
 | `GET /friends/count` | авторизованный | Число своих друзей |
 | `GET /friends/count/:username` | публичный | Число друзей пользователя |
@@ -266,7 +267,41 @@ curl -i -X POST http://localhost:4000/auth/logout \
 - `/profile/friends` — табы Друзья / Входящие / Исходящие / Заблокированные
 - `/users/[username]` — кнопка `FriendButton` и счётчик друзей в карточке «Информация»
 
-В шапке пункт «Друзья» и красный badge с числом входящих запросов (поллинг раз в 30 сек).
+В шапке пункт «Друзья» и красный badge с числом входящих запросов (React Query, refetch раз в 30 сек).
+
+## Performance
+
+Кэш и лимиты, чтобы API и веб не дёргали БД лишний раз.
+
+### Backend
+
+- Prisma SQL-логи только при `PRISMA_DEBUG=true` (в production всегда выключены)
+- Redis `CacheService`: `/auth/me`, список позиций, счётчики друзей
+- Индексы на `friendships (addresseeId, status)`, `users (roleGroup, isBanned)` и др.
+- Списки друзей/запросов отдают `{ data, pagination }` с `limit` ≤ 100
+- `GET /health` проверяет PostgreSQL (`SELECT 1`) и Redis (`PING`)
+- Медленные ответы (>500ms) пишутся в лог, заголовок `X-Response-Time`
+
+Очистить Redis-кэш локально:
+
+```bash
+docker exec -it twomc-redis redis-cli -a "$REDIS_PASSWORD" FLUSHDB
+```
+
+### Frontend
+
+- TanStack Query: staleTime 1 мин, без refetch на focus
+- Optimistic / invalidate для friend mutations
+- Prefetch профиля по hover на нике и карточках друзей
+- `SkinViewer` через `next/dynamic` (ssr: false)
+- `ANALYZE=true pnpm --filter @twomc/web build` — bundle analyzer
+
+### Env
+
+| Переменная | Зачем |
+| ---------- | ----- |
+| `PRISMA_DEBUG` | `true` — логировать каждый SQL |
+| `DATABASE_URL` | `?connection_limit=10&pool_timeout=20` для пула Prisma |
 
 ## Структура
 
@@ -275,11 +310,12 @@ apps/
   api/                NestJS
     prisma/           schema, миграции, seed
     src/
-      common/         мелкие утилиты
+      common/         pagination, user selects, performance middleware
       config/         конфиг и валидация env
       modules/
         auth/         эндпоинты, гварды, стратегии, капча, брутфорс, сессии
         awards/       каталог наград и выдача
+        cache/        Redis CacheService (global)
         friends/      запросы, друзья, блокировки
         health/       GET /health
         positions/    титулы, их crud и назначение игрокам
@@ -289,10 +325,10 @@ apps/
         users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
     src/app/          (auth), /users/[username], /profile/settings, /profile/friends, /admin/*
-    src/components/   ui kit, profile, shared, admin, шапка
-    src/hooks/        useAuth, useFriendRequestsCount
-    src/lib/          axios клиент, profile helpers
-    src/stores/       zustand: auth, friends
+    src/components/   ui kit, profile, shared, admin, шапка, QueryProvider
+    src/hooks/        useAuth, useFriendRequestsCount, useFriendsQueries
+    src/lib/          axios клиент, query-keys, profile helpers
+    src/stores/       zustand: auth
 packages/
   shared/             RoleGroup, Position, Profile, Friends, Auth типы
 ```
