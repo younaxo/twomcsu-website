@@ -110,7 +110,11 @@ export default function FriendsPage() {
           </div>
 
           {friends.length === 0 ? (
-            <EmptyState icon={Users} title="У вас пока нет друзей" />
+            <EmptyState
+              icon={Users}
+              title="У вас пока нет друзей"
+              description="Найдите игроков в профилях и отправьте запрос"
+            />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {friends.map((item) => (
@@ -146,7 +150,11 @@ export default function FriendsPage() {
 
         <TabsContent value="incoming" className="mt-4 space-y-3">
           {incoming.length === 0 ? (
-            <EmptyState icon={Users} title="Нет входящих запросов" />
+            <EmptyState
+              icon={Users}
+              title="Нет входящих запросов"
+              description="Здесь появятся запросы в друзья"
+            />
           ) : (
             incoming.map((request) => (
               <FriendRequestCard key={request.id} request={request} type="incoming" onDone={refreshLists} />
@@ -156,7 +164,11 @@ export default function FriendsPage() {
 
         <TabsContent value="outgoing" className="mt-4 space-y-3">
           {outgoing.length === 0 ? (
-            <EmptyState icon={Users} title="Нет исходящих запросов" />
+            <EmptyState
+              icon={Users}
+              title="Нет исходящих запросов"
+              description="Отправленные запросы появятся здесь"
+            />
           ) : (
             outgoing.map((request) => (
               <FriendRequestCard key={request.id} request={request} type="outgoing" onDone={refreshLists} />
@@ -166,7 +178,11 @@ export default function FriendsPage() {
 
         <TabsContent value="blocked" className="mt-4 space-y-3">
           {blocked.length === 0 ? (
-            <EmptyState icon={Users} title="Нет заблокированных" />
+            <EmptyState
+              icon={Users}
+              title="Нет заблокированных"
+              description="Заблокированные игроки появятся здесь"
+            />
           ) : (
             blocked.map((item) => (
               <BlockedUserCard key={item.id} item={item} onUnblocked={refreshLists} />
