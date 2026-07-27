@@ -52,10 +52,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
+import { useChatChannels } from '@/hooks/useChat';
 import { api, extractErrorMessage } from '@/lib/api';
 import { mediaGroupLabels } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 import { checkPasswordPair } from '@/lib/validation';
+import { useChatStore } from '@/stores/chatStore';
 
 const passwordSchema = z
   .object({
@@ -214,6 +216,7 @@ export default function ProfileSettingsPage() {
           <TabsTrigger value="privacy">Приватность</TabsTrigger>
           <TabsTrigger value="socials">Соц сети</TabsTrigger>
           <TabsTrigger value="media">Медиа</TabsTrigger>
+          <TabsTrigger value="chat">Чат</TabsTrigger>
           <TabsTrigger value="security">Безопасность</TabsTrigger>
         </TabsList>
 
@@ -681,6 +684,10 @@ export default function ProfileSettingsPage() {
           <MediaTab profile={profile} onRefresh={() => void load()} />
         </TabsContent>
 
+        <TabsContent value="chat">
+          <ChatSettingsTab />
+        </TabsContent>
+
         <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
@@ -917,5 +924,68 @@ function MediaTab({ profile, onRefresh }: { profile: MyProfile; onRefresh: () =>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function ChatSettingsTab() {
+  const settings = useChatStore((s) => s.settings);
+  const updateSettings = useChatStore((s) => s.updateSettings);
+  const channels = useChatChannels(true);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Чат</CardTitle>
+        <CardDescription>Настройки виджета и уведомлений</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <Label>Показывать виджет чата</Label>
+          <Switch
+            checked={settings.showWidget}
+            onCheckedChange={(v) => updateSettings({ showWidget: v })}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <Label>Звуковые уведомления</Label>
+          <Switch
+            checked={settings.soundEnabled}
+            onCheckedChange={(v) => updateSettings({ soundEnabled: v })}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <Label>Уведомлять при упоминании</Label>
+          <Switch
+            checked={settings.notifyOnMention}
+            onCheckedChange={(v) => updateSettings({ notifyOnMention: v })}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <Label>Показывать typing indicator</Label>
+          <Switch
+            checked={settings.showTyping}
+            onCheckedChange={(v) => updateSettings({ showTyping: v })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Стандартный канал при открытии</Label>
+          <Select
+            value={settings.defaultChannel}
+            onValueChange={(v) => updateSettings({ defaultChannel: v })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(channels.data ?? []).map((ch) => (
+                <SelectItem key={ch.id} value={ch.slug}>
+                  {ch.icon} {ch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

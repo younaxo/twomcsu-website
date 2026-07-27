@@ -26,6 +26,10 @@ export function setApiAccessToken(token: string | null): void {
   accessToken = token;
 }
 
+export function getApiAccessToken(): string | null {
+  return accessToken;
+}
+
 export function setSessionLostHandler(handler: () => void): void {
   sessionLostHandler = handler;
 }

@@ -33,6 +33,11 @@ const adminLinks = [
   { href: '/admin/media-requests', label: 'Медиа' },
   { href: '/admin/profile-reports', label: 'Жалобы' },
   { href: '/admin/comment-reports', label: 'Комментарии' },
+  { href: '/admin/chat/channels', label: 'Чат: каналы' },
+  { href: '/admin/chat/mutes', label: 'Чат: муты' },
+  { href: '/admin/chat/bans', label: 'Чат: баны' },
+  { href: '/admin/chat/search', label: 'Чат: поиск' },
+  { href: '/admin/chat/settings', label: 'Чат: настройки' },
 ];
 
 /** Middleware only checks the cookie, the role itself is verified here and on the api */

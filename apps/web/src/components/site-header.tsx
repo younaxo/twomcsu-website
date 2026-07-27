@@ -32,6 +32,7 @@ const navItems = [
   { href: '/', label: 'Главная' },
   { href: '/servers', label: 'Серверы' },
   { href: '/store', label: 'Магазин' },
+  { href: '/chat', label: 'Чат' },
   { href: '/', label: 'Правила' },
 ];
 
