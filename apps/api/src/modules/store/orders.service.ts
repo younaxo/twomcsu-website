@@ -394,7 +394,6 @@ export class OrdersService {
               { orderNumber: { contains: q, mode: 'insensitive' } },
               { guestMinecraftNick: { contains: q, mode: 'insensitive' } },
               { user: { username: { contains: q, mode: 'insensitive' } } },
-              { user: { minecraftNick: { contains: q, mode: 'insensitive' } } },
             ],
           }
         : {}),

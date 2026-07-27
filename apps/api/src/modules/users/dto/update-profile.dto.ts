@@ -12,11 +12,6 @@ import {
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
-  @MaxLength(16)
-  minecraftNick?: string | null;
-
-  @IsOptional()
-  @IsString()
   @MaxLength(128)
   statusText?: string | null;
 

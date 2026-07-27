@@ -32,7 +32,6 @@ export interface PublicUser {
   username: string;
   roleGroup: RoleGroup;
   position: Position;
-  minecraftNick: string | null;
   avatar: string | null;
   isVerified: boolean;
   isBanned: boolean;

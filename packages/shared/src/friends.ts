@@ -28,7 +28,6 @@ export interface FriendUser {
   id: string;
   username: string;
   avatar: string | null;
-  minecraftNick: string | null;
   position: Position;
   badges: UserBadge[];
 }

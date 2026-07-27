@@ -18,7 +18,6 @@ export const selectMinimalUser = {
   id: true,
   username: true,
   avatar: true,
-  minecraftNick: true,
   roleGroup: true,
   position: { select: selectPublicPosition },
   badges: {
@@ -44,7 +43,6 @@ export const selectAuthUser = {
   email: true,
   username: true,
   roleGroup: true,
-  minecraftNick: true,
   avatar: true,
   isVerified: true,
   isBanned: true,
@@ -60,7 +58,6 @@ export const selectFullProfile = {
   email: true,
   username: true,
   roleGroup: true,
-  minecraftNick: true,
   avatar: true,
   isVerified: true,
   isBanned: true,

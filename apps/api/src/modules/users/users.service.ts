@@ -78,11 +78,6 @@ export class UsersService {
   async updateMyProfile(userId: string, dto: UpdateProfileDto): Promise<MyProfile> {
     const data: Prisma.UserUpdateInput = {};
 
-    if (dto.minecraftNick !== undefined) {
-      const nick = dto.minecraftNick?.trim() || null;
-      data.minecraftNick = nick;
-    }
-
     if (dto.statusText !== undefined) {
       data.statusText = dto.statusText?.trim() || null;
     }

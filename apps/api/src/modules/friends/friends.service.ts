@@ -641,7 +641,6 @@ export class FriendsService {
       id: user.id,
       username: user.username,
       avatar: user.avatar,
-      minecraftNick: user.minecraftNick,
       position: toPublicPosition(user.position),
       badges: user.badges.map(toUserBadge),
     };

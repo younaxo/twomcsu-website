@@ -215,7 +215,6 @@ export interface MyProfile extends PrivacySettings {
   email: string;
   username: string;
   position: Position;
-  minecraftNick: string | null;
   avatar: string | null;
   banner: string | null;
   bannerPreset: string | null;
@@ -247,7 +246,6 @@ export interface UserProfile {
   username: string;
   avatar: string | null;
   bannerUrl: string | null;
-  minecraftNick: string | null;
   position: Position;
   createdAt: string;
   lastLoginAt: string | null;

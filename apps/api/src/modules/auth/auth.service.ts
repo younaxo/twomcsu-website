@@ -373,7 +373,6 @@ export class AuthService {
       username: user.username,
       roleGroup: user.roleGroup,
       position: toPublicPosition(user.position),
-      minecraftNick: user.minecraftNick,
       avatar: user.avatar,
       isVerified: user.isVerified,
       isBanned: user.isBanned,
