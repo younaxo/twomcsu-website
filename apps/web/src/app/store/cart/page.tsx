@@ -6,7 +6,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { CartDrawer } from '@/components/store/CartDrawer';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { PromoCodeInput } from '@/components/store/PromoCodeInput';
 import { QuantitySelector } from '@/components/store/QuantitySelector';
@@ -53,8 +52,6 @@ export default function CartPage() {
 
   return (
     <div className="space-y-6">
-      <CartDrawer />
-
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-white">Корзина</h1>

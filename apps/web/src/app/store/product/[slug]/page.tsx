@@ -8,7 +8,6 @@ import { useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
-import { CartDrawer } from '@/components/store/CartDrawer';
 import { GiftDialog } from '@/components/store/GiftDialog';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ProductVariantSelector } from '@/components/store/ProductVariantSelector';
@@ -94,8 +93,6 @@ export default function ProductPage() {
 
   return (
     <div className="space-y-10">
-      <CartDrawer />
-
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-3">
           <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-secondary/40">

@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { CartDrawer } from '@/components/store/CartDrawer';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -59,8 +58,6 @@ export default function BundlePage() {
 
   return (
     <div className="space-y-8">
-      <CartDrawer />
-
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-secondary/40">
           {imageUrl ? (

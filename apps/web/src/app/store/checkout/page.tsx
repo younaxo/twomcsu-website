@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { CartDrawer } from '@/components/store/CartDrawer';
 import { PaymentPendingModal } from '@/components/store/PaymentPendingModal';
 import { PromoCodeInput } from '@/components/store/PromoCodeInput';
 import { Button } from '@/components/ui/button';
@@ -64,8 +63,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <CartDrawer />
-
       <div>
         <h1 className="text-2xl font-semibold text-white">Оформление заказа</h1>
         <p className="text-sm text-muted-foreground">Проверьте данные перед оплатой</p>

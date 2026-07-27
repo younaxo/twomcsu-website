@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { BundleCard } from '@/components/store/BundleCard';
-import { CartDrawer } from '@/components/store/CartDrawer';
 import { CategoryTree } from '@/components/store/CategoryTree';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { Button } from '@/components/ui/button';
@@ -59,8 +58,6 @@ export default function StorePage() {
 
   return (
     <div className="space-y-8">
-      <CartDrawer />
-
       <section className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-primary/10 p-8 sm:p-10">
         <p className="mb-2 text-sm uppercase tracking-widest text-primary">Магазин</p>
         <h1 className="mb-3 text-3xl font-semibold text-white sm:text-4xl">Магазин TWOMC</h1>

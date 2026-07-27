@@ -2,7 +2,6 @@
 
 import type { CurrencyType } from '@twomc/shared';
 import { useMemo, useState } from 'react';
-import { CartDrawer } from '@/components/store/CartDrawer';
 import { CurrencyBuyForm } from '@/components/store/CurrencyBuyForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -43,8 +42,6 @@ export default function CurrencyPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <CartDrawer />
-
       <div>
         <h1 className="text-3xl font-semibold text-white">Покупка валюты</h1>
         <p className="mt-2 text-muted-foreground">
