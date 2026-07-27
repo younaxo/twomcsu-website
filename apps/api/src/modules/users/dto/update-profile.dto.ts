@@ -109,19 +109,4 @@ export class UpdateProfileDto {
   @IsBoolean()
   @Type(() => Boolean)
   hideSocials?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  hideInventory?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  hideServices?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  hideComments?: boolean;
 }

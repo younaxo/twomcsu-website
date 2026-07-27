@@ -203,9 +203,6 @@ export interface PrivacySettings {
   hideGender: boolean;
   hideStatistics: boolean;
   hideSocials: boolean;
-  hideInventory: boolean;
-  hideServices: boolean;
-  hideComments: boolean;
 }
 
 export interface MyProfile extends PrivacySettings {
@@ -261,9 +258,6 @@ export interface UserProfile {
   viewsCount: number;
   userReaction: ReactionType | null;
   isOwner: boolean;
-  hideInventory: boolean;
-  hideServices: boolean;
-  hideComments: boolean;
   commentsEnabled: boolean;
   commentsForcedReason: string | null;
   commentPolicy: import('./comments').CommentPolicy;

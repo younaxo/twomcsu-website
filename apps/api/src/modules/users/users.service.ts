@@ -120,9 +120,6 @@ export class UsersService {
     if (dto.hideGender !== undefined) data.hideGender = dto.hideGender;
     if (dto.hideStatistics !== undefined) data.hideStatistics = dto.hideStatistics;
     if (dto.hideSocials !== undefined) data.hideSocials = dto.hideSocials;
-    if (dto.hideInventory !== undefined) data.hideInventory = dto.hideInventory;
-    if (dto.hideServices !== undefined) data.hideServices = dto.hideServices;
-    if (dto.hideComments !== undefined) data.hideComments = dto.hideComments;
 
     try {
       await this.prisma.user.update({ where: { id: userId }, data });
