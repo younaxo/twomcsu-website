@@ -7,7 +7,15 @@ import { toast } from 'sonner';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -15,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { api, extractErrorMessage } from '@/lib/api';
 import { userBadgeLabels } from '@/lib/profile';
 
@@ -24,6 +33,8 @@ export default function AdminBadgesPage() {
   const [selected, setSelected] = useState<UserSearchResult | null>(null);
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const [type, setType] = useState<UserBadgeType>('VERIFIED');
+  const [disableOpen, setDisableOpen] = useState(false);
+  const [disableReason, setDisableReason] = useState('');
 
   const search = useCallback(async () => {
     if (query.trim().length < 2) return;
@@ -69,6 +80,34 @@ export default function AdminBadgesPage() {
       toast.success('Бейдж снят');
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось снять бейдж'));
+    }
+  };
+
+  const disableComments = async () => {
+    if (!selected || !disableReason.trim()) {
+      toast.error('Укажите причину');
+      return;
+    }
+
+    try {
+      await api.post(`/admin/users/${selected.id}/comments/disable`, {
+        reason: disableReason.trim(),
+      });
+      toast.success('Комментарии отключены');
+      setDisableOpen(false);
+      setDisableReason('');
+    } catch (error) {
+      toast.error(extractErrorMessage(error, 'Не удалось отключить комментарии'));
+    }
+  };
+
+  const enableComments = async () => {
+    if (!selected) return;
+    try {
+      await api.post(`/admin/users/${selected.id}/comments/enable`);
+      toast.success('Комментарии включены');
+    } catch (error) {
+      toast.error(extractErrorMessage(error, 'Не удалось включить комментарии'));
     }
   };
 
@@ -121,7 +160,12 @@ export default function AdminBadgesPage() {
                 <div key={badge.id} className="flex items-center gap-2 rounded-md border p-2">
                   <UserBadgeIcon type={badge.type} />
                   <span className="text-sm">{userBadgeLabels[badge.type]}</span>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => void revoke(badge.type)}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => void revoke(badge.type)}
+                  >
                     Забрать
                   </Button>
                 </div>
@@ -148,9 +192,40 @@ export default function AdminBadgesPage() {
                 Выдать бейдж
               </Button>
             </div>
+
+            <div className="flex flex-wrap gap-2 border-t border-border pt-4">
+              <Button type="button" variant="destructive" onClick={() => setDisableOpen(true)}>
+                Отключить комментарии
+              </Button>
+              <Button type="button" variant="outline" onClick={() => void enableComments()}>
+                Включить комментарии
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : null}
+
+      <Dialog open={disableOpen} onOpenChange={setDisableOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Отключить комментарии</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Причина</Label>
+            <Textarea
+              value={disableReason}
+              maxLength={500}
+              onChange={(event) => setDisableReason(event.target.value)}
+              placeholder="Почему комментарии отключаются"
+            />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="destructive" onClick={() => void disableComments()}>
+              Отключить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

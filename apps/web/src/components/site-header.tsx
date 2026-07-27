@@ -139,7 +139,10 @@ export function SiteHeader() {
                     <Link href="/admin/media-requests">Медиа-заявки</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/admin/profile-reports">Жалобы</Link>
+                    <Link href="/admin/profile-reports">Жалобы на профили</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/comment-reports">Жалобы на комментарии</Link>
                   </DropdownMenuItem>
                 </>
               ) : null}
