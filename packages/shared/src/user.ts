@@ -26,6 +26,8 @@ export function hasRoleGroup(current: RoleGroup, required: RoleGroup): boolean {
 /** Safe to send to the client: no password, no login trail */
 export interface PublicUser {
   id: string;
+  shortId: number;
+  tag: string;
   email: string;
   username: string;
   roleGroup: RoleGroup;

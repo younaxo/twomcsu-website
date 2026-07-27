@@ -367,6 +367,8 @@ export class AuthService {
   toPublicUser(user: UserWithPosition): PublicUser {
     return {
       id: user.id,
+      shortId: user.shortId,
+      tag: user.tag,
       email: user.email,
       username: user.username,
       roleGroup: user.roleGroup,

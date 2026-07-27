@@ -105,6 +105,8 @@ export function calcAge(birthDate: Date): number {
 export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProfile {
   return {
     id: user.id,
+    shortId: user.shortId,
+    tag: user.tag,
     email: user.email,
     username: user.username,
     position: toPublicPosition(user.position),
@@ -128,6 +130,9 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     notifyOnComment: user.notifyOnComment,
     notifyOnMention: user.notifyOnMention,
     notifyOnReply: user.notifyOnReply,
+    notifyOnFriendRequest: user.notifyOnFriendRequest,
+    notifyOnGift: user.notifyOnGift,
+    notifyOnOrder: user.notifyOnOrder,
     hideEmail: user.hideEmail,
     hideCountry: user.hideCountry,
     hideCity: user.hideCity,
@@ -164,6 +169,8 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
 
   return {
     id: user.id,
+    shortId: user.shortId,
+    tag: user.tag,
     username: user.username,
     avatar: user.avatar,
     bannerUrl: options.bannerUrl,

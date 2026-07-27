@@ -262,3 +262,67 @@ export interface LoyaltyDiscount {
   name: string;
   description: string | null;
 }
+
+export interface CurrencyRate {
+  id: string;
+  currency: string;
+  rate: number;
+  symbol: string;
+  flag: string;
+  isActive: boolean;
+  updatedAt: string;
+}
+
+export interface RecentPurchaseItem {
+  id: string;
+  productName: string;
+  productSlug: string | null;
+  productImage: string | null;
+  username: string | null;
+  createdAt: string;
+}
+
+export interface QuickBuyRequest {
+  productId: string;
+  variantId?: string;
+  quantity?: number;
+  minecraftNick: string;
+}
+
+export interface QuickBuyResponse {
+  orderId?: string;
+  orderNumber?: string;
+  paymentUrl?: string;
+  success?: boolean;
+  message?: string;
+}
+
+export interface AdminStoreStatsOverview {
+  revenue: number;
+  ordersCount: number;
+  averageOrder: number;
+  productsSold: number;
+  pending: number;
+  completed: number;
+  cancelled: number;
+  refunded: number;
+}
+
+export interface AdminStoreStatsPoint {
+  date: string;
+  revenue: number;
+  orders: number;
+}
+
+export interface AdminStoreStatsBreakdown {
+  name: string;
+  value: number;
+}
+
+export interface AdminStoreStatsResponse {
+  overview: AdminStoreStatsOverview;
+  revenueOverTime: AdminStoreStatsPoint[];
+  byCategory: AdminStoreStatsBreakdown[];
+  byProductType: AdminStoreStatsBreakdown[];
+  topProducts: AdminStoreStatsBreakdown[];
+}

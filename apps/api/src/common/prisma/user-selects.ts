@@ -39,6 +39,8 @@ export const selectMinimalUser = {
 /** Auth /me and session payloads — never includes password */
 export const selectAuthUser = {
   id: true,
+  shortId: true,
+  tag: true,
   email: true,
   username: true,
   roleGroup: true,
@@ -53,6 +55,8 @@ export const selectAuthUser = {
 /** Full public / private profile page in one query */
 export const selectFullProfile = {
   id: true,
+  shortId: true,
+  tag: true,
   email: true,
   username: true,
   roleGroup: true,
@@ -87,6 +91,9 @@ export const selectFullProfile = {
   notifyOnComment: true,
   notifyOnMention: true,
   notifyOnReply: true,
+  notifyOnFriendRequest: true,
+  notifyOnGift: true,
+  notifyOnOrder: true,
   positionId: true,
   position: { select: selectPublicPosition },
   badges: {

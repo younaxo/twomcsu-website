@@ -196,6 +196,9 @@ export interface PrivacySettings {
   notifyOnComment: boolean;
   notifyOnMention: boolean;
   notifyOnReply: boolean;
+  notifyOnFriendRequest: boolean;
+  notifyOnGift: boolean;
+  notifyOnOrder: boolean;
   hideEmail: boolean;
   hideCountry: boolean;
   hideCity: boolean;
@@ -207,6 +210,8 @@ export interface PrivacySettings {
 
 export interface MyProfile extends PrivacySettings {
   id: string;
+  shortId: number;
+  tag: string;
   email: string;
   username: string;
   position: Position;
@@ -235,6 +240,10 @@ export interface MyProfile extends PrivacySettings {
 /** Anyone can read this one, hidden fields are stripped before it leaves the api */
 export interface UserProfile {
   id: string;
+  /** Public numeric id shown as #1, #2, ... */
+  shortId: number;
+  /** Public tag like youn#4a2b */
+  tag: string;
   username: string;
   avatar: string | null;
   bannerUrl: string | null;
@@ -263,6 +272,8 @@ export interface UserProfile {
   commentPolicy: import('./comments').CommentPolicy;
   /** Present while FRIENDS_ONLY still behaves like EVERYONE for non-friends */
   visibility?: 'friends_only';
+  /** Online on game server; may be absent until backend wires it */
+  isOnlineInGame?: boolean;
 }
 
 /** 403 body when profileVisibility is NOBODY and the viewer is not the owner */
