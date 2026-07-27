@@ -75,6 +75,12 @@
     filter: none;
   }
 
+  .comment-markdown .mention {
+    color: hsl(var(--primary));
+    font-weight: 600;
+    cursor: pointer;
+  }
+
   .comment-markdown a {
     color: hsl(var(--primary));
     text-decoration: underline;

@@ -25,8 +25,12 @@ export class MarkdownService {
 
   render(markdown: string): string {
     const withSpoilers = markdown.replace(/\|\|(.+?)\|\|/gs, '<span class="spoiler">$1</span>');
+    const withMentions = withSpoilers.replace(
+      /@([A-Za-z0-9_]{3,16})\b/g,
+      '<span class="mention">@$1</span>',
+    );
 
-    const rawHtml = marked.parse(withSpoilers, {
+    const rawHtml = marked.parse(withMentions, {
       async: false,
       gfm: true,
       breaks: true,
@@ -36,7 +40,7 @@ export class MarkdownService {
       allowedTags: this.allowedTags,
       allowedAttributes: {
         a: ['href', 'rel', 'target'],
-        span: ['class'],
+        span: ['class', 'data-username'],
       },
       allowedClasses: {
         span: ['spoiler', 'mention'],

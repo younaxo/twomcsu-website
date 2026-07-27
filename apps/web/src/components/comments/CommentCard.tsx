@@ -150,6 +150,13 @@ export function CommentCard({ comment, profileUsername, isReply }: CommentCardPr
                 const target = event.target as HTMLElement;
                 if (target.classList.contains('spoiler')) {
                   target.classList.toggle('revealed');
+                  return;
+                }
+                if (target.classList.contains('mention')) {
+                  const username = target.textContent?.replace(/^@/, '').trim();
+                  if (username) {
+                    window.location.href = `/users/${encodeURIComponent(username)}`;
+                  }
                 }
               }}
             />
