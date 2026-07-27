@@ -53,7 +53,6 @@ model User {
   password      String
   roleGroup     RoleGroup @default(PLAYER)
   positionId    String
-  minecraftNick String?   @unique @db.VarChar(16)
   avatar        String?
   isVerified    Boolean   @default(false)
   isBanned      Boolean   @default(false)
@@ -137,7 +136,6 @@ model User {
   @@index([username])
   @@index([tag])
   @@index([shortId])
-  @@index([minecraftNick])
   @@index([positionId])
   @@index([roleGroup, isBanned])
   @@index([lastLoginAt])
