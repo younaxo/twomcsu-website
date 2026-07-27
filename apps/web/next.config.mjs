@@ -16,7 +16,8 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   experimental: {
-    optimizePackageImports: ['lucide-react', 'date-fns'],
+    optimizePackageImports: ['lucide-react', 'date-fns', '@radix-ui/react-icons'],
+    serverComponentsExternalPackages: ['skinview3d', 'three'],
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000',
@@ -32,9 +33,12 @@ const nextConfig = {
     ],
   },
   webpack: (config, { dev }) => {
-    // PackFileCacheStrategy can OOM on Windows during long sessions
     if (dev) {
-      config.cache = false;
+      config.cache = {
+        type: 'filesystem',
+        maxAge: 172800000, // 2 days
+        maxMemoryGenerations: 1,
+      };
     }
     return config;
   },

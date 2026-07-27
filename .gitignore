@@ -5,6 +5,7 @@ dist/
 build/
 out/
 .next/
+apps/web/.next/cache/
 .turbo/
 
 coverage/
