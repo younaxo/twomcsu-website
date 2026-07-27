@@ -8,6 +8,11 @@ import {
   CategoriesController,
 } from './categories.controller';
 import { CategoriesService } from './categories.service';
+import {
+  AdminDiscountsController,
+  DiscountsController,
+} from './discounts.controller';
+import { DiscountsService } from './discounts.service';
 import { AdminOrdersController, OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { PricingService } from './pricing.service';
@@ -32,6 +37,8 @@ import { WishlistService } from './wishlist.service';
     AdminProductsController,
     BundlesController,
     AdminBundlesController,
+    DiscountsController,
+    AdminDiscountsController,
     CartController,
     PromocodesController,
     AdminPromocodesController,
@@ -43,6 +50,7 @@ import { WishlistService } from './wishlist.service';
     CategoriesService,
     ProductsService,
     BundlesService,
+    DiscountsService,
     PricingService,
     CartService,
     PromocodesService,
@@ -56,6 +64,7 @@ import { WishlistService } from './wishlist.service';
     CartService,
     OrdersService,
     PricingService,
+    DiscountsService,
   ],
 })
 export class StoreModule {}
