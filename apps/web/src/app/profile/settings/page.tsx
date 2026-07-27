@@ -152,9 +152,6 @@ export default function ProfileSettingsPage() {
         hideGender: profile.hideGender,
         hideStatistics: profile.hideStatistics,
         hideSocials: profile.hideSocials,
-        hideInventory: profile.hideInventory,
-        hideServices: profile.hideServices,
-        hideComments: profile.hideComments,
       });
       setProfile(data);
       toast.success('Профиль сохранён');
@@ -604,9 +601,6 @@ export default function ProfileSettingsPage() {
                         ['hideGender', 'Скрыть пол'],
                         ['hideStatistics', 'Скрыть статистику'],
                         ['hideSocials', 'Скрыть соц сети'],
-                        ['hideInventory', 'Скрыть инвентарь'],
-                        ['hideServices', 'Скрыть услуги'],
-                        ['hideComments', 'Скрыть комментарии'],
                       ] as const
                     ).map(([key, label]) => (
                       <label key={key} className="flex items-center gap-2 text-sm">
