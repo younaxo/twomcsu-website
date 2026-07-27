@@ -93,14 +93,14 @@ API читает его через `@nestjs/config`, Next — через `next.c
 
 Создаются `pnpm db:seed`, в `NODE_ENV=production` сидится только владелец.
 
-| Email                 | Пароль                | Группа    |
-| --------------------- | --------------------- | --------- |
-| `owner@localhost`     | `SEED_OWNER_PASSWORD` | OWNER     |
-| `admin@localhost`     | `Admin1234`           | ADMIN     |
-| `moderator@localhost` | `Moder1234`           | MODERATOR |
-| `helper@localhost`    | `Helper1234`          | HELPER    |
-| `player1@localhost`   | `Player1234`          | PLAYER    |
-| `player2@localhost`   | `Player1234`          | PLAYER    |
+| Email                 | Пароль                | Группа    | Позиция               |
+| --------------------- | --------------------- | --------- | --------------------- |
+| `owner@localhost`     | `SEED_OWNER_PASSWORD` | OWNER     | Owner                 |
+| `admin@localhost`     | `Admin1234`           | ADMIN     | Special Administrator |
+| `moderator@localhost` | `Moder1234`           | MODERATOR | Head Cheat Hunter     |
+| `helper@localhost`    | `Helper1234`          | HELPER    | Chief Helper          |
+| `player1@localhost`   | `Player1234`          | PLAYER    | Default               |
+| `player2@localhost`   | `Player1234`          | PLAYER    | Svarog                |
 
 ### Проверка через curl
 
@@ -132,6 +132,30 @@ curl -i -X POST http://localhost:4000/auth/logout \
 Что стоит проверить руками: занятый email и никнейм дают 409, три неверных пароля включают капчу,
 десятый подряд — 429, `/auth/me` без токена — 401, а старый refresh после логаута — 401.
 
+## Позиции
+
+Позиция — это титул внутри группы: цвет ника, бейдж, приоритет в списках. Права она не даёт,
+их определяет только `roleGroup` пользователя. У каждой группы есть одна позиция с `isDefault`,
+её получают новые аккаунты. При назначении позиции `roleGroup` пользователя подтягивается
+под группу этой позиции.
+
+| Метод и путь                | Доступ    | Что делает                                             |
+| --------------------------- | --------- | ------------------------------------------------------ |
+| `GET /positions`            | публичный | Видимые позиции, фильтр `?group=OWNER`                 |
+| `GET /positions/manage`     | ADMIN+    | Все позиции, включая скрытые — для админки             |
+| `GET /positions/:slug`      | публичный | Позиция целиком плюс до 100 её носителей               |
+| `POST /positions`           | OWNER     | Создать позицию                                        |
+| `PATCH /positions/:id`      | OWNER     | Обновить позицию                                       |
+| `DELETE /positions/:id`     | OWNER     | Удалить, если она не дефолтная и на ней никто не висит |
+| `POST /positions/:id/assign` | ADMIN+   | Выдать позицию игроку, `{ "userId": "..." }`           |
+| `GET /users/:username/public` | публичный | Публичный профиль с позицией                         |
+| `GET /users/search?q=`      | ADMIN+    | Поиск по никнейму для модалки назначения               |
+
+Выдать позицию выше своей группы нельзя, как и трогать пользователя старше себя.
+
+Страницы: `/users/<никнейм>` — публичный профиль, `/admin/positions` — управление
+(ADMIN видит список и назначение, кнопки создания и удаления только у OWNER).
+
 ## Структура
 
 ```
@@ -144,14 +168,16 @@ apps/
       modules/
         auth/         эндпоинты, гварды, стратегии, капча, брутфорс
         health/       GET /health
+        positions/    титулы, их crud и назначение игрокам
         prisma/       PrismaService (глобальный модуль)
         redis/        ioredis клиент (глобальный модуль)
+        users/        публичный профиль и поиск по никнейму
   web/                Next.js
-    src/app/          App Router, (auth) группа со входом и регистрацией
-    src/components/   ui kit (shadcn), провайдеры, шапка
+    src/app/          App Router, (auth), /users/[username], /admin/positions
+    src/components/   ui kit (shadcn), admin модалки, shared, провайдеры, шапка
     src/hooks/        useAuth
-    src/lib/          axios клиент
+    src/lib/          axios клиент, fetch для серверных компонентов
     src/stores/       zustand стор авторизации
 packages/
-  shared/             общие типы (RoleGroup, контракты auth)
+  shared/             общие типы (RoleGroup, Position, контракты auth)
 ```
