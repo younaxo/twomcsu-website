@@ -1,4 +1,4 @@
-import { DiscountType, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 export interface SeedCurrencyRate {
   currency: string;

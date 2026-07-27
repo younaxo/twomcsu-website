@@ -548,6 +548,40 @@ async function upsertUser(
   return user.id;
 }
 
+/** Prefer existing username (e.g. SEED_OWNER), then create with reserved email */
+async function ensureReservedShortId(
+  user: SeedUser & { shortId: number },
+  positionIds: Map<string, string>,
+): Promise<void> {
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [{ username: { equals: user.username, mode: 'insensitive' } }, { email: user.email }],
+    },
+  });
+
+  if (existing) {
+    if (existing.shortId !== user.shortId) {
+      await prisma.$executeRaw`
+        UPDATE users SET "shortId" = (SELECT COALESCE(MAX("shortId"), 2) + 1 FROM users)
+        WHERE "shortId" = ${user.shortId} AND id <> ${existing.id}
+      `;
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          shortId: user.shortId,
+          roleGroup: user.roleGroup,
+          ...(existing.tag ? {} : { tag: makeTag(existing.username) }),
+        },
+      });
+      await prisma.$executeRaw`SELECT setval('"users_shortId_seq"', (SELECT MAX("shortId") FROM users))`;
+    }
+    console.log(`reserved #${user.shortId} → ${existing.username}`);
+    return;
+  }
+
+  await upsertUser(user, positionIds);
+}
+
 async function applyShowcase(
   userId: string,
   showcase: SeedShowcase,
@@ -645,31 +679,25 @@ async function main() {
 
   await applyShowcase(ownerId, ownerShowcase, awardIds);
 
-  // Reserved public ids: KleekYT=#1, younaxo_=#2
-  await upsertUser(
-    {
-      email: 'kleekyt@localhost',
-      username: 'KleekYT',
-      password: 'Owner1234',
-      roleGroup: RoleGroup.OWNER,
-      positionSlug: 'owner',
-      shortId: 1,
-      profileVisibility: ProfileVisibility.EVERYONE,
-    },
-    positionIds,
-  );
-  await upsertUser(
-    {
-      email: 'younaxo@localhost',
-      username: 'younaxo_',
-      password: 'Owner1234',
-      roleGroup: RoleGroup.OWNER,
-      positionSlug: 'chief-developer',
-      shortId: 2,
-      profileVisibility: ProfileVisibility.EVERYONE,
-    },
-    positionIds,
-  );
+  // Reserved public ids: KleekYT=#1, younaxo_=#2 (create or reassign)
+  await ensureReservedShortId({
+    email: 'kleekyt@localhost',
+    username: 'KleekYT',
+    password: 'Owner1234',
+    roleGroup: RoleGroup.OWNER,
+    positionSlug: 'owner',
+    shortId: 1,
+    profileVisibility: ProfileVisibility.EVERYONE,
+  }, positionIds);
+  await ensureReservedShortId({
+    email: 'younaxo@localhost',
+    username: 'younaxo_',
+    password: 'Owner1234',
+    roleGroup: RoleGroup.OWNER,
+    positionSlug: 'chief-developer',
+    shortId: 2,
+    profileVisibility: ProfileVisibility.EVERYONE,
+  }, positionIds);
 
   if (process.env.NODE_ENV === 'production') {
     console.log('production run: test accounts are skipped');
