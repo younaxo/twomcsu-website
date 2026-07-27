@@ -36,6 +36,8 @@ import {
   PromocodesController,
 } from './promocodes.controller';
 import { PromocodesService } from './promocodes.service';
+import { AdminStoreStatsController } from './stats.controller';
+import { StatsService } from './stats.service';
 import { WishlistController } from './wishlist.controller';
 import { WishlistService } from './wishlist.service';
 
@@ -59,6 +61,7 @@ import { WishlistService } from './wishlist.service';
     StoreExtrasController,
     OrdersController,
     AdminOrdersController,
+    AdminStoreStatsController,
   ],
   providers: [
     CategoriesService,
@@ -71,6 +74,7 @@ import { WishlistService } from './wishlist.service';
     WishlistService,
     OrdersService,
     CurrenciesService,
+    StatsService,
   ],
   exports: [
     CategoriesService,
@@ -81,6 +85,7 @@ import { WishlistService } from './wishlist.service';
     PricingService,
     DiscountsService,
     CurrenciesService,
+    StatsService,
   ],
 })
 export class StoreModule {}
