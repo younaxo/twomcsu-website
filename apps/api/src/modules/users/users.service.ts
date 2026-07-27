@@ -98,7 +98,8 @@ export class UsersService {
     }
 
     if (dto.showBirthDate !== undefined) data.showBirthDate = dto.showBirthDate;
-    if (dto.isProfilePrivate !== undefined) data.isProfilePrivate = dto.isProfilePrivate;
+    if (dto.profileVisibility !== undefined) data.profileVisibility = dto.profileVisibility;
+    if (dto.friendRequestPolicy !== undefined) data.friendRequestPolicy = dto.friendRequestPolicy;
     if (dto.hideEmail !== undefined) data.hideEmail = dto.hideEmail;
     if (dto.hideCountry !== undefined) data.hideCountry = dto.hideCountry;
     if (dto.hideCity !== undefined) data.hideCity = dto.hideCity;
@@ -658,7 +659,7 @@ export class UsersService {
       select: {
         id: true,
         hideStatistics: true,
-        isProfilePrivate: true,
+        profileVisibility: true,
         statistics: true,
       },
     });
@@ -670,7 +671,7 @@ export class UsersService {
     const isOwner = viewer?.id === user.id;
     const isStaff = viewer ? hasRoleGroup(viewer.roleGroup, RoleGroup.MODERATOR) : false;
 
-    if (user.isProfilePrivate && !isOwner && !isStaff) {
+    if (user.profileVisibility === 'NOBODY' && !isOwner && !isStaff) {
       throw new ForbiddenException('Этот профиль скрыт');
     }
 
@@ -732,9 +733,26 @@ export class UsersService {
       ? hasRoleGroup(viewer.roleGroup, RoleGroup.MODERATOR)
       : false;
 
-    if (user.isProfilePrivate && !isOwner && !canBypassPrivate) {
-      throw new ForbiddenException('Этот профиль скрыт');
+    if (user.profileVisibility === 'NOBODY' && !isOwner && !canBypassPrivate) {
+      const bannerUrl = await this.resolveBanner(user);
+
+      throw new ForbiddenException({
+        restricted: true,
+        reason: 'private',
+        user: {
+          username: user.username,
+          avatar: user.avatar,
+          position: toPublicPosition(user.position),
+          bannerUrl,
+          statusText: user.statusText,
+        },
+      });
     }
+
+    // TODO: После реализации Friends System — проверять дружбу
+    // FRIENDS_ONLY пока ведёт себя как EVERYONE для не-владельца
+    const visibility =
+      user.profileVisibility === 'FRIENDS_ONLY' && !isOwner ? ('friends_only' as const) : undefined;
 
     const [bannerUrl, likesCount, dislikesCount, viewsCount, reaction] = await Promise.all([
       this.resolveBanner(user),
@@ -760,6 +778,7 @@ export class UsersService {
       userReaction: reaction?.type ?? null,
       isOwner,
       canBypassPrivate,
+      visibility,
     });
   }
 
