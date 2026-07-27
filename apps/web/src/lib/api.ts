@@ -1,5 +1,6 @@
 import type { RefreshResponse } from '@twomc/shared';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { translateError } from '@/lib/error-messages';
 
 declare module 'axios' {
   interface AxiosRequestConfig {
@@ -102,14 +103,15 @@ function redirectToLogin(): void {
 
 export function extractErrorMessage(error: unknown, fallback = 'Что-то пошло не так'): string {
   if (axios.isAxiosError(error)) {
-    const message = (error.response?.data as { message?: string | string[] } | undefined)?.message;
-
-    if (Array.isArray(message)) {
-      return message[0] ?? fallback;
+    if (!error.response) {
+      return translateError('Network error');
     }
 
-    if (typeof message === 'string') {
-      return message;
+    const message = (error.response.data as { message?: string | string[] } | undefined)?.message;
+    const first = Array.isArray(message) ? message[0] : message;
+
+    if (typeof first === 'string' && first.length > 0) {
+      return translateError(first);
     }
   }
 
