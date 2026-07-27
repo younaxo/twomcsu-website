@@ -84,6 +84,12 @@ export const selectFullProfile = {
   hideInventory: true,
   hideServices: true,
   hideComments: true,
+  commentPolicy: true,
+  commentsEnabled: true,
+  commentsForcedReason: true,
+  notifyOnComment: true,
+  notifyOnMention: true,
+  notifyOnReply: true,
   positionId: true,
   position: { select: selectPublicPosition },
   badges: {

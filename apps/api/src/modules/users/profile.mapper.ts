@@ -124,6 +124,10 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
     profileVisibility: user.profileVisibility,
     friendRequestPolicy: user.friendRequestPolicy,
+    commentPolicy: user.commentPolicy,
+    notifyOnComment: user.notifyOnComment,
+    notifyOnMention: user.notifyOnMention,
+    notifyOnReply: user.notifyOnReply,
     hideEmail: user.hideEmail,
     hideCountry: user.hideCountry,
     hideCity: user.hideCity,
@@ -195,6 +199,9 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     hideInventory: user.hideInventory,
     hideServices: user.hideServices,
     hideComments: user.hideComments,
+    commentsEnabled: user.commentsEnabled,
+    commentsForcedReason: user.commentsEnabled ? null : user.commentsForcedReason,
+    commentPolicy: user.commentPolicy,
     ...(options.visibility ? { visibility: options.visibility } : {}),
   };
 }

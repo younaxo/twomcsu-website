@@ -109,6 +109,10 @@ export class UsersService {
     if (dto.showBirthDate !== undefined) data.showBirthDate = dto.showBirthDate;
     if (dto.profileVisibility !== undefined) data.profileVisibility = dto.profileVisibility;
     if (dto.friendRequestPolicy !== undefined) data.friendRequestPolicy = dto.friendRequestPolicy;
+    if (dto.commentPolicy !== undefined) data.commentPolicy = dto.commentPolicy;
+    if (dto.notifyOnComment !== undefined) data.notifyOnComment = dto.notifyOnComment;
+    if (dto.notifyOnMention !== undefined) data.notifyOnMention = dto.notifyOnMention;
+    if (dto.notifyOnReply !== undefined) data.notifyOnReply = dto.notifyOnReply;
     if (dto.hideEmail !== undefined) data.hideEmail = dto.hideEmail;
     if (dto.hideCountry !== undefined) data.hideCountry = dto.hideCountry;
     if (dto.hideCity !== undefined) data.hideCity = dto.hideCity;

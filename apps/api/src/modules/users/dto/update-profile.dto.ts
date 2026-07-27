@@ -1,4 +1,4 @@
-import { FriendRequestPolicy, Gender, ProfileVisibility } from '@twomc/shared';
+import { CommentPolicy, FriendRequestPolicy, Gender, ProfileVisibility } from '@twomc/shared';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -55,6 +55,25 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsEnum(FriendRequestPolicy)
   friendRequestPolicy?: FriendRequestPolicy;
+
+  @IsOptional()
+  @IsEnum(CommentPolicy)
+  commentPolicy?: CommentPolicy;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  notifyOnComment?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  notifyOnMention?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  notifyOnReply?: boolean;
 
   @IsOptional()
   @IsBoolean()
