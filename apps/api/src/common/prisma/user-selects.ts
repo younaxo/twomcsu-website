@@ -91,6 +91,10 @@ export const selectFullProfile = {
   notifyOnFriendRequest: true,
   notifyOnGift: true,
   notifyOnOrder: true,
+  currentServer: true,
+  currentServerId: true,
+  lastServerActivity: true,
+  isOnlineInGame: true,
   positionId: true,
   position: { select: selectPublicPosition },
   badges: {

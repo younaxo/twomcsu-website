@@ -201,6 +201,9 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     commentsEnabled: user.commentsEnabled,
     commentsForcedReason: user.commentsEnabled ? null : user.commentsForcedReason,
     commentPolicy: user.commentPolicy,
+    isOnlineInGame: user.isOnlineInGame,
+    currentServer: user.currentServer,
+    lastServerActivity: user.lastServerActivity?.toISOString() ?? null,
     ...(options.visibility ? { visibility: options.visibility } : {}),
   };
 }

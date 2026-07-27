@@ -272,6 +272,8 @@ export interface UserProfile {
   visibility?: 'friends_only';
   /** Online on game server; may be absent until backend wires it */
   isOnlineInGame?: boolean;
+  currentServer?: string | null;
+  lastServerActivity?: string | null;
 }
 
 /** 403 body when profileVisibility is NOBODY and the viewer is not the owner */

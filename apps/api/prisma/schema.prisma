@@ -127,6 +127,12 @@ model User {
   /// User id of whoever invited this account
   referredBy   String?
 
+  /// Slug of the game server where the player was last seen
+  currentServer      String?
+  currentServerId    String?
+  lastServerActivity DateTime?
+  isOnlineInGame     Boolean   @default(false)
+
   cart        Cart?
   wishlist    Wishlist?
   orders      Order[]
@@ -139,6 +145,8 @@ model User {
   @@index([positionId])
   @@index([roleGroup, isBanned])
   @@index([lastLoginAt])
+  @@index([currentServerId])
+  @@index([isOnlineInGame])
   @@map("users")
 }
 
@@ -927,4 +935,45 @@ model CurrencyRate {
   updatedAt DateTime @updatedAt
 
   @@map("currency_rates")
+}
+
+model Server {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  address     String
+  port        Int      @default(25565)
+  type        String
+  description String?
+  iconUrl     String?
+  maxPlayers  Int      @default(100)
+  version     String?
+  motd        String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  statusLogs ServerStatusLog[]
+
+  @@index([slug])
+  @@index([isActive, order])
+  @@map("servers")
+}
+
+model ServerStatusLog {
+  id          String   @id @default(cuid())
+  serverId    String
+  server      Server   @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  online      Boolean
+  playerCount Int      @default(0)
+  maxPlayers  Int      @default(0)
+  players     String[]
+  version     String?
+  motd        String?
+  ping        Int?
+  timestamp   DateTime @default(now())
+
+  @@index([serverId, timestamp])
+  @@map("server_status_logs")
 }
