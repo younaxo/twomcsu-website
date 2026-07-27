@@ -24,6 +24,9 @@ import {
 import { compare, hash } from 'bcrypt';
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { durationToSeconds } from '../../common/duration.util';
+import { AuthUserRow, selectAuthUser } from '../../common/prisma/user-selects';
+import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
+import { CacheService } from '../cache/cache.service';
 import { toPublicPosition } from '../positions/position.mapper';
 import { PositionsService } from '../positions/positions.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -53,7 +56,7 @@ export interface RegisterSession extends AuthSession {
 
 type PromoCodeResult = NonNullable<RegisterResponse['promoCode']>;
 
-type UserWithPosition = Prisma.UserGetPayload<{ include: { position: true } }>;
+type UserWithPosition = Prisma.UserGetPayload<{ include: { position: true } }> | AuthUserRow;
 
 @Injectable()
 export class AuthService {
@@ -66,6 +69,7 @@ export class AuthService {
     private readonly captcha: CaptchaService,
     private readonly bruteForce: BruteForceService,
     private readonly positions: PositionsService,
+    private readonly cache: CacheService,
   ) {}
 
   async register(dto: RegisterDto, context: RequestContext): Promise<RegisterSession> {
@@ -348,12 +352,14 @@ export class AuthService {
   }
 
   async findById(userId: string): Promise<PublicUser | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: { position: true },
-    });
+    return this.cache.wrap(cacheKeys.authMe(userId), CACHE_TTL.USER_PROFILE, async () => {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: selectAuthUser,
+      });
 
-    return user ? this.toPublicUser(user) : null;
+      return user ? this.toPublicUser(user) : null;
+    });
   }
 
   toPublicUser(user: UserWithPosition): PublicUser {
