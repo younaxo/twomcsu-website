@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RoleGroup, StoreCategory } from '@twomc/shared';
@@ -34,8 +35,8 @@ export class AdminCategoriesController {
   constructor(private readonly categories: CategoriesService) {}
 
   @Get()
-  listAdmin(): Promise<StoreCategory[]> {
-    return this.categories.listAdmin();
+  listAdmin(@Query('search') search?: string): Promise<StoreCategory[]> {
+    return this.categories.listAdmin(search);
   }
 
   @Post()

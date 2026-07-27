@@ -16,6 +16,8 @@ import {
   CreateOrderResponse,
   OrderStatus,
   OrdersResponse,
+  QuickBuyResponse,
+  RecentPurchaseItem,
   RoleGroup,
   StoreOrder,
 } from '@twomc/shared';
@@ -23,8 +25,26 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { CancelOrderDto, CreateOrderDto, RefundOrderDto } from './dto/store.dto';
+import { CancelOrderDto, CreateOrderDto, QuickBuyDto, RefundOrderDto } from './dto/store.dto';
 import { OrdersService } from './orders.service';
+
+@Controller('store')
+export class StoreExtrasController {
+  constructor(private readonly orders: OrdersService) {}
+
+  @Get('recent-purchases')
+  recentPurchases(
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ): Promise<RecentPurchaseItem[]> {
+    return this.orders.recentPurchases(limit);
+  }
+
+  @Post('quick-buy')
+  @HttpCode(HttpStatus.CREATED)
+  quickBuy(@Body() dto: QuickBuyDto): Promise<QuickBuyResponse> {
+    return this.orders.quickBuy(dto);
+  }
+}
 
 @Controller('store/orders')
 @UseGuards(JwtAuthGuard)

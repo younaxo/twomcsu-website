@@ -4,16 +4,30 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NotificationType, OrderStatus, Prisma } from '@prisma/client';
+import { NotificationType, OrderStatus, Prisma, ProductType } from '@prisma/client';
 import {
   CreateOrderResponse,
   OrdersResponse,
+  QuickBuyResponse,
+  RecentPurchaseItem,
   StoreOrder,
 } from '@twomc/shared';
+import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
+import { CacheService } from '../cache/cache.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { QuickBuyDto } from './dto/store.dto';
 import { PricingService } from './pricing.service';
 import { decimalToNumber, toStoreOrder } from './store.mapper';
+
+const QUICK_BUY_BLOCKED_TYPES: ProductType[] = [
+  ProductType.DECORATION,
+  ProductType.SUBSCRIPTION,
+  ProductType.BADGE,
+  ProductType.UNMUTE,
+  ProductType.UNBAN,
+  ProductType.BATTLE_PASS_BOOSTER,
+];
 
 const orderInclude = {
   promoCode: { select: { code: true } },
@@ -36,6 +50,7 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly pricing: PricingService,
     private readonly notifications: NotificationsService,
+    private readonly cache: CacheService,
   ) {}
 
   async createFromCart(
@@ -168,6 +183,125 @@ export class OrdersService {
       page: currentPage,
       limit: take,
       totalPages: Math.ceil(total / take) || 0,
+    };
+  }
+
+  async recentPurchases(limit = 10): Promise<RecentPurchaseItem[]> {
+    const take = Math.min(50, Math.max(1, limit));
+
+    return this.cache.wrap(
+      `${cacheKeys.storeRecentPurchases()}:${take}`,
+      CACHE_TTL.STORE_RECENT_PURCHASES,
+      async () => {
+        const items = await this.prisma.orderItem.findMany({
+          where: {
+            order: { status: OrderStatus.COMPLETED },
+            OR: [{ productId: { not: null } }, { bundleId: { not: null } }],
+          },
+          include: {
+            product: { select: { name: true, slug: true, image: true } },
+            bundle: { select: { name: true, slug: true, image: true } },
+            order: {
+              select: {
+                createdAt: true,
+                guestMinecraftNick: true,
+                user: { select: { username: true } },
+              },
+            },
+          },
+          orderBy: { order: { createdAt: 'desc' } },
+          take,
+        });
+
+        return items.map((item) => ({
+          id: item.id,
+          productName: item.product?.name ?? item.bundle?.name ?? 'Товар',
+          productSlug: item.product?.slug ?? item.bundle?.slug ?? null,
+          productImage: item.product?.image ?? item.bundle?.image ?? null,
+          username: item.order.user?.username ?? item.order.guestMinecraftNick ?? null,
+          createdAt: item.order.createdAt.toISOString(),
+        }));
+      },
+    );
+  }
+
+  async quickBuy(dto: QuickBuyDto): Promise<QuickBuyResponse> {
+    const product = await this.prisma.product.findFirst({
+      where: { id: dto.productId, isActive: true },
+      include: {
+        variants: {
+          where: { isActive: true },
+          orderBy: [{ order: 'asc' }, { price: 'asc' }],
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Товар не найден');
+    }
+
+    if (QUICK_BUY_BLOCKED_TYPES.includes(product.type)) {
+      throw new BadRequestException('Этот товар нельзя купить без входа в аккаунт');
+    }
+
+    const quantity = dto.quantity ?? 1;
+    let variant = product.variants.find((v) => v.id === dto.variantId) ?? null;
+
+    if (dto.variantId && !variant) {
+      throw new NotFoundException('Вариант не найден');
+    }
+
+    if (!variant && product.type !== ProductType.CURRENCY) {
+      variant = product.variants[0] ?? null;
+      if (!variant) {
+        throw new BadRequestException('У товара нет доступных вариантов');
+      }
+    }
+
+    let unitPrice = 0;
+    if (product.type === ProductType.CURRENCY) {
+      unitPrice = 1;
+    } else if (variant) {
+      unitPrice = decimalToNumber(variant.price);
+    }
+
+    const totalPrice =
+      product.type === ProductType.CURRENCY
+        ? quantity
+        : Math.round(unitPrice * quantity * 100) / 100;
+
+    const orderNumber = await this.nextOrderNumber();
+    const nick = dto.minecraftNick.trim();
+
+    const order = await this.prisma.order.create({
+      data: {
+        orderNumber,
+        userId: null,
+        guestMinecraftNick: nick,
+        status: OrderStatus.PENDING,
+        subtotal: totalPrice,
+        discountAmount: 0,
+        total: totalPrice,
+        items: {
+          create: [
+            {
+              productId: product.id,
+              variantId: variant?.id ?? null,
+              quantity,
+              unitPrice,
+              totalPrice,
+            },
+          ],
+        },
+      },
+    });
+
+    await this.cache.delPattern(`${cacheKeys.storeRecentPurchases()}*`);
+
+    return {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      paymentUrl: `/store/mock-payment?orderId=${order.id}`,
     };
   }
 

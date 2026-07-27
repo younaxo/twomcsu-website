@@ -10,11 +10,20 @@ import {
 } from './categories.controller';
 import { CategoriesService } from './categories.service';
 import {
+  AdminCurrenciesController,
+  CurrenciesController,
+} from './currencies.controller';
+import { CurrenciesService } from './currencies.service';
+import {
   AdminDiscountsController,
   DiscountsController,
 } from './discounts.controller';
 import { DiscountsService } from './discounts.service';
-import { AdminOrdersController, OrdersController } from './orders.controller';
+import {
+  AdminOrdersController,
+  OrdersController,
+  StoreExtrasController,
+} from './orders.controller';
 import { OrdersService } from './orders.service';
 import { PricingService } from './pricing.service';
 import {
@@ -41,10 +50,13 @@ import { WishlistService } from './wishlist.service';
     AdminBundlesController,
     DiscountsController,
     AdminDiscountsController,
+    CurrenciesController,
+    AdminCurrenciesController,
     CartController,
     PromocodesController,
     AdminPromocodesController,
     WishlistController,
+    StoreExtrasController,
     OrdersController,
     AdminOrdersController,
   ],
@@ -58,6 +70,7 @@ import { WishlistService } from './wishlist.service';
     PromocodesService,
     WishlistService,
     OrdersService,
+    CurrenciesService,
   ],
   exports: [
     CategoriesService,
@@ -67,6 +80,7 @@ import { WishlistService } from './wishlist.service';
     OrdersService,
     PricingService,
     DiscountsService,
+    CurrenciesService,
   ],
 })
 export class StoreModule {}

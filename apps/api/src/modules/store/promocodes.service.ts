@@ -29,8 +29,17 @@ export type PromoCodeAdminView = {
 export class PromocodesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(): Promise<PromoCodeAdminView[]> {
+  async list(search?: string): Promise<PromoCodeAdminView[]> {
+    const q = search?.trim();
     const rows = await this.prisma.promoCode.findMany({
+      where: q
+        ? {
+            OR: [
+              { code: { contains: q, mode: 'insensitive' } },
+              { description: { contains: q, mode: 'insensitive' } },
+            ],
+          }
+        : undefined,
       orderBy: { createdAt: 'desc' },
     });
     return rows.map(this.mapPromo);

@@ -42,9 +42,30 @@ export class CategoriesService {
     });
   }
 
-  async listAdmin(): Promise<StoreCategory[]> {
+  async listAdmin(search?: string): Promise<StoreCategory[]> {
+    const q = search?.trim();
     const categories = await this.prisma.category.findMany({
-      where: { parentId: null },
+      where: {
+        parentId: null,
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q, mode: 'insensitive' } },
+                { slug: { contains: q, mode: 'insensitive' } },
+                {
+                  subcategories: {
+                    some: {
+                      OR: [
+                        { name: { contains: q, mode: 'insensitive' } },
+                        { slug: { contains: q, mode: 'insensitive' } },
+                      ],
+                    },
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
       orderBy: [{ order: 'asc' }, { name: 'asc' }],
       include: {
         subcategories: {

@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, ProductType } from '@prisma/client';
+import { OrderStatus, Prisma, ProductType } from '@prisma/client';
 import { ProductVariant, StoreProduct, StoreProductsResponse } from '@twomc/shared';
 import { createHash } from 'crypto';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
@@ -27,6 +27,18 @@ const productInclude = {
     select: { id: true, slug: true, name: true, color: true, backgroundColor: true },
   },
 };
+
+const TYPE_PRIORITY: ProductType[] = [
+  ProductType.PRIVILEGE,
+  ProductType.DECORATION,
+  ProductType.KEY,
+  ProductType.CURRENCY,
+];
+
+function typePriority(type: ProductType): number {
+  const index = TYPE_PRIORITY.indexOf(type);
+  return index === -1 ? TYPE_PRIORITY.length + 1 : index;
+}
 
 export type ProductListQuery = {
   category?: string;
@@ -104,6 +116,126 @@ export class ProductsService {
 
     const inWishlist = await this.isInWishlist(userId, cached.id);
     return { ...cached, inWishlist };
+  }
+
+  async getBoughtTogether(slugOrId: string, limit = 6): Promise<StoreProduct[]> {
+    const product = await this.prisma.product.findFirst({
+      where: {
+        OR: [{ id: slugOrId }, { slug: slugOrId }],
+        isActive: true,
+      },
+      select: { id: true, categoryId: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Товар не найден');
+    }
+
+    const completedItems = await this.prisma.orderItem.findMany({
+      where: {
+        productId: product.id,
+        order: { status: OrderStatus.COMPLETED },
+      },
+      select: { orderId: true },
+      take: 200,
+    });
+
+    const orderIds = [...new Set(completedItems.map((row) => row.orderId))];
+    let relatedIds: string[] = [];
+
+    if (orderIds.length > 0) {
+      const coItems = await this.prisma.orderItem.findMany({
+        where: {
+          orderId: { in: orderIds },
+          productId: { not: product.id },
+          order: { status: OrderStatus.COMPLETED },
+        },
+        select: { productId: true },
+      });
+
+      const counts = new Map<string, number>();
+      for (const item of coItems) {
+        if (!item.productId) continue;
+        counts.set(item.productId, (counts.get(item.productId) ?? 0) + 1);
+      }
+
+      relatedIds = [...counts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([id]) => id)
+        .slice(0, limit);
+    }
+
+    if (relatedIds.length < limit) {
+      const fallback = await this.prisma.product.findMany({
+        where: {
+          isActive: true,
+          categoryId: product.categoryId,
+          id: { notIn: [product.id, ...relatedIds] },
+          type: { not: ProductType.BUNDLE },
+        },
+        orderBy: [{ isPopular: 'desc' }, { order: 'asc' }],
+        take: limit - relatedIds.length,
+        select: { id: true },
+      });
+      relatedIds = [...relatedIds, ...fallback.map((row) => row.id)];
+    }
+
+    if (relatedIds.length === 0) {
+      return [];
+    }
+
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: relatedIds }, isActive: true },
+      include: productInclude,
+    });
+
+    const byId = new Map(products.map((row) => [row.id, row]));
+    return relatedIds
+      .map((id) => byId.get(id))
+      .filter((row): row is NonNullable<typeof row> => Boolean(row))
+      .map((row) => toStoreProduct(row));
+  }
+
+  async listAdmin(
+    page = 1,
+    limit = 20,
+    search?: string,
+  ): Promise<StoreProductsResponse> {
+    const take = Math.min(100, Math.max(1, limit));
+    const currentPage = Math.max(1, page);
+    const skip = (currentPage - 1) * take;
+    const q = search?.trim();
+    const where: Prisma.ProductWhereInput = q
+      ? {
+          OR: [
+            { name: { contains: q, mode: 'insensitive' } },
+            { slug: { contains: q, mode: 'insensitive' } },
+            { description: { contains: q, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
+    const [total, rows] = await this.prisma.$transaction([
+      this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        include: {
+          ...productInclude,
+          variants: { orderBy: [{ order: 'asc' }, { price: 'asc' }] },
+        },
+        orderBy: [{ createdAt: 'desc' }],
+        skip,
+        take,
+      }),
+    ]);
+
+    return {
+      items: rows.map((row) => toStoreProduct(row)),
+      total,
+      page: currentPage,
+      limit: take,
+      totalPages: Math.ceil(total / take) || 0,
+    };
   }
 
   async create(dto: CreateProductDto): Promise<StoreProduct> {
@@ -318,25 +450,47 @@ export class ProductsService {
     })();
 
     const skip = (page - 1) * limit;
+    const useTypePriority =
+      !query.type && (sort === 'featured' || sort === 'popular');
 
-    if (sort === 'price_asc' || sort === 'price_desc') {
+    if (sort === 'price_asc' || sort === 'price_desc' || useTypePriority) {
       const all = await this.prisma.product.findMany({
-        where,
+        where: {
+          ...where,
+          ...(useTypePriority ? { type: { not: ProductType.BUNDLE } } : {}),
+        },
         include: productInclude,
       });
 
-      const withPrice = all.map((product) => {
+      const withMeta = all.map((product) => {
         const prices = product.variants.map((v) => Number(v.price));
         const minPrice = prices.length ? Math.min(...prices) : Number.POSITIVE_INFINITY;
         return { product, minPrice };
       });
 
-      withPrice.sort((a, b) =>
-        sort === 'price_asc' ? a.minPrice - b.minPrice : b.minPrice - a.minPrice,
-      );
+      withMeta.sort((a, b) => {
+        if (sort === 'price_asc') return a.minPrice - b.minPrice;
+        if (sort === 'price_desc') return b.minPrice - a.minPrice;
 
-      const total = withPrice.length;
-      const slice = withPrice.slice(skip, skip + limit).map((row) => toStoreProduct(row.product));
+        const typeDiff = typePriority(a.product.type) - typePriority(b.product.type);
+        if (typeDiff !== 0) return typeDiff;
+
+        if (sort === 'featured') {
+          if (a.product.isFeatured !== b.product.isFeatured) {
+            return Number(b.product.isFeatured) - Number(a.product.isFeatured);
+          }
+        } else if (a.product.isPopular !== b.product.isPopular) {
+          return Number(b.product.isPopular) - Number(a.product.isPopular);
+        }
+
+        if (a.product.order !== b.product.order) {
+          return a.product.order - b.product.order;
+        }
+        return a.product.name.localeCompare(b.product.name, 'ru');
+      });
+
+      const total = withMeta.length;
+      const slice = withMeta.slice(skip, skip + limit).map((row) => toStoreProduct(row.product));
 
       return {
         items: slice,

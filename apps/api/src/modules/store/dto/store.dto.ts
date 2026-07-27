@@ -825,3 +825,82 @@ export class RefundOrderDto {
   @MaxLength(500)
   reason?: string;
 }
+
+export class QuickBuyDto {
+  @IsString()
+  productId!: string;
+
+  @IsOptional()
+  @IsString()
+  variantId?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  quantity?: number;
+
+  @IsString()
+  @MinLength(3)
+  @MaxLength(16)
+  @Matches(/^[A-Za-z0-9_]+$/, {
+    message: 'Ник Minecraft может содержать только латиницу, цифры и _',
+  })
+  minecraftNick!: string;
+}
+
+export class CreateCurrencyRateDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(8)
+  currency!: string;
+
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @Min(0.0001)
+  rate!: number;
+
+  @IsString()
+  @MinLength(1)
+  @MaxLength(8)
+  symbol!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(16)
+  flag?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+}
+
+export class UpdateCurrencyRateDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(8)
+  currency?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @Min(0.0001)
+  rate?: number;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(8)
+  symbol?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(16)
+  flag?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+}

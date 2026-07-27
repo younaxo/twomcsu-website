@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { PromoValidationResult, RoleGroup } from '@twomc/shared';
@@ -42,8 +43,8 @@ export class AdminPromocodesController {
   constructor(private readonly promocodes: PromocodesService) {}
 
   @Get()
-  list(): Promise<PromoCodeAdminView[]> {
-    return this.promocodes.list();
+  list(@Query('search') search?: string): Promise<PromoCodeAdminView[]> {
+    return this.promocodes.list(search);
   }
 
   @Post()

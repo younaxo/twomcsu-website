@@ -63,6 +63,11 @@ export class ProductsController {
     });
   }
 
+  @Get(':slug/bought-together')
+  getBoughtTogether(@Param('slug') slug: string): Promise<StoreProduct[]> {
+    return this.products.getBoughtTogether(slug);
+  }
+
   @Get(':slug')
   @UseGuards(OptionalJwtAuthGuard)
   getBySlug(
@@ -78,6 +83,15 @@ export class ProductsController {
 @Roles(RoleGroup.ADMIN)
 export class AdminProductsController {
   constructor(private readonly products: ProductsService) {}
+
+  @Get()
+  listAdmin(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+  ): Promise<StoreProductsResponse> {
+    return this.products.listAdmin(page, limit, search);
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
