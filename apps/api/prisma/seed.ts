@@ -15,7 +15,7 @@ import { seedPromoCodes } from './promo-codes.data';
 import { seedBundles } from './store-bundles.data';
 import { seedCategories } from './store-categories.data';
 import { seedBulkDiscounts, seedLoyaltyDiscounts } from './store-discounts.data';
-import { seedProducts } from './store-products.data';';
+import { seedProducts } from './store-products.data';
 
 const prisma = new PrismaClient();
 
