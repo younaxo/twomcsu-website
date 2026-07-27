@@ -95,6 +95,23 @@ export const ReactionType = {
 
 export type ReactionType = (typeof ReactionType)[keyof typeof ReactionType];
 
+export const ProfileVisibility = {
+  EVERYONE: 'EVERYONE',
+  FRIENDS_ONLY: 'FRIENDS_ONLY',
+  NOBODY: 'NOBODY',
+} as const;
+
+export type ProfileVisibility = (typeof ProfileVisibility)[keyof typeof ProfileVisibility];
+
+export const FriendRequestPolicy = {
+  EVERYONE: 'EVERYONE',
+  FRIENDS_OF_FRIENDS: 'FRIENDS_OF_FRIENDS',
+  NOBODY: 'NOBODY',
+} as const;
+
+export type FriendRequestPolicy =
+  (typeof FriendRequestPolicy)[keyof typeof FriendRequestPolicy];
+
 export interface UserBadge {
   id: string;
   type: UserBadgeType;
@@ -173,7 +190,8 @@ export interface ProfileReport {
 
 /** Everything the owner of the account can edit */
 export interface PrivacySettings {
-  isProfilePrivate: boolean;
+  profileVisibility: ProfileVisibility;
+  friendRequestPolicy: FriendRequestPolicy;
   hideEmail: boolean;
   hideCountry: boolean;
   hideCity: boolean;
@@ -242,6 +260,21 @@ export interface UserProfile {
   hideInventory: boolean;
   hideServices: boolean;
   hideComments: boolean;
+  /** Present while FRIENDS_ONLY still behaves like EVERYONE for non-friends */
+  visibility?: 'friends_only';
+}
+
+/** 403 body when profileVisibility is NOBODY and the viewer is not the owner */
+export interface RestrictedProfileResponse {
+  restricted: true;
+  reason: 'private';
+  user: {
+    username: string;
+    avatar: string | null;
+    position: Position;
+    bannerUrl?: string | null;
+    statusText?: string | null;
+  };
 }
 
 export interface ProfileReactionSummary {
