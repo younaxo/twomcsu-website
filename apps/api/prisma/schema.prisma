@@ -321,3 +321,55 @@ model BannerPreset {
 
   @@map("banner_presets")
 }
+
+/// One row per viewer, so the counter shows unique visitors instead of refreshes
+model ProfileView {
+  id        String   @id @default(cuid())
+  profileId String
+  viewerId  String
+  viewedAt  DateTime @default(now())
+
+  profile User @relation("ProfileViewsReceived", fields: [profileId], references: [id], onDelete: Cascade)
+  viewer  User @relation("ProfileViewsSent", fields: [viewerId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, viewerId])
+  @@index([profileId])
+  @@map("profile_views")
+}
+
+model ProfileReaction {
+  id        String       @id @default(cuid())
+  profileId String
+  userId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  profile User @relation("ProfileReactionsReceived", fields: [profileId], references: [id], onDelete: Cascade)
+  user    User @relation("ProfileReactionsSent", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, userId])
+  @@index([profileId])
+  @@map("profile_reactions")
+}
+
+model ProfileReport {
+  id          String              @id @default(cuid())
+  profileId   String
+  reporterId  String
+  reason      ProfileReportReason
+  description String?
+  status      ProfileReportStatus @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNote  String?
+  createdAt   DateTime            @default(now())
+
+  profile  User @relation("ProfileReportsReceived", fields: [profileId], references: [id], onDelete: Cascade)
+  reporter User @relation("ProfileReportsSent", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, reporterId])
+  @@index([profileId])
+  @@index([status])
+  @@map("profile_reports")
+}
