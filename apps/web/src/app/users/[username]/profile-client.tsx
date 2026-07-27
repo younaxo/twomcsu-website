@@ -17,7 +17,7 @@ import {
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -244,6 +244,29 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                     </Tooltip>
                   ))}
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  {profile.isOnlineInGame && profile.currentServer ? (
+                    <>
+                      <span className="text-emerald-400">●</span> Играет на{' '}
+                      <Link
+                        href={`/servers/${profile.currentServer}`}
+                        className="text-primary hover:underline"
+                      >
+                        {profile.currentServer}
+                      </Link>
+                    </>
+                  ) : profile.lastServerActivity ? (
+                    <>
+                      Был в игре{' '}
+                      {formatDistanceToNow(new Date(profile.lastServerActivity), {
+                        addSuffix: true,
+                        locale: ru,
+                      })}
+                    </>
+                  ) : (
+                    'Не в игре'
+                  )}
+                </p>
                 {profile.statusText ? (
                   <p className="text-sm text-muted-foreground sm:hidden">{profile.statusText}</p>
                 ) : null}

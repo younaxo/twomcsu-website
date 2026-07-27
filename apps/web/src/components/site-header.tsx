@@ -30,6 +30,7 @@ import { useStoreUiStore } from '@/stores/storeUiStore';
 
 const navItems = [
   { href: '/', label: 'Главная' },
+  { href: '/servers', label: 'Серверы' },
   { href: '/store', label: 'Магазин' },
   { href: '/', label: 'Правила' },
 ];
