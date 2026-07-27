@@ -1,4 +1,4 @@
-import type { LoginResponse, PublicUser } from '@twomc/shared';
+import type { LoginResponse, PublicUser, RegisterResponse } from '@twomc/shared';
 import { create } from 'zustand';
 import {
   api,
@@ -12,18 +12,21 @@ interface LoginResult {
   requiresCaptcha: boolean;
 }
 
+export interface RegisterInput {
+  email: string;
+  username: string;
+  password: string;
+  captchaToken: string;
+  promoCode?: string;
+}
+
 interface AuthState {
   user: PublicUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (emailOrUsername: string, password: string, captchaToken?: string) => Promise<LoginResult>;
-  register: (
-    email: string,
-    username: string,
-    password: string,
-    captchaToken?: string,
-  ) => Promise<void>;
+  register: (input: RegisterInput) => Promise<RegisterResponse['promoCode']>;
   logout: () => Promise<void>;
   refresh: () => Promise<boolean>;
   fetchMe: () => Promise<void>;
@@ -62,8 +65,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   // no session is kept here, the user signs in right after registration
-  register: async (email, username, password, captchaToken) => {
-    await api.post('/auth/register', { email, username, password, captchaToken });
+  register: async (input) => {
+    const { data } = await api.post<RegisterResponse>('/auth/register', input);
+
+    return data.promoCode;
   },
 
   logout: async () => {

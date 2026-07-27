@@ -3,16 +3,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { Captcha, CaptchaHandle } from '@/components/shared/Captcha';
+import { CaptchaField, CaptchaFieldHandle } from '@/components/shared/CaptchaField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -36,6 +37,11 @@ const registerSchema = z
       .regex(/[A-Z]/, 'Нужна хотя бы одна заглавная буква')
       .regex(/\d/, 'Нужна хотя бы одна цифра'),
     confirmPassword: z.string(),
+    promoCode: z
+      .string()
+      .max(32, 'Промокод до 32 символов')
+      .regex(/^[A-Z0-9_-]*$/, 'Только заглавная латиница, цифры, дефис и _'),
+    captchaToken: z.string().min(1, 'Подтвердите, что вы не робот'),
   })
   .refine((values) => values.password === values.confirmPassword, {
     path: ['confirmPassword'],
@@ -47,23 +53,42 @@ type RegisterValues = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
-  const captcha = useRef<CaptchaHandle>(null);
-  const [captchaToken, setCaptchaToken] = useState<string>();
+  const captcha = useRef<CaptchaFieldHandle>(null);
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: '', username: '', password: '', confirmPassword: '' },
+    defaultValues: {
+      email: '',
+      username: '',
+      password: '',
+      confirmPassword: '',
+      promoCode: '',
+      captchaToken: '',
+    },
   });
+
+  const captchaToken = form.watch('captchaToken');
 
   const onSubmit = async (values: RegisterValues) => {
     try {
-      await register(values.email, values.username, values.password, captchaToken);
+      const promo = await register({
+        email: values.email,
+        username: values.username,
+        password: values.password,
+        captchaToken: values.captchaToken,
+        promoCode: values.promoCode || undefined,
+      });
 
       toast.success('Регистрация успешна, теперь войдите');
+
+      if (promo) {
+        const notify = promo.applied ? toast.success : toast.warning;
+        notify(promo.message);
+      }
+
       router.push('/login');
     } catch (error) {
       captcha.current?.reset();
-      setCaptchaToken(undefined);
       toast.error(extractErrorMessage(error, 'Не удалось зарегистрироваться'));
     }
   };
@@ -139,13 +164,33 @@ export default function RegisterPage() {
               )}
             />
 
-            <Captcha
-              ref={captcha}
-              onVerify={setCaptchaToken}
-              onExpire={() => setCaptchaToken(undefined)}
+            <FormField
+              control={form.control}
+              name="promoCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Промокод (необязательно)</FormLabel>
+                  <FormControl>
+                    <Input
+                      autoComplete="off"
+                      placeholder="WELCOME2024"
+                      {...field}
+                      onChange={(event) => field.onChange(event.target.value.toUpperCase())}
+                    />
+                  </FormControl>
+                  <FormDescription>Скидка применится при первой покупке в магазине</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            <CaptchaField ref={captcha} />
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={!captchaToken || form.formState.isSubmitting}
+            >
               {form.formState.isSubmitting ? 'Создаём аккаунт...' : 'Зарегистрироваться'}
             </Button>
           </form>
