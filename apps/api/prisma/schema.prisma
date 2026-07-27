@@ -373,3 +373,22 @@ model ProfileReport {
   @@index([status])
   @@map("profile_reports")
 }
+
+/// Game side counters, the server pushes them here
+model PlayerStatistics {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  coins          Int      @default(0)
+  /// Minutes spent in game
+  playTime       Int      @default(0)
+  kills          Int      @default(0)
+  deaths         Int      @default(0)
+  hits           Int      @default(0)
+  killDeathRatio Float    @default(0)
+  lastServer     String?
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("player_statistics")
+}
