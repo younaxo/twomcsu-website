@@ -80,15 +80,30 @@ export function SiteHeader() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href={`/users/${user.username}`}>Профиль</Link>
+                <Link href={`/users/${user.username}`}>Мой профиль</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/profile/settings">Настройки</Link>
               </DropdownMenuItem>
               {hasRoleGroup(user.roleGroup, RoleGroup.ADMIN) ? (
-                <DropdownMenuItem asChild>
-                  <Link href="/admin/positions">Позиции</Link>
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/positions">Позиции</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/badges">Бейджи</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/awards">Награды</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/media-requests">Медиа-заявки</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/profile-reports">Жалобы</Link>
+                  </DropdownMenuItem>
+                </>
               ) : null}
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={handleLogout}>Выйти</DropdownMenuItem>
