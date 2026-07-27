@@ -159,7 +159,7 @@ export class BundlesService {
           },
         },
       },
-    } as const;
+    };
   }
 
   private async mapBundlesWithVariants(

@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AdminBundlesController, BundlesController } from './bundles.controller';
 import { BundlesService } from './bundles.service';
+import { CartController } from './cart.controller';
+import { CartService } from './cart.service';
 import {
   AdminCategoriesController,
   CategoriesController,
@@ -11,6 +13,12 @@ import {
   ProductsController,
 } from './products.controller';
 import { ProductsService } from './products.service';
+import { PricingService } from './pricing.service';
+import {
+  AdminPromocodesController,
+  PromocodesController,
+} from './promocodes.controller';
+import { PromocodesService } from './promocodes.service';
 
 @Module({
   controllers: [
@@ -20,8 +28,24 @@ import { ProductsService } from './products.service';
     AdminProductsController,
     BundlesController,
     AdminBundlesController,
+    CartController,
+    PromocodesController,
+    AdminPromocodesController,
   ],
-  providers: [CategoriesService, ProductsService, BundlesService],
-  exports: [CategoriesService, ProductsService, BundlesService],
+  providers: [
+    CategoriesService,
+    ProductsService,
+    BundlesService,
+    PricingService,
+    CartService,
+    PromocodesService,
+  ],
+  exports: [
+    CategoriesService,
+    ProductsService,
+    BundlesService,
+    CartService,
+    PricingService,
+  ],
 })
 export class StoreModule {}
