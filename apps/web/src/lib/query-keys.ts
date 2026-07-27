@@ -15,4 +15,26 @@ export const queryKeys = {
   comments: (username: string, page?: number, sort?: string) =>
     ['comments', username, page ?? 1, sort ?? 'newest'] as const,
   awards: ['awards'] as const,
+  storeCategories: ['store', 'categories'] as const,
+  storeProducts: (filters: Record<string, unknown>) =>
+    ['store', 'products', filters] as const,
+  storeProduct: (slug: string) => ['store', 'product', slug] as const,
+  storeBundles: ['store', 'bundles'] as const,
+  storeBundle: (slug: string) => ['store', 'bundle', slug] as const,
+  storeCart: ['store', 'cart'] as const,
+  storeWishlist: ['store', 'wishlist'] as const,
+  storeUserWishlist: (username: string) =>
+    ['store', 'wishlist', 'user', username] as const,
+  storeOrders: (page?: number) => ['store', 'orders', page ?? 1] as const,
+  storeOrder: (orderNumber: string) => ['store', 'order', orderNumber] as const,
+  storeBulkDiscounts: ['store', 'bulk-discounts'] as const,
+  adminStoreCategories: ['admin', 'store', 'categories'] as const,
+  adminStoreProducts: ['admin', 'store', 'products'] as const,
+  adminStoreBundles: ['admin', 'store', 'bundles'] as const,
+  adminBulkDiscounts: ['admin', 'store', 'bulk-discounts'] as const,
+  adminLoyalty: ['admin', 'store', 'loyalty'] as const,
+  adminPromocodes: ['admin', 'promocodes'] as const,
+  adminOrders: (filters?: Record<string, unknown>) =>
+    ['admin', 'orders', filters ?? {}] as const,
+  adminOrderStats: ['admin', 'orders', 'stats'] as const,
 };
