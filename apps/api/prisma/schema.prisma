@@ -7,21 +7,462 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
+enum RoleGroup {
   PLAYER
+  HELPER
   MODERATOR
   ADMIN
   OWNER
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
-  password  String
-  role      UserRole @default(PLAYER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+/// Title inside a role group: purely cosmetic, permissions come from roleGroup
+model Position {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  slug            String    @unique
+  displayName     String
+  group           RoleGroup
+  color           String    @db.VarChar(7)
+  backgroundColor String?   @db.VarChar(9)
+  icon            String?
+  priority        Int       @default(0)
+  description     String?
+  isVisible       Boolean   @default(true)
+  /// Given to new users of the group, one per group
+  isDefault       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
+  users User[]
+
+  @@index([slug])
+  @@index([group])
+  @@index([priority])
+  @@map("positions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique @db.VarChar(16)
+  password      String
+  roleGroup     RoleGroup @default(PLAYER)
+  positionId    String
+  minecraftNick String?   @unique @db.VarChar(16)
+  avatar        String?
+  isVerified    Boolean   @default(false)
+  isBanned      Boolean   @default(false)
+  banReason     String?
+  bannedUntil   DateTime?
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  /// Uploaded image, wins over bannerPreset when both are set
+  banner        String?
+  bannerPreset  String?
+  statusText    String?   @db.VarChar(128)
+  bio           String?   @db.VarChar(500)
+  country       String?
+  city          String?   @db.VarChar(100)
+  gender        Gender?
+  birthDate     DateTime?
+  showBirthDate Boolean   @default(false)
+
+  /// Who can open the public profile page
+  profileVisibility   ProfileVisibility   @default(EVERYONE)
+  /// Who is allowed to send friend requests
+  friendRequestPolicy FriendRequestPolicy @default(EVERYONE)
+  hideEmail           Boolean             @default(true)
+  hideCountry         Boolean             @default(false)
+  hideCity            Boolean             @default(false)
+  hideBirthDate       Boolean             @default(true)
+  hideGender          Boolean             @default(false)
+  hideStatistics      Boolean             @default(false)
+  hideSocials         Boolean             @default(false)
+  hideInventory       Boolean             @default(false)
+  hideServices        Boolean             @default(false)
+  hideComments        Boolean             @default(false)
+
+  position            Position             @relation(fields: [positionId], references: [id])
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  promoCodeUsages     PromoCodeUsage[]
+  badges              UserBadge[]
+  socialLinks         SocialLink[]
+  mediaBadges         UserMediaBadge[]
+  mediaBadgeRequests  MediaBadgeRequest[]
+  statistics          PlayerStatistics?
+  awards              UserAward[]
+  profileViews        ProfileView[]        @relation("ProfileViewsReceived")
+  viewedProfiles      ProfileView[]        @relation("ProfileViewsSent")
+  profileReactions    ProfileReaction[]    @relation("ProfileReactionsReceived")
+  givenReactions      ProfileReaction[]    @relation("ProfileReactionsSent")
+  profileReports          ProfileReport[] @relation("ProfileReportsReceived")
+  sentReports             ProfileReport[] @relation("ProfileReportsSent")
+  sentFriendRequests      Friendship[]    @relation("FriendshipRequester")
+  receivedFriendRequests  Friendship[]    @relation("FriendshipAddressee")
+
+  @@index([email])
+  @@index([username])
+  @@index([minecraftNick])
+  @@index([positionId])
   @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+}
+
+/// Single use link from the "forgot password" flow, lives an hour
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("password_reset_tokens")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum ProfileVisibility {
+  EVERYONE
+  FRIENDS_ONLY
+  NOBODY
+}
+
+enum FriendRequestPolicy {
+  EVERYONE
+  FRIENDS_OF_FRIENDS
+  NOBODY
+}
+
+enum SocialPlatform {
+  DISCORD
+  TELEGRAM
+  VK
+  YOUTUBE
+  TWITCH
+  TIKTOK
+  STEAM
+}
+
+/// Platforms a creator can be verified on, a subset of SocialPlatform
+enum MediaGroup {
+  YOUTUBE
+  TWITCH
+  TIKTOK
+}
+
+enum UserBadgeType {
+  VERIFIED
+  SUBSCRIBER_PLUS
+  PROJECT_TEAM
+  DEVELOPERS_TEAM
+}
+
+enum MediaBadgeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ProfileReportReason {
+  SPAM
+  INAPPROPRIATE_CONTENT
+  HARASSMENT
+  IMPERSONATION
+  OTHER
+}
+
+enum ProfileReportStatus {
+  PENDING
+  RESOLVED
+  REJECTED
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
+  BONUS
+}
+
+model PromoCode {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  description   String?
+  discountType  DiscountType
+  discountValue Decimal      @db.Decimal(10, 2)
+  /// null means unlimited
+  maxUses       Int?
+  usedCount     Int          @default(0)
+  validFrom     DateTime?
+  validUntil    DateTime?
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  usages PromoCodeUsage[]
+
+  @@index([code])
+  @@index([isActive])
+  @@map("promo_codes")
+}
+
+model PromoCodeUsage {
+  id          String   @id @default(cuid())
+  promoCodeId String
+  userId      String
+  usedAt      DateTime @default(now())
+
+  promoCode PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([promoCodeId, userId])
+  @@index([promoCodeId])
+  @@index([userId])
+  @@map("promo_code_usages")
+}
+
+/// Staff granted marks shown next to the nickname
+model UserBadge {
+  id        String        @id @default(cuid())
+  userId    String
+  type      UserBadgeType
+  grantedBy String?
+  grantedAt DateTime      @default(now())
+  expiresAt DateTime?
+  isActive  Boolean       @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@map("user_badges")
+}
+
+/// One handle or url per platform, the platform decides how it is rendered
+model SocialLink {
+  id        String         @id @default(cuid())
+  userId    String
+  platform  SocialPlatform
+  value     String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform])
+  @@index([userId])
+  @@map("social_links")
+}
+
+/// Creator badge, appears on the profile once the staff approves the channel
+model UserMediaBadge {
+  id         String     @id @default(cuid())
+  userId     String
+  mediaGroup MediaGroup
+  channelUrl String
+  isApproved Boolean    @default(false)
+  approvedBy String?
+  approvedAt DateTime?
+  createdAt  DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaGroup])
+  @@index([userId])
+  @@map("user_media_badges")
+}
+
+model MediaBadgeRequest {
+  id          String                  @id @default(cuid())
+  userId      String
+  mediaGroup  MediaGroup
+  channelUrl  String
+  description String?
+  status      MediaBadgeRequestStatus @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNote  String?
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("media_badge_requests")
+}
+
+/// Ready made banners a player can pick instead of uploading their own
+model BannerPreset {
+  id        String   @id @default(cuid())
+  name      String
+  imageUrl  String
+  category  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("banner_presets")
+}
+
+/// One row per viewer, so the counter shows unique visitors instead of refreshes
+model ProfileView {
+  id        String   @id @default(cuid())
+  profileId String
+  viewerId  String
+  viewedAt  DateTime @default(now())
+
+  profile User @relation("ProfileViewsReceived", fields: [profileId], references: [id], onDelete: Cascade)
+  viewer  User @relation("ProfileViewsSent", fields: [viewerId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, viewerId])
+  @@index([profileId])
+  @@map("profile_views")
+}
+
+model ProfileReaction {
+  id        String       @id @default(cuid())
+  profileId String
+  userId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  profile User @relation("ProfileReactionsReceived", fields: [profileId], references: [id], onDelete: Cascade)
+  user    User @relation("ProfileReactionsSent", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, userId])
+  @@index([profileId])
+  @@map("profile_reactions")
+}
+
+model ProfileReport {
+  id          String              @id @default(cuid())
+  profileId   String
+  reporterId  String
+  reason      ProfileReportReason
+  description String?
+  status      ProfileReportStatus @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNote  String?
+  createdAt   DateTime            @default(now())
+
+  profile  User @relation("ProfileReportsReceived", fields: [profileId], references: [id], onDelete: Cascade)
+  reporter User @relation("ProfileReportsSent", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, reporterId])
+  @@index([profileId])
+  @@index([status])
+  @@map("profile_reports")
+}
+
+/// Game side counters, the server pushes them here
+model PlayerStatistics {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  coins          Int      @default(0)
+  /// Minutes spent in game
+  playTime       Int      @default(0)
+  kills          Int      @default(0)
+  deaths         Int      @default(0)
+  hits           Int      @default(0)
+  killDeathRatio Float    @default(0)
+  lastServer     String?
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("player_statistics")
+}
+
+model Award {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  /// External url or a path inside the web public folder
+  iconUrl     String
+  color       String?
+  /// common, rare, epic or legendary, drives the border in the ui
+  rarity      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  userAwards UserAward[]
+
+  @@map("awards")
+}
+
+model UserAward {
+  id        String   @id @default(cuid())
+  userId    String
+  awardId   String
+  grantedBy String?
+  grantedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  award Award @relation(fields: [awardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, awardId])
+  @@index([userId])
+  @@map("user_awards")
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+  REJECTED
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  acceptedAt  DateTime?
+
+  @@unique([requesterId, addresseeId])
+  @@index([requesterId])
+  @@index([addresseeId])
+  @@index([status])
+  @@map("friendships")
 }

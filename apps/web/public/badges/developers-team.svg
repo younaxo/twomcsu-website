@@ -1,0 +1,27 @@
+<svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Developers Team">
+  <defs>
+    <linearGradient id="dev-fill" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5BE58C" />
+      <stop offset="0.55" stop-color="#22C55E" />
+      <stop offset="1" stop-color="#12803B" />
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#dev-fill)" />
+  <rect
+    x="2.5"
+    y="2.5"
+    width="19"
+    height="19"
+    rx="5.5"
+    fill="none"
+    stroke="#FFFFFF"
+    stroke-opacity="0.25"
+  />
+  <path
+    d="M9.1 8.8 5.9 12l3.2 3.2M14.9 8.8 18.1 12l-3.2 3.2"
+    stroke="#FFFFFF"
+    stroke-width="1.9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
