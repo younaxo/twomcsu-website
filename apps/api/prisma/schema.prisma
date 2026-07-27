@@ -271,3 +271,41 @@ model SocialLink {
   @@index([userId])
   @@map("social_links")
 }
+
+/// Creator badge, appears on the profile once the staff approves the channel
+model UserMediaBadge {
+  id         String     @id @default(cuid())
+  userId     String
+  mediaGroup MediaGroup
+  channelUrl String
+  isApproved Boolean    @default(false)
+  approvedBy String?
+  approvedAt DateTime?
+  createdAt  DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaGroup])
+  @@index([userId])
+  @@map("user_media_badges")
+}
+
+model MediaBadgeRequest {
+  id          String                  @id @default(cuid())
+  userId      String
+  mediaGroup  MediaGroup
+  channelUrl  String
+  description String?
+  status      MediaBadgeRequestStatus @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNote  String?
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("media_badge_requests")
+}
