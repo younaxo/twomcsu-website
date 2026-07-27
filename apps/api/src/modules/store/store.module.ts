@@ -12,6 +12,7 @@ import { CategoriesService } from './categories.service';
 import {
   AdminCurrenciesController,
   CurrenciesController,
+  GameCurrencyController,
 } from './currencies.controller';
 import { CurrenciesService } from './currencies.service';
 import {
@@ -53,6 +54,7 @@ import { WishlistService } from './wishlist.service';
     DiscountsController,
     AdminDiscountsController,
     CurrenciesController,
+    GameCurrencyController,
     AdminCurrenciesController,
     CartController,
     PromocodesController,

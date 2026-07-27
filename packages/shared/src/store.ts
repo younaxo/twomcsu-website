@@ -273,6 +273,47 @@ export interface CurrencyRate {
   updatedAt: string;
 }
 
+export interface GameCurrencyPurchaseRate {
+  rate: number;
+  symbol: string;
+}
+
+export interface GameCurrencyBulkDiscount {
+  minAmount: number;
+  bonusPercent: number;
+}
+
+/** Game currency purchase + exchange rates for the store converter */
+export interface GameCurrencyRates {
+  purchase: {
+    rubies: GameCurrencyPurchaseRate;
+    coins: GameCurrencyPurchaseRate;
+  };
+  exchange: {
+    rubies_to_coins: number;
+    rubies_to_bp_xp: number;
+  };
+  bulkDiscounts: GameCurrencyBulkDiscount[];
+}
+
+export type ExchangeCurrency = 'RUBIES' | 'COINS' | 'BP_XP';
+
+export interface CurrencyExchangeRequest {
+  fromCurrency: ExchangeCurrency;
+  toCurrency: ExchangeCurrency;
+  amount: number;
+}
+
+export interface CurrencyExchangeResponse {
+  success: boolean;
+  fromCurrency: ExchangeCurrency;
+  toCurrency: ExchangeCurrency;
+  amount: number;
+  resultAmount: number;
+  rate: number;
+  message?: string;
+}
+
 export interface RecentPurchaseItem {
   id: string;
   productName: string;

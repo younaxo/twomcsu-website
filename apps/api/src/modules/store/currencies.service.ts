@@ -4,12 +4,29 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { CurrencyRate } from '@twomc/shared';
+import {
+  CurrencyExchangeRequest,
+  CurrencyExchangeResponse,
+  CurrencyRate,
+  GameCurrencyRates,
+} from '@twomc/shared';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCurrencyRateDto, UpdateCurrencyRateDto } from './dto/store.dto';
 import { decimalToNumber } from './store.mapper';
+
+const DEFAULT_BULK_DISCOUNTS = [
+  { minAmount: 500, bonusPercent: 5 },
+  { minAmount: 1000, bonusPercent: 10 },
+  { minAmount: 3000, bonusPercent: 15 },
+  { minAmount: 5000, bonusPercent: 20 },
+] as const;
+
+const DEFAULT_EXCHANGE = {
+  rubies_to_coins: 3,
+  rubies_to_bp_xp: 15,
+} as const;
 
 @Injectable()
 export class CurrenciesService {
@@ -30,6 +47,100 @@ export class CurrenciesService {
         return rows.map(this.mapRate);
       },
     );
+  }
+
+  async getGameCurrencyRates(): Promise<GameCurrencyRates> {
+    return this.cache.wrap(
+      cacheKeys.storeCurrencyRates(),
+      CACHE_TTL.STORE_DISCOUNTS,
+      async () => {
+        const products = await this.prisma.product.findMany({
+          where: {
+            type: 'CURRENCY',
+            isActive: true,
+            currencyType: { in: ['RUBIES', 'COINS'] },
+          },
+          select: {
+            currencyType: true,
+            currencyAmount: true,
+          },
+        });
+
+        const rubies = products.find((p) => p.currencyType === 'RUBIES');
+        const coins = products.find((p) => p.currencyType === 'COINS');
+
+        return {
+          purchase: {
+            rubies: {
+              rate: rubies?.currencyAmount ?? 2,
+              symbol: '💎',
+            },
+            coins: {
+              rate: coins?.currencyAmount ?? 8,
+              symbol: '🪙',
+            },
+          },
+          exchange: { ...DEFAULT_EXCHANGE },
+          bulkDiscounts: DEFAULT_BULK_DISCOUNTS.map((t) => ({ ...t })),
+        };
+      },
+    );
+  }
+
+  /**
+   * Mock exchange — no player balances yet.
+   * TODO: wire to real currency balances in economy stage.
+   */
+  async exchange(
+    _userId: string,
+    dto: CurrencyExchangeRequest,
+  ): Promise<CurrencyExchangeResponse> {
+    if (dto.fromCurrency === dto.toCurrency) {
+      return {
+        success: false,
+        fromCurrency: dto.fromCurrency,
+        toCurrency: dto.toCurrency,
+        amount: dto.amount,
+        resultAmount: 0,
+        rate: 0,
+        message: 'Выберите разные валюты',
+      };
+    }
+
+    const rates = await this.getGameCurrencyRates();
+    let rate = 0;
+
+    if (dto.fromCurrency === 'RUBIES' && dto.toCurrency === 'COINS') {
+      rate = rates.exchange.rubies_to_coins;
+    } else if (dto.fromCurrency === 'RUBIES' && dto.toCurrency === 'BP_XP') {
+      rate = rates.exchange.rubies_to_bp_xp;
+    } else if (dto.fromCurrency === 'COINS' && dto.toCurrency === 'RUBIES') {
+      rate = 1 / rates.exchange.rubies_to_coins;
+    } else if (dto.fromCurrency === 'BP_XP' && dto.toCurrency === 'RUBIES') {
+      rate = 1 / rates.exchange.rubies_to_bp_xp;
+    } else {
+      return {
+        success: false,
+        fromCurrency: dto.fromCurrency,
+        toCurrency: dto.toCurrency,
+        amount: dto.amount,
+        resultAmount: 0,
+        rate: 0,
+        message: 'Такой обмен пока недоступен',
+      };
+    }
+
+    const resultAmount = Math.floor(dto.amount * rate);
+
+    return {
+      success: true,
+      fromCurrency: dto.fromCurrency,
+      toCurrency: dto.toCurrency,
+      amount: dto.amount,
+      resultAmount,
+      rate,
+      message: 'Обмен выполнен (мок). Балансы появятся на этапе экономики.',
+    };
   }
 
   async listAdmin(): Promise<CurrencyRate[]> {
@@ -105,6 +216,7 @@ export class CurrenciesService {
 
   private async invalidateCache() {
     await this.cache.del(cacheKeys.storeCurrencies());
+    await this.cache.del(cacheKeys.storeCurrencyRates());
   }
 
   private mapRate(row: {

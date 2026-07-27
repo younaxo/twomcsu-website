@@ -11,6 +11,7 @@ import {
   IsBoolean,
   IsDateString,
   IsEnum,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
@@ -903,4 +904,17 @@ export class UpdateCurrencyRateDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+}
+
+export class CurrencyExchangeDto {
+  @IsIn(['RUBIES', 'COINS', 'BP_XP'])
+  fromCurrency!: 'RUBIES' | 'COINS' | 'BP_XP';
+
+  @IsIn(['RUBIES', 'COINS', 'BP_XP'])
+  toCurrency!: 'RUBIES' | 'COINS' | 'BP_XP';
+
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  amount!: number;
 }

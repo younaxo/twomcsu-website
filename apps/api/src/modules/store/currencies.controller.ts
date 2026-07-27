@@ -9,12 +9,42 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { CurrencyRate, RoleGroup } from '@twomc/shared';
+import {
+  CurrencyExchangeResponse,
+  CurrencyRate,
+  GameCurrencyRates,
+  RoleGroup,
+} from '@twomc/shared';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { CurrenciesService } from './currencies.service';
-import { CreateCurrencyRateDto, UpdateCurrencyRateDto } from './dto/store.dto';
+import {
+  CreateCurrencyRateDto,
+  CurrencyExchangeDto,
+  UpdateCurrencyRateDto,
+} from './dto/store.dto';
+
+@Controller('store')
+export class GameCurrencyController {
+  constructor(private readonly currencies: CurrenciesService) {}
+
+  @Get('currency-rates')
+  getGameRates(): Promise<GameCurrencyRates> {
+    return this.currencies.getGameCurrencyRates();
+  }
+
+  @Post('exchange')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  exchange(
+    @CurrentUser('id') userId: string,
+    @Body() dto: CurrencyExchangeDto,
+  ): Promise<CurrencyExchangeResponse> {
+    return this.currencies.exchange(userId, dto);
+  }
+}
 
 @Controller('store/currencies')
 export class CurrenciesController {

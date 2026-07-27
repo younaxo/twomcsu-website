@@ -64,5 +64,6 @@ export const cacheKeys = {
   storeLoyaltyDiscounts: () => 'store:discounts:loyalty',
   storeRecentPurchases: () => 'store:recent-purchases',
   storeCurrencies: () => 'store:currencies',
+  storeCurrencyRates: () => 'store:currency-rates',
   storeAdminStats: (key: string) => `store:admin-stats:${key}`,
 } as const;
