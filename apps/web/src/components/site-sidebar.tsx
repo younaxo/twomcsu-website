@@ -5,10 +5,13 @@ import type { ComponentType } from 'react';
 import {
   AlertTriangle,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
   LayoutDashboard,
   Menu,
   MessageCircle,
   Newspaper,
+  PanelLeft,
   Server,
   Shield,
   ShoppingBag,
@@ -27,6 +30,8 @@ import { useCart } from '@/hooks/store';
 import { useChatStore } from '@/stores/chatStore';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 import { cn } from '@/lib/utils';
+
+const SIDEBAR_EXPANDED_KEY = 'twomc.sidebarExpanded';
 
 type NavItem = {
   href?: string;
@@ -114,8 +119,10 @@ function NavButton({
   if (!collapsed) return node;
 
   return (
-    <Tooltip delayDuration={200}>
-      <TooltipTrigger asChild>{node}</TooltipTrigger>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="block cursor-pointer">{node}</span>
+      </TooltipTrigger>
       <TooltipContent side="right" className="flex items-center gap-2">
         {item.label}
         {item.soon ? <span className="text-muted-foreground">· в разработке</span> : null}
@@ -146,10 +153,8 @@ function SidebarNav({
     roleItems.push({ href: '/moderation', label: 'Модерация', icon: Shield, roles: 'helper' });
   }
   if (user && hasRoleGroup(user.roleGroup, RoleGroup.ADMIN)) {
-    roleItems.push({ href: '/admin', label: 'Админ', icon: LayoutDashboard, roles: 'admin' });
-  }
-  if (user && hasRoleGroup(user.roleGroup, RoleGroup.OWNER)) {
-    roleItems.push({ href: '/dashboard', label: 'Дашборд', icon: LayoutDashboard, roles: 'owner' });
+    roleItems.push({ href: '/admin', label: 'Админ', icon: PanelLeft, roles: 'admin' });
+    roleItems.push({ href: '/dashboard', label: 'Дашборд', icon: LayoutDashboard, roles: 'admin' });
   }
 
   const handleAction = (action?: 'chat' | 'cart') => {
@@ -206,23 +211,63 @@ function SidebarNav({
 export function SiteSidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SIDEBAR_EXPANDED_KEY);
+      if (stored === '1') setExpanded(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    const width = expanded ? '240px' : '88px';
+    document.documentElement.style.setProperty('--sidebar-rail-width', width);
+    try {
+      localStorage.setItem(SIDEBAR_EXPANDED_KEY, expanded ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+  }, [expanded]);
 
   return (
     <>
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          'pointer-events-auto fixed bottom-5 left-5 top-24 z-40 hidden w-[88px] flex-col overflow-hidden rounded-[20px]',
-          'border border-white/10 bg-[rgba(15,15,20,0.5)] shadow-[0_8px_32px_rgba(0,0,0,0.25)]',
-          'backdrop-blur-[30px] [backdrop-filter:blur(30px)_saturate(180%)] lg:flex',
+          'glass-panel pointer-events-auto fixed bottom-5 left-5 top-24 z-40 hidden flex-col overflow-hidden rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.25)] transition-[width] duration-200 lg:flex',
+          expanded ? 'w-[240px]' : 'w-[88px]',
         )}
         aria-label="Боковая навигация"
       >
-        <SidebarNav collapsed />
+        <div className="flex items-center justify-end border-b border-white/10 p-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 cursor-pointer text-[#b0b0b0] hover:text-white"
+                onClick={() => setExpanded((v) => !v)}
+                aria-label={expanded ? 'Свернуть панель' : 'Развернуть панель'}
+              >
+                {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {expanded ? 'Свернуть' : 'Развернуть'}
+            </TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="min-h-0 flex-1">
+          <SidebarNav collapsed={!expanded} />
+        </div>
       </aside>
 
       {/* Mobile hamburger */}
@@ -231,16 +276,13 @@ export function SiteSidebar() {
           <SheetTrigger asChild>
             <Button
               size="icon"
-              className="h-12 w-12 rounded-2xl border border-white/10 bg-[rgba(15,15,20,0.7)] shadow-lg backdrop-blur-xl"
+              className="glass-modal h-12 w-12 cursor-pointer rounded-2xl shadow-lg"
               aria-label="Открыть меню"
             >
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent
-            side="left"
-            className="w-[min(100vw-2rem,260px)] border-white/10 bg-[rgba(15,15,20,0.85)] p-0 backdrop-blur-[30px]"
-          >
+          <SheetContent side="left" className="glass-modal w-[min(100vw-2rem,260px)] p-0">
             <SheetHeader className="border-b border-white/10 px-4 py-4 text-left">
               <SheetTitle className="text-base">Навигация</SheetTitle>
             </SheetHeader>

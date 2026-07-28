@@ -55,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <TooltipProvider delayDuration={300}>
               <SiteHeader />
               <SiteSidebar />
-              <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-32 lg:pl-28">
+              <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-32 lg:pl-[calc(var(--sidebar-rail-width,88px)+2.75rem)]">
                 {children}
               </main>
               <SiteFooter />
