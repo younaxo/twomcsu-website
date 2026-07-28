@@ -9,6 +9,7 @@ const sizes = {
   sm: { avatar: 32, head: 16 },
   md: { avatar: 48, head: 20 },
   lg: { avatar: 128, head: 48 },
+  xl: { avatar: 80, head: 32 },
 } as const;
 
 interface AvatarWithSkinProps {

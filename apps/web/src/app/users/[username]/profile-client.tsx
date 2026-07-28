@@ -22,10 +22,10 @@ import { ru } from 'date-fns/locale';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { AwardsList } from '@/components/shared/AwardsList';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { CopyableId } from '@/components/shared/CopyableId';
-import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { PositionBadge } from '@/components/shared/PositionBadge';
@@ -172,26 +172,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
               <div className="relative shrink-0">
-                <div className="relative h-32 w-32">
-                  {resolveMediaUrl(profile.avatar) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={resolveMediaUrl(profile.avatar)!}
-                      alt={profile.username}
-                      className="h-32 w-32 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-32 w-32 overflow-hidden rounded-full">
-                      <DefaultAvatar username={profile.username} letterClassName="text-4xl" />
-                    </div>
-                  )}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`https://mc-heads.net/head/${encodeURIComponent(profile.username)}/48`}
-                    alt=""
-                    className="absolute -bottom-1 -right-1 h-12 w-12 rounded-full"
-                  />
-                </div>
+                <AvatarWithSkin user={profile} size="lg" />
 
                 {profile.statusText ? (
                   <div className="absolute left-[calc(100%+0.75rem)] top-2 hidden max-w-[14rem] sm:block">

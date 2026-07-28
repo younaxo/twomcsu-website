@@ -1,6 +1,6 @@
 'use client';
 
-import type { MyProfile, UserBadge } from '@twomc/shared';
+import type { MyProfile } from '@twomc/shared';
 import { getTopBadge } from '@twomc/shared';
 import {
   Heart,
@@ -12,11 +12,10 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
-import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -48,8 +47,6 @@ function PreviewBody({
   const friendsCount = useFriendsCount(profile.username);
   const topBadge = getTopBadge(profile.badges);
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
-  const avatarUrl = resolveMediaUrl(profile.avatar);
-  const skinHead = `https://mc-heads.net/head/${encodeURIComponent(profile.username)}/48`;
   const incoming = useFriendRequestsCount();
 
   return (
@@ -62,19 +59,8 @@ function PreviewBody({
       </div>
 
       <div className="relative -mt-10 px-4 pb-3">
-        <div className="relative mb-3 h-20 w-20">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={avatarUrl} alt={profile.username} />
-            <AvatarFallback className="p-0">
-              <DefaultAvatar username={profile.username} letterClassName="text-xl" />
-            </AvatarFallback>
-          </Avatar>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={skinHead}
-            alt=""
-            className="absolute -bottom-1 -right-1 h-10 w-10 rounded-full"
-          />
+        <div className="mb-3">
+          <AvatarWithSkin user={profile} size="xl" />
         </div>
 
         <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -159,31 +145,18 @@ function PreviewBody({
 
 export function ProfileMiniPreview({ username, avatar, onLogout }: ProfileMiniPreviewProps) {
   const profile = useMyProfile(true);
-  const skinUrl = `https://minotar.net/helm/${encodeURIComponent(username)}/64.png`;
-  const avatarUrl = resolveMediaUrl(avatar) ?? skinUrl;
   const topBadge = getTopBadge(profile.data?.badges);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative gap-2 px-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={avatarUrl} alt={username} />
-            <AvatarFallback className="p-0">
-              <DefaultAvatar username={username} letterClassName="text-xs" />
-            </AvatarFallback>
-          </Avatar>
+        <Button variant="ghost" className="relative cursor-pointer gap-2 px-2">
+          <AvatarWithSkin user={{ username, avatar }} size="sm" />
           {topBadge ? <UserBadgeIcon type={topBadge.type} size={16} /> : null}
           <span className="hidden max-w-28 truncate text-sm font-medium md:inline">{username}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className={cn(
-          'w-80 overflow-hidden border-white/10 p-0',
-          'bg-[rgba(15,15,20,0.85)] backdrop-blur-[24px]',
-        )}
-      >
+      <DropdownMenuContent align="end" className={cn('glass-heavy w-80 overflow-hidden p-0')}>
         {profile.data ? (
           <PreviewBody profile={profile.data} onLogout={onLogout} />
         ) : (
