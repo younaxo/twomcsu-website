@@ -5,7 +5,7 @@ import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { api, extractErrorMessage } from '@/lib/api';
 import { formatNumber } from '@/lib/profile';
 import { cn } from '@/lib/utils';
@@ -48,41 +48,45 @@ export function ReactionButtons({
 
   return (
     <div className="flex items-center gap-2">
-      <TooltipProvider delayDuration={200}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={disabled || isBusy}
-              onClick={() => void toggle('LIKE')}
-              className={cn(summary.userReaction === 'LIKE' && 'border-primary text-primary')}
-            >
-              <ThumbsUp className="h-4 w-4" />
-              {formatNumber(summary.likesCount)}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Нравится</TooltipContent>
-        </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={disabled || isBusy}
+            onClick={() => void toggle('LIKE')}
+            className={cn(
+              'cursor-pointer',
+              summary.userReaction === 'LIKE' && 'border-primary text-primary',
+            )}
+          >
+            <ThumbsUp className="h-4 w-4" />
+            {formatNumber(summary.likesCount)}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Нравится</TooltipContent>
+      </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={disabled || isBusy}
-              onClick={() => void toggle('DISLIKE')}
-              className={cn(summary.userReaction === 'DISLIKE' && 'border-destructive text-destructive')}
-            >
-              <ThumbsDown className="h-4 w-4" />
-              {formatNumber(summary.dislikesCount)}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Не нравится</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={disabled || isBusy}
+            onClick={() => void toggle('DISLIKE')}
+            className={cn(
+              'cursor-pointer',
+              summary.userReaction === 'DISLIKE' && 'border-destructive text-destructive',
+            )}
+          >
+            <ThumbsDown className="h-4 w-4" />
+            {formatNumber(summary.dislikesCount)}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Не нравится</TooltipContent>
+      </Tooltip>
     </div>
   );
 }

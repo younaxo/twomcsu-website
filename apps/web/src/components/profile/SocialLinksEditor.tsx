@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { api, extractErrorMessage } from '@/lib/api';
 import { socialPlatformLabels } from '@/lib/profile';
 
@@ -71,14 +71,12 @@ export function SocialLinksEditor({ value, onChange }: SocialLinksEditorProps) {
       {socialPlatformOrder.map((platform) => (
         <div key={platform} className="space-y-2">
           <Label className="flex items-center gap-2">
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>{icons[platform]}</span>
-                </TooltipTrigger>
-                <TooltipContent>{socialPlatformLabels[platform]}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="cursor-help">{icons[platform]}</span>
+              </TooltipTrigger>
+              <TooltipContent>{socialPlatformLabels[platform]}</TooltipContent>
+            </Tooltip>
             {socialPlatformLabels[platform]}
           </Label>
           <div className="flex gap-2">
