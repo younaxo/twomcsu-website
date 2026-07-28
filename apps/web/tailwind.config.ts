@@ -40,11 +40,29 @@ const config: Config = {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        success: 'hsl(var(--success))',
+        warning: 'hsl(var(--warning))',
+      },
+      boxShadow: {
+        'glow-primary': '0 0 24px hsl(var(--primary) / 0.35)',
+      },
+      backgroundImage: {
+        'gradient-primary':
+          'linear-gradient(135deg, hsl(239 84% 67%), hsl(271 81% 56%))',
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      keyframes: {
+        'fade-in': {
+          from: { opacity: '0', transform: 'translateY(2px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.15s ease-out',
       },
       fontFamily: {
         sans: ['var(--font-onest)', 'system-ui', 'sans-serif'],
