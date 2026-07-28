@@ -1,9 +1,10 @@
 'use client';
 
 import type { ProductVariant } from '@twomc/shared';
+import { DisplayPrice } from '@/hooks/store';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { formatDuration, formatPrice, discountPercent } from '@/lib/store';
+import { formatDuration, discountPercent } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
 interface ProductVariantSelectorProps {
@@ -43,10 +44,12 @@ export function ProductVariantSelector({
             <div className="flex items-center gap-2 text-sm">
               {variant.oldPrice && variant.oldPrice > variant.price ? (
                 <span className="text-muted-foreground line-through">
-                  {formatPrice(variant.oldPrice)}
+                  <DisplayPrice amount={variant.oldPrice} />
                 </span>
               ) : null}
-              <span className="font-medium text-white">{formatPrice(variant.price)}</span>
+              <span className="font-medium text-white">
+                <DisplayPrice amount={variant.price} />
+              </span>
               {discount ? (
                 <span className="text-xs text-primary">−{discount}%</span>
               ) : null}

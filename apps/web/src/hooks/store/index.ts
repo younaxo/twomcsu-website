@@ -41,3 +41,5 @@ export {
 } from './useStoreExtras';
 export { useCurrencyPreference } from './useCurrencyPreference';
 export type { DisplayCurrencyCode } from './useCurrencyPreference';
+export { useDisplayPrice } from './useDisplayPrice';
+export { DisplayPrice } from './DisplayPrice';

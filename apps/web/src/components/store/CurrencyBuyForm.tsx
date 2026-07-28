@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddToCart } from '@/hooks/store';
+import { DisplayPrice, useAddToCart } from '@/hooks/store';
 import { extractErrorMessage } from '@/lib/api';
-import { CURRENCY_BULK_FALLBACK, formatPrice } from '@/lib/store';
+import { CURRENCY_BULK_FALLBACK } from '@/lib/store';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 
 interface CurrencyBuyFormProps {
@@ -70,7 +70,9 @@ export function CurrencyBuyForm({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="currency-amount">Сумма, ₽</Label>
-          <span className="text-sm text-muted-foreground">{formatPrice(amount)}</span>
+          <span className="text-sm text-muted-foreground">
+            <DisplayPrice amount={amount} />
+          </span>
         </div>
         <Input
           id="currency-amount"
@@ -123,7 +125,7 @@ export function CurrencyBuyForm({
       </div>
 
       <Button className="w-full" disabled={addToCart.isPending} onClick={() => void buy()}>
-        Купить за {formatPrice(amount)}
+        Купить за <DisplayPrice amount={amount} />
       </Button>
     </div>
   );

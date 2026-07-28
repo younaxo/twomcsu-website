@@ -8,9 +8,9 @@ import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddToCart, useBundle } from '@/hooks/store';
+import { DisplayPrice, useAddToCart, useBundle } from '@/hooks/store';
 import { extractErrorMessage } from '@/lib/api';
-import { discountPercent, formatPrice } from '@/lib/store';
+import { discountPercent } from '@/lib/store';
 import { resolveMediaUrl } from '@/lib/profile';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 
@@ -81,7 +81,7 @@ export default function BundlePage() {
             size="lg"
           />
           <p className="text-sm text-muted-foreground">
-            Экономия {formatPrice(bundle.originalPrice - bundle.totalPrice)}
+            Экономия <DisplayPrice amount={bundle.originalPrice - bundle.totalPrice} />
           </p>
           <Button disabled={addToCart.isPending} onClick={() => void buy()}>
             Купить набор

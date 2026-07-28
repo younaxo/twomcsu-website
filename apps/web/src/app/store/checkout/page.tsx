@@ -11,9 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
-import { useCart, useCreateOrder } from '@/hooks/store';
+import { DisplayPrice, useCart, useCreateOrder } from '@/hooks/store';
 import { extractErrorMessage } from '@/lib/api';
-import { formatPrice } from '@/lib/store';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -92,7 +91,9 @@ export default function CheckoutPage() {
                   <span className="truncate">
                     {item.bundle?.name ?? item.product?.name} ×{item.quantity}
                   </span>
-                  <span>{formatPrice(item.lineTotal)}</span>
+                  <span>
+                    <DisplayPrice amount={item.lineTotal} />
+                  </span>
                 </li>
               ))}
             </ul>
@@ -110,7 +111,9 @@ export default function CheckoutPage() {
           {totals ? (
             <div className="flex justify-between text-lg font-semibold text-white">
               <span>К оплате</span>
-              <span>{formatPrice(totals.total)}</span>
+              <span>
+                <DisplayPrice amount={totals.total} />
+              </span>
             </div>
           ) : null}
 

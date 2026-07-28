@@ -12,9 +12,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddToCart } from '@/hooks/store';
+import { DisplayPrice, useAddToCart } from '@/hooks/store';
 import { extractErrorMessage } from '@/lib/api';
-import { formatPrice, KEY_BULK_FALLBACK } from '@/lib/store';
+import { KEY_BULK_FALLBACK } from '@/lib/store';
 import { resolveMediaUrl } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 import { useStoreUiStore } from '@/stores/storeUiStore';
@@ -60,8 +60,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     <Link
       href={`/store/product/${product.slug}`}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-md transition-colors hover:bg-white/10',
-        className,
+        'group relative flex flex-col overflow-hidden rounded-xl glass-card transition-colors hover:bg-white/10',        className,
       )}
       style={accent ? { borderColor: `${accent}40` } : undefined}
     >
@@ -120,7 +119,8 @@ export function ProductCard({ product, className }: ProductCardProps) {
           {variant ? (
             activeVariants.length > 1 ? (
               <span className="text-sm font-medium text-white">
-                от {formatPrice(Math.min(...activeVariants.map((v) => v.price)))}
+                от{' '}
+                <DisplayPrice amount={Math.min(...activeVariants.map((v) => v.price))} />
               </span>
             ) : (
               <PriceDisplay price={variant.price} oldPrice={variant.oldPrice} size="sm" />
