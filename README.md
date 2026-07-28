@@ -354,8 +354,10 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | `GET /notifications/unread-count` | авторизованный | Счётчик непрочитанных (poll 30 с в шапке) |
 | `PATCH /notifications/:id/read` | авторизованный | Прочитать одно |
 | `PATCH /notifications/read-all` | авторизованный | Прочитать все → `{ count }` |
+| `DELETE /notifications/:id` | авторизованный | Удалить |
 
 Страницы: `/profile/notifications`. В шапке — колокольчик и пункт «Уведомления» в меню.
+Свайп влево — прочитать, вправо — удалить; иконки по типу уведомления.
 
 Промокоды магазина из сида:
 
@@ -425,6 +427,9 @@ curl -i -X POST http://localhost:4000/auth/logout \
 `/admin/settings/maintenance`, `/admin/settings/modules`, `/admin/settings/announcements`.
 Общие UI-компоненты: `AdminPageHeader`, `AdminFilters`, `AdminTable`, `AdminEmptyState`, `AdminCreateEditDialog`, `AdminDeleteConfirm`.
 
+При включённых техработах гости видят `/maintenance`, ADMIN+ проходят на сайт и API (Bearer JWT).
+Middleware web кэширует `GET /system/status` на 30 с.
+
 Заглушки «в разработке»: `/support`, `/support/faq`, `/wiki`, `/reports`, `/news`. Backend tickets не реализован.
 
 ## Чат (Socket.IO)
@@ -441,7 +446,7 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | `GET/POST/... /admin/chat/*` | Муты, баны, поиск, anti-spam настройки |
 
 Страницы: `/chat`, виджет в углу, `/admin/chat/*`, настройки в `/profile/settings` (вкладка «Чат»).
-Курсы игровой валюты: `GET /store/currency-rates`, мок-обмен `POST /store/exchange`.
+Тулбар форматирования убран — справка по markdown через кнопку Info. Курсы игровой валюты: `GET /store/currency-rates`, мок-обмен `POST /store/exchange`.
 
 ## Дизайн
 
