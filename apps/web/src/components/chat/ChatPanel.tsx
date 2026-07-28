@@ -223,15 +223,18 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
   };
 
   return (
-    <div className={cn('flex h-full min-h-0 flex-col rounded-xl border border-border bg-card', className)}>
-      <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
+    <div className={cn('flex h-full min-h-0 flex-col rounded-xl glass-strong', className)}>
+      <div className="flex items-center justify-between border-b border-white/10 px-3 py-2.5">
         <div>
-          <p className="text-sm font-medium text-white">
-            {channel?.icon ? `${channel.icon} ` : null}
-            {channel?.name ?? 'Общий чат'}
-          </p>
+          <p className="text-sm font-medium text-white">Чат TWOMC</p>
           <p className="text-xs text-muted-foreground">
-            {connected ? 'Онлайн' : isAuthenticated ? 'Подключение…' : 'Войдите, чтобы писать'}
+            {onlineQuery.data?.count != null
+              ? `🟢 ${onlineQuery.data.count} онлайн`
+              : connected
+                ? 'Онлайн'
+                : isAuthenticated
+                  ? 'Подключение…'
+                  : 'Войдите, чтобы писать'}
           </p>
         </div>
         <div className="flex gap-1">
