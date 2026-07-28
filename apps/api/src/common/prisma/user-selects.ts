@@ -48,6 +48,19 @@ export const selectAuthUser = {
   isBanned: true,
   createdAt: true,
   position: { select: selectPublicPosition },
+  badges: {
+    where: { isActive: true },
+    orderBy: { grantedAt: 'asc' as const },
+    select: {
+      id: true,
+      type: true,
+      grantedAt: true,
+      expiresAt: true,
+      isActive: true,
+      userId: true,
+      grantedBy: true,
+    },
+  },
 } satisfies Prisma.UserSelect;
 
 /** Full public / private profile page in one query */

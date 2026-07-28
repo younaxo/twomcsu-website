@@ -1,4 +1,5 @@
 import type { Position } from './position';
+import type { UserBadge } from './profile';
 
 export const RoleGroup = {
   PLAYER: 'PLAYER',
@@ -36,6 +37,7 @@ export interface PublicUser {
   isVerified: boolean;
   isBanned: boolean;
   createdAt: string;
+  badges?: UserBadge[];
 }
 
 /** Row of the username lookup in the admin panel */

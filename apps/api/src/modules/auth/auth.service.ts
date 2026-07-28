@@ -365,6 +365,19 @@ export class AuthService {
   }
 
   toPublicUser(user: UserWithPosition): PublicUser {
+    const rawBadges = 'badges' in user ? user.badges : undefined;
+    const badges = rawBadges
+      ?.filter((b) => b.isActive)
+      .map((b) => ({
+        id: b.id,
+        userId: b.userId,
+        type: b.type as import('@twomc/shared').UserBadgeType,
+        grantedAt: b.grantedAt.toISOString(),
+        expiresAt: b.expiresAt?.toISOString() ?? null,
+        isActive: b.isActive,
+        grantedBy: b.grantedBy,
+      }));
+
     return {
       id: user.id,
       shortId: user.shortId,
@@ -377,6 +390,7 @@ export class AuthService {
       isVerified: user.isVerified,
       isBanned: user.isBanned,
       createdAt: user.createdAt.toISOString(),
+      ...(badges ? { badges } : {}),
     };
   }
 
