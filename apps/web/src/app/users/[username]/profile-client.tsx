@@ -27,10 +27,10 @@ import { ru } from 'date-fns/locale';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { AwardsList } from '@/components/shared/AwardsList';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { CopyableId } from '@/components/shared/CopyableId';
-import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { DepartmentBadgesList } from '@/components/shared/DepartmentBadgesList';
@@ -57,7 +57,6 @@ import {
   resolveMediaUrl,
   socialPlatformLabels,
 } from '@/lib/profile';
-import { getMinecraftUsername } from '@/lib/username-aliases';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 
 const SkinViewer3D = dynamic(
@@ -193,27 +192,38 @@ export function ProfileClient({
         <div className="relative px-4 pb-6 pt-4 sm:px-6 sm:pt-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="relative -mt-16 shrink-0 sm:-mt-20">
-                <div className="relative h-32 w-32 no-select">
-                  {resolveMediaUrl(profile.avatar) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={resolveMediaUrl(profile.avatar)!}
-                      alt={profile.username}
-                      className="h-32 w-32 rounded-full object-cover ring-4 ring-[rgba(15,15,20,0.9)]"
-                    />
-                  ) : (
-                    <div className="h-32 w-32 overflow-hidden rounded-full ring-4 ring-[rgba(15,15,20,0.9)]">
-                      <DefaultAvatar username={profile.username} letterClassName="text-4xl" />
+              <div className="relative shrink-0">
+                <AvatarWithSkin user={profile} size="lg" />
+
+                {profile.statusText ? (
+                  <div className="absolute left-[calc(100%+0.75rem)] top-2 hidden max-w-[14rem] sm:block">
+                    <div
+                      className="relative px-3.5 py-2.5 text-sm text-foreground"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, rgba(245, 124, 0, 0.2), rgba(255, 152, 0, 0.1))',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(245, 124, 0, 0.2)',
+                        borderRadius: 18,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      }}
+                    >
+                      {profile.statusText}
+                      <svg
+                        className="absolute -left-2 bottom-3"
+                        width="14"
+                        height="16"
+                        viewBox="0 0 14 16"
+                        aria-hidden
+                      >
+                        <path
+                          d="M14 0 C8 2 2 6 0 14 C4 10 10 8 14 8 Z"
+                          fill="rgba(245, 124, 0, 0.25)"
+                        />
+                      </svg>
                     </div>
-                  )}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`https://mc-heads.net/head/${encodeURIComponent(getMinecraftUsername(profile.username))}/48`}
-                    alt=""
-                    className="absolute -bottom-1 -right-1 h-12 w-12 rounded-full"
-                  />
-                </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="space-y-1.5 pb-1">
