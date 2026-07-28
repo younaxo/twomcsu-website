@@ -3,6 +3,9 @@ import {
   NestMiddleware,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { AccessTokenPayload, RoleGroup, hasRoleGroup } from '@twomc/shared';
 import { NextFunction, Request, Response } from 'express';
 import { SystemService } from './system.service';
 
@@ -17,7 +20,11 @@ const ALLOW_PREFIXES = [
 
 @Injectable()
 export class MaintenanceMiddleware implements NestMiddleware {
-  constructor(private readonly system: SystemService) {}
+  constructor(
+    private readonly system: SystemService,
+    private readonly jwt: JwtService,
+    private readonly config: ConfigService,
+  ) {}
 
   async use(req: Request, _res: Response, next: NextFunction) {
     const path = req.originalUrl.split('?')[0] ?? req.path;
@@ -29,6 +36,10 @@ export class MaintenanceMiddleware implements NestMiddleware {
     try {
       const maintenance = await this.system.getMaintenanceRow();
       if (!maintenance.isEnabled) {
+        return next();
+      }
+
+      if (this.isAdminRequest(req)) {
         return next();
       }
 
@@ -45,6 +56,19 @@ export class MaintenanceMiddleware implements NestMiddleware {
       }
       // DB / migration issues — don't block the whole API
       return next();
+    }
+  }
+
+  private isAdminRequest(req: Request): boolean {
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) return false;
+    try {
+      const payload = this.jwt.verify<AccessTokenPayload>(header.slice(7), {
+        secret: this.config.getOrThrow<string>('jwt.accessSecret'),
+      });
+      return hasRoleGroup(payload.roleGroup, RoleGroup.ADMIN);
+    } catch {
+      return false;
     }
   }
 }

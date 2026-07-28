@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Skip maintenance redirect for auth/admin/maintenance itself
+  // Skip maintenance rewrite for auth/admin/maintenance itself
   const skipMaintenance =
     pathname.startsWith('/admin') ||
     pathname.startsWith('/login') ||
@@ -54,10 +54,11 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/reset-password') ||
     pathname === '/maintenance';
 
-  if (!skipMaintenance) {
+  // Guests → rewrite to maintenance page.
+  // Logged-in users pass through; MaintenanceGate hides content for non-admins.
+  if (!skipMaintenance && !request.cookies.has(REFRESH_COOKIE)) {
     const maintenance = await isMaintenanceEnabled();
     if (maintenance) {
-      // Cookie hint: admins still hit the client gate; guests go to overlay page
       const url = request.nextUrl.clone();
       url.pathname = '/maintenance';
       return NextResponse.rewrite(url);
