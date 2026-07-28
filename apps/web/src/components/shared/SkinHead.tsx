@@ -9,33 +9,22 @@ interface SkinHeadProps {
   username: string;
   size?: number;
   className?: string;
-  /** Show online ring around the head */
+  /** @deprecated Online ring removed from design */
   isOnline?: boolean;
 }
 
-export function SkinHead({
-  avatar,
-  username,
-  size = 64,
-  className,
-  isOnline,
-}: SkinHeadProps) {
+export function SkinHead({ avatar, username, size = 64, className }: SkinHeadProps) {
   const src = username
     ? `https://mc-heads.net/avatar/${encodeURIComponent(username)}/${size}`
     : (avatar ?? undefined);
 
   return (
     <Avatar
-      className={cn(
-        'rounded-xl',
-        isOnline === true && 'ring-2 ring-primary ring-offset-2 ring-offset-card',
-        isOnline === false && 'ring-2 ring-muted-foreground/40 ring-offset-2 ring-offset-card',
-        className,
-      )}
+      className={cn('rounded-full', className)}
       style={{ width: size, height: size }}
     >
-      <AvatarImage src={src} alt={username} className="rounded-xl" />
-      <AvatarFallback className="rounded-xl p-0">
+      <AvatarImage src={src} alt={username} className="rounded-full" />
+      <AvatarFallback className="rounded-full p-0">
         <DefaultAvatar username={username} letterClassName="text-lg" />
       </AvatarFallback>
     </Avatar>

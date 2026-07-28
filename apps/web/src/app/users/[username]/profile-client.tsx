@@ -29,7 +29,6 @@ import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { PositionBadge } from '@/components/shared/PositionBadge';
-import { SkinHead } from '@/components/shared/SkinHead';
 import { CommentsList } from '@/components/comments/CommentsList';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
@@ -149,63 +148,78 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
 
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const statsHidden = profile.statistics === null && !profile.isOwner;
-  const isOnline = profile.isOnlineInGame ?? false;
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <div className="relative h-40 w-full bg-secondary sm:h-52">
+      <div className="overflow-hidden rounded-xl glass-card">
+        <div className="relative h-[200px] w-full bg-secondary sm:h-[320px]">
           {bannerUrl ? (
-            <Image src={bannerUrl} alt="" fill className="object-cover" unoptimized />
+            <Image
+              src={bannerUrl}
+              alt=""
+              fill
+              priority
+              quality={95}
+              className="object-cover"
+              sizes="(max-width: 1440px) 100vw, 1440px"
+              unoptimized
+            />
           ) : (
-            <div className="h-full w-full bg-gradient-to-r from-secondary via-accent to-secondary" />
+            <div className="h-full w-full bg-gradient-to-r from-secondary via-primary/20 to-secondary" />
           )}
         </div>
 
-        <div className="relative px-4 pb-6 sm:px-6">
-          <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
+        <div className="relative px-4 pb-6 pt-4 sm:px-6 sm:pt-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
               <div className="relative shrink-0">
                 <div className="relative h-32 w-32">
-                  <div
-                    className={cn(
-                      'h-full w-full overflow-hidden rounded-2xl border-4 border-card shadow-lg',
-                      isOnline
-                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-card'
-                        : 'ring-2 ring-muted-foreground/35 ring-offset-2 ring-offset-card',
-                    )}
-                  >
-                    {resolveMediaUrl(profile.avatar) || profile.username ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={
-                          profile.username
-                            ? `https://mc-heads.net/avatar/${encodeURIComponent(profile.username)}/128`
-                            : resolveMediaUrl(profile.avatar)!
-                        }
-                        alt={profile.username}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <DefaultAvatar username={profile.username} letterClassName="text-4xl" />
-                    )}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 rounded-lg border-2 border-card shadow-md">
-                    <SkinHead
-                      username={profile.username}
-                      avatar={resolveMediaUrl(profile.avatar) ?? null}
-                      size={40}
-                      isOnline={isOnline}
-                      className="rounded-lg border-0 shadow-none"
+                  {resolveMediaUrl(profile.avatar) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={resolveMediaUrl(profile.avatar)!}
+                      alt={profile.username}
+                      className="h-32 w-32 rounded-full object-cover"
                     />
-                  </div>
+                  ) : (
+                    <div className="h-32 w-32 overflow-hidden rounded-full">
+                      <DefaultAvatar username={profile.username} letterClassName="text-4xl" />
+                    </div>
+                  )}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`https://mc-heads.net/head/${encodeURIComponent(profile.username)}/48`}
+                    alt=""
+                    className="absolute -bottom-1 -right-1 h-12 w-12 rounded-full"
+                  />
                 </div>
 
                 {profile.statusText ? (
                   <div className="absolute left-[calc(100%+0.75rem)] top-2 hidden max-w-[14rem] sm:block">
-                    <div className="relative rounded-2xl rounded-bl-sm border border-border bg-secondary/90 px-3 py-2 text-sm text-foreground shadow-md">
-                      <span className="absolute -left-1.5 bottom-3 h-3 w-3 rotate-45 border-b border-l border-border bg-secondary/90" />
+                    <div
+                      className="relative px-3.5 py-2.5 text-sm text-foreground"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, rgba(245, 124, 0, 0.2), rgba(255, 152, 0, 0.1))',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(245, 124, 0, 0.2)',
+                        borderRadius: 18,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      }}
+                    >
                       {profile.statusText}
+                      <svg
+                        className="absolute -left-2 bottom-3"
+                        width="14"
+                        height="16"
+                        viewBox="0 0 14 16"
+                        aria-hidden
+                      >
+                        <path
+                          d="M14 0 C8 2 2 6 0 14 C4 10 10 8 14 8 Z"
+                          fill="rgba(245, 124, 0, 0.25)"
+                        />
+                      </svg>
                     </div>
                   </div>
                 ) : null}
@@ -227,7 +241,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                           href={badge.channelUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-muted-foreground hover:text-foreground"
+                          className="cursor-pointer text-muted-foreground hover:text-foreground"
                         >
                           {badge.mediaGroup === 'YOUTUBE' ? (
                             <Video className="h-4 w-4" />
@@ -327,16 +341,17 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
       <Tabs defaultValue="info">
         <TabsList>
           <TabsTrigger value="info">Информация</TabsTrigger>
-          <TabsTrigger value="wants">Желаемое</TabsTrigger>
+          <TabsTrigger value="wants">Вишлист</TabsTrigger>
           <TabsTrigger value="inventory">Инвентарь</TabsTrigger>
         </TabsList>
 
         <TabsContent value="info" className="mt-4">
-          <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(240px,280px)_1fr]">
-            <div className="min-h-[400px]">
+          <div className="grid items-start gap-6 lg:grid-cols-[200px_1fr]">
+            <div className="mx-auto h-[280px] w-[200px]">
               <SkinViewer3D
                 username={profile.username}
-                fill
+                width={200}
+                height={280}
                 className="h-full w-full"
               />
             </div>
@@ -576,12 +591,12 @@ function ProfileWishlistSection({
     return (
       <EmptyState
         icon={Heart}
-        title="Желаемое"
+        title="Вишлист"
         description="Список скрыт или пуст"
         action={
           isOwner ? (
             <Button asChild variant="secondary" size="sm">
-              <Link href="/profile/wishlist">Настроить желаемое</Link>
+              <Link href="/profile/wishlist">Настроить вишлист</Link>
             </Button>
           ) : undefined
         }
@@ -592,7 +607,7 @@ function ProfileWishlistSection({
   const items = wishlist.data.items;
 
   if (items.length === 0) {
-    return <EmptyState icon={Heart} title="Желаемое" description="Пока ничего нет" />;
+    return <EmptyState icon={Heart} title="Вишлист" description="Пока ничего нет" />;
   }
 
   const giftToOwner = async (productId: string) => {

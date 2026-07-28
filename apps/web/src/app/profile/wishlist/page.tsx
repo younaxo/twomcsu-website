@@ -35,8 +35,8 @@ export default function WishlistPage() {
     return (
       <EmptyState
         icon={Heart}
-        title="Желаемое"
-        description="Войдите, чтобы увидеть желаемое"
+        title="Вишлист"
+        description="Войдите, чтобы увидеть вишлист"
         action={
           <Button asChild>
             <Link href="/login">Войти</Link>
@@ -52,7 +52,7 @@ export default function WishlistPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Желаемое</h1>
+          <h1 className="text-2xl font-semibold text-white">Вишлист</h1>
           <p className="text-sm text-muted-foreground">Товары, которые вы хотите</p>
         </div>
         <div className="flex items-center gap-2">
@@ -63,7 +63,7 @@ export default function WishlistPage() {
             onCheckedChange={async (checked) => {
               try {
                 await updateVisibility.mutateAsync({ isPublic: checked });
-                toast.success(checked ? 'Желаемое открыто в профиле' : 'Желаемое скрыто');
+                toast.success(checked ? 'Вишлист открыт в профиле' : 'Вишлист скрыт');
               } catch (error) {
                 toast.error(extractErrorMessage(error));
               }
@@ -81,7 +81,7 @@ export default function WishlistPage() {
         <EmptyState
           icon={Heart}
           title="Список пуст"
-          description="Добавляйте товары из магазина в желаемое"
+          description="Добавляйте товары из магазина в вишлист"
           action={
             <Button asChild>
               <Link href="/store">В магазин</Link>

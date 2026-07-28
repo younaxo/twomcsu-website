@@ -16,8 +16,8 @@ interface SkinViewer3DProps {
 export function SkinViewer3D({
   username,
   className,
-  width = 280,
-  height = 400,
+  width = 200,
+  height = 280,
   fill = false,
 }: SkinViewer3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -34,8 +34,8 @@ export function SkinViewer3D({
     const el = containerRef.current;
     const update = () => {
       const rect = el.getBoundingClientRect();
-      const nextW = Math.max(200, Math.floor(rect.width));
-      const nextH = Math.max(320, Math.floor(rect.height));
+      const nextW = Math.max(160, Math.floor(rect.width));
+      const nextH = Math.max(220, Math.floor(rect.height));
       setSize({ width: nextW, height: nextH });
     };
 
