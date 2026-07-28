@@ -6,19 +6,19 @@ import { Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { SwipeableNotificationItem } from '@/components/notifications/SwipeableNotificationItem';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import {
+  useDeleteNotification,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
 } from '@/hooks/useNotifications';
 import { extractErrorMessage } from '@/lib/api';
-import { cn } from '@/lib/utils';
 
 type Filter = 'all' | 'unread';
 
@@ -34,6 +34,7 @@ export default function NotificationsPage() {
   });
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
+  const remove = useDeleteNotification();
 
   if (authLoading) return <Skeleton className="h-64 w-full" />;
 
@@ -60,7 +61,9 @@ export default function NotificationsPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-white">Уведомления</h1>
-          <p className="text-sm text-muted-foreground">Комментарии, друзья, заказы и система</p>
+          <p className="text-sm text-muted-foreground">
+            Свайп влево — прочитать, вправо — удалить
+          </p>
         </div>
         <Button
           variant="secondary"
@@ -106,33 +109,12 @@ export default function NotificationsPage() {
       ) : (
         <div className="space-y-2">
           {items.map((n) => (
-            <Link
+            <SwipeableNotificationItem
               key={n.id}
-              href={n.link || '#'}
-              onClick={() => {
-                if (!n.isRead) void markRead.mutateAsync(n.id);
-              }}
-              className={cn(
-                'glass-card block rounded-xl px-4 py-3 transition-colors hover:bg-white/5',
-                !n.isRead && 'border-primary/30 bg-primary/5',
-              )}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 space-y-1">
-                  <p className="font-medium text-white">{n.title}</p>
-                  {n.message ? (
-                    <p className="text-sm text-muted-foreground">{n.message}</p>
-                  ) : null}
-                  <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(n.createdAt), {
-                      addSuffix: true,
-                      locale: ru,
-                    })}
-                  </p>
-                </div>
-                {!n.isRead ? <Badge variant="destructive">Новое</Badge> : null}
-              </div>
-            </Link>
+              notification={n}
+              onRead={(id) => markRead.mutateAsync(id)}
+              onDelete={(id) => remove.mutateAsync(id)}
+            />
           ))}
         </div>
       )}
