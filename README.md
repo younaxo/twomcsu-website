@@ -384,17 +384,19 @@ curl -i -X POST http://localhost:4000/auth/logout \
 
 | Метод и путь | Доступ | Что делает |
 | --- | --- | --- |
-| `GET /servers` | публичный | Активные серверы + статус |
+| `GET /servers` | публичный | Активные серверы + статус + категория |
+| `GET /server-categories` | публичный | Категории серверов |
 | `GET /servers/overview` | публичный | Общий онлайн, пик 24ч, топ |
 | `GET /servers/:slug` | публичный | Детали сервера |
 | `GET /servers/:slug/status` | публичный | Только статус |
 | `GET /servers/:slug/players` | публичный | Онлайн-игроки |
 | `GET /servers/:slug/history?days=` | публичный | История для графика |
 | `GET /servers/widget?ids=` | публичный | HTML-виджет |
-| `GET/POST/PATCH/DELETE /admin/servers` | ADMIN+ | CRUD серверов |
+| `GET/POST/PATCH/DELETE /admin/servers` | ADMIN+ | CRUD серверов (включая categoryId) |
+| `GET/POST/PATCH/DELETE /admin/server-categories` | ADMIN+ | CRUD категорий |
 | `GET /admin/servers/:id/logs` | ADMIN+ | Логи мониторинга |
 
-Страницы: `/servers`, `/servers/[slug]`, `/admin/servers`, `/admin/servers/[id]/logs`.
+Страницы: `/servers` (фильтр по категориям, крупные карточки без MOTD), `/servers/[slug]`, `/admin/servers`, `/admin/servers/[id]/logs`.
 На главной — счётчик онлайна и топ серверов. В профиле — «Играет на …» / «Не в игре».
 
 ## Админка (расширения)
@@ -412,19 +414,23 @@ curl -i -X POST http://localhost:4000/auth/logout \
 
 ## Чат (Socket.IO)
 
-Realtime-чат с каналами, реакциями, мутами/банами и превью ссылок.
+Один общий канал (`general`). Закреплённые сообщения — sticky сверху (до 3). Реакции в чате отключены (остались в комментариях профиля).
 
 | Метод / событие | Что делает |
 | --- | --- |
-| `GET /chat/channels` | Список активных каналов |
+| `GET /chat/channels` | Активные каналы (сейчас только general) |
 | `GET /chat/channels/:slug/messages` | История (infinite scroll, `before`) |
 | `GET /chat/channels/:slug/online` | Онлайн в канале |
-| `GET /chat/channels/:slug/pinned` | Закреплённые |
-| `WS /chat` namespace | `join_channel`, `send_message`, реакции, typing, pin/mute/ban |
-| `GET/POST/... /admin/chat/*` | Каналы, муты, баны, поиск, настройки |
+| `GET /chat/channels/:slug/pinned` | Закреплённые (max 3) |
+| `WS /chat` namespace | `join_channel`, `send_message`, typing, pin/mute/ban |
+| `GET/POST/... /admin/chat/*` | Муты, баны, поиск, anti-spam настройки |
 
-Страницы: `/chat`, виджет в углу на всём сайте, `/admin/chat/*`, настройки в `/profile/settings` (вкладка «Чат»).
+Страницы: `/chat`, виджет в углу, `/admin/chat/*`, настройки в `/profile/settings` (вкладка «Чат»).
 Курсы игровой валюты: `GET /store/currency-rates`, мок-обмен `POST /store/exchange`.
+
+## Дизайн
+
+Акцент indigo (`#6366F1`), логотип в Header/Footer, sticky glassmorphism-шапка, многоколоночный футер, Apple-style эмодзи в реакциях комментариев.
 
 ## Performance
 
@@ -451,6 +457,8 @@ docker exec -it twomc-redis redis-cli -a "$REDIS_PASSWORD" FLUSHDB
 - Optimistic / invalidate для friend mutations
 - Prefetch профиля по hover на нике и карточках друзей
 - `SkinViewer` через `next/dynamic` (ssr: false)
+- `ChatWidget` и `ServerHistoryChart` через `next/dynamic`
+- `React.memo` на тяжёлых карточках (`ServerCard`, `MessageBubble`)
 - `ANALYZE=true pnpm --filter @twomc/web build` — bundle analyzer
 
 ### Env
