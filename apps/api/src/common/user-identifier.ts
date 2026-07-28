@@ -20,7 +20,7 @@ type LookupArgs = {
 };
 
 /**
- * Resolve a user by username, #shortId, or tag (youn#4a2b).
+ * Resolve a user by username, #shortId, tag (youn#4a2b), UUID/CUID, or email.
  * Callers should cast/narrow the result when using custom select/include.
  */
 export async function findUserByIdentifier(
@@ -38,6 +38,10 @@ export async function findUserByIdentifier(
     ...(args?.include ? { include: args.include } : {}),
   };
 
+  const UUID_RE =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const CUID_RE = /^c[a-z0-9]{24}$/i;
+
   // #123 or plain digits → shortId
   const shortIdMatch = raw.match(/^#?(\d+)$/);
   if (shortIdMatch) {
@@ -48,6 +52,17 @@ export async function findUserByIdentifier(
   // tag contains # with letters (not only digits after #)
   if (raw.includes('#')) {
     return prisma.user.findUnique({ where: { tag: raw.toLowerCase() }, ...query });
+  }
+
+  if (UUID_RE.test(raw) || CUID_RE.test(raw)) {
+    return prisma.user.findUnique({ where: { id: raw }, ...query });
+  }
+
+  if (raw.includes('@')) {
+    return prisma.user.findFirst({
+      where: { email: { equals: raw, mode: 'insensitive' } },
+      ...query,
+    });
   }
 
   // username (case-insensitive)
