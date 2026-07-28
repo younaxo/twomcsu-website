@@ -399,7 +399,17 @@ curl -i -X POST http://localhost:4000/auth/logout \
 Страницы: `/servers` (фильтр по категориям, крупные карточки без MOTD), `/servers/[slug]`, `/admin/servers`, `/admin/servers/[id]/logs`.
 На главной — счётчик онлайна и топ серверов. В профиле — «Играет на …» / «Не в игре».
 
-## Админка (расширения)
+## Панели управления
+
+Роли разделены на три фронтовые зоны (API-пути `/admin/*` без изменений):
+
+| Зона | URL | Доступ | Содержание |
+| --- | --- | --- | --- |
+| Дашборд | `/dashboard/*` | ADMIN+ | Обзор, настройки сайта, объявления, audit log, статистика магазина/заказов, лояльность, валюты |
+| Админ | `/admin/*` | ADMIN+ | Позиции, префиксы, награды, серверы, каталог, промокоды, заказы, рассылка |
+| Модерация | `/moderation/*` | HELPER+ | Обращения, жалобы, медиа заявки, модерация чата |
+
+Старые URL вроде `/admin/dashboard`, `/admin/media-requests`, `/admin/chat/*` редиректят на новые.
 
 | Метод и путь | Доступ | Что делает |
 | --- | --- | --- |
@@ -409,12 +419,12 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | `GET/PATCH /admin/settings` | ADMIN+ | SiteSettings (key-value) |
 | `GET/POST/PATCH/DELETE /admin/announcements` | ADMIN+ | Объявления на сайте |
 
-Страницы: `/admin/dashboard`, `/admin/audit-log`, `/admin/broadcast`, `/admin/settings`, `/admin/announcements`.
-Общие UI-компоненты: `AdminPageHeader`, `AdminFilters`, `AdminTable`, `AdminEmptyState`, `AdminCreateEditDialog`, `AdminDeleteConfirm`.
+Общие UI-компоненты: `AdminPageHeader`, `AdminFilters`, `AdminTable`, `AdminEmptyState`, `AdminCreateEditDialog`, `AdminDeleteConfirm`, `RolePanelLayout`, `UserSearchInput`.
 
 ## Чат (Socket.IO)
 
 Один общий канал (`general`). Закреплённые сообщения — sticky сверху (до 3). Реакции в чате отключены (остались в комментариях профиля).
+Полноэкранной страницы `/chat` нет — чат открывается Sheet справа из боковой панели.
 
 | Метод / событие | Что делает |
 | --- | --- |
@@ -425,12 +435,13 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | `WS /chat` namespace | `join_channel`, `send_message`, typing, pin/mute/ban |
 | `GET/POST/... /admin/chat/*` | Муты, баны, поиск, anti-spam настройки |
 
-Страницы: `/chat`, виджет в углу, `/admin/chat/*`, настройки в `/profile/settings` (вкладка «Чат»).
+UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settings` (вкладка «Чат»).
 Курсы игровой валюты: `GET /store/currency-rates`, мок-обмен `POST /store/exchange`.
+Поиск игроков: `GET /users/search?q=` (ник, `#shortId`, tag, email, id).
 
 ## Дизайн
 
-Акцент indigo (`#6366F1`), логотип в Header/Footer, sticky glassmorphism-шапка, многоколоночный футер, Apple-style эмодзи в реакциях комментариев.
+Акцент оранжевый (`#F57C00` / `#FF9800`), логотип без glow/scale, sticky glassmorphism header + левая sidebar (Магазин/Серверы/Новости/Вики/Обращения/Репорты, снизу Чат и Корзина), утилиты `.glass-panel` / `.glass-card` / `.glass-modal`, валюта в хедере на весь сайт.
 
 ## Performance
 
@@ -494,11 +505,11 @@ apps/
         uploads/      sharp + раздача /uploads
         users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
-    src/app/          (auth), /chat, /servers/*, /store/*, /users/[username], /profile/*, /admin/*
-    src/components/   ui kit, chat, servers, store, profile, shared, admin, шапка
+    src/app/          (auth), /servers/*, /store/*, /users/[username], /profile/*, /dashboard/*, /admin/*, /moderation/*
+    src/components/   ui kit, chat, servers, store, profile, shared, admin, site-header, site-sidebar
     src/hooks/        useAuth, useSocket, useChat, friends, comments, store/*, servers/*
     src/lib/          axios клиент, query-keys, profile helpers
     src/stores/       zustand: auth, storeUi, chat
 packages/
-  shared/             RoleGroup, Position, Profile, Friends, Store, Servers, Chat, Auth типы
+  shared/             RoleGroup, Position, Profile (prefixes), Friends, Store, Servers, Chat, Auth типы
 ```

@@ -7,7 +7,7 @@ import { useRoleGuard } from '@/components/admin/useRoleGuard';
 
 const adminLinks = [
   { href: '/admin/positions', label: 'Позиции' },
-  { href: '/admin/badges', label: 'Бейджи' },
+  { href: '/admin/badges', label: 'Префиксы' },
   { href: '/admin/awards', label: 'Награды' },
   { href: '/admin/servers', label: 'Серверы' },
   { href: '/admin/broadcast', label: 'Рассылка' },
