@@ -1,17 +1,16 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { toast } from 'sonner';
+import { SwipeableNotificationItem } from '@/components/notifications/SwipeableNotificationItem';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -19,22 +18,28 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
+  useDeleteNotification,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
   useUnreadNotificationsCount,
 } from '@/hooks/useNotifications';
 import { extractErrorMessage } from '@/lib/api';
-import { cn } from '@/lib/utils';
 
 export function NotificationBell() {
   const unread = useUnreadNotificationsCount(true);
-  const list = useNotifications({ page: 1, limit: 10, enabled: true });
+  const list = useNotifications({ page: 1, limit: 15, enabled: true });
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
+  const remove = useDeleteNotification();
 
   const count = unread.data?.count ?? 0;
   const items = list.data?.items ?? [];
+  const { fresh, read } = useMemo(() => {
+    const freshItems = items.filter((n) => !n.isRead);
+    const readItems = items.filter((n) => n.isRead);
+    return { fresh: freshItems, read: readItems };
+  }, [items]);
 
   return (
     <DropdownMenu>
@@ -57,9 +62,9 @@ export function NotificationBell() {
         <TooltipContent>Уведомления</TooltipContent>
       </Tooltip>
 
-      <DropdownMenuContent align="end" className="w-80 p-0">
-        <div className="flex items-center justify-between px-3 py-2">
-          <DropdownMenuLabel className="p-0">Уведомления</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-[320px] p-0">
+        <div className="flex items-center justify-between px-3 py-2.5">
+          <DropdownMenuLabel className="p-0 text-base">Уведомления</DropdownMenuLabel>
           {count > 0 ? (
             <Button
               type="button"
@@ -72,7 +77,6 @@ export function NotificationBell() {
                   .mutateAsync()
                   .then(() => toast.success('Все уведомления прочитаны'))
                   .catch((error: unknown) => {
-                    console.error('markAllNotificationsRead failed', error);
                     toast.error(extractErrorMessage(error, 'Не удалось отметить уведомления'));
                   });
               }}
@@ -83,52 +87,54 @@ export function NotificationBell() {
         </div>
         <DropdownMenuSeparator className="m-0" />
 
-        <div className="max-h-80 overflow-y-auto">
+        <div className="max-h-96 space-y-1.5 overflow-y-auto p-2">
           {list.isLoading ? (
-            <div className="space-y-2 p-3">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
+            <div className="space-y-2 p-1">
+              <Skeleton className="h-14 w-full" />
+              <Skeleton className="h-14 w-full" />
             </div>
           ) : items.length === 0 ? (
-            <div className="p-2">
-              <EmptyState
-                icon={Bell}
-                title="Нет уведомлений"
-                description="Здесь появятся новые события"
-                className="border-0 bg-transparent py-8"
-              />
-            </div>
+            <EmptyState
+              icon={Bell}
+              title="Нет уведомлений"
+              description="Здесь появятся новые события"
+              className="border-0 bg-transparent py-8"
+            />
           ) : (
-            items.map((n) => (
-              <DropdownMenuItem
-                key={n.id}
-                asChild
-                className={cn(
-                  'm-1 cursor-pointer rounded-lg glass-medium px-3 py-2.5 focus:bg-white/10',
-                  !n.isRead && 'border-l-2 border-l-primary',
-                )}
-              >
-                <Link
-                  href={n.link || '/profile/notifications'}
-                  onClick={() => {
-                    if (!n.isRead) void markRead.mutateAsync(n.id);
-                  }}
-                >
-                  <div className="min-w-0 flex-1 space-y-0.5">
-                    <p className="truncate text-sm font-medium text-white">{n.title}</p>
-                    {n.message ? (
-                      <p className="line-clamp-2 text-xs text-muted-foreground">{n.message}</p>
-                    ) : null}
-                    <p className="text-[10px] text-muted-foreground">
-                      {formatDistanceToNow(new Date(n.createdAt), {
-                        addSuffix: true,
-                        locale: ru,
-                      })}
-                    </p>
-                  </div>
-                </Link>
-              </DropdownMenuItem>
-            ))
+            <>
+              {fresh.length > 0 ? (
+                <div className="space-y-1.5">
+                  <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                    Новые
+                  </p>
+                  {fresh.map((n) => (
+                    <SwipeableNotificationItem
+                      key={n.id}
+                      notification={n}
+                      compact
+                      onRead={(id) => markRead.mutateAsync(id)}
+                      onDelete={(id) => remove.mutateAsync(id)}
+                    />
+                  ))}
+                </div>
+              ) : null}
+              {read.length > 0 ? (
+                <div className="space-y-1.5">
+                  <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Прочитанные
+                  </p>
+                  {read.map((n) => (
+                    <SwipeableNotificationItem
+                      key={n.id}
+                      notification={n}
+                      compact
+                      onRead={(id) => markRead.mutateAsync(id)}
+                      onDelete={(id) => remove.mutateAsync(id)}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </>
           )}
         </div>
 

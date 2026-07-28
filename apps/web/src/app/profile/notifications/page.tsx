@@ -1,30 +1,49 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { NotificationType } from '@twomc/shared';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { SwipeableNotificationItem } from '@/components/notifications/SwipeableNotificationItem';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import {
+  useDeleteNotification,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
 } from '@/hooks/useNotifications';
 import { extractErrorMessage } from '@/lib/api';
-import { cn } from '@/lib/utils';
 
 type Filter = 'all' | 'unread';
+
+const TYPE_FILTERS: Array<{ value: string; label: string }> = [
+  { value: 'all', label: 'Все типы' },
+  { value: NotificationType.COMMENT_ON_PROFILE, label: 'Комментарии' },
+  { value: NotificationType.COMMENT_MENTION, label: 'Упоминания' },
+  { value: NotificationType.COMMENT_REPLY, label: 'Ответы' },
+  { value: NotificationType.FRIEND_REQUEST, label: 'Заявки в друзья' },
+  { value: NotificationType.FRIEND_ACCEPTED, label: 'Дружба' },
+  { value: NotificationType.GIFT_RECEIVED, label: 'Подарки' },
+  { value: NotificationType.ORDER_STATUS_CHANGED, label: 'Заказы' },
+  { value: NotificationType.SYSTEM, label: 'Системные' },
+];
 
 export default function NotificationsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [filter, setFilter] = useState<Filter>('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [page, setPage] = useState(1);
   const list = useNotifications({
     page,
@@ -34,8 +53,15 @@ export default function NotificationsPage() {
   });
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
+  const remove = useDeleteNotification();
 
-  if (authLoading) return <Skeleton className="h-64 w-full" />;
+  const items = useMemo(() => {
+    const raw = list.data?.items ?? [];
+    if (typeFilter === 'all') return raw;
+    return raw.filter((n) => n.type === typeFilter);
+  }, [list.data?.items, typeFilter]);
+
+  if (authLoading) return <Skeleton className="h-64 w-full rounded-2xl" />;
 
   if (!isAuthenticated) {
     return (
@@ -52,7 +78,6 @@ export default function NotificationsPage() {
     );
   }
 
-  const items = list.data?.items ?? [];
   const totalPages = list.data?.totalPages ?? 1;
 
   return (
@@ -60,7 +85,9 @@ export default function NotificationsPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-white">Уведомления</h1>
-          <p className="text-sm text-muted-foreground">Комментарии, друзья, заказы и система</p>
+          <p className="text-sm text-muted-foreground">
+            Свайп влево — прочитать, вправо — удалить
+          </p>
         </div>
         <Button
           variant="secondary"
@@ -71,7 +98,6 @@ export default function NotificationsPage() {
               .mutateAsync()
               .then(() => toast.success('Все уведомления прочитаны'))
               .catch((error: unknown) => {
-                console.error('markAllNotificationsRead failed', error);
                 toast.error(extractErrorMessage(error, 'Не удалось отметить уведомления'));
               });
           }}
@@ -80,21 +106,42 @@ export default function NotificationsPage() {
         </Button>
       </div>
 
-      <Tabs
-        value={filter}
-        onValueChange={(v) => {
-          setFilter(v as Filter);
-          setPage(1);
-        }}
-      >
-        <TabsList>
-          <TabsTrigger value="all">Все</TabsTrigger>
-          <TabsTrigger value="unread">Непрочитанные</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex flex-wrap items-center gap-3">
+        <Tabs
+          value={filter}
+          onValueChange={(v) => {
+            setFilter(v as Filter);
+            setPage(1);
+          }}
+        >
+          <TabsList>
+            <TabsTrigger value="all">Все</TabsTrigger>
+            <TabsTrigger value="unread">Непрочитанные</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <Select
+          value={typeFilter}
+          onValueChange={(v) => {
+            setTypeFilter(v);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Тип" />
+          </SelectTrigger>
+          <SelectContent>
+            {TYPE_FILTERS.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {list.isLoading ? (
-        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
       ) : items.length === 0 ? (
         <EmptyState
           icon={Bell}
@@ -106,33 +153,12 @@ export default function NotificationsPage() {
       ) : (
         <div className="space-y-2">
           {items.map((n) => (
-            <Link
+            <SwipeableNotificationItem
               key={n.id}
-              href={n.link || '#'}
-              onClick={() => {
-                if (!n.isRead) void markRead.mutateAsync(n.id);
-              }}
-              className={cn(
-                'block rounded-xl border border-border px-4 py-3 transition-colors hover:bg-accent/50',
-                !n.isRead && 'border-primary/30 bg-primary/5',
-              )}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 space-y-1">
-                  <p className="font-medium text-white">{n.title}</p>
-                  {n.message ? (
-                    <p className="text-sm text-muted-foreground">{n.message}</p>
-                  ) : null}
-                  <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(n.createdAt), {
-                      addSuffix: true,
-                      locale: ru,
-                    })}
-                  </p>
-                </div>
-                {!n.isRead ? <Badge variant="destructive">Новое</Badge> : null}
-              </div>
-            </Link>
+              notification={n}
+              onRead={(id) => markRead.mutateAsync(id)}
+              onDelete={(id) => remove.mutateAsync(id)}
+            />
           ))}
         </div>
       )}
