@@ -2,7 +2,7 @@
 
 import type { ChatMessage } from '@twomc/shared';
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
-import { MessageSquare, Pin, Users } from 'lucide-react';
+import { Info, MessageSquare, Pin, Users, X } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -10,6 +10,11 @@ import { MessageBubble } from '@/components/chat/MessageBubble';
 import { MessageInput } from '@/components/chat/MessageInput';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   useChatChannel,
@@ -28,9 +33,10 @@ const GENERAL_SLUG = 'general';
 interface ChatPanelProps {
   className?: string;
   compact?: boolean;
+  onClose?: () => void;
 }
 
-export function ChatPanel({ className, compact }: ChatPanelProps) {
+export function ChatPanel({ className, compact, onClose }: ChatPanelProps) {
   const { user, isAuthenticated } = useAuth();
   const { socket, connected } = useSocket(isAuthenticated);
   const settings = useChatStore((s) => s.settings);
@@ -228,8 +234,8 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
         <div>
           <p className="text-sm font-medium text-white">Чат TWOMC</p>
           <p className="text-xs text-muted-foreground">
-            {onlineQuery.data?.count != null
-              ? `🟢 ${onlineQuery.data.count} онлайн`
+            {onlineQuery.data != null
+              ? `🟢 ${onlineQuery.data.length} онлайн`
               : connected
                 ? 'Онлайн'
                 : isAuthenticated
@@ -237,7 +243,33 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
                   : 'Войдите, чтобы писать'}
           </p>
         </div>
-        <div className="flex gap-1">
+        <div className="flex items-center gap-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Справка">
+                <Info className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 space-y-1 p-3">
+              <p className="mb-2 text-xs font-medium text-white">Разметка сообщений</p>
+              {[
+                ['**текст**', 'Жирный'],
+                ['*текст*', 'Курсив'],
+                ['~~текст~~', 'Зачёркнутый'],
+                ['||текст||', 'Спойлер'],
+                ['`код`', 'Код'],
+                ['> цитата', 'Цитата'],
+                ['@ник', 'Упоминание'],
+              ].map(([syn, desc]) => (
+                <div key={syn} className="flex items-center justify-between gap-2 text-xs">
+                  <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[11px] text-primary">
+                    {syn}
+                  </code>
+                  <span className="text-muted-foreground">{desc}</span>
+                </div>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             size="icon"
             variant="ghost"
@@ -247,9 +279,9 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
           >
             <Users className="h-4 w-4" />
           </Button>
-          {compact ? (
-            <Button size="sm" variant="outline" asChild>
-              <Link href="/chat">На весь экран</Link>
+          {onClose ? (
+            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={onClose} aria-label="Закрыть">
+              <X className="h-4 w-4" />
             </Button>
           ) : null}
         </div>
@@ -365,7 +397,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
         </div>
 
         {showOnline ? (
-          <aside className="hidden w-44 shrink-0 overflow-y-auto border-l border-border p-2 md:block">
+          <aside className="hidden w-44 shrink-0 overflow-y-auto border-l border-white/10 p-2 md:block">
             <p className="mb-2 text-xs font-medium text-muted-foreground">
               Онлайн ({onlineQuery.data?.length ?? 0})
             </p>
@@ -374,7 +406,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
                 <Link
                   key={u.id}
                   href={`/users/${u.username}`}
-                  className="block w-full truncate rounded px-1.5 py-1 text-left text-sm hover:bg-accent hover:underline"
+                  className="block w-full truncate rounded-lg px-1.5 py-1 text-left text-sm transition-colors duration-150 hover:bg-white/5 hover:underline"
                 >
                   {u.username}
                 </Link>

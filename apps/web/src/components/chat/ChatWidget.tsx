@@ -1,6 +1,6 @@
 'use client';
 
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChatPanel } from '@/components/chat/ChatPanel';
@@ -24,23 +24,15 @@ export function ChatWidget() {
       {isOpen ? (
         <div
           className={cn(
-            'flex w-[min(100vw-2rem,420px)] flex-col overflow-hidden shadow-2xl',
+            'flex w-[min(100vw-2rem,420px)] flex-col overflow-hidden rounded-2xl shadow-2xl',
             'h-[min(70vh,560px)] sm:h-[560px]',
           )}
         >
-          <div className="flex items-center justify-between border-b border-border bg-card px-3 py-2">
-            <p className="text-sm font-medium text-white">Чат</p>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8"
-              onClick={() => setWidgetOpen(false)}
-              aria-label="Закрыть чат"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <ChatPanel compact className="min-h-0 flex-1 rounded-none border-0" />
+          <ChatPanel
+            compact
+            className="min-h-0 flex-1 rounded-2xl border-0"
+            onClose={() => setWidgetOpen(false)}
+          />
         </div>
       ) : null}
 
@@ -59,9 +51,7 @@ export function ChatWidget() {
             {unread > 99 ? '99+' : unread}
           </Badge>
         ) : null}
-        {!isAuthenticated ? (
-          <span className="sr-only">Требуется вход</span>
-        ) : null}
+        {!isAuthenticated ? <span className="sr-only">Требуется вход</span> : null}
       </Button>
     </div>
   );

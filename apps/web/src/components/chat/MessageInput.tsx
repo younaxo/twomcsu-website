@@ -1,15 +1,15 @@
 'use client';
 
 import type { ChatMessage } from '@twomc/shared';
-import { Send, X } from 'lucide-react';
+import { Info, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Textarea } from '@/components/ui/textarea';
 
 interface MessageInputProps {
   disabled?: boolean;
@@ -22,6 +22,16 @@ interface MessageInputProps {
   onMentionInsert?: (username: string) => void;
   mentionSuggestion?: string | null;
 }
+
+const MARKDOWN_HELP = [
+  { syn: '**текст**', desc: 'Жирный' },
+  { syn: '*текст*', desc: 'Курсив' },
+  { syn: '~~текст~~', desc: 'Зачёркнутый' },
+  { syn: '||текст||', desc: 'Спойлер' },
+  { syn: '`код`', desc: 'Код' },
+  { syn: '> цитата', desc: 'Цитата' },
+  { syn: '@ник', desc: 'Упоминание' },
+] as const;
 
 export function MessageInput({
   disabled,
@@ -41,22 +51,13 @@ export function MessageInput({
     if (replyTo) taRef.current?.focus();
   }, [replyTo]);
 
-  const insertFormat = (prefix: string, suffix = prefix) => {
+  useEffect(() => {
     const el = taRef.current;
-    if (!el) {
-      setValue((v) => `${v}${prefix}${suffix}`);
-      return;
-    }
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    const selected = value.slice(start, end) || 'текст';
-    const next = value.slice(0, start) + prefix + selected + suffix + value.slice(end);
-    setValue(next);
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
-    });
-  };
+    if (!el) return;
+    el.style.height = 'auto';
+    const max = 5 * 24; // ~5 lines
+    el.style.height = `${Math.min(el.scrollHeight, max)}px`;
+  }, [value]);
 
   const submit = () => {
     const content = value.trim();
@@ -89,9 +90,9 @@ export function MessageInput({
   }
 
   return (
-    <div className="space-y-2 border-t border-border pt-3">
+    <div className="space-y-2 border-t border-white/10 pt-3">
       {replyTo ? (
-        <div className="flex items-center justify-between rounded-md bg-secondary/50 px-2 py-1 text-xs">
+        <div className="flex items-center justify-between rounded-md glass-light px-2 py-1 text-xs">
           <span className="truncate text-muted-foreground">
             Ответ на {replyTo.author?.username}: {replyTo.content.slice(0, 60)}
           </span>
@@ -101,53 +102,55 @@ export function MessageInput({
         </div>
       ) : null}
 
-      <div className="flex flex-wrap gap-1">
-        {[
-          { label: 'B', tip: 'Жирный', action: () => insertFormat('**') },
-          { label: 'I', tip: 'Курсив', action: () => insertFormat('*') },
-          { label: 'S', tip: 'Зачёркнутый', action: () => insertFormat('~~') },
-          { label: '||', tip: 'Спойлер', action: () => insertFormat('||') },
-          { label: '`', tip: 'Код', action: () => insertFormat('`') },
-          { label: '>', tip: 'Цитата', action: () => insertFormat('> ', '') },
-        ].map((btn) => (
-          <Tooltip key={btn.tip}>
-            <TooltipTrigger asChild>
+      <div className="relative flex gap-2">
+        <div className="relative min-w-0 flex-1">
+          <Textarea
+            ref={taRef}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Написать сообщение… (@ник для упоминания)"
+            className="min-h-[44px] max-h-[120px] resize-none pr-10"
+            rows={1}
+            disabled={disabled}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submit();
+              }
+            }}
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 type="button"
-                size="sm"
+                size="icon"
                 variant="ghost"
-                className="h-7 px-2 font-mono text-xs"
-                onClick={btn.action}
+                className="absolute bottom-1.5 right-1.5 h-7 w-7 text-muted-foreground"
+                aria-label="Справка по разметке"
               >
-                {btn.label}
+                <Info className="h-4 w-4" />
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>{btn.tip}</TooltipContent>
-          </Tooltip>
-        ))}
-      </div>
-
-      <div className="flex gap-2">
-        <Textarea
-          ref={taRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Написать сообщение… (@ник для упоминания)"
-          className="min-h-[44px] max-h-32 resize-none"
-          disabled={disabled}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              submit();
-            }
-          }}
-        />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 space-y-1 p-3">
+              <p className="mb-2 text-xs font-medium text-white">Разметка сообщений</p>
+              {MARKDOWN_HELP.map((row) => (
+                <div key={row.syn} className="flex items-center justify-between gap-2 text-xs">
+                  <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[11px] text-primary">
+                    {row.syn}
+                  </code>
+                  <span className="text-muted-foreground">{row.desc}</span>
+                </div>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <Button
           type="button"
           size="icon"
-          className="shrink-0"
+          className="shrink-0 self-end"
           disabled={disabled || !value.trim()}
           onClick={submit}
+          aria-label="Отправить"
         >
           <Send className="h-4 w-4" />
         </Button>
