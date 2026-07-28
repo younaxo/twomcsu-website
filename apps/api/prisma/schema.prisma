@@ -1025,19 +1025,49 @@ model AuditLog {
 }
 
 model Announcement {
-  id        String    @id @default(cuid())
-  title     String
-  message   String
-  type      String    @default("info")
-  link      String?
-  isActive  Boolean   @default(true)
-  startsAt  DateTime?
-  endsAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  title         String
+  message       String
+  type          String    @default("info") // info, warning, success, error
+  link          String?
+  isActive      Boolean   @default(true)
+  isDismissible Boolean   @default(true)
+  showFrom      DateTime?
+  showUntil     DateTime?
+  targetRole    String? // null = everyone; PLAYER / HELPER+ / ADMIN etc.
+  order         Int       @default(0)
+  createdBy     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  @@index([isActive, startsAt, endsAt])
+  @@index([isActive, showFrom, showUntil])
   @@map("announcements")
+}
+
+model MaintenanceMode {
+  id           String    @id @default(cuid())
+  isEnabled    Boolean   @default(false)
+  title        String    @default("Технические работы")
+  message      String    @default("Сайт временно недоступен. Работы ведутся, скоро всё заработает!")
+  estimatedEnd DateTime?
+  enabledBy    String?
+  enabledAt    DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  @@map("maintenance_mode")
+}
+
+model ModuleStatus {
+  id         String    @id @default(cuid())
+  module     String    @unique // store, chat, friends, comments, reports, wiki, …
+  isEnabled  Boolean   @default(true)
+  reason     String?
+  disabledBy String?
+  disabledAt DateTime?
+  updatedAt  DateTime  @updatedAt
+
+  @@index([module])
+  @@map("module_statuses")
 }
 
 model SiteSetting {
