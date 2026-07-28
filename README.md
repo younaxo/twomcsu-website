@@ -441,7 +441,7 @@ UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settin
 
 ## Дизайн
 
-Акцент оранжевый (`#F57C00` / `#FF9800`), логотип без glow/scale, sticky glassmorphism header + левая sidebar (Магазин/Серверы/Новости/Вики/Обращения/Репорты, снизу Чат и Корзина), утилиты `.glass-panel` / `.glass-card` / `.glass-modal`, валюта в хедере на весь сайт.
+Акцент оранжевый (`#F57C00` / `#FF9800`), логотип без glow/scale, sticky glassmorphism header + левая sidebar (Магазин/Серверы/Новости/Вики/Обращения/Репорты, снизу Чат и Корзина), утилиты `.glass-panel` / `.glass-card` / `.glass-modal`, валюта в хедере на весь сайт. Уведомления: glass-карточки, свайп влево — прочитать, вправо — удалить.
 
 ## Performance
 
