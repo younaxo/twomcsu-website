@@ -110,7 +110,7 @@ export const MessageBubble = memo(function MessageBubble({
                   position: message.author.position,
                 }}
                 size="sm"
-                badges={message.author.badges as never}
+                badges={message.author.badges}
                 maxBadges={2}
               />
             ) : (

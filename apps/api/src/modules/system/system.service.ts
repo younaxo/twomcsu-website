@@ -20,7 +20,12 @@ export class SystemService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
-    await this.ensureDefaults();
+    try {
+      await this.ensureDefaults();
+    } catch (error) {
+      // Tables may be missing until migrate deploy — don't crash the process
+      console.error('[SystemService] ensureDefaults failed:', error);
+    }
   }
 
   private async ensureDefaults() {
@@ -60,13 +65,76 @@ export class SystemService implements OnModuleInit {
   }
 
   async getMaintenanceRow() {
-    let row = await this.prisma.maintenanceMode.findFirst({
-      orderBy: { updatedAt: 'desc' },
-    });
-    if (!row) {
-      row = await this.prisma.maintenanceMode.create({ data: {} });
+    try {
+      let row = await this.prisma.maintenanceMode.findFirst({
+        orderBy: { updatedAt: 'desc' },
+      });
+      if (!row) {
+        row = await this.prisma.maintenanceMode.create({ data: {} });
+      }
+      return row;
+    } catch {
+      // Migration not applied yet
+      return {
+        id: 'pending',
+        isEnabled: false,
+        title: 'Технические работы',
+        message: 'Сайт временно недоступен. Работы ведутся, скоро всё заработает!',
+        estimatedEnd: null,
+        enabledBy: null,
+        enabledAt: null,
+        updatedAt: new Date(),
+      };
     }
-    return row;
+  }
+
+  async listModules() {
+    try {
+      const rows = await this.prisma.moduleStatus.findMany({
+        orderBy: { module: 'asc' },
+      });
+      return rows.map((r) => ({
+        id: r.id,
+        module: r.module,
+        isEnabled: r.isEnabled,
+        reason: r.reason,
+        disabledBy: r.disabledBy,
+        disabledAt: r.disabledAt?.toISOString() ?? null,
+        updatedAt: r.updatedAt.toISOString(),
+      }));
+    } catch {
+      return SYSTEM_MODULES.map((module) => ({
+        id: module,
+        module,
+        isEnabled: true,
+        reason: null,
+        disabledBy: null,
+        disabledAt: null,
+        updatedAt: new Date().toISOString(),
+      }));
+    }
+  }
+
+  async listActiveAnnouncements(roleGroup?: string | null) {
+    try {
+      const now = new Date();
+      const rows = await this.prisma.announcement.findMany({
+        where: {
+          isActive: true,
+          AND: [
+            { OR: [{ showFrom: null }, { showFrom: { lte: now } }] },
+            { OR: [{ showUntil: null }, { showUntil: { gte: now } }] },
+          ],
+        },
+        orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+      });
+
+      return rows
+        .filter((r) => !r.targetRole || !roleGroup || r.targetRole === roleGroup)
+        .map((r) => this.mapAnnouncement(r));
+    } catch {
+      return [];
+    }
   }
 
   async getMaintenanceStatus() {
@@ -121,21 +189,6 @@ export class SystemService implements OnModuleInit {
     return this.mapMaintenance(updated);
   }
 
-  async listModules() {
-    const rows = await this.prisma.moduleStatus.findMany({
-      orderBy: { module: 'asc' },
-    });
-    return rows.map((r) => ({
-      id: r.id,
-      module: r.module,
-      isEnabled: r.isEnabled,
-      reason: r.reason,
-      disabledBy: r.disabledBy,
-      disabledAt: r.disabledAt?.toISOString() ?? null,
-      updatedAt: r.updatedAt.toISOString(),
-    }));
-  }
-
   async updateModule(
     module: string,
     data: { isEnabled: boolean; reason?: string | null },
@@ -165,24 +218,6 @@ export class SystemService implements OnModuleInit {
       disabledAt: updated.disabledAt?.toISOString() ?? null,
       updatedAt: updated.updatedAt.toISOString(),
     };
-  }
-
-  async listActiveAnnouncements(roleGroup?: string | null) {
-    const now = new Date();
-    const rows = await this.prisma.announcement.findMany({
-      where: {
-        isActive: true,
-        AND: [
-          { OR: [{ showFrom: null }, { showFrom: { lte: now } }] },
-          { OR: [{ showUntil: null }, { showUntil: { gte: now } }] },
-        ],
-      },
-      orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
-    });
-
-    return rows
-      .filter((r) => !r.targetRole || !roleGroup || r.targetRole === roleGroup)
-      .map((r) => this.mapAnnouncement(r));
   }
 
   async listAllAnnouncements() {

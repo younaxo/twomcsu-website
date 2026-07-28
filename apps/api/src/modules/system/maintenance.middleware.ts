@@ -26,17 +26,25 @@ export class MaintenanceMiddleware implements NestMiddleware {
       return next();
     }
 
-    const maintenance = await this.system.getMaintenanceRow();
-    if (!maintenance.isEnabled) {
+    try {
+      const maintenance = await this.system.getMaintenanceRow();
+      if (!maintenance.isEnabled) {
+        return next();
+      }
+
+      throw new ServiceUnavailableException({
+        statusCode: 503,
+        message: maintenance.message,
+        title: maintenance.title,
+        estimatedEnd: maintenance.estimatedEnd?.toISOString() ?? null,
+        maintenance: true,
+      });
+    } catch (error) {
+      if (error instanceof ServiceUnavailableException) {
+        throw error;
+      }
+      // DB / migration issues — don't block the whole API
       return next();
     }
-
-    throw new ServiceUnavailableException({
-      statusCode: 503,
-      message: maintenance.message,
-      title: maintenance.title,
-      estimatedEnd: maintenance.estimatedEnd?.toISOString() ?? null,
-      maintenance: true,
-    });
   }
 }

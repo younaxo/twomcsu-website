@@ -68,14 +68,14 @@ export function SiteFooter() {
                 href="https://t.me/twomcsu_adm"
                 target="_blank"
                 rel="noreferrer"
-                className="text-[#a5b4fc] transition-colors hover:text-primary"
+                className="text-neutral-400 transition-colors hover:text-primary"
               >
                 @twomcsu_adm
               </a>
             </p>
             <p>
               Помощь:{' '}
-              <a href="mailto:help@twomc.su" className="text-[#a5b4fc] transition-colors hover:text-primary">
+              <a href="mailto:help@twomc.su" className="text-neutral-400 transition-colors hover:text-primary">
                 help@twomc.su
               </a>
             </p>
@@ -83,7 +83,7 @@ export function SiteFooter() {
               Поддержка/вопросы:{' '}
               <a
                 href="mailto:support@twomc.su"
-                className="text-[#a5b4fc] transition-colors hover:text-primary"
+                className="text-neutral-400 transition-colors hover:text-primary"
               >
                 support@twomc.su
               </a>
@@ -92,14 +92,14 @@ export function SiteFooter() {
               Связь с администрацией:{' '}
               <a
                 href="mailto:admin@twomc.su"
-                className="text-[#a5b4fc] transition-colors hover:text-primary"
+                className="text-neutral-400 transition-colors hover:text-primary"
               >
                 admin@twomc.su
               </a>
             </p>
             <p>
               Реклама/предложения:{' '}
-              <a href="mailto:ads@twomc.su" className="text-[#a5b4fc] transition-colors hover:text-primary">
+              <a href="mailto:ads@twomc.su" className="text-neutral-400 transition-colors hover:text-primary">
                 ads@twomc.su
               </a>
             </p>
@@ -126,14 +126,14 @@ export function SiteFooter() {
                       href={link.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="block text-[#a5b4fc] transition-colors hover:text-primary"
+                      className="block text-neutral-400 transition-colors hover:text-primary"
                     >
                       {link.label}
                     </a>
                   ) : (
                     <Link
                       href={link.href}
-                      className="block text-[#a5b4fc] transition-colors hover:text-primary"
+                      className="block text-neutral-400 transition-colors hover:text-primary"
                     >
                       {link.label}
                     </Link>
@@ -151,7 +151,7 @@ export function SiteFooter() {
               <li key={link.label}>
                 <Link
                   href={link.href}
-                  className="block text-[#a5b4fc] transition-colors hover:text-primary"
+                  className="block text-neutral-400 transition-colors hover:text-primary"
                 >
                   {link.label}
                 </Link>

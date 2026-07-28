@@ -78,7 +78,7 @@ export const ServerCard = memo(function ServerCard({ server, className, compact 
               <span
                 className="rounded-md px-2 py-0.5 text-xs font-medium"
                 style={{
-                  backgroundColor: `${server.category.color ?? '#6366F1'}22`,
+                  backgroundColor: `${server.category.color ?? '#F57C00'}22`,
                   color: server.category.color ?? '#A5B4FC',
                 }}
               >

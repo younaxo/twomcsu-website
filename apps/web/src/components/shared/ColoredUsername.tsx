@@ -1,6 +1,6 @@
 'use client';
 
-import type { Position, UserBadge } from '@twomc/shared';
+import type { Position, UserBadgeType } from '@twomc/shared';
 import { userBadgeTypeOrder } from '@twomc/shared';
 import Link from 'next/link';
 import { memo, useMemo } from 'react';
@@ -11,12 +11,14 @@ import { cn } from '@/lib/utils';
 
 type UsernameSize = 'sm' | 'md' | 'lg';
 
+type BadgeLike = { id?: string; type: UserBadgeType | string };
+
 interface ColoredUsernameProps {
   user: { username: string; position: Position };
   size?: UsernameSize;
   showBadge?: boolean;
   linkToProfile?: boolean;
-  badges?: UserBadge[];
+  badges?: BadgeLike[];
   /** Limit badges shown after the nick (e.g. 1 in header, 2 in chat). */
   maxBadges?: number;
   className?: string;
@@ -49,7 +51,8 @@ function ColoredUsernameComponent({
     if (!badges?.length) return [];
     const rank = new Map(userBadgeTypeOrder.map((t, i) => [t, i]));
     const sorted = [...badges].sort(
-      (a, b) => (rank.get(a.type) ?? 99) - (rank.get(b.type) ?? 99),
+      (a, b) =>
+        (rank.get(a.type as UserBadgeType) ?? 99) - (rank.get(b.type as UserBadgeType) ?? 99),
     );
     return typeof maxBadges === 'number' ? sorted.slice(0, maxBadges) : sorted;
   }, [badges, maxBadges]);
@@ -79,8 +82,12 @@ function ColoredUsernameComponent({
 
       {orderedBadges.length > 0 ? (
         <span className="ml-1 inline-flex items-center gap-0.5">
-          {orderedBadges.map((badge) => (
-            <UserBadgeIcon key={badge.id} type={badge.type} size={badgeSize[size]} />
+          {orderedBadges.map((badge, index) => (
+            <UserBadgeIcon
+              key={badge.id ?? `${badge.type}-${index}`}
+              type={badge.type as UserBadgeType}
+              size={badgeSize[size]}
+            />
           ))}
         </span>
       ) : null}
