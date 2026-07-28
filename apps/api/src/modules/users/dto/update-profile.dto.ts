@@ -1,12 +1,13 @@
 import { CommentPolicy, FriendRequestPolicy, Gender, ProfileVisibility } from '@twomc/shared';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDateString,
   IsEnum,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class UpdateProfileDto {
@@ -35,7 +36,9 @@ export class UpdateProfileDto {
   gender?: Gender | null;
 
   @IsOptional()
-  @IsDateString()
+  @Transform(({ value }) => (value === '' ? null : value))
+  @ValidateIf((_, value) => value !== null)
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
   birthDate?: string | null;
 
   @IsOptional()

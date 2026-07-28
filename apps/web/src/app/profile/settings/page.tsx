@@ -137,7 +137,7 @@ export default function ProfileSettingsPage() {
         country: profile.country,
         city: profile.city,
         gender: profile.gender,
-        birthDate: profile.birthDate,
+        birthDate: profile.birthDate?.slice(0, 10) ?? null,
         showBirthDate: profile.showBirthDate,
         profileVisibility: profile.profileVisibility,
         friendRequestPolicy: profile.friendRequestPolicy,

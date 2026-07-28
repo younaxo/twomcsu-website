@@ -90,12 +90,43 @@ export function toStatistics(row: StatsRow): PlayerStatistics {
   };
 }
 
+const DATE_ONLY_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+export function formatBirthDate(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function parseBirthDate(value: string): Date {
+  const match = value.match(DATE_ONLY_RE);
+  if (!match) {
+    throw new Error('Invalid birth date');
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== month - 1 ||
+    parsed.getUTCDate() !== day
+  ) {
+    throw new Error('Invalid birth date');
+  }
+
+  return parsed;
+}
+
 export function calcAge(birthDate: Date): number {
   const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
+  let age = today.getUTCFullYear() - birthDate.getUTCFullYear();
+  const monthDiff = today.getUTCMonth() - birthDate.getUTCMonth();
 
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+  if (monthDiff < 0 || (monthDiff === 0 && today.getUTCDate() < birthDate.getUTCDate())) {
     age -= 1;
   }
 
@@ -119,7 +150,7 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     country: user.country,
     city: user.city,
     gender: user.gender as Gender | null,
-    birthDate: user.birthDate?.toISOString() ?? null,
+    birthDate: user.birthDate ? formatBirthDate(user.birthDate) : null,
     showBirthDate: user.showBirthDate,
     createdAt: user.createdAt.toISOString(),
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,

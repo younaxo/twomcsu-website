@@ -1,6 +1,6 @@
 'use client';
 
-import { format, getDaysInMonth, parseISO } from 'date-fns';
+import { getDaysInMonth } from 'date-fns';
 import {
   Select,
   SelectContent,
@@ -37,8 +37,20 @@ function partsFromValue(value: string | null) {
     return { day: 0, month: 0, year: 0 };
   }
 
-  const date = parseISO(value.slice(0, 10));
-  return { day: date.getUTCDate(), month: date.getUTCMonth() + 1, year: date.getUTCFullYear() };
+  const match = value.slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
+    return { day: 0, month: 0, year: 0 };
+  }
+
+  return {
+    year: Number(match[1]),
+    month: Number(match[2]),
+    day: Number(match[3]),
+  };
+}
+
+function toDateOnly(year: number, month: number, day: number) {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
 export function DateBirthPicker({ value, onChange }: DateBirthPickerProps) {
@@ -52,8 +64,7 @@ export function DateBirthPicker({ value, onChange }: DateBirthPickerProps) {
     }
 
     const safeDay = Math.min(nextDay, getDaysInMonth(new Date(nextYear, nextMonth - 1)));
-    const iso = format(new Date(Date.UTC(nextYear, nextMonth - 1, safeDay)), 'yyyy-MM-dd');
-    onChange(iso);
+    onChange(toDateOnly(nextYear, nextMonth, safeDay));
   };
 
   return (

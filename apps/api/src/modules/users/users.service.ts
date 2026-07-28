@@ -51,6 +51,7 @@ import { UpdateStatisticsDto } from './dto/update-statistics.dto';
 import {
   ProfileUser,
   toBannerPreset,
+  parseBirthDate,
   toMyProfile,
   toPublicProfile,
   toSocialLink,
@@ -99,7 +100,15 @@ export class UsersService {
     }
 
     if (dto.birthDate !== undefined) {
-      data.birthDate = dto.birthDate ? new Date(dto.birthDate) : null;
+      if (dto.birthDate === null) {
+        data.birthDate = null;
+      } else {
+        try {
+          data.birthDate = parseBirthDate(dto.birthDate);
+        } catch {
+          throw new BadRequestException('Некорректная дата рождения');
+        }
+      }
     }
 
     if (dto.showBirthDate !== undefined) data.showBirthDate = dto.showBirthDate;
