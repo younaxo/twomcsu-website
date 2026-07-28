@@ -41,6 +41,8 @@ export interface PublicUser {
 /** Row of the username lookup in the admin panel */
 export interface UserSearchResult {
   id: string;
+  shortId: number;
+  tag: string;
   username: string;
   avatar: string | null;
   roleGroup: RoleGroup;

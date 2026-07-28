@@ -16,6 +16,8 @@ export const selectPublicPosition = {
 /** Compact user card for lists (friends, search, assign dialog) */
 export const selectMinimalUser = {
   id: true,
+  shortId: true,
+  tag: true,
   username: true,
   avatar: true,
   roleGroup: true,

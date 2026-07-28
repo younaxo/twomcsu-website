@@ -32,6 +32,7 @@ import {
 } from '@twomc/shared';
 import { assertSearchLength } from '../../common/pagination';
 import { selectFullProfile, selectMinimalUser } from '../../common/prisma/user-selects';
+import { buildUserSearchWhere } from '../../common/user-search';
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { AuthenticatedUser } from '../auth/authenticated-user';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
@@ -816,7 +817,7 @@ export class UsersService {
     });
   }
 
-  /** Username lookup for the assign dialog in the admin panel */
+  /** Username lookup for autocomplete and admin tools */
   async search(query: string, limit = 10): Promise<UserSearchResult[]> {
     const q = assertSearchLength(query);
 
@@ -824,15 +825,26 @@ export class UsersService {
       return [];
     }
 
+    const take = Math.min(Math.max(limit, 1), 10);
+    const cacheKey = cacheKeys.userSearch(q, take);
+
+    return this.cache.wrap(cacheKey, CACHE_TTL.USER_SEARCH, async () =>
+      this.findUsersBySearch(q, take),
+    );
+  }
+
+  private async findUsersBySearch(query: string, limit: number): Promise<UserSearchResult[]> {
     const users = await this.prisma.user.findMany({
-      where: { username: { contains: q, mode: 'insensitive' } },
+      where: buildUserSearchWhere(query),
       orderBy: { username: 'asc' },
-      take: Math.min(Math.max(limit, 1), 100),
+      take: limit,
       select: selectMinimalUser,
     });
 
     return users.map((user) => ({
       id: user.id,
+      shortId: user.shortId,
+      tag: user.tag,
       username: user.username,
       avatar: user.avatar,
       roleGroup: user.roleGroup,

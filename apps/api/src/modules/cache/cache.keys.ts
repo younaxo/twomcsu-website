@@ -15,6 +15,8 @@ export const CACHE_TTL = {
   PROFILE_COMMENTS: 30,
   /** Unread notifications counter */
   NOTIFICATIONS_UNREAD: 30,
+  /** User autocomplete search */
+  USER_SEARCH: 30,
   /** Live server status snapshot */
   SERVER_STATUS: 60,
   /** Servers list with status */
@@ -53,6 +55,8 @@ export const cacheKeys = {
   friendsCount: (userId: string) => `friends:count:${userId}`,
   incomingCount: (userId: string) => `friends:incoming-count:${userId}`,
   authMe: (userId: string) => `auth:me:${userId}`,
+  userSearch: (query: string, limit: number) =>
+    `users:search:${query.trim().toLowerCase()}:${limit}`,
   notificationsUnread: (userId: string) => `notifications:unread:${userId}`,
   serverStatus: (serverId: string) => `server:${serverId}:status`,
   serversList: () => 'servers:list',

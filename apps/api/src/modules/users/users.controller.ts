@@ -41,10 +41,9 @@ export class UsersController {
   constructor(private readonly users: UsersService) {}
 
   @Get('search')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(RoleGroup.ADMIN)
+  @UseGuards(JwtAuthGuard)
   search(@Query() query: SearchUsersDto): Promise<UserSearchResult[]> {
-    return this.users.search(query.q);
+    return this.users.search(query.q, query.limit ?? 10);
   }
 
   @Get(':username/public')
