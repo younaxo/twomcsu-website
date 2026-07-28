@@ -46,6 +46,7 @@ export const mediaGroupOrder: MediaGroup[] = [
 ];
 
 export const UserBadgeType = {
+  LEADERSHIP: 'LEADERSHIP',
   VERIFIED: 'VERIFIED',
   SUBSCRIBER_PLUS: 'SUBSCRIBER_PLUS',
   PROJECT_TEAM: 'PROJECT_TEAM',
@@ -55,6 +56,7 @@ export const UserBadgeType = {
 export type UserBadgeType = (typeof UserBadgeType)[keyof typeof UserBadgeType];
 
 export const userBadgeTypeOrder: UserBadgeType[] = [
+  UserBadgeType.LEADERSHIP,
   UserBadgeType.VERIFIED,
   UserBadgeType.SUBSCRIBER_PLUS,
   UserBadgeType.PROJECT_TEAM,

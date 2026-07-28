@@ -1,6 +1,7 @@
 import { MediaGroup, SocialPlatform, UserBadgeType } from '@twomc/shared';
 
 export const userBadgeLabels: Record<UserBadgeType, string> = {
+  LEADERSHIP: 'Руководство',
   VERIFIED: 'Верифицирован',
   SUBSCRIBER_PLUS: 'Подписчик Плюс',
   PROJECT_TEAM: 'Команда проекта',
@@ -8,6 +9,7 @@ export const userBadgeLabels: Record<UserBadgeType, string> = {
 };
 
 export const userBadgeIcons: Record<UserBadgeType, string> = {
+  LEADERSHIP: '/badges/leadership.svg',
   VERIFIED: '/badges/verified.svg',
   SUBSCRIBER_PLUS: '/badges/subscriber-plus.svg',
   PROJECT_TEAM: '/badges/project-team.svg',

@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "UserBadgeType" ADD VALUE IF NOT EXISTS 'LEADERSHIP';
