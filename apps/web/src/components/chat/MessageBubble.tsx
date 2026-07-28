@@ -4,6 +4,7 @@ import type { ChatLinkPreview, ChatMessage } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Copy, Pin, Reply, Trash2 } from 'lucide-react';
+import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { PositionBadge } from '@/components/shared/PositionBadge';
@@ -66,7 +67,7 @@ function LinkPreview({ link }: { link: ChatLinkPreview }) {
   );
 }
 
-export function MessageBubble({
+export const MessageBubble = memo(function MessageBubble({
   message,
   currentUserId,
   canModerate,
@@ -200,4 +201,4 @@ export function MessageBubble({
       ) : null}
     </div>
   );
-}
+});

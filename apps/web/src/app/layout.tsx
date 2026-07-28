@@ -1,13 +1,18 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { Geologica, Onest } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
-import { ChatWidget } from '@/components/chat/ChatWidget';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
+
+const ChatWidget = dynamic(
+  () => import('@/components/chat/ChatWidget').then((mod) => mod.ChatWidget),
+  { ssr: false },
+);
 
 const geologica = Geologica({
   subsets: ['latin', 'cyrillic'],

@@ -1,6 +1,7 @@
 'use client';
 
 import { Server } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
@@ -8,7 +9,6 @@ import { toast } from 'sonner';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { PlayersList } from '@/components/servers/PlayersList';
 import { ServerCard } from '@/components/servers/ServerCard';
-import { ServerHistoryChart } from '@/components/servers/ServerHistoryChart';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +17,15 @@ import {
   useServerHistory,
   useServerPlayers,
 } from '@/hooks/servers';
+
+const ServerHistoryChart = dynamic(
+  () =>
+    import('@/components/servers/ServerHistoryChart').then((mod) => mod.ServerHistoryChart),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-72 w-full" />,
+  },
+);
 
 export default function ServerDetailPage() {
   const params = useParams<{ slug: string }>();

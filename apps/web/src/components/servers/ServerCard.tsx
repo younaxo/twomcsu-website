@@ -3,6 +3,7 @@
 import type { GameServer } from '@twomc/shared';
 import { Flame, Leaf, Star } from 'lucide-react';
 import Link from 'next/link';
+import { memo } from 'react';
 import { toast } from 'sonner';
 import { CopyableAddress } from '@/components/servers/CopyableAddress';
 import { ServerStatusBadge } from '@/components/servers/ServerStatusBadge';
@@ -23,7 +24,7 @@ interface ServerCardProps {
   compact?: boolean;
 }
 
-export function ServerCard({ server, className, compact }: ServerCardProps) {
+export const ServerCard = memo(function ServerCard({ server, className, compact }: ServerCardProps) {
   const online = server.status?.online ?? false;
   const players = server.status?.playerCount ?? 0;
   const max = server.status?.maxPlayers ?? server.maxPlayers;
@@ -150,7 +151,7 @@ export function ServerCard({ server, className, compact }: ServerCardProps) {
       </div>
     </article>
   );
-}
+});
 
 function isPeakHour(): boolean {
   const hour = new Date().getHours();
