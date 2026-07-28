@@ -48,7 +48,7 @@ export function CommentsList({
     );
   }
 
-  if (commentsQuery.isPending || (commentsQuery.isLoading && !commentsQuery.data)) {
+  if (commentsQuery.isPending) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-28 w-full" />

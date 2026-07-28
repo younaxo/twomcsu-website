@@ -216,7 +216,7 @@ export function CommentCard({ comment, profileUsername, isReply }: CommentCardPr
                       className="text-destructive"
                       onClick={() =>
                         void deleteComment
-                          .mutateAsync()
+                          .mutateAsync(undefined)
                           .then(() => toast.success('Комментарий удалён'))
                           .catch((error) =>
                             toast.error(extractErrorMessage(error, 'Не удалось удалить')),
