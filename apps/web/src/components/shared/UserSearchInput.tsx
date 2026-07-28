@@ -3,8 +3,8 @@
 import type { UserSearchResult } from '@twomc/shared';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { PositionBadge } from '@/components/shared/PositionBadge';
-import { SkinHead } from '@/components/shared/SkinHead';
 import { Input } from '@/components/ui/input';
 import { api } from '@/lib/api';
 import { resolveMediaUrl } from '@/lib/profile';
@@ -140,6 +140,7 @@ export function UserSearchInput({
         autoComplete="off"
         placeholder={placeholder}
         role="combobox"
+        aria-autocomplete="list"
         aria-expanded={open}
         aria-controls={listboxId}
         aria-activedescendant={
@@ -169,7 +170,7 @@ export function UserSearchInput({
           ref={listRef}
           id={listboxId}
           role="listbox"
-          className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-border bg-popover text-popover-foreground shadow-md"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md glass-heavy text-popover-foreground shadow-md"
         >
           {results.map((user, index) => (
             <li
@@ -187,10 +188,12 @@ export function UserSearchInput({
                   index === activeIndex && 'bg-secondary',
                 )}
               >
-                <SkinHead
-                  username={user.username}
-                  avatar={resolveMediaUrl(user.avatar) ?? null}
-                  size={28}
+                <AvatarWithSkin
+                  user={{
+                    username: user.username,
+                    avatar: resolveMediaUrl(user.avatar) ?? null,
+                  }}
+                  size="sm"
                 />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{user.username}</p>
