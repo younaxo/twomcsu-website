@@ -30,7 +30,7 @@ export function Logo({
   return (
     <Link
       href="/"
-      className={cn('group inline-flex items-center gap-4', className)}
+      className={cn('inline-flex cursor-pointer items-center gap-4', className)}
       aria-label="TWOMC — на главную"
     >
       <Image
@@ -39,11 +39,7 @@ export function Logo({
         width={px}
         height={px}
         priority
-        className={cn(
-          'transition-transform duration-300 group-hover:scale-105',
-          'drop-shadow-[0_0_10px_hsl(var(--primary)/0.35)]',
-          imageClassName,
-        )}
+        className={cn(imageClassName)}
       />
       {withDivider ? <span className="h-7 w-px bg-white/10" aria-hidden /> : null}
       {showText ? (
