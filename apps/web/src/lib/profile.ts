@@ -58,7 +58,7 @@ export const profileReportLabels = {
 export const rarityBorder: Record<string, string> = {
   common: 'border-zinc-500',
   rare: 'border-blue-500',
-  epic: 'border-purple-500',
+  epic: 'border-amber-400',
   legendary: 'border-amber-400',
 };
 
