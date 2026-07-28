@@ -22,7 +22,6 @@ import {
   EditMessageDto,
   MessageIdDto,
   MuteUserDto,
-  ReactionDto,
   SendMessageDto,
 } from './dto/chat.dto';
 
@@ -193,33 +192,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('add_reaction')
-  async addReaction(@ConnectedSocket() client: AuthedSocket, @MessageBody() body: ReactionDto) {
-    const user = this.requireUser(client);
-    try {
-      const result = await this.messages.addReaction(user.id, body.messageId, body.emoji);
-      this.server.to(`channel:${result.channelId}`).emit('reaction:added', result);
-      return { ok: true, ...result };
-    } catch (error) {
-      return { ok: false, error: (error as Error).message };
-    }
-  }
-
-  @SubscribeMessage('remove_reaction')
-  async removeReaction(
-    @ConnectedSocket() client: AuthedSocket,
-    @MessageBody() body: MessageIdDto,
-  ) {
-    const user = this.requireUser(client);
-    try {
-      const result = await this.messages.removeReaction(user.id, body.messageId);
-      this.server.to(`channel:${result.channelId}`).emit('reaction:removed', result);
-      return { ok: true, ...result };
-    } catch (error) {
-      return { ok: false, error: (error as Error).message };
-    }
-  }
-
   @SubscribeMessage('typing_start')
   async typingStart(@ConnectedSocket() client: AuthedSocket, @MessageBody() body: ChannelIdDto) {
     const user = this.requireUser(client);
@@ -289,13 +261,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } catch (error) {
       return { ok: false, error: (error as Error).message };
     }
-  }
-
-  emitSlowModeChanged(channelId: string, slowMode: number | null) {
-    this.server.to(`channel:${channelId}`).emit('channel:slow_mode_changed', {
-      channelId,
-      slowMode,
-    });
   }
 
   private requireUser(client: AuthedSocket) {

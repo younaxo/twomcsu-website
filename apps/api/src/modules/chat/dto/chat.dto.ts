@@ -5,7 +5,6 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  Max,
   MaxLength,
   Min,
   MinLength,
@@ -38,14 +37,6 @@ export class EditMessageDto {
 export class MessageIdDto {
   @IsString()
   messageId!: string;
-}
-
-export class ReactionDto {
-  @IsString()
-  messageId!: string;
-
-  @IsIn(['thumbs_up', 'heart', 'laugh', 'wow', 'sad', 'angry', 'party', 'fire'])
-  emoji!: string;
 }
 
 export class ChannelIdDto {
@@ -126,10 +117,6 @@ export class CreateChannelDto {
   @IsInt()
   @Min(0)
   order?: number;
-
-  @IsOptional()
-  @IsString()
-  minRoleGroup?: string;
 }
 
 export class UpdateChannelDto {
@@ -161,26 +148,7 @@ export class UpdateChannelDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
-  slowMode?: number | null;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
   order?: number;
-
-  @IsOptional()
-  @IsString()
-  minRoleGroup?: string | null;
-}
-
-export class SlowModeDto {
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  @Max(3600)
-  seconds?: number | null;
 }
 
 export class ChatSettingsDto {
@@ -203,10 +171,4 @@ export class ChatSettingsDto {
   @IsInt()
   @Min(1)
   rateLimitWindowSec?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  defaultSlowMode?: number;
 }

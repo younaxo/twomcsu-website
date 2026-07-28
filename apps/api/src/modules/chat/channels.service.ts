@@ -46,7 +46,6 @@ export class ChannelsService {
         icon: dto.icon ?? null,
         isReadOnly: dto.isReadOnly ?? false,
         order: dto.order ?? 0,
-        minRoleGroup: dto.minRoleGroup ?? null,
       },
     });
     return this.mapChannel(row);
@@ -64,9 +63,7 @@ export class ChannelsService {
         icon: dto.icon,
         isActive: dto.isActive,
         isReadOnly: dto.isReadOnly,
-        slowMode: dto.slowMode === undefined ? undefined : dto.slowMode,
         order: dto.order,
-        minRoleGroup: dto.minRoleGroup === undefined ? undefined : dto.minRoleGroup,
       },
     });
     await this.cache.del(cacheKeys.chatChannel(row.slug));
@@ -78,15 +75,6 @@ export class ChannelsService {
     if (!existing) throw new NotFoundException('Канал не найден');
     await this.prisma.chatChannel.delete({ where: { id } });
     await this.cache.del(cacheKeys.chatChannel(existing.slug));
-  }
-
-  async setSlowMode(id: string, seconds: number | null) {
-    const row = await this.prisma.chatChannel.update({
-      where: { id },
-      data: { slowMode: seconds },
-    });
-    await this.cache.del(cacheKeys.chatChannel(row.slug));
-    return this.mapChannel(row);
   }
 
   private mapChannel(row: {

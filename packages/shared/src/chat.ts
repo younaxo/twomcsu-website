@@ -29,18 +29,6 @@ export const ChatMuteReason = {
 } as const;
 export type ChatMuteReason = (typeof ChatMuteReason)[keyof typeof ChatMuteReason];
 
-export const CHAT_REACTION_EMOJIS = [
-  'thumbs_up',
-  'heart',
-  'laugh',
-  'wow',
-  'sad',
-  'angry',
-  'party',
-  'fire',
-] as const;
-export type ChatReactionEmoji = (typeof CHAT_REACTION_EMOJIS)[number];
-
 export interface ChatChannel {
   id: string;
   slug: string;
@@ -62,12 +50,6 @@ export interface ChatMessageAuthor {
   roleGroup: RoleGroup;
   position?: Position | null;
   badges?: Array<{ id?: string; type: UserBadgeType | string }>;
-}
-
-export interface ChatMessageReactionSummary {
-  emoji: string;
-  count: number;
-  reactedByMe: boolean;
 }
 
 export interface ChatLinkPreview {
@@ -98,7 +80,6 @@ export interface ChatMessage {
   isEdited: boolean;
   isDeleted: boolean;
   metadata: { links?: ChatLinkPreview[] } | null;
-  reactions: ChatMessageReactionSummary[];
   createdAt: string;
   updatedAt: string;
 }

@@ -54,8 +54,9 @@ const authorInclude = {
       author: { select: { id: true, username: true } },
     },
   },
-  reactions: { select: { emoji: true, userId: true } },
 } as const;
+
+const MAX_PINNED_MESSAGES = 3;
 
 @Injectable()
 export class MessagesService {
@@ -73,9 +74,7 @@ export class MessagesService {
 
   async getRecent(channelId: string, viewerId?: string): Promise<ChatMessage[]> {
     const cached = await this.cache.get<ChatMessage[]>(cacheKeys.chatMessagesRecent(channelId));
-    if (cached) {
-      return viewerId ? this.withReactedByMe(cached, viewerId) : cached;
-    }
+    if (cached) return cached;
 
     const rows = await this.prisma.chatMessage.findMany({
       where: { channelId },
@@ -121,6 +120,7 @@ export class MessagesService {
     const rows = await this.prisma.chatMessage.findMany({
       where: { channelId: channel.id, isPinned: true, isDeleted: false },
       orderBy: { pinnedAt: 'desc' },
+      take: MAX_PINNED_MESSAGES,
       include: authorInclude,
     });
     return rows.map((row) => this.mapMessage(row, viewerId));
@@ -260,6 +260,20 @@ export class MessagesService {
       throw new ForbiddenException('Недостаточно прав');
     }
     const existing = await this.requireMessage(messageId);
+
+    if (!existing.isPinned) {
+      const pinnedCount = await this.prisma.chatMessage.count({
+        where: {
+          channelId: existing.channelId,
+          isPinned: true,
+          isDeleted: false,
+        },
+      });
+      if (pinnedCount >= MAX_PINNED_MESSAGES) {
+        throw new BadRequestException(`Можно закрепить не больше ${MAX_PINNED_MESSAGES} сообщений`);
+      }
+    }
+
     const row = await this.prisma.chatMessage.update({
       where: { id: messageId },
       data: {
@@ -285,24 +299,6 @@ export class MessagesService {
     });
     await this.cache.del(cacheKeys.chatMessagesRecent(existing.channelId));
     return this.mapMessage(row, actorId);
-  }
-
-  async addReaction(userId: string, messageId: string, emoji: string) {
-    const existing = await this.requireMessage(messageId);
-    await this.prisma.chatMessageReaction.upsert({
-      where: { messageId_userId: { messageId, userId } },
-      create: { messageId, userId, emoji },
-      update: { emoji },
-    });
-    await this.cache.del(cacheKeys.chatMessagesRecent(existing.channelId));
-    return { messageId, userId, emoji, channelId: existing.channelId };
-  }
-
-  async removeReaction(userId: string, messageId: string) {
-    const existing = await this.requireMessage(messageId);
-    await this.prisma.chatMessageReaction.deleteMany({ where: { messageId, userId } });
-    await this.cache.del(cacheKeys.chatMessagesRecent(existing.channelId));
-    return { messageId, userId, channelId: existing.channelId };
   }
 
   async search(q: string, channelSlug?: string, limit = 50) {
@@ -406,16 +402,6 @@ export class MessagesService {
     return row;
   }
 
-  private withReactedByMe(messages: ChatMessage[], viewerId: string): ChatMessage[] {
-    return messages.map((msg) => ({
-      ...msg,
-      reactions: msg.reactions.map((r) => ({
-        ...r,
-        reactedByMe: false,
-      })),
-    }));
-  }
-
   private mapMessage(
     row: {
       id: string;
@@ -455,18 +441,9 @@ export class MessagesService {
         content: string;
         author: { id: string; username: string } | null;
       } | null;
-      reactions?: { emoji: string; userId: string }[];
     },
-    viewerId?: string,
+    _viewerId?: string,
   ): ChatMessage {
-    const reactionMap = new Map<string, { count: number; reactedByMe: boolean }>();
-    for (const r of row.reactions ?? []) {
-      const cur = reactionMap.get(r.emoji) ?? { count: 0, reactedByMe: false };
-      cur.count += 1;
-      if (viewerId && r.userId === viewerId) cur.reactedByMe = true;
-      reactionMap.set(r.emoji, cur);
-    }
-
     return {
       id: row.id,
       channelId: row.channelId,
@@ -503,11 +480,6 @@ export class MessagesService {
       isEdited: row.isEdited,
       isDeleted: row.isDeleted,
       metadata: (row.metadata as ChatMessage['metadata']) ?? null,
-      reactions: [...reactionMap.entries()].map(([emoji, v]) => ({
-        emoji,
-        count: v.count,
-        reactedByMe: v.reactedByMe,
-      })),
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
     };

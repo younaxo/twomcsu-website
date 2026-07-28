@@ -115,7 +115,6 @@ export class ModerationService {
       'chat.previewWhitelist',
       'chat.rateLimitCount',
       'chat.rateLimitWindowSec',
-      'chat.defaultSlowMode',
     ];
     const rows = await this.prisma.siteSetting.findMany({
       where: { key: { in: keys } },
@@ -126,7 +125,6 @@ export class ModerationService {
       previewWhitelist: map['chat.previewWhitelist'] ?? 'youtube.com,youtu.be,twitch.tv,imgur.com',
       rateLimitCount: Number(map['chat.rateLimitCount'] ?? 5),
       rateLimitWindowSec: Number(map['chat.rateLimitWindowSec'] ?? 10),
-      defaultSlowMode: Number(map['chat.defaultSlowMode'] ?? 0),
     };
   }
 
@@ -135,7 +133,6 @@ export class ModerationService {
     previewWhitelist?: string;
     rateLimitCount?: number;
     rateLimitWindowSec?: number;
-    defaultSlowMode?: number;
   }) {
     const entries: Array<[string, string]> = [];
     if (data.blacklist !== undefined) entries.push(['chat.blacklist', String(data.blacklist)]);
@@ -147,9 +144,6 @@ export class ModerationService {
     }
     if (data.rateLimitWindowSec !== undefined) {
       entries.push(['chat.rateLimitWindowSec', String(data.rateLimitWindowSec)]);
-    }
-    if (data.defaultSlowMode !== undefined) {
-      entries.push(['chat.defaultSlowMode', String(data.defaultSlowMode)]);
     }
 
     for (const [key, value] of entries) {

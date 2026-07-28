@@ -16,11 +16,9 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { ChannelsService } from './channels.service';
-import { ChatGateway } from './chat.gateway';
 import {
   ChatSettingsDto,
   CreateChannelDto,
-  SlowModeDto,
   UpdateChannelDto,
 } from './dto/chat.dto';
 import { MessagesService } from './messages.service';
@@ -34,7 +32,6 @@ export class AdminChatController {
     private readonly channels: ChannelsService,
     private readonly messages: MessagesService,
     private readonly moderation: ModerationService,
-    private readonly gateway: ChatGateway,
   ) {}
 
   @Post('channels')
@@ -52,13 +49,6 @@ export class AdminChatController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteChannel(@Param('id') id: string) {
     await this.channels.remove(id);
-  }
-
-  @Post('channels/:id/slow-mode')
-  async setSlowMode(@Param('id') id: string, @Body() dto: SlowModeDto) {
-    const channel = await this.channels.setSlowMode(id, dto.seconds ?? null);
-    this.gateway.emitSlowModeChanged(channel.id, channel.slowMode);
-    return channel;
   }
 
   @Get('mutes')

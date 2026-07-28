@@ -1099,6 +1099,7 @@ model ChatMessage {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
+  /// Kept for schema compatibility; chat UI no longer uses reactions
   reactions ChatMessageReaction[]
 
   @@index([channelId, createdAt])
@@ -1107,6 +1108,7 @@ model ChatMessage {
   @@map("chat_messages")
 }
 
+/// Unused: chat reactions removed from product; table kept for history / possible restore
 model ChatMessageReaction {
   id        String      @id @default(cuid())
   messageId String
