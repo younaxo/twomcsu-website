@@ -11,13 +11,13 @@ const TooltipTrigger = TooltipPrimitive.Trigger;
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 6, children, ...props }, ref) => (
+>(({ className, sideOffset = 8, children, ...props }, ref) => (
   <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 max-w-xs rounded-xl border border-white/10 bg-card/95 px-3.5 py-2 text-[13px] text-foreground shadow-lg backdrop-blur-md',
+        'z-50 max-w-xs rounded-lg border border-white/10 bg-[rgba(20,20,20,0.95)] px-4 py-2 text-[0.9rem] text-white shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-[10px]',
         'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
         'data-[side=bottom]:slide-in-from-top-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1',
         className,
@@ -25,7 +25,7 @@ const TooltipContent = React.forwardRef<
       {...props}
     >
       {children}
-      <TooltipPrimitive.Arrow className="fill-card/95" width={10} height={5} />
+      <TooltipPrimitive.Arrow className="fill-[rgba(20,20,20,0.95)]" width={11} height={6} />
     </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
 ));

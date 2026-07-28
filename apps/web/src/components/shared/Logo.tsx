@@ -5,24 +5,32 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 const sizes = {
-  sm: { px: 28, text: 'text-base' },
-  md: { px: 36, text: 'text-lg' },
-  lg: { px: 48, text: 'text-xl' },
+  sm: { px: 38, text: 'text-[1.45rem]' },
+  md: { px: 48, text: 'text-[1.75rem]' },
+  lg: { px: 56, text: 'text-2xl' },
 } as const;
 
 interface LogoProps {
   size?: keyof typeof sizes;
   showText?: boolean;
+  withDivider?: boolean;
   className?: string;
+  imageClassName?: string;
 }
 
-export function Logo({ size = 'md', showText = true, className }: LogoProps) {
+export function Logo({
+  size = 'md',
+  showText = true,
+  withDivider = false,
+  className,
+  imageClassName,
+}: LogoProps) {
   const { px, text } = sizes[size];
 
   return (
     <Link
       href="/"
-      className={cn('inline-flex items-center gap-2.5 transition-opacity hover:opacity-90', className)}
+      className={cn('group inline-flex items-center gap-4', className)}
       aria-label="TWOMC — на главную"
     >
       <Image
@@ -30,13 +38,16 @@ export function Logo({ size = 'md', showText = true, className }: LogoProps) {
         alt="TWOMC"
         width={px}
         height={px}
-        className="rounded-lg"
         priority
+        className={cn(
+          'transition-transform duration-300 group-hover:scale-105',
+          'drop-shadow-[0_0_10px_hsl(var(--primary)/0.35)]',
+          imageClassName,
+        )}
       />
+      {withDivider ? <span className="h-7 w-px bg-white/10" aria-hidden /> : null}
       {showText ? (
-        <span className={cn('logo text-white', text)}>
-          twomc<span className="text-primary">.su</span>
-        </span>
+        <span className={cn('logo font-bold text-white', text)}>twomc.su</span>
       ) : null}
     </Link>
   );

@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <TooltipProvider delayDuration={300}>
               <SiteHeader />
-              <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
+              <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-32">
                 {children}
               </main>
               <SiteFooter />
