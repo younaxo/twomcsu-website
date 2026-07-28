@@ -14,7 +14,6 @@ import {
 interface MessageInputProps {
   disabled?: boolean;
   muteMessage?: string | null;
-  slowModeSeconds?: number | null;
   replyTo?: ChatMessage | null;
   onCancelReply?: () => void;
   onSend: (content: string) => void;
@@ -27,7 +26,6 @@ interface MessageInputProps {
 export function MessageInput({
   disabled,
   muteMessage,
-  slowModeSeconds,
   replyTo,
   onCancelReply,
   onSend,
@@ -35,22 +33,9 @@ export function MessageInput({
   onTypingStop,
 }: MessageInputProps) {
   const [value, setValue] = useState('');
-  const [wait, setWait] = useState(0);
   const typingRef = useRef(false);
   const stopTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (!slowModeSeconds || slowModeSeconds <= 0) {
-      setWait(0);
-      return;
-    }
-    setWait(slowModeSeconds);
-    const t = setInterval(() => {
-      setWait((w) => Math.max(0, w - 1));
-    }, 1000);
-    return () => clearInterval(t);
-  }, [slowModeSeconds]);
 
   useEffect(() => {
     if (replyTo) taRef.current?.focus();
@@ -75,7 +60,7 @@ export function MessageInput({
 
   const submit = () => {
     const content = value.trim();
-    if (!content || disabled || wait > 0 || muteMessage) return;
+    if (!content || disabled || muteMessage) return;
     onSend(content);
     setValue('');
     onTypingStop?.();
@@ -149,7 +134,7 @@ export function MessageInput({
           onChange={(e) => onChange(e.target.value)}
           placeholder="Написать сообщение… (@ник для упоминания)"
           className="min-h-[44px] max-h-32 resize-none"
-          disabled={disabled || wait > 0}
+          disabled={disabled}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
@@ -161,18 +146,12 @@ export function MessageInput({
           type="button"
           size="icon"
           className="shrink-0"
-          disabled={disabled || wait > 0 || !value.trim()}
+          disabled={disabled || !value.trim()}
           onClick={submit}
         >
           <Send className="h-4 w-4" />
         </Button>
       </div>
-
-      {wait > 0 ? (
-        <p className="text-xs text-muted-foreground">
-          Следующее сообщение через {wait} сек.
-        </p>
-      ) : null}
     </div>
   );
 }

@@ -2,20 +2,17 @@
 
 import type { ChatMessage } from '@twomc/shared';
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
-import { MessageSquare, Users } from 'lucide-react';
+import { MessageSquare, Pin, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { MessageBubble } from '@/components/chat/MessageBubble';
 import { MessageInput } from '@/components/chat/MessageInput';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useChatChannel,
-  useChatChannels,
   useChatMessages,
   useChatOnline,
   useChatPinned,
@@ -26,33 +23,25 @@ import { useSocket } from '@/hooks/useSocket';
 import { cn } from '@/lib/utils';
 import { useChatStore } from '@/stores/chatStore';
 
+const GENERAL_SLUG = 'general';
+
 interface ChatPanelProps {
   className?: string;
   compact?: boolean;
-  initialSlug?: string;
 }
 
-export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
+export function ChatPanel({ className, compact }: ChatPanelProps) {
   const { user, isAuthenticated } = useAuth();
   const { socket, connected } = useSocket(isAuthenticated);
-  const channelsQuery = useChatChannels(true);
   const settings = useChatStore((s) => s.settings);
-  const currentSlug = useChatStore((s) => s.currentChannelSlug);
   const setCurrentChannel = useChatStore((s) => s.setCurrentChannel);
-  const unreadCounts = useChatStore((s) => s.unreadCounts);
   const clearUnread = useChatStore((s) => s.clearUnread);
   const incrementUnread = useChatStore((s) => s.incrementUnread);
   const typingByChannel = useChatStore((s) => s.typingByChannel);
   const setTyping = useChatStore((s) => s.setTyping);
   const isWidgetOpen = useChatStore((s) => s.isWidgetOpen);
 
-  const slug =
-    currentSlug ??
-    initialSlug ??
-    settings.defaultChannel ??
-    channelsQuery.data?.[0]?.slug ??
-    null;
-
+  const slug = GENERAL_SLUG;
   const channelQuery = useChatChannel(slug);
   const messagesQuery = useChatMessages(slug);
   const onlineQuery = useChatOnline(slug);
@@ -72,9 +61,14 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
     ? hasRoleGroup(user.roleGroup, RoleGroup.MODERATOR)
     : false;
 
+  const pinnedMessages = useMemo(
+    () => (pinnedQuery.data ?? []).slice(0, 3),
+    [pinnedQuery.data],
+  );
+
   useEffect(() => {
-    if (slug && !currentSlug) setCurrentChannel(slug);
-  }, [slug, currentSlug, setCurrentChannel]);
+    setCurrentChannel(slug);
+  }, [slug, setCurrentChannel]);
 
   useEffect(() => {
     setLocalMessages(messagesQuery.data?.items ?? []);
@@ -96,7 +90,7 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
       } else {
         requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }));
       }
-      if (!isWidgetOpen && channel.slug !== slug) {
+      if (!isWidgetOpen) {
         incrementUnread(channel.slug);
       }
     };
@@ -109,6 +103,12 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
     const onDeleted = (message: ChatMessage) => {
       if (message.channelId !== channel.id) return;
       setLocalMessages((prev) => prev.map((m) => (m.id === message.id ? message : m)));
+    };
+
+    const onPinned = (message: ChatMessage) => {
+      if (message.channelId !== channel.id) return;
+      setLocalMessages((prev) => prev.map((m) => (m.id === message.id ? message : m)));
+      void pinnedQuery.refetch();
     };
 
     const onTyping = (payload: { channelId: string; username: string }) => {
@@ -131,8 +131,8 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
     socket.on('message:new', onNew);
     socket.on('message:edited', onEdited);
     socket.on('message:deleted', onDeleted);
-    socket.on('message:pinned', onEdited);
-    socket.on('message:unpinned', onEdited);
+    socket.on('message:pinned', onPinned);
+    socket.on('message:unpinned', onPinned);
     socket.on('user:typing', onTyping);
     socket.on('user:stopped_typing', onStopTyping);
 
@@ -141,15 +141,23 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
       socket.off('message:new', onNew);
       socket.off('message:edited', onEdited);
       socket.off('message:deleted', onDeleted);
-      socket.off('message:pinned', onEdited);
-      socket.off('message:unpinned', onEdited);
+      socket.off('message:pinned', onPinned);
+      socket.off('message:unpinned', onPinned);
       socket.off('user:typing', onTyping);
       socket.off('user:stopped_typing', onStopTyping);
     };
-  }, [socket, channel, settings.showTyping, setTyping, incrementUnread, isWidgetOpen, slug]);
+  }, [
+    socket,
+    channel,
+    settings.showTyping,
+    setTyping,
+    incrementUnread,
+    isWidgetOpen,
+    pinnedQuery,
+  ]);
 
   useEffect(() => {
-    if (slug) clearUnread(slug);
+    clearUnread(slug);
   }, [slug, clearUnread]);
 
   useEffect(() => {
@@ -214,68 +222,35 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
     stickBottom.current = true;
   };
 
-  const changeChannel = (next: string) => {
-    setCurrentChannel(next);
-    setReplyTo(null);
-    stickBottom.current = true;
-    setNewBelow(0);
-  };
-
   return (
     <div className={cn('flex h-full min-h-0 flex-col rounded-xl border border-border bg-card', className)}>
-      <div className="border-b border-border p-2">
-        <Tabs value={slug ?? undefined} onValueChange={changeChannel}>
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
-            {(channelsQuery.data ?? []).map((ch) => (
-              <TabsTrigger
-                key={ch.id}
-                value={ch.slug}
-                className="relative data-[state=active]:bg-secondary"
-              >
-                <span className="mr-1">{ch.icon}</span>
-                {!compact ? ch.name : null}
-                {(unreadCounts[ch.slug] ?? 0) > 0 ? (
-                  <Badge variant="destructive" className="ml-1 h-4 min-w-4 px-1 text-[10px]">
-                    {unreadCounts[ch.slug]}
-                  </Badge>
-                ) : null}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        <div className="mt-2 flex items-center justify-between px-1">
-          <div>
-            <p className="text-sm font-medium text-white">
-              {channel?.icon} {channel?.name ?? 'Чат'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {connected ? 'Онлайн' : isAuthenticated ? 'Подключение…' : 'Войдите, чтобы писать'}
-            </p>
-          </div>
-          <div className="flex gap-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8"
-              onClick={() => setShowOnline((v) => !v)}
-              aria-label="Онлайн"
-            >
-              <Users className="h-4 w-4" />
+      <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
+        <div>
+          <p className="text-sm font-medium text-white">
+            {channel?.icon ? `${channel.icon} ` : null}
+            {channel?.name ?? 'Общий чат'}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {connected ? 'Онлайн' : isAuthenticated ? 'Подключение…' : 'Войдите, чтобы писать'}
+          </p>
+        </div>
+        <div className="flex gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8"
+            onClick={() => setShowOnline((v) => !v)}
+            aria-label="Онлайн"
+          >
+            <Users className="h-4 w-4" />
+          </Button>
+          {compact ? (
+            <Button size="sm" variant="outline" asChild>
+              <Link href="/chat">На весь экран</Link>
             </Button>
-            {compact ? (
-              <Button size="sm" variant="outline" asChild>
-                <Link href="/chat">На весь экран</Link>
-              </Button>
-            ) : null}
-          </div>
+          ) : null}
         </div>
       </div>
-
-      {(pinnedQuery.data?.length ?? 0) > 0 ? (
-        <div className="border-b border-border bg-amber-500/5 px-3 py-2 text-xs">
-          📌 Закреплено: {pinnedQuery.data?.map((m) => m.content.slice(0, 40)).join(' · ')}
-        </div>
-      ) : null}
 
       <div className="flex min-h-0 flex-1">
         <div className="relative flex min-w-0 flex-1 flex-col">
@@ -284,6 +259,28 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
             onScroll={onScroll}
             className="flex-1 space-y-1 overflow-y-auto px-2 py-3"
           >
+            {pinnedMessages.length > 0 ? (
+              <div className="sticky top-0 z-10 -mx-2 mb-2 space-y-1.5 bg-card/95 px-2 pb-2 pt-1 backdrop-blur-sm">
+                {pinnedMessages.map((message) => (
+                  <div
+                    key={`pin-${message.id}`}
+                    className="rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-2"
+                  >
+                    <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-amber-300">
+                      <Pin className="h-3.5 w-3.5" />
+                      Закреплено
+                      {message.author?.username ? (
+                        <span className="font-normal text-muted-foreground">
+                          · {message.author.username}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="line-clamp-2 text-sm text-foreground/90">{message.content}</p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
             {messagesQuery.isLoading ? (
               <div className="space-y-2 p-2">
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -305,17 +302,14 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
                   currentUserId={user?.id}
                   canModerate={canModerate}
                   onReply={setReplyTo}
-                  onReact={(messageId, emoji) => {
-                    void emitAck('add_reaction', { messageId, emoji });
-                  }}
-                  onRemoveReact={(messageId) => {
-                    void emitAck('remove_reaction', { messageId });
-                  }}
                   onDelete={(messageId) => {
                     void emitAck('delete_message', { messageId });
                   }}
                   onPin={(messageId, unpin) => {
-                    void emitAck('pin_message', { messageId, unpin });
+                    void emitAck('pin_message', { messageId, unpin }).then((res) => {
+                      if (!res.ok) toast.error(res.error ?? 'Не удалось закрепить');
+                      else void pinnedQuery.refetch();
+                    });
                   }}
                 />
               ))
@@ -374,18 +368,13 @@ export function ChatPanel({ className, compact, initialSlug }: ChatPanelProps) {
             </p>
             <div className="space-y-1">
               {(onlineQuery.data ?? []).map((u) => (
-                <button
+                <Link
                   key={u.id}
-                  type="button"
-                  className="block w-full truncate rounded px-1.5 py-1 text-left text-sm hover:bg-accent"
-                  onClick={() => {
-                    /* mention helper via input would need ref; keep simple link */
-                  }}
+                  href={`/users/${u.username}`}
+                  className="block w-full truncate rounded px-1.5 py-1 text-left text-sm hover:bg-accent hover:underline"
                 >
-                  <Link href={`/users/${u.username}`} className="hover:underline">
-                    {u.username}
-                  </Link>
-                </button>
+                  {u.username}
+                </Link>
               ))}
             </div>
           </aside>

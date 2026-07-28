@@ -9,7 +9,6 @@ interface ChatSettings {
   soundEnabled: boolean;
   notifyOnMention: boolean;
   showTyping: boolean;
-  defaultChannel: string;
 }
 
 interface ChatState {
@@ -39,7 +38,6 @@ const defaultSettings: ChatSettings = {
   soundEnabled: false,
   notifyOnMention: true,
   showTyping: true,
-  defaultChannel: 'general',
 };
 
 export const useChatStore = create<ChatState>()(

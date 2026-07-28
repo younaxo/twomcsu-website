@@ -1,11 +1,9 @@
 'use client';
 
 import type { ChatLinkPreview, ChatMessage } from '@twomc/shared';
-import { CHAT_REACTION_EMOJIS } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Copy, Pin, Reply, Smile, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Copy, Pin, Reply, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { PositionBadge } from '@/components/shared/PositionBadge';
@@ -18,24 +16,11 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
-const EMOJI_LABELS: Record<string, string> = {
-  thumbs_up: '👍',
-  heart: '❤️',
-  laugh: '😂',
-  wow: '😮',
-  sad: '😢',
-  angry: '😠',
-  party: '🥳',
-  fire: '🔥',
-};
-
 interface MessageBubbleProps {
   message: ChatMessage;
   currentUserId?: string;
   canModerate?: boolean;
   onReply?: (message: ChatMessage) => void;
-  onReact?: (messageId: string, emoji: string) => void;
-  onRemoveReact?: (messageId: string) => void;
   onDelete?: (messageId: string) => void;
   onPin?: (messageId: string, unpin?: boolean) => void;
 }
@@ -86,12 +71,9 @@ export function MessageBubble({
   currentUserId,
   canModerate,
   onReply,
-  onReact,
-  onRemoveReact,
   onDelete,
   onPin,
 }: MessageBubbleProps) {
-  const [showPicker, setShowPicker] = useState(false);
   const isOwn = message.authorId === currentUserId;
 
   const copy = async () => {
@@ -103,7 +85,7 @@ export function MessageBubble({
     <div
       className={cn(
         'group relative rounded-lg px-2 py-1.5 hover:bg-accent/30',
-        message.isPinned && 'bg-amber-500/5',
+        message.isPinned && 'border-l-2 border-amber-400/60 bg-amber-500/5',
       )}
     >
       {message.parent ? (
@@ -163,34 +145,6 @@ export function MessageBubble({
             message.metadata?.links?.map((link) => (
               <LinkPreview key={link.url} link={link} />
             ))}
-
-          {message.reactions.length > 0 ? (
-            <div className="mt-1.5 flex flex-wrap gap-1">
-              {message.reactions.map((r) => (
-                <Tooltip key={r.emoji}>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className={cn(
-                        'rounded-md border px-1.5 py-0.5 text-xs',
-                        r.reactedByMe
-                          ? 'border-primary/50 bg-primary/15'
-                          : 'border-border bg-secondary/40',
-                      )}
-                      onClick={() =>
-                        r.reactedByMe
-                          ? onRemoveReact?.(message.id)
-                          : onReact?.(message.id, r.emoji)
-                      }
-                    >
-                      {EMOJI_LABELS[r.emoji] ?? r.emoji} {r.count}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>{r.emoji}</TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
-          ) : null}
         </div>
       </div>
 
@@ -203,19 +157,6 @@ export function MessageBubble({
               </Button>
             </TooltipTrigger>
             <TooltipContent>Ответить</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-7 w-7"
-                onClick={() => setShowPicker((v) => !v)}
-              >
-                <Smile className="h-3.5 w-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Реакция</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -255,24 +196,6 @@ export function MessageBubble({
               <TooltipContent>Удалить</TooltipContent>
             </Tooltip>
           ) : null}
-        </div>
-      ) : null}
-
-      {showPicker ? (
-        <div className="mt-1 flex flex-wrap gap-1 rounded-md border border-border bg-card p-1">
-          {CHAT_REACTION_EMOJIS.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              className="rounded px-1.5 py-0.5 hover:bg-accent"
-              onClick={() => {
-                onReact?.(message.id, emoji);
-                setShowPicker(false);
-              }}
-            >
-              {EMOJI_LABELS[emoji]}
-            </button>
-          ))}
         </div>
       ) : null}
     </div>

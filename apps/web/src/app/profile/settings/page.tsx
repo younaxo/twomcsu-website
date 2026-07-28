@@ -52,7 +52,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
-import { useChatChannels } from '@/hooks/useChat';
 import { api, extractErrorMessage } from '@/lib/api';
 import { mediaGroupLabels } from '@/lib/profile';
 import { cn } from '@/lib/utils';
@@ -930,7 +929,6 @@ function MediaTab({ profile, onRefresh }: { profile: MyProfile; onRefresh: () =>
 function ChatSettingsTab() {
   const settings = useChatStore((s) => s.settings);
   const updateSettings = useChatStore((s) => s.updateSettings);
-  const channels = useChatChannels(true);
 
   return (
     <Card>
@@ -966,24 +964,6 @@ function ChatSettingsTab() {
             checked={settings.showTyping}
             onCheckedChange={(v) => updateSettings({ showTyping: v })}
           />
-        </div>
-        <div className="space-y-2">
-          <Label>Стандартный канал при открытии</Label>
-          <Select
-            value={settings.defaultChannel}
-            onValueChange={(v) => updateSettings({ defaultChannel: v })}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {(channels.data ?? []).map((ch) => (
-                <SelectItem key={ch.id} value={ch.slug}>
-                  {ch.icon} {ch.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
       </CardContent>
     </Card>

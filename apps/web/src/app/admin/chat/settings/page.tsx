@@ -14,7 +14,6 @@ type ChatSettings = {
   previewWhitelist: string;
   rateLimitCount: number;
   rateLimitWindowSec: number;
-  defaultSlowMode: number;
 };
 
 export default function AdminChatSettingsPage() {
@@ -23,7 +22,6 @@ export default function AdminChatSettingsPage() {
     previewWhitelist: '',
     rateLimitCount: 5,
     rateLimitWindowSec: 10,
-    defaultSlowMode: 0,
   });
 
   const load = useCallback(async () => {
@@ -67,7 +65,7 @@ export default function AdminChatSettingsPage() {
             onChange={(e) => setSettings({ ...settings, previewWhitelist: e.target.value })}
           />
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
             <Label>Лимит сообщений</Label>
             <Input
@@ -85,16 +83,6 @@ export default function AdminChatSettingsPage() {
               value={settings.rateLimitWindowSec}
               onChange={(e) =>
                 setSettings({ ...settings, rateLimitWindowSec: Number(e.target.value) || 10 })
-              }
-            />
-          </div>
-          <div className="space-y-1">
-            <Label>Slow mode по умолчанию</Label>
-            <Input
-              type="number"
-              value={settings.defaultSlowMode}
-              onChange={(e) =>
-                setSettings({ ...settings, defaultSlowMode: Number(e.target.value) || 0 })
               }
             />
           </div>
