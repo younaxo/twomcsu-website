@@ -35,7 +35,7 @@ export function SiteHeader() {
   return (
     <>
       <header className="pointer-events-auto fixed inset-x-0 top-0 z-30 h-16 border-b border-white/5 glass-strong">
-        <div className="flex h-full items-center gap-4 px-4 sm:px-6 lg:ml-[72px] xl:ml-[260px]">
+        <div className="flex h-full items-center gap-4 px-4 transition-[margin-left] duration-200 sm:px-6 lg:ml-[var(--sidebar-rail-width,72px)]">
           <Logo size="sm" withDivider showText className="no-select shrink-0" />
 
           <nav className="hidden flex-1 items-center justify-center gap-6 md:flex">

@@ -3,8 +3,11 @@
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
 import type { ComponentType } from 'react';
 import {
+  Activity,
   AlertTriangle,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   FileText,
   Home,
@@ -13,7 +16,6 @@ import {
   Menu,
   MessageCircle,
   Newspaper,
-  Activity,
   Scale,
   Server,
   Shield,
@@ -33,6 +35,8 @@ import { useCart } from '@/hooks/store';
 import { useChatStore } from '@/stores/chatStore';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 import { cn } from '@/lib/utils';
+
+const SIDEBAR_EXPANDED_KEY = 'twomc.sidebarExpanded';
 
 type NavItem = {
   href?: string;
@@ -138,8 +142,10 @@ function NavButton({
   if (!collapsed) return node;
 
   return (
-    <Tooltip delayDuration={200}>
-      <TooltipTrigger asChild>{node}</TooltipTrigger>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="block cursor-pointer">{node}</span>
+      </TooltipTrigger>
       <TooltipContent side="right" className="flex items-center gap-2">
         {item.label}
         {item.soon ? <span className="text-muted-foreground">· в разработке</span> : null}
@@ -282,27 +288,62 @@ function SidebarNav({
 export function SiteSidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SIDEBAR_EXPANDED_KEY);
+      if (stored === '1') setExpanded(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    const width = expanded ? '260px' : '72px';
+    document.documentElement.style.setProperty('--sidebar-rail-width', width);
+    try {
+      localStorage.setItem(SIDEBAR_EXPANDED_KEY, expanded ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+  }, [expanded]);
+
   return (
     <>
-      {/* Desktop: fixed rail — does not scroll with the page */}
+      {/* Desktop sidebar */}
       <aside
         className={cn(
-          'pointer-events-auto fixed left-0 top-0 z-40 hidden h-screen w-[72px] flex-col overflow-hidden',
+          'pointer-events-auto fixed left-0 top-0 z-40 hidden h-screen flex-col overflow-hidden transition-[width] duration-200',
           'border-r border-white/5 bg-neutral-950/70 backdrop-blur-[20px]',
-          'lg:flex xl:w-[260px]',
+          'lg:flex',
+          expanded ? 'w-[260px]' : 'w-[72px]',
         )}
         aria-label="Боковая навигация"
       >
-        <div className="hidden h-full min-h-0 xl:block">
-          <SidebarNav />
+        <div className="flex h-16 shrink-0 items-center justify-end border-b border-white/5 px-3">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-9 w-9 text-neutral-400 hover:text-white"
+                onClick={() => setExpanded((value) => !value)}
+                aria-label={expanded ? 'Свернуть панель' : 'Развернуть панель'}
+              >
+                {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">{expanded ? 'Свернуть' : 'Развернуть'}</TooltipContent>
+          </Tooltip>
         </div>
-        <div className="h-full min-h-0 xl:hidden">
-          <SidebarNav collapsed />
+        <div className="min-h-0 flex-1">
+          <SidebarNav collapsed={!expanded} />
         </div>
       </aside>
 
