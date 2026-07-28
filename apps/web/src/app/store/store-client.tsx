@@ -8,7 +8,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { BundleCard } from '@/components/store/BundleCard';
 import { CurrencyConverter } from '@/components/store/CurrencyConverter';
-import { CurrencySelector } from '@/components/store/CurrencySelector';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
@@ -235,10 +234,7 @@ export default function StorePageClient() {
 
       {tab === 'currency' ? (
         <div className="space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold text-white">Валюта</h2>
-            <CurrencySelector />
-          </div>
+          <h2 className="text-xl font-semibold text-white">Валюта</h2>
 
           {currencyProducts.isLoading ? (
             <Skeleton className="h-96 w-full" />

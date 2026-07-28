@@ -23,12 +23,26 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   REFUNDED: 'Возврат',
 };
 
-export function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
-    maximumFractionDigits: 0,
-  }).format(amount);
+export function convertFromRub(amountRub: number, currency: string, rate: number): number {
+  if (currency === 'RUB' || !rate || rate <= 0) return amountRub;
+  return amountRub / rate;
+}
+
+export function formatPrice(
+  amount: number,
+  currency = 'RUB',
+  symbol?: string | null,
+): string {
+  try {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: currency === 'RUB' ? 0 : 2,
+    }).format(amount);
+  } catch {
+    const rounded = currency === 'RUB' ? Math.round(amount) : Math.round(amount * 100) / 100;
+    return `${rounded.toLocaleString('ru-RU')} ${symbol ?? currency}`;
+  }
 }
 
 export function formatDuration(duration: ProductDuration): string {
