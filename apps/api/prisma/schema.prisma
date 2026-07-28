@@ -943,6 +943,25 @@ model CurrencyRate {
   @@map("currency_rates")
 }
 
+model ServerCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  color       String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  servers Server[]
+
+  @@index([slug])
+  @@index([isActive, order])
+  @@map("server_categories")
+}
+
 model Server {
   id          String   @id @default(cuid())
   name        String
@@ -957,6 +976,8 @@ model Server {
   motd        String?
   isActive    Boolean  @default(true)
   order       Int      @default(0)
+  categoryId  String?
+  category    ServerCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -964,6 +985,7 @@ model Server {
 
   @@index([slug])
   @@index([isActive, order])
+  @@index([categoryId])
   @@map("servers")
 }
 
