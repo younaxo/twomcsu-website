@@ -11,7 +11,7 @@ import { CommentReactions } from '@/components/comments/CommentReactions';
 import { CommentReportDialog } from '@/components/comments/CommentReportDialog';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { PositionBadge } from '@/components/shared/PositionBadge';
-import { SkinHead } from '@/components/shared/SkinHead';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -68,10 +68,12 @@ export function CommentCard({ comment, profileUsername, isReply }: CommentCardPr
   return (
     <div className={cn('space-y-3', isReply && 'ml-10 border-l border-border pl-4')}>
       <div className="flex gap-3">
-        <SkinHead
-          username={comment.author.username}
-          avatar={resolveMediaUrl(comment.author.avatar) ?? null}
-          size={isReply ? 36 : 44}
+        <AvatarWithSkin
+          user={{
+            username: comment.author.username,
+            avatar: resolveMediaUrl(comment.author.avatar) ?? null,
+          }}
+          size={isReply ? 'sm' : 'md'}
         />
 
         <div className="min-w-0 flex-1 space-y-2">

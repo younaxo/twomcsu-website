@@ -7,7 +7,7 @@ import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { PositionBadge } from '@/components/shared/PositionBadge';
-import { SkinHead } from '@/components/shared/SkinHead';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -70,10 +70,12 @@ function FriendCardComponent({ friend, onRemoved, onBlocked, className }: Friend
         className="shrink-0"
         onMouseEnter={() => prefetchProfile(friend.username)}
       >
-        <SkinHead
-          username={friend.username}
-          avatar={resolveMediaUrl(friend.avatar) ?? null}
-          size={48}
+        <AvatarWithSkin
+          user={{
+            username: friend.username,
+            avatar: resolveMediaUrl(friend.avatar) ?? null,
+          }}
+          size="md"
         />
       </Link>
 

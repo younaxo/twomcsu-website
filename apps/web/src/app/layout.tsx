@@ -60,7 +60,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </main>
               <SiteFooter />
               <ChatWidget />
-              <Toaster theme="dark" position="top-center" richColors />
+              <Toaster
+                theme="dark"
+                position="bottom-center"
+                visibleToasts={3}
+                toastOptions={{
+                  classNames: {
+                    toast:
+                      'group toast border border-white/[0.08] bg-[rgba(18,18,18,0.98)] text-white shadow-[0_10px_30px_rgba(0,0,0,0.65)] backdrop-blur-[12px]',
+                    title: 'font-bold text-sm',
+                    description: 'font-semibold text-[12.8px] text-[#e5e5e5]',
+                    success: 'border-l-4 border-l-emerald-500',
+                    error: 'border-l-4 border-l-red-500',
+                    warning: 'border-l-4 border-l-yellow-400',
+                    info: 'border-l-4 border-l-sky-400',
+                  },
+                }}
+              />
             </TooltipProvider>
           </AuthProvider>
         </QueryProvider>

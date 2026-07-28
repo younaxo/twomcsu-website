@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
-import { SkinHead } from '@/components/shared/SkinHead';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { Button } from '@/components/ui/button';
 import { usePrefetchProfile, useUnblockUser } from '@/hooks/useFriendsQueries';
 import { extractErrorMessage } from '@/lib/api';
@@ -40,10 +40,12 @@ function BlockedUserCardComponent({ item, onUnblocked }: BlockedUserCardProps) {
           className="shrink-0"
           onMouseEnter={() => prefetchProfile(item.user.username)}
         >
-          <SkinHead
-            username={item.user.username}
-            avatar={resolveMediaUrl(item.user.avatar) ?? null}
-            size={44}
+          <AvatarWithSkin
+            user={{
+              username: item.user.username,
+              avatar: resolveMediaUrl(item.user.avatar) ?? null,
+            }}
+            size="md"
           />
         </Link>
         <div className="min-w-0 space-y-0.5">

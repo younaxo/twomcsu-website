@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
-import { SkinHead } from '@/components/shared/SkinHead';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { Button } from '@/components/ui/button';
 import {
   useAcceptFriendRequest,
@@ -50,10 +50,12 @@ function FriendRequestCardComponent({ request, type, onDone }: FriendRequestCard
           className="shrink-0"
           onMouseEnter={() => prefetchProfile(request.user.username)}
         >
-          <SkinHead
-            username={request.user.username}
-            avatar={resolveMediaUrl(request.user.avatar) ?? null}
-            size={44}
+          <AvatarWithSkin
+            user={{
+              username: request.user.username,
+              avatar: resolveMediaUrl(request.user.avatar) ?? null,
+            }}
+            size="md"
           />
         </Link>
         <div className="min-w-0 space-y-0.5">

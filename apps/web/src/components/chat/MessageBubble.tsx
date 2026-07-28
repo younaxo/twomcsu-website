@@ -8,7 +8,7 @@ import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { PositionBadge } from '@/components/shared/PositionBadge';
-import { SkinHead } from '@/components/shared/SkinHead';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -100,7 +100,13 @@ export const MessageBubble = memo(function MessageBubble({
       ) : null}
 
       <div className="flex gap-2">
-        <SkinHead username={message.author?.username ?? 'Steve'} size={32} />
+        <AvatarWithSkin
+          user={{
+            username: message.author?.username ?? 'Steve',
+            avatar: message.author?.avatar,
+          }}
+          size="sm"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             {message.author?.position ? (

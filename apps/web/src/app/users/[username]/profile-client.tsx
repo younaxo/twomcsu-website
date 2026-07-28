@@ -50,7 +50,6 @@ import {
   socialPlatformLabels,
 } from '@/lib/profile';
 import { useStoreUiStore } from '@/stores/storeUiStore';
-import { cn } from '@/lib/utils';
 
 const SkinViewer3D = dynamic(
   () => import('@/components/shared/SkinViewer').then((mod) => mod.SkinViewer3D),

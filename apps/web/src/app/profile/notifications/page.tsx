@@ -113,7 +113,7 @@ export default function NotificationsPage() {
                 if (!n.isRead) void markRead.mutateAsync(n.id);
               }}
               className={cn(
-                'block rounded-xl border border-border px-4 py-3 transition-colors hover:bg-accent/50',
+                'glass-card block rounded-xl px-4 py-3 transition-colors hover:bg-white/5',
                 !n.isRead && 'border-primary/30 bg-primary/5',
               )}
             >
