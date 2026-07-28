@@ -37,6 +37,7 @@ function NavItem({
   icon: Icon,
   active,
   badge,
+  soon,
   onClick,
 }: {
   href?: string;
@@ -44,6 +45,7 @@ function NavItem({
   icon: React.ComponentType<{ className?: string }>;
   active?: boolean;
   badge?: number;
+  soon?: boolean;
   onClick?: () => void;
 }) {
   const className = cn(
@@ -51,12 +53,18 @@ function NavItem({
     active
       ? 'bg-primary/15 text-primary before:absolute before:inset-y-1 before:left-0 before:w-0.5 before:rounded-full before:bg-primary'
       : 'text-neutral-400 hover:bg-white/5 hover:text-white',
+    soon && 'opacity-70',
   );
 
   const content = (
     <>
       <Icon className="h-6 w-6 shrink-0" />
       <span className="flex-1 truncate">{label}</span>
+      {soon ? (
+        <Badge variant="secondary" className="shrink-0 px-1.5 py-0 text-[10px]">
+          скоро
+        </Badge>
+      ) : null}
       {badge && badge > 0 ? (
         <Badge variant="destructive" className="h-5 min-w-5 justify-center px-1 text-[10px]">
           {badge > 99 ? '99+' : badge}
@@ -131,6 +139,7 @@ export function SiteSidebar() {
               label={item.label}
               icon={item.icon}
               active={isActive(item.href)}
+              soon={item.soon}
             />
           ))}
         </nav>
