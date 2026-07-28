@@ -2,8 +2,8 @@
 
 import type { FriendsCountResponse, RestrictedProfileResponse, UserProfile } from '@twomc/shared';
 import {
-  Coins,
   Eye,
+  Gem,
   Gift,
   Heart,
   Package,
@@ -86,11 +86,6 @@ function parseRestricted(error: unknown): RestrictedProfileResponse | null {
   return null;
 }
 
-function truncateId(id: string): string {
-  if (id.length <= 12) return id;
-  return `${id.slice(0, 6)}…${id.slice(-4)}`;
-}
-
 export function ProfileClient({ username, initial }: ProfileClientProps) {
   const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(initial);
@@ -153,17 +148,17 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <div className="relative h-40 w-full bg-secondary sm:h-52">
+      <div className="overflow-hidden rounded-2xl glass-medium">
+        <div className="relative h-56 w-full bg-neutral-900 sm:h-80">
           {bannerUrl ? (
-            <Image src={bannerUrl} alt="" fill className="object-cover" unoptimized />
+            <Image src={bannerUrl} alt="" fill className="object-cover no-select" unoptimized />
           ) : (
-            <div className="h-full w-full bg-gradient-to-r from-secondary via-accent to-secondary" />
+            <div className="h-full w-full bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900" />
           )}
         </div>
 
-        <div className="relative px-4 pb-6 sm:px-6">
-          <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
+        <div className="relative px-6 pb-6 pt-4">
+          <div className="-mt-16 flex flex-col gap-4 sm:-mt-20 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
               <div className="relative shrink-0">
                 <div className="relative h-32 w-32">
@@ -200,15 +195,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                     />
                   </div>
                 </div>
-
-                {profile.statusText ? (
-                  <div className="absolute left-[calc(100%+0.75rem)] top-2 hidden max-w-[14rem] sm:block">
-                    <div className="relative rounded-2xl rounded-bl-sm border border-border bg-secondary/90 px-3 py-2 text-sm text-foreground shadow-md">
-                      <span className="absolute -left-1.5 bottom-3 h-3 w-3 rotate-45 border-b border-l border-border bg-secondary/90" />
-                      {profile.statusText}
-                    </div>
-                  </div>
-                ) : null}
               </div>
 
               <div className="space-y-2 pb-1">
@@ -218,6 +204,9 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                   linkToProfile={false}
                   badges={profile.badges}
                 />
+                {profile.statusText ? (
+                  <p className="max-w-md text-sm text-muted-foreground">{profile.statusText}</p>
+                ) : null}
                 <div className="flex flex-wrap items-center gap-2">
                   <PositionBadge position={profile.position} size="md" />
                   {profile.mediaBadges.map((badge) => (
@@ -267,9 +256,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                     'Не в игре'
                   )}
                 </p>
-                {profile.statusText ? (
-                  <p className="text-sm text-muted-foreground sm:hidden">{profile.statusText}</p>
-                ) : null}
               </div>
             </div>
 
@@ -296,10 +282,10 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
         ) : (
           <>
             <StatCard
-              title="Коинов"
+              title="Рубинов"
               value={profile.statistics?.coins ?? 0}
-              icon={Coins}
-              tip="Баланс коинов на сервере"
+              icon={Gem}
+              tip="Рубины на сайте и в игре"
             />
             <StatCard
               title="Убийств"
@@ -365,11 +351,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                       />
                     ) : null}
                     {profile.tag ? <CopyableId label="Тег" value={profile.tag} /> : null}
-                    <CopyableId
-                      label="Длинный ID"
-                      value={profile.id}
-                      display={truncateId(profile.id)}
-                    />
                   </div>
                   <dl className="grid gap-2 text-sm sm:grid-cols-[140px_1fr]">
                     <dt className="text-muted-foreground">Роль</dt>
