@@ -1,57 +1,15 @@
 import { ChatChannelType, PrismaClient } from '@prisma/client';
 
-const CHANNELS = [
-  {
-    slug: 'general',
-    name: 'Общий',
-    description: 'Общение на любые темы',
-    type: ChatChannelType.GENERAL,
-    icon: '🌍',
-    order: 1,
-  },
-  {
-    slug: 'trade',
-    name: 'Торговля',
-    description: 'Покупка и продажа предметов',
-    type: ChatChannelType.TRADE,
-    icon: '💼',
-    order: 2,
-  },
-  {
-    slug: 'help',
-    name: 'Помощь',
-    description: 'Вопросы по серверу и правилам',
-    type: ChatChannelType.HELP,
-    icon: '❓',
-    order: 3,
-  },
-  {
-    slug: 'announcements',
-    name: 'Объявления',
-    description: 'Официальные объявления администрации',
-    type: ChatChannelType.ANNOUNCEMENTS,
-    icon: '📢',
-    order: 4,
-    isReadOnly: true,
-    minRoleGroup: 'MODERATOR',
-  },
-  {
-    slug: 'game',
-    name: 'Игровой',
-    description: 'Обсуждение игровых механик',
-    type: ChatChannelType.GAME,
-    icon: '🎮',
-    order: 5,
-  },
-  {
-    slug: 'flood',
-    name: 'Флуд',
-    description: 'Свободное общение без ограничений',
-    type: ChatChannelType.FLOOD,
-    icon: '💬',
-    order: 6,
-  },
-] as const;
+const GENERAL_CHANNEL = {
+  slug: 'general',
+  name: 'Общий',
+  description: 'Общение на любые темы',
+  type: ChatChannelType.GENERAL,
+  icon: '💬',
+  order: 1,
+} as const;
+
+const LEGACY_CHANNEL_SLUGS = ['trade', 'help', 'announcements', 'game', 'flood'] as const;
 
 const SAMPLE_MESSAGES = [
   'Всем привет! Как дела на сервере?',
@@ -65,31 +23,36 @@ const SAMPLE_MESSAGES = [
 ];
 
 export async function seedChat(prisma: PrismaClient) {
-  for (const channel of CHANNELS) {
-    await prisma.chatChannel.upsert({
-      where: { slug: channel.slug },
-      update: {
-        name: channel.name,
-        description: channel.description,
-        type: channel.type,
-        icon: channel.icon,
-        order: channel.order,
-        isReadOnly: 'isReadOnly' in channel ? channel.isReadOnly : false,
-        minRoleGroup: 'minRoleGroup' in channel ? channel.minRoleGroup : null,
-        isActive: true,
-      },
-      create: {
-        slug: channel.slug,
-        name: channel.name,
-        description: channel.description,
-        type: channel.type,
-        icon: channel.icon,
-        order: channel.order,
-        isReadOnly: 'isReadOnly' in channel ? channel.isReadOnly : false,
-        minRoleGroup: 'minRoleGroup' in channel ? channel.minRoleGroup : null,
-      },
-    });
-  }
+  await prisma.chatChannel.upsert({
+    where: { slug: GENERAL_CHANNEL.slug },
+    update: {
+      name: GENERAL_CHANNEL.name,
+      description: GENERAL_CHANNEL.description,
+      type: GENERAL_CHANNEL.type,
+      icon: GENERAL_CHANNEL.icon,
+      order: GENERAL_CHANNEL.order,
+      isReadOnly: false,
+      minRoleGroup: null,
+      slowMode: null,
+      isActive: true,
+    },
+    create: {
+      slug: GENERAL_CHANNEL.slug,
+      name: GENERAL_CHANNEL.name,
+      description: GENERAL_CHANNEL.description,
+      type: GENERAL_CHANNEL.type,
+      icon: GENERAL_CHANNEL.icon,
+      order: GENERAL_CHANNEL.order,
+      isReadOnly: false,
+      minRoleGroup: null,
+    },
+  });
+
+  // Keep legacy rows for history, but hide them from the UI
+  await prisma.chatChannel.updateMany({
+    where: { slug: { in: [...LEGACY_CHANNEL_SLUGS] } },
+    data: { isActive: false },
+  });
 
   const general = await prisma.chatChannel.findUnique({ where: { slug: 'general' } });
   if (!general) return;
