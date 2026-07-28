@@ -2,11 +2,12 @@
 
 import type { UserBadge, UserBadgeType, UserSearchResult } from '@twomc/shared';
 import { userBadgeTypeOrder } from '@twomc/shared';
-import { BadgeCheck, Search } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { BadgeCheck } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { AdminEmptyState } from '@/components/admin';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
+import { UserSearchInput } from '@/components/shared/UserSearchInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -30,27 +31,11 @@ import { api, extractErrorMessage } from '@/lib/api';
 import { userBadgeLabels } from '@/lib/profile';
 
 export default function AdminBadgesPage() {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<UserSearchResult[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
   const [selected, setSelected] = useState<UserSearchResult | null>(null);
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const [type, setType] = useState<UserBadgeType>('VERIFIED');
   const [disableOpen, setDisableOpen] = useState(false);
   const [disableReason, setDisableReason] = useState('');
-
-  const search = useCallback(async () => {
-    if (query.trim().length < 2) return;
-    try {
-      const { data } = await api.get<UserSearchResult[]>('/users/search', {
-        params: { q: query.trim() },
-      });
-      setResults(data);
-      setHasSearched(true);
-    } catch (error) {
-      toast.error(extractErrorMessage(error, 'Не удалось найти игроков'));
-    }
-  }, [query]);
 
   const openUser = async (user: UserSearchResult) => {
     setSelected(user);
@@ -127,38 +112,10 @@ export default function AdminBadgesPage() {
           <CardTitle>Поиск игрока</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Никнейм"
-            />
-            <Button type="button" onClick={() => void search()}>
-              Найти
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {hasSearched && results.length === 0 ? (
-              <AdminEmptyState
-                icon={Search}
-                title="Игроки не найдены"
-                description="Попробуйте другой никнейм"
-                className="w-full py-8"
-              />
-            ) : (
-              results.map((user) => (
-                <Button
-                  key={user.id}
-                  type="button"
-                  variant={selected?.id === user.id ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => void openUser(user)}
-                >
-                  {user.username}
-                </Button>
-              ))
-            )}
-          </div>
+          <UserSearchInput
+            placeholder="Никнейм, email, #123 или tag"
+            onSelect={(user) => void openUser(user)}
+          />
         </CardContent>
       </Card>
 

@@ -4,7 +4,7 @@ import { PositionSummary, UserSearchResult } from '@twomc/shared';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
-import { PositionBadge } from '@/components/shared/PositionBadge';
+import { UserSearchInput } from '@/components/shared/UserSearchInput';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -24,8 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { api, extractErrorMessage } from '@/lib/api';
-
-const SEARCH_DEBOUNCE_MS = 300;
 
 interface AssignPositionDialogProps {
   open: boolean;
@@ -40,37 +37,16 @@ export function AssignPositionDialog({
   onOpenChange,
   onAssigned,
 }: AssignPositionDialogProps) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<UserSearchResult[]>([]);
   const [selected, setSelected] = useState<UserSearchResult | null>(null);
   const [positionId, setPositionId] = useState('');
   const [isSaving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) {
-      setQuery('');
-      setResults([]);
       setSelected(null);
       setPositionId('');
     }
   }, [open]);
-
-  useEffect(() => {
-    if (!open || selected || query.trim().length < 1) {
-      setResults([]);
-
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      api
-        .get<UserSearchResult[]>('/users/search', { params: { q: query.trim() } })
-        .then(({ data }) => setResults(data))
-        .catch(() => setResults([]));
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => clearTimeout(timer);
-  }, [open, query, selected]);
 
   const submit = async () => {
     if (!selected || !positionId) {
@@ -113,32 +89,11 @@ export function AssignPositionDialog({
                 </Button>
               </div>
             ) : (
-              <>
-                <Input
-                  id="assign-user"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Начните вводить никнейм"
-                  autoComplete="off"
-                />
-
-                {results.length > 0 ? (
-                  <ul className="max-h-48 overflow-y-auto rounded-md border border-border">
-                    {results.map((user) => (
-                      <li key={user.id}>
-                        <button
-                          type="button"
-                          onClick={() => setSelected(user)}
-                          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition-colors hover:bg-secondary"
-                        >
-                          <ColoredUsername user={user} size="sm" linkToProfile={false} />
-                          <PositionBadge position={user.position} size="sm" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </>
+              <UserSearchInput
+                id="assign-user"
+                placeholder="Начните вводить никнейм"
+                onSelect={setSelected}
+              />
             )}
           </div>
 

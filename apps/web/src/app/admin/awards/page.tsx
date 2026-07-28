@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { AdminEmptyState } from '@/components/admin';
 import { AwardIcon } from '@/components/shared/AwardIcon';
+import { UserSearchInput } from '@/components/shared/UserSearchInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,8 +34,6 @@ export default function AdminAwardsPage() {
   const { user } = useAuth();
   const isOwner = user ? hasRoleGroup(user.roleGroup, RoleGroup.OWNER) : false;
   const [awards, setAwards] = useState<Award[]>([]);
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<UserSearchResult[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserSearchResult | null>(null);
   const [awardId, setAwardId] = useState('');
   const [draft, setDraft] = useState({
@@ -58,18 +57,6 @@ export default function AdminAwardsPage() {
   useEffect(() => {
     void load();
   }, [load]);
-
-  const search = async () => {
-    if (query.trim().length < 2) return;
-    try {
-      const { data } = await api.get<UserSearchResult[]>('/users/search', {
-        params: { q: query.trim() },
-      });
-      setResults(data);
-    } catch (error) {
-      toast.error(extractErrorMessage(error, 'Не удалось найти игроков'));
-    }
-  };
 
   const create = async () => {
     try {
@@ -219,25 +206,16 @@ export default function AdminAwardsPage() {
           <CardTitle>Выдать игроку</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Никнейм" />
-            <Button type="button" onClick={() => void search()}>
-              Найти
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {results.map((row) => (
-              <Button
-                key={row.id}
-                type="button"
-                size="sm"
-                variant={selectedUser?.id === row.id ? 'default' : 'outline'}
-                onClick={() => setSelectedUser(row)}
-              >
-                {row.username}
-              </Button>
-            ))}
-          </div>
+          <UserSearchInput
+            placeholder="Никнейм, email, #123 или tag"
+            onSelect={setSelectedUser}
+          />
+          {selectedUser ? (
+            <p className="text-sm text-muted-foreground">
+              Выбран: <span className="font-medium text-foreground">{selectedUser.username}</span>{' '}
+              <span className="text-muted-foreground">#{selectedUser.shortId}</span>
+            </p>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             <Select value={awardId} onValueChange={setAwardId}>
               <SelectTrigger className="w-64">
