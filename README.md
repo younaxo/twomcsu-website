@@ -407,10 +407,25 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | `GET /admin/audit-log` | ADMIN+ | Журнал действий |
 | `POST /admin/broadcast` | ADMIN+ | Массовые уведомления |
 | `GET/PATCH /admin/settings` | ADMIN+ | SiteSettings (key-value) |
-| `GET/POST/PATCH/DELETE /admin/announcements` | ADMIN+ | Объявления на сайте |
+| `GET/POST/PATCH/DELETE /admin/announcements` | ADMIN+ | Баннеры объявлений |
+| `GET /admin/maintenance/status` | ADMIN+ | Статус техработ |
+| `POST /admin/maintenance/enable` | ADMIN+ | Включить техработы |
+| `POST /admin/maintenance/disable` | ADMIN+ | Выключить техработы |
+| `PATCH /admin/modules/:module` | ADMIN+ | Вкл/выкл модуль (store, chat, …) |
 
-Страницы: `/admin/dashboard`, `/admin/audit-log`, `/admin/broadcast`, `/admin/settings`, `/admin/announcements`.
+Публичные:
+
+| Метод и путь | Что делает |
+| --- | --- |
+| `GET /system/status` | maintenance + disabledModules + active announcements |
+| `GET /system/modules` | статусы модулей |
+| `GET /announcements/active` | активные баннеры |
+
+Страницы: `/admin/dashboard`, `/admin/audit-log`, `/admin/broadcast`, `/admin/settings`,
+`/admin/settings/maintenance`, `/admin/settings/modules`, `/admin/settings/announcements`.
 Общие UI-компоненты: `AdminPageHeader`, `AdminFilters`, `AdminTable`, `AdminEmptyState`, `AdminCreateEditDialog`, `AdminDeleteConfirm`.
+
+Заглушки «в разработке»: `/support`, `/support/faq`, `/wiki`, `/reports`, `/news`. Backend tickets не реализован.
 
 ## Чат (Socket.IO)
 
@@ -430,7 +445,11 @@ curl -i -X POST http://localhost:4000/auth/logout \
 
 ## Дизайн
 
-Акцент indigo (`#6366F1`), логотип в Header/Footer, sticky glassmorphism-шапка, многоколоночный футер, Apple-style эмодзи в реакциях комментариев.
+Акцент оранжевый (`#F57C00` / hover `#E65100`), нейтральный тёмный фон без синевы.
+Утилиты `.glass-heavy` / `.glass-medium` / `.glass-light` / `.glass-strong`.
+Плавающая glass-шапка + левая боковая панель «влитая в стенку» (260px) с категориями и валютой.
+Tooltip без обводки, логотипы/аватары/H1 с `user-select: none`.
+Бейджи — SVG в `/public/badges`, в UI после ника.
 
 ## Performance
 
