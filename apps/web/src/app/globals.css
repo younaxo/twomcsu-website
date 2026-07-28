@@ -171,3 +171,52 @@
     opacity: 0.5;
   }
 }
+
+/* Sonner toasts — bottom-center cards with colored top bar */
+[data-sonner-toaster] {
+  --width: 290px;
+}
+
+[data-sonner-toast] {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px !important;
+  animation: toastIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+[data-sonner-toast]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #9ca3af;
+}
+
+[data-sonner-toast][data-type='success']::before {
+  background: #22c55e;
+}
+
+[data-sonner-toast][data-type='error']::before {
+  background: #ef4444;
+}
+
+[data-sonner-toast][data-type='warning']::before {
+  background: #facc15;
+}
+
+[data-sonner-toast][data-type='info']::before {
+  background: #60a5fa;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(45px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
