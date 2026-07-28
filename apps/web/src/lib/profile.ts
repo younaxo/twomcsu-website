@@ -1,17 +1,27 @@
 import { MediaGroup, SocialPlatform, UserBadgeType } from '@twomc/shared';
 
 export const userBadgeLabels: Record<UserBadgeType, string> = {
+  LEADERSHIP: 'Руководство',
+  DEVELOPERS_TEAM: 'Developers Team',
+  PROJECT_TEAM: 'Команда проекта',
   VERIFIED: 'Верифицирован',
   SUBSCRIBER_PLUS: 'Подписчик Плюс',
-  PROJECT_TEAM: 'Команда проекта',
-  DEVELOPERS_TEAM: 'Developers Team',
 };
 
 export const userBadgeIcons: Record<UserBadgeType, string> = {
+  LEADERSHIP: '/badges/leadership.svg',
+  DEVELOPERS_TEAM: '/badges/developers-team.svg',
+  PROJECT_TEAM: '/badges/project-team.svg',
   VERIFIED: '/badges/verified.svg',
   SUBSCRIBER_PLUS: '/badges/subscriber-plus.svg',
-  PROJECT_TEAM: '/badges/project-team.svg',
-  DEVELOPERS_TEAM: '/badges/developers-team.svg',
+};
+
+export const userBadgeColors: Record<UserBadgeType, string> = {
+  LEADERSHIP: '#FFD700',
+  DEVELOPERS_TEAM: '#22C55E',
+  PROJECT_TEAM: '#3B82F6',
+  VERIFIED: '#1D9BF0',
+  SUBSCRIBER_PLUS: '#FFB700',
 };
 
 export const socialPlatformLabels: Record<SocialPlatform, string> = {

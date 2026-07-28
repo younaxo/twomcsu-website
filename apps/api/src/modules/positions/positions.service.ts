@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PositionDetails, PositionSummary, RoleGroup, hasRoleGroup } from '@twomc/shared';
+import { PositionDetails, PositionSummary, RoleGroup, UserBadgeType, hasRoleGroup } from '@twomc/shared';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -231,6 +231,19 @@ export class PositionsService {
       where: { id: userId },
       data: { positionId: position.id, roleGroup: position.group },
     });
+
+    // Staff HELPER+ automatically get the project team prefix
+    if (hasRoleGroup(position.group, RoleGroup.HELPER)) {
+      await this.prisma.userBadge.upsert({
+        where: { userId_type: { userId, type: UserBadgeType.PROJECT_TEAM } },
+        create: {
+          userId,
+          type: UserBadgeType.PROJECT_TEAM,
+          isActive: true,
+        },
+        update: { isActive: true },
+      });
+    }
 
     await this.invalidatePositionsCache();
     await this.cache.del(cacheKeys.authMe(userId));

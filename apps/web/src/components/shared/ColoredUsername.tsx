@@ -1,8 +1,9 @@
 'use client';
 
 import type { Position, UserBadge } from '@twomc/shared';
+import { sortBadgesByPriority } from '@twomc/shared';
 import Link from 'next/link';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { usePrefetchProfile } from '@/hooks/useFriendsQueries';
@@ -15,6 +16,7 @@ interface ColoredUsernameProps {
   size?: UsernameSize;
   showBadge?: boolean;
   linkToProfile?: boolean;
+  /** Prefixes (UserBadge) shown after the username, sorted by hierarchy */
   badges?: UserBadge[];
   className?: string;
 }
@@ -40,6 +42,10 @@ function ColoredUsernameComponent({
   className,
 }: ColoredUsernameProps) {
   const prefetchProfile = usePrefetchProfile();
+  const ordered = useMemo(
+    () => (badges?.length ? sortBadgesByPriority(badges) : []),
+    [badges],
+  );
 
   const name = (
     <span
@@ -64,7 +70,7 @@ function ColoredUsernameComponent({
         name
       )}
 
-      {badges?.map((badge) => (
+      {ordered.map((badge) => (
         <UserBadgeIcon key={badge.id} type={badge.type} size={badgeSize[size]} />
       ))}
 

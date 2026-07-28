@@ -246,6 +246,7 @@ enum MediaGroup {
 }
 
 enum UserBadgeType {
+  LEADERSHIP
   VERIFIED
   SUBSCRIBER_PLUS
   PROJECT_TEAM

@@ -46,20 +46,38 @@ export const mediaGroupOrder: MediaGroup[] = [
 ];
 
 export const UserBadgeType = {
+  LEADERSHIP: 'LEADERSHIP',
+  DEVELOPERS_TEAM: 'DEVELOPERS_TEAM',
+  PROJECT_TEAM: 'PROJECT_TEAM',
   VERIFIED: 'VERIFIED',
   SUBSCRIBER_PLUS: 'SUBSCRIBER_PLUS',
-  PROJECT_TEAM: 'PROJECT_TEAM',
-  DEVELOPERS_TEAM: 'DEVELOPERS_TEAM',
 } as const;
 
 export type UserBadgeType = (typeof UserBadgeType)[keyof typeof UserBadgeType];
 
+/** Highest priority first — used for top prefix and display order */
 export const userBadgeTypeOrder: UserBadgeType[] = [
+  UserBadgeType.LEADERSHIP,
+  UserBadgeType.DEVELOPERS_TEAM,
+  UserBadgeType.PROJECT_TEAM,
   UserBadgeType.VERIFIED,
   UserBadgeType.SUBSCRIBER_PLUS,
-  UserBadgeType.PROJECT_TEAM,
-  UserBadgeType.DEVELOPERS_TEAM,
 ];
+
+export function getTopBadge<T extends { type: UserBadgeType }>(badges: T[] | undefined): T | undefined {
+  if (!badges?.length) return undefined;
+  for (const type of userBadgeTypeOrder) {
+    const found = badges.find((b) => b.type === type);
+    if (found) return found;
+  }
+  return badges[0];
+}
+
+export function sortBadgesByPriority<T extends { type: UserBadgeType }>(badges: T[]): T[] {
+  return [...badges].sort(
+    (a, b) => userBadgeTypeOrder.indexOf(a.type) - userBadgeTypeOrder.indexOf(b.type),
+  );
+}
 
 export const MediaBadgeRequestStatus = {
   PENDING: 'PENDING',

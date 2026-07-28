@@ -1,7 +1,7 @@
 'use client';
 
 import type { MyProfile, UserBadge } from '@twomc/shared';
-import { userBadgeTypeOrder } from '@twomc/shared';
+import { getTopBadge } from '@twomc/shared';
 import {
   Heart,
   LogOut,
@@ -26,22 +26,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useFriendRequestsCount } from '@/hooks/useFriendRequestsCount';
-import { useFriendsCount } from '@/hooks/useFriendsQueries';
-import { useMyProfile } from '@/hooks/useFriendsQueries';
+import { useFriendsCount, useMyProfile } from '@/hooks/useFriendsQueries';
 import { resolveMediaUrl } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 
-export function getTopBadge(badges: UserBadge[] | undefined): UserBadge | undefined {
-  if (!badges?.length) return undefined;
-  const active = badges.filter((b) => !('isActive' in b) || (b as { isActive?: boolean }).isActive !== false);
-  // Order is low→high in shared; reverse for top-first
-  for (let i = userBadgeTypeOrder.length - 1; i >= 0; i -= 1) {
-    const type = userBadgeTypeOrder[i];
-    const found = active.find((b) => b.type === type);
-    if (found) return found;
-  }
-  return active[0];
-}
+export { getTopBadge };
 
 interface ProfileMiniPreviewProps {
   username: string;
