@@ -104,8 +104,8 @@ export function NotificationBell() {
                 key={n.id}
                 asChild
                 className={cn(
-                  'cursor-pointer rounded-none px-3 py-2.5 focus:bg-accent',
-                  !n.isRead && 'bg-primary/5',
+                  'm-1 cursor-pointer rounded-lg glass-medium px-3 py-2.5 focus:bg-white/10',
+                  !n.isRead && 'border-l-2 border-l-primary',
                 )}
               >
                 <Link
