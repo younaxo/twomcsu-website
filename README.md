@@ -499,7 +499,8 @@ apps/
       modules/
         auth/         эндпоинты, гварды, стратегии, капча, брутфорс, сессии
         awards/       каталог наград и выдача
-        admin/        дашборд, audit log, broadcast, settings, announcements
+        admin/        дашборд, audit, broadcast, settings, maintenance, modules
+        system/       status, техработы, модули, объявления
         cache/        Redis CacheService (global)
         chat/         Socket.IO чат, каналы, модерация, anti-spam
         comments/     комментарии профиля
