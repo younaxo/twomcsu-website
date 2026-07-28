@@ -16,8 +16,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useAuth } from '@/hooks/useAuth';
-import { useOrders } from '@/hooks/store';
-import { formatPrice, ORDER_STATUS_LABELS } from '@/lib/store';
+import { DisplayPrice, useOrders } from '@/hooks/store';
+import { ORDER_STATUS_LABELS } from '@/lib/store';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -97,7 +97,9 @@ export default function OrdersPage() {
                         {ORDER_STATUS_LABELS[order.status] ?? order.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">{formatPrice(order.total)}</TableCell>
+                    <TableCell className="text-right">
+                      <DisplayPrice amount={order.total} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

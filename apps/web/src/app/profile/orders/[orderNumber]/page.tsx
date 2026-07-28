@@ -10,8 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
-import { useOrder } from '@/hooks/store';
-import { formatPrice, ORDER_STATUS_LABELS } from '@/lib/store';
+import { DisplayPrice, useOrder } from '@/hooks/store';
+import { ORDER_STATUS_LABELS } from '@/lib/store';
 import { resolveMediaUrl } from '@/lib/profile';
 
 export default function OrderDetailPage() {
@@ -78,11 +78,13 @@ export default function OrderDetailPage() {
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-white">{name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {formatPrice(item.unitPrice)} × {item.quantity}
+                  <DisplayPrice amount={item.unitPrice} /> × {item.quantity}
                   {item.giftToUserId ? ' · подарок' : ''}
                 </p>
               </div>
-              <p className="font-medium">{formatPrice(item.totalPrice)}</p>
+              <p className="font-medium">
+                <DisplayPrice amount={item.totalPrice} />
+              </p>
             </div>
           );
         })}
@@ -91,17 +93,24 @@ export default function OrderDetailPage() {
       <div className="space-y-1 rounded-xl border border-border bg-card p-4 text-sm">
         <div className="flex justify-between text-muted-foreground">
           <span>Подытог</span>
-          <span>{formatPrice(order.subtotal)}</span>
+          <span>
+            <DisplayPrice amount={order.subtotal} />
+          </span>
         </div>
         {order.discountAmount > 0 ? (
           <div className="flex justify-between text-primary">
             <span>Скидка{order.promoCode ? ` (${order.promoCode})` : ''}</span>
-            <span>−{formatPrice(order.discountAmount)}</span>
+            <span>
+              −
+              <DisplayPrice amount={order.discountAmount} />
+            </span>
           </div>
         ) : null}
         <div className="flex justify-between border-t border-border pt-2 text-base font-semibold text-white">
           <span>Итого</span>
-          <span>{formatPrice(order.total)}</span>
+          <span>
+            <DisplayPrice amount={order.total} />
+          </span>
         </div>
       </div>
 
