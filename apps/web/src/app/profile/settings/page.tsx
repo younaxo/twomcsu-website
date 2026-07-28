@@ -325,7 +325,7 @@ export default function ProfileSettingsPage() {
                 <div className="space-y-2">
                   <Label>Дата рождения</Label>
                   <DateBirthPicker
-                    value={profile.birthDate}
+                    value={profile.birthDate?.slice(0, 10) ?? null}
                     onChange={(birthDate) => setProfile({ ...profile, birthDate })}
                   />
                 </div>
