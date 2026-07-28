@@ -244,11 +244,6 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
           >
             <Users className="h-4 w-4" />
           </Button>
-          {compact ? (
-            <Button size="sm" variant="outline" asChild>
-              <Link href="/chat">На весь экран</Link>
-            </Button>
-          ) : null}
         </div>
       </div>
 

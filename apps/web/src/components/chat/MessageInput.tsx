@@ -1,9 +1,16 @@
 'use client';
 
 import type { ChatMessage } from '@twomc/shared';
-import { Send, X } from 'lucide-react';
+import { Info, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
@@ -23,6 +30,17 @@ interface MessageInputProps {
   mentionSuggestion?: string | null;
 }
 
+const MARKDOWN_HELP = [
+  { code: '**жирный текст**', desc: 'жирный' },
+  { code: '*курсив*', desc: 'курсив' },
+  { code: '~~зачёркнутый~~', desc: 'зачёркнутый' },
+  { code: '`код`', desc: 'инлайн код' },
+  { code: '> цитата', desc: 'цитата' },
+  { code: '||спойлер||', desc: 'спойлер' },
+  { code: '[ссылка](https://...)', desc: 'ссылка' },
+  { code: '@ник', desc: 'упоминание пользователя' },
+] as const;
+
 export function MessageInput({
   disabled,
   muteMessage,
@@ -40,23 +58,6 @@ export function MessageInput({
   useEffect(() => {
     if (replyTo) taRef.current?.focus();
   }, [replyTo]);
-
-  const insertFormat = (prefix: string, suffix = prefix) => {
-    const el = taRef.current;
-    if (!el) {
-      setValue((v) => `${v}${prefix}${suffix}`);
-      return;
-    }
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    const selected = value.slice(start, end) || 'текст';
-    const next = value.slice(0, start) + prefix + selected + suffix + value.slice(end);
-    setValue(next);
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
-    });
-  };
 
   const submit = () => {
     const content = value.trim();
@@ -101,32 +102,6 @@ export function MessageInput({
         </div>
       ) : null}
 
-      <div className="flex flex-wrap gap-1">
-        {[
-          { label: 'B', tip: 'Жирный', action: () => insertFormat('**') },
-          { label: 'I', tip: 'Курсив', action: () => insertFormat('*') },
-          { label: 'S', tip: 'Зачёркнутый', action: () => insertFormat('~~') },
-          { label: '||', tip: 'Спойлер', action: () => insertFormat('||') },
-          { label: '`', tip: 'Код', action: () => insertFormat('`') },
-          { label: '>', tip: 'Цитата', action: () => insertFormat('> ', '') },
-        ].map((btn) => (
-          <Tooltip key={btn.tip}>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 font-mono text-xs"
-                onClick={btn.action}
-              >
-                {btn.label}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{btn.tip}</TooltipContent>
-          </Tooltip>
-        ))}
-      </div>
-
       <div className="flex gap-2">
         <Textarea
           ref={taRef}
@@ -142,15 +117,55 @@ export function MessageInput({
             }
           }}
         />
-        <Button
-          type="button"
-          size="icon"
-          className="shrink-0"
-          disabled={disabled || !value.trim()}
-          onClick={submit}
-        >
-          <Send className="h-4 w-4" />
-        </Button>
+        <div className="flex shrink-0 flex-col gap-1">
+          <Dialog>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    className="h-9 w-9 cursor-help"
+                    aria-label="Форматирование"
+                  >
+                    <Info className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Как форматировать</TooltipContent>
+            </Tooltip>
+            <DialogContent className="border-white/10 bg-[rgba(15,15,20,0.9)] backdrop-blur-[30px] sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Как форматировать сообщения</DialogTitle>
+              </DialogHeader>
+              <ul className="space-y-2 text-sm">
+                {MARKDOWN_HELP.map((row) => (
+                  <li key={row.code} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
+                    <code className="shrink-0 rounded bg-secondary px-1.5 py-0.5 font-mono text-xs text-primary">
+                      {row.code}
+                    </code>
+                    <span className="text-muted-foreground">— {row.desc}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-sm text-muted-foreground">
+                Также поддерживаются списки (<code className="text-xs">- пункт</code>) и
+                многострочный код (<code className="text-xs">```code```</code>).
+              </p>
+            </DialogContent>
+          </Dialog>
+          <Button
+            type="button"
+            size="icon"
+            className="shrink-0"
+            disabled={disabled || !value.trim()}
+            onClick={submit}
+            aria-label="Отправить"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -8,7 +8,6 @@ const playerLinks = [
   { href: '/store', label: 'Пополнение счета' },
   { href: '/', label: 'Вики' },
   { href: '/', label: 'Инфо' },
-  { href: '/chat', label: 'Чат' },
 ] as const;
 
 const documentLinks = [
