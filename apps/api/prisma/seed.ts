@@ -651,7 +651,72 @@ async function upsertCurrencyRates() {
   console.log(`currency rates: ${seedCurrencyRates.length}`);
 }
 
-async function upsertServers() {
+async function upsertServerCategories() {
+  const categories = [
+    {
+      name: 'Основные',
+      slug: 'main',
+      description: 'Основные режимы сервера',
+      icon: 'Star',
+      color: '#FFD700',
+      order: 0,
+    },
+    {
+      name: 'PvP',
+      slug: 'pvp',
+      description: 'Боевые арены и PvP',
+      icon: 'Sword',
+      color: '#FF4444',
+      order: 1,
+    },
+    {
+      name: 'Мини-игры',
+      slug: 'minigames',
+      description: 'Мини-игры и ивенты',
+      icon: 'Gamepad2',
+      color: '#FF9500',
+      order: 2,
+    },
+    {
+      name: 'Креатив',
+      slug: 'creative',
+      description: 'Строительство и креатив',
+      icon: 'Palette',
+      color: '#34C759',
+      order: 3,
+    },
+    {
+      name: 'Тестовые',
+      slug: 'test',
+      description: 'Тестовые и экспериментальные серверы',
+      icon: 'FlaskConical',
+      color: '#5AC8FA',
+      order: 4,
+    },
+  ];
+
+  const ids = new Map<string, string>();
+  for (const category of categories) {
+    const row = await prisma.serverCategory.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        icon: category.icon,
+        color: category.color,
+        order: category.order,
+        isActive: true,
+      },
+      create: category,
+    });
+    ids.set(category.slug, row.id);
+  }
+
+  console.log(`server categories: ${categories.length}`);
+  return ids;
+}
+
+async function upsertServers(categoryIds: Map<string, string>) {
   const servers = [
     {
       name: 'Hypixel',
@@ -662,6 +727,7 @@ async function upsertServers() {
       description: 'Тестовый публичный сервер для проверки мониторинга',
       maxPlayers: 200000,
       order: 0,
+      categorySlug: 'minigames',
     },
     {
       name: 'Survival',
@@ -672,6 +738,7 @@ async function upsertServers() {
       description: 'Выживание с экономикой и квестами',
       maxPlayers: 200,
       order: 1,
+      categorySlug: 'main',
     },
     {
       name: 'SkyBlock',
@@ -682,6 +749,7 @@ async function upsertServers() {
       description: 'Небесные острова и островные войны',
       maxPlayers: 100,
       order: 2,
+      categorySlug: 'main',
     },
     {
       name: 'PvP Arena',
@@ -692,23 +760,27 @@ async function upsertServers() {
       description: 'Арены и дуэли',
       maxPlayers: 50,
       order: 3,
+      categorySlug: 'pvp',
     },
   ];
 
   for (const server of servers) {
+    const { categorySlug, ...data } = server;
+    const categoryId = categoryIds.get(categorySlug) ?? null;
     await prisma.server.upsert({
-      where: { slug: server.slug },
+      where: { slug: data.slug },
       update: {
-        name: server.name,
-        address: server.address,
-        port: server.port,
-        type: server.type,
-        description: server.description,
-        maxPlayers: server.maxPlayers,
-        order: server.order,
+        name: data.name,
+        address: data.address,
+        port: data.port,
+        type: data.type,
+        description: data.description,
+        maxPlayers: data.maxPlayers,
+        order: data.order,
+        categoryId,
         isActive: true,
       },
-      create: server,
+      create: { ...data, categoryId },
     });
   }
 
@@ -727,7 +799,8 @@ async function main() {
   await upsertStoreDiscounts();
   await upsertCurrencyRates();
 
-  await upsertServers();
+  const serverCategoryIds = await upsertServerCategories();
+  await upsertServers(serverCategoryIds);
 
   const awardIds = await upsertAwards();
 
