@@ -3,6 +3,7 @@
 import type {
   CreateServerPayload,
   GameServer,
+  ServerCategory,
   ServerHistoryPoint,
   ServerPlayer,
   ServersOverview,
@@ -25,6 +26,18 @@ export function useServers(enabled = true) {
     },
     enabled,
     refetchInterval: POLL_MS,
+  });
+}
+
+export function useServerCategories(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.serverCategories,
+    queryFn: async () => {
+      const { data } = await api.get<ServerCategory[]>('/server-categories');
+      return data;
+    },
+    enabled,
+    staleTime: 60_000,
   });
 }
 

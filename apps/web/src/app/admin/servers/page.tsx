@@ -24,9 +24,17 @@ import {
   useAdminServers,
   useCreateServer,
   useDeleteServer,
+  useServerCategories,
   useUpdateServer,
 } from '@/hooks/servers';
 import { extractErrorMessage } from '@/lib/api';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const emptyForm: CreateServerPayload = {
   name: '',
@@ -39,10 +47,12 @@ const emptyForm: CreateServerPayload = {
   maxPlayers: 100,
   isActive: true,
   order: 0,
+  categoryId: null,
 };
 
 export default function AdminServersPage() {
   const list = useAdminServers();
+  const categories = useServerCategories();
   const create = useCreateServer();
   const update = useUpdateServer();
   const remove = useDeleteServer();
@@ -118,6 +128,7 @@ export default function AdminServersPage() {
       maxPlayers: server.maxPlayers,
       isActive: server.isActive,
       order: server.order,
+      categoryId: server.categoryId,
     });
     setDialogOpen(true);
   };
@@ -262,6 +273,27 @@ export default function AdminServersPage() {
               onChange={(e) => setForm({ ...form, maxPlayers: Number(e.target.value) })}
             />
           </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Категория</Label>
+          <Select
+            value={form.categoryId ?? 'none'}
+            onValueChange={(value) =>
+              setForm({ ...form, categoryId: value === 'none' ? null : value })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Без категории" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Без категории</SelectItem>
+              {(categories.data ?? []).map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-1.5">
           <Label>Иконка URL</Label>

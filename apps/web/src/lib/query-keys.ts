@@ -53,6 +53,7 @@ export const queryKeys = {
   chatOnline: (slug: string) => ['chat', 'online', slug] as const,
   chatPinned: (slug: string) => ['chat', 'pinned', slug] as const,
   servers: ['servers', 'list'] as const,
+  serverCategories: ['servers', 'categories'] as const,
   serversOverview: ['servers', 'overview'] as const,
   server: (slug: string) => ['servers', 'detail', slug] as const,
   serverStatus: (slug: string) => ['servers', 'status', slug] as const,

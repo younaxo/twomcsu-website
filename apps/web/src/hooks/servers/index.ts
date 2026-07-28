@@ -4,6 +4,7 @@ export {
   useCreateServer,
   useDeleteServer,
   useServer,
+  useServerCategories,
   useServerHistory,
   useServerPlayers,
   useServers,
