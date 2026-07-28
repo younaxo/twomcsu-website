@@ -23,6 +23,8 @@ const config: Config = {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+          hover: 'hsl(var(--primary-hover))',
+          muted: 'hsl(var(--primary-muted))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
@@ -48,7 +50,7 @@ const config: Config = {
       },
       backgroundImage: {
         'gradient-primary':
-          'linear-gradient(135deg, hsl(239 84% 67%), hsl(271 81% 56%))',
+          'linear-gradient(135deg, hsl(30 100% 48%), hsl(36 100% 50%))',
       },
       borderRadius: {
         lg: 'var(--radius)',
