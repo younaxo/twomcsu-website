@@ -290,7 +290,7 @@ export function SiteHeader() {
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href="/admin">Админ-панель</Link>
+                        <Link href="/admin/dashboard">Админ-панель</Link>
                       </DropdownMenuItem>
                     </>
                   ) : null}
