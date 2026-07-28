@@ -2,11 +2,7 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
-  Param,
   ParseIntPipe,
   Patch,
   Post,
@@ -14,8 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RoleGroup } from '@twomc/shared';
-import { IsBoolean, IsEnum, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsEnum, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -80,39 +75,6 @@ class UpsertSettingsDto {
   @IsOptional()
   @IsString()
   maxUsers?: string;
-}
-
-class AnnouncementDto {
-  @IsString()
-  @MinLength(1)
-  @MaxLength(200)
-  title!: string;
-
-  @IsString()
-  @MinLength(1)
-  @MaxLength(4000)
-  message!: string;
-
-  @IsOptional()
-  @IsString()
-  type?: string;
-
-  @IsOptional()
-  @IsString()
-  link?: string | null;
-
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  isActive?: boolean;
-
-  @IsOptional()
-  @IsString()
-  startsAt?: string | null;
-
-  @IsOptional()
-  @IsString()
-  endsAt?: string | null;
 }
 
 @Controller('admin')
@@ -186,59 +148,5 @@ export class AdminController {
       changes: { before, after },
     });
     return after;
-  }
-
-  @Get('announcements')
-  listAnnouncements() {
-    return this.dashboard.listAnnouncements();
-  }
-
-  @Post('announcements')
-  @HttpCode(HttpStatus.CREATED)
-  async createAnnouncement(
-    @CurrentUser('id') actorId: string,
-    @Body() dto: AnnouncementDto,
-  ) {
-    const row = await this.dashboard.createAnnouncement(dto);
-    await this.audit.log({
-      actorId,
-      action: 'announcement.create',
-      targetType: 'Announcement',
-      targetId: row.id,
-      changes: { after: row },
-    });
-    return row;
-  }
-
-  @Patch('announcements/:id')
-  async updateAnnouncement(
-    @CurrentUser('id') actorId: string,
-    @Param('id') id: string,
-    @Body() dto: Partial<AnnouncementDto>,
-  ) {
-    const row = await this.dashboard.updateAnnouncement(id, dto);
-    await this.audit.log({
-      actorId,
-      action: 'announcement.update',
-      targetType: 'Announcement',
-      targetId: id,
-      changes: { after: row },
-    });
-    return row;
-  }
-
-  @Delete('announcements/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteAnnouncement(
-    @CurrentUser('id') actorId: string,
-    @Param('id') id: string,
-  ) {
-    await this.dashboard.deleteAnnouncement(id);
-    await this.audit.log({
-      actorId,
-      action: 'announcement.delete',
-      targetType: 'Announcement',
-      targetId: id,
-    });
   }
 }

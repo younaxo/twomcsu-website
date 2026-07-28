@@ -984,6 +984,36 @@ async function seedProfileComments(userIds: Map<string, string>) {
     throw new Error(`comments seed incomplete: expected >= 8 new rows, got ${created}`);
   }
   console.log(`comments: verified ${created} rows created (total ${after})`);
+
+  await seedSystemDefaults();
+}
+
+const SYSTEM_MODULES = [
+  'store',
+  'chat',
+  'friends',
+  'comments',
+  'reports',
+  'wiki',
+  'tickets',
+  'marketplace',
+  'forum',
+] as const;
+
+async function seedSystemDefaults() {
+  const maintenance = await prisma.maintenanceMode.findFirst();
+  if (!maintenance) {
+    await prisma.maintenanceMode.create({ data: {} });
+  }
+
+  for (const module of SYSTEM_MODULES) {
+    await prisma.moduleStatus.upsert({
+      where: { module },
+      create: { module, isEnabled: true },
+      update: {},
+    });
+  }
+  console.log(`system: seeded ${SYSTEM_MODULES.length} modules + maintenance row`);
 }
 
 main()
