@@ -47,9 +47,8 @@ export function SiteHeader() {
       <div className="pointer-events-none fixed inset-x-0 top-0 z-40 h-24" aria-hidden />
       <header
         className={cn(
-          'pointer-events-auto fixed left-1/2 top-5 z-50 flex w-[92%] max-w-[1440px] -translate-x-1/2 items-center justify-between gap-4',
-          'rounded-[20px] border border-white/10 bg-[rgba(15,15,20,0.5)] px-5 py-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)]',
-          'backdrop-blur-[30px] [backdrop-filter:blur(30px)_saturate(180%)] sm:px-7',
+          'glass-panel pointer-events-auto fixed left-1/2 top-5 z-50 flex w-[92%] max-w-[1440px] -translate-x-1/2 items-center justify-between gap-4',
+          'rounded-[20px] px-5 py-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)] sm:px-7',
         )}
       >
         <Logo size="sm" withDivider showText className="shrink-0" />
@@ -110,9 +109,10 @@ export function SiteHeader() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  type="button"
                   size="icon"
                   variant="ghost"
-                  className="h-9 w-9 cursor-pointer text-[#b0b0b0] hover:text-white"
+                  className="h-9 w-9 cursor-help text-[#b0b0b0] hover:text-white"
                   onClick={() => setSearchOpen(true)}
                   aria-label="Поиск"
                 >
