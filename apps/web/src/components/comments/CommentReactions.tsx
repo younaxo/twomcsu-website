@@ -1,12 +1,12 @@
 'use client';
 
 import {
-  COMMENT_EMOJI_CHARS,
   COMMENT_EMOJI_LABELS,
   COMMENT_EMOJIS,
   type CommentEmoji,
   type CommentReactionSummary,
 } from '@twomc/shared';
+import { Emoji } from '@/components/shared/Emoji';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
@@ -43,7 +43,7 @@ export function CommentReactions({ reactions, disabled, onToggle }: CommentReact
                   disabled && 'cursor-not-allowed opacity-60',
                 )}
               >
-                <span aria-hidden>{COMMENT_EMOJI_CHARS[emoji]}</span>
+                <Emoji name={emoji} size={16} alt={COMMENT_EMOJI_LABELS[emoji]} />
                 {count > 0 ? <span className="tabular-nums">{count}</span> : null}
               </button>
             </TooltipTrigger>
@@ -61,3 +61,4 @@ export function CommentReactions({ reactions, disabled, onToggle }: CommentReact
     </div>
   );
 }
+
