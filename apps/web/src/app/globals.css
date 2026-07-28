@@ -132,11 +132,42 @@
 }
 
 @layer utilities {
+  .glass-panel {
+    background: rgba(15, 15, 20, 0.5);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-card {
+    background: rgba(30, 30, 40, 0.4);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-modal {
+    background: rgba(15, 15, 20, 0.7);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-heavy {
+    background: rgba(15, 15, 20, 0.85);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   button:disabled,
+  [disabled],
+  [aria-disabled='true'],
   [role='button'][aria-disabled='true'],
   input:disabled,
   select:disabled,
   textarea:disabled {
-    cursor: not-allowed;
+    cursor: not-allowed !important;
+    opacity: 0.5;
   }
 }
