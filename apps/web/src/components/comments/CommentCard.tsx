@@ -76,7 +76,7 @@ export function CommentCard({ comment, profileUsername, isReply }: CommentCardPr
 
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <ColoredUsername user={comment.author} size="sm" badges={comment.author.badges} />
+            <ColoredUsername user={comment.author} size="sm" badges={comment.author.badges} maxBadges={2} />
             <PositionBadge position={comment.author.position} size="sm" />
             <Tooltip>
               <TooltipTrigger asChild>

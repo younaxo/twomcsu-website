@@ -85,7 +85,7 @@ export const MessageBubble = memo(function MessageBubble({
   return (
     <div
       className={cn(
-        'group relative rounded-lg px-2 py-1.5 hover:bg-accent/30',
+        'group relative rounded-lg glass-light px-2 py-1.5 transition-colors duration-200 hover:bg-white/10',
         message.isPinned && 'border-l-2 border-amber-400/60 bg-amber-500/5',
       )}
     >
@@ -100,7 +100,7 @@ export const MessageBubble = memo(function MessageBubble({
       ) : null}
 
       <div className="flex gap-2">
-        <SkinHead username={message.author?.username ?? 'Steve'} size={32} />
+        <SkinHead username={message.author?.username ?? 'Steve'} size={32} className="no-select" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             {message.author?.position ? (
@@ -110,6 +110,8 @@ export const MessageBubble = memo(function MessageBubble({
                   position: message.author.position,
                 }}
                 size="sm"
+                badges={message.author.badges as never}
+                maxBadges={2}
               />
             ) : (
               <span className="text-sm font-semibold text-white">

@@ -1,8 +1,9 @@
 'use client';
 
 import type { Position, UserBadge } from '@twomc/shared';
+import { userBadgeTypeOrder } from '@twomc/shared';
 import Link from 'next/link';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { usePrefetchProfile } from '@/hooks/useFriendsQueries';
@@ -16,6 +17,8 @@ interface ColoredUsernameProps {
   showBadge?: boolean;
   linkToProfile?: boolean;
   badges?: UserBadge[];
+  /** Limit badges shown after the nick (e.g. 1 in header, 2 in chat). */
+  maxBadges?: number;
   className?: string;
 }
 
@@ -37,9 +40,19 @@ function ColoredUsernameComponent({
   showBadge = false,
   linkToProfile = true,
   badges,
+  maxBadges,
   className,
 }: ColoredUsernameProps) {
   const prefetchProfile = usePrefetchProfile();
+
+  const orderedBadges = useMemo(() => {
+    if (!badges?.length) return [];
+    const rank = new Map(userBadgeTypeOrder.map((t, i) => [t, i]));
+    const sorted = [...badges].sort(
+      (a, b) => (rank.get(a.type) ?? 99) - (rank.get(b.type) ?? 99),
+    );
+    return typeof maxBadges === 'number' ? sorted.slice(0, maxBadges) : sorted;
+  }, [badges, maxBadges]);
 
   const name = (
     <span
@@ -51,7 +64,7 @@ function ColoredUsernameComponent({
   );
 
   return (
-    <span className="inline-flex items-center gap-2">
+    <span className="inline-flex min-w-0 items-center">
       {linkToProfile ? (
         <Link
           href={`/users/${user.username}`}
@@ -64,12 +77,18 @@ function ColoredUsernameComponent({
         name
       )}
 
-      {badges?.map((badge) => (
-        <UserBadgeIcon key={badge.id} type={badge.type} size={badgeSize[size]} />
-      ))}
+      {orderedBadges.length > 0 ? (
+        <span className="ml-1 inline-flex items-center gap-0.5">
+          {orderedBadges.map((badge) => (
+            <UserBadgeIcon key={badge.id} type={badge.type} size={badgeSize[size]} />
+          ))}
+        </span>
+      ) : null}
 
       {showBadge ? (
-        <PositionBadge position={user.position} size={size === 'lg' ? 'md' : 'sm'} />
+        <span className="ml-1">
+          <PositionBadge position={user.position} size={size === 'lg' ? 'md' : 'sm'} />
+        </span>
       ) : null}
     </span>
   );
