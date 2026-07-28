@@ -28,7 +28,7 @@ export function ComingSoonPage({
         className,
       )}
     >
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-[rgba(20,20,28,0.55)] backdrop-blur-[30px]">
+      <div className="glass-medium flex h-20 w-20 items-center justify-center rounded-2xl">
         <Icon className="h-10 w-10 text-[#F57C00]" aria-hidden />
       </div>
       <div className="space-y-2">
