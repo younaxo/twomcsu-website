@@ -1,3 +1,14 @@
+export interface ServerCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  icon: string | null;
+  color: string | null;
+  order: number;
+  isActive: boolean;
+}
+
 export interface ServerStatusSnapshot {
   online: boolean;
   playerCount: number;
@@ -23,6 +34,8 @@ export interface GameServer {
   motd: string | null;
   isActive: boolean;
   order: number;
+  categoryId: string | null;
+  category: ServerCategory | null;
   status: ServerStatusSnapshot | null;
 }
 
@@ -71,9 +84,22 @@ export interface CreateServerPayload {
   maxPlayers?: number;
   isActive?: boolean;
   order?: number;
+  categoryId?: string | null;
 }
 
 export type UpdateServerPayload = Partial<CreateServerPayload>;
+
+export interface CreateServerCategoryPayload {
+  name: string;
+  slug: string;
+  description?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  order?: number;
+  isActive?: boolean;
+}
+
+export type UpdateServerCategoryPayload = Partial<CreateServerCategoryPayload>;
 
 export interface ServerStatusLogRow {
   id: string;

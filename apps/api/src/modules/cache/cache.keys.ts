@@ -19,6 +19,8 @@ export const CACHE_TTL = {
   SERVER_STATUS: 60,
   /** Servers list with status */
   SERVERS_LIST: 30,
+  /** Server categories list */
+  SERVER_CATEGORIES: 300,
   /** Servers overview stats */
   SERVERS_OVERVIEW: 300,
   /** Store category tree */
@@ -54,6 +56,7 @@ export const cacheKeys = {
   notificationsUnread: (userId: string) => `notifications:unread:${userId}`,
   serverStatus: (serverId: string) => `server:${serverId}:status`,
   serversList: () => 'servers:list',
+  serverCategories: () => 'servers:categories',
   serversOverview: () => 'servers:overview',
   profileComments: (username: string, page: number, limit: number, sort: string) =>
     `comments:${username.toLowerCase()}:${page}:${limit}:${sort}`,

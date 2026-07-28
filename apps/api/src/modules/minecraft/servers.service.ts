@@ -31,6 +31,7 @@ export class ServersService {
     return this.cache.wrap(cacheKeys.serversList(), CACHE_TTL.SERVERS_LIST, async () => {
       const servers = await this.prisma.server.findMany({
         where: { isActive: true },
+        include: { category: true },
         orderBy: [{ order: 'asc' }, { name: 'asc' }],
       });
       return Promise.all(servers.map((s) => this.toGameServer(s)));
@@ -39,13 +40,17 @@ export class ServersService {
 
   async listAllAdmin(): Promise<GameServer[]> {
     const servers = await this.prisma.server.findMany({
+      include: { category: true },
       orderBy: [{ order: 'asc' }, { name: 'asc' }],
     });
     return Promise.all(servers.map((s) => this.toGameServer(s)));
   }
 
   async getBySlug(slug: string): Promise<GameServer> {
-    const server = await this.prisma.server.findUnique({ where: { slug } });
+    const server = await this.prisma.server.findUnique({
+      where: { slug },
+      include: { category: true },
+    });
     if (!server || !server.isActive) {
       throw new NotFoundException('Сервер не найден');
     }
@@ -224,7 +229,9 @@ export class ServersService {
         maxPlayers: dto.maxPlayers ?? 100,
         isActive: dto.isActive ?? true,
         order: dto.order ?? 0,
+        categoryId: dto.categoryId ?? null,
       },
+      include: { category: true },
     });
 
     await this.invalidateListCaches();
@@ -255,8 +262,17 @@ export class ServersService {
     if (dto.maxPlayers !== undefined) data.maxPlayers = dto.maxPlayers;
     if (dto.isActive !== undefined) data.isActive = dto.isActive;
     if (dto.order !== undefined) data.order = dto.order;
+    if (dto.categoryId !== undefined) {
+      data.category = dto.categoryId
+        ? { connect: { id: dto.categoryId } }
+        : { disconnect: true };
+    }
 
-    const server = await this.prisma.server.update({ where: { id }, data });
+    const server = await this.prisma.server.update({
+      where: { id },
+      data,
+      include: { category: true },
+    });
     await this.invalidateListCaches();
     return this.toGameServer(server);
   }
@@ -345,6 +361,17 @@ export class ServersService {
     motd: string | null;
     isActive: boolean;
     order: number;
+    categoryId?: string | null;
+    category?: {
+      id: string;
+      name: string;
+      slug: string;
+      description: string | null;
+      icon: string | null;
+      color: string | null;
+      order: number;
+      isActive: boolean;
+    } | null;
   }): Promise<GameServer> {
     const status = await this.monitoring.getCachedStatus(server.id);
     return {
@@ -361,6 +388,19 @@ export class ServersService {
       motd: status?.motd ?? server.motd,
       isActive: server.isActive,
       order: server.order,
+      categoryId: server.categoryId ?? server.category?.id ?? null,
+      category: server.category
+        ? {
+            id: server.category.id,
+            name: server.category.name,
+            slug: server.category.slug,
+            description: server.category.description,
+            icon: server.category.icon,
+            color: server.category.color,
+            order: server.category.order,
+            isActive: server.category.isActive,
+          }
+        : null,
       status,
     };
   }
