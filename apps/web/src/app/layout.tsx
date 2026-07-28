@@ -6,6 +6,7 @@ import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { SiteSidebar } from '@/components/site-sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
 
@@ -53,7 +54,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <TooltipProvider delayDuration={300}>
               <SiteHeader />
-              <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-32">
+              <SiteSidebar />
+              <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-32 lg:pl-28">
                 {children}
               </main>
               <SiteFooter />
