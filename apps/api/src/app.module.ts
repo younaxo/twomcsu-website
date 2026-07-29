@@ -19,6 +19,7 @@ import { FormsModule } from './modules/forms/forms.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
 import { MinecraftModule } from './modules/minecraft/minecraft.module';
+import { ModerationModule } from './modules/moderation/moderation.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { PositionsModule } from './modules/positions/positions.module';
@@ -68,6 +69,7 @@ import { UsersModule } from './modules/users/users.module';
     AdminModule,
     StatisticsModule,
     ExportModule,
+    ModerationModule,
     ChatModule,
     SystemModule,
     TopicsModule,
