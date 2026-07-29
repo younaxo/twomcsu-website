@@ -6,7 +6,7 @@ import { RolePanelLayout } from '@/components/admin/RolePanelLayout';
 import { useRoleGuard } from '@/components/admin/useRoleGuard';
 
 const moderationLinks = [
-  { href: '/moderation/tickets', label: 'Обращения' },
+  // TODO: Tickets / Обращения — restore when support module ships
   { href: '/moderation/profile-reports', label: 'Жалобы на профили' },
   { href: '/moderation/comment-reports', label: 'Жалобы на комментарии' },
   { href: '/moderation/media-requests', label: 'Медиа заявки' },
