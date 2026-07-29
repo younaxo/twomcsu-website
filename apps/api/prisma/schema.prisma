@@ -140,6 +140,10 @@ model User {
   lastServerActivity DateTime?
   isOnlineInGame     Boolean   @default(false)
 
+  /// Badge shown next to the nickname in the header; null = auto (top badge)
+  displayBadgeId String?
+  displayBadge   UserBadge? @relation("UserDisplayBadge", fields: [displayBadgeId], references: [id], onDelete: SetNull)
+
   cart        Cart?
   wishlist    Wishlist?
   orders      Order[]
@@ -186,6 +190,7 @@ model User {
   @@index([lastActivityAt])
   @@index([currentServerId])
   @@index([isOnlineInGame])
+  @@index([displayBadgeId])
   @@map("users")
 }
 
@@ -373,7 +378,8 @@ model UserBadge {
   /// Manual display order on the profile (lower = first)
   order     Int           @default(0)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayedBy    User[] @relation("UserDisplayBadge")
 
   @@unique([userId, type])
   @@index([userId])
