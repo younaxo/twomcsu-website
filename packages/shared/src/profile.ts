@@ -296,16 +296,18 @@ export interface UserProfile {
   commentPolicy: import('./comments').CommentPolicy;
   /** Present while FRIENDS_ONLY still behaves like EVERYONE for non-friends */
   visibility?: 'friends_only';
+  /** Only for the owner — used to show a privacy notice on their own page */
+  profileVisibility?: ProfileVisibility;
   /** Online on game server; may be absent until backend wires it */
   isOnlineInGame?: boolean;
   currentServer?: string | null;
   lastServerActivity?: string | null;
 }
 
-/** 403 body when profileVisibility is NOBODY and the viewer is not the owner */
+/** 403 body when profileVisibility blocks the viewer */
 export interface RestrictedProfileResponse {
   restricted: true;
-  reason: 'private';
+  reason: 'private' | 'friends_only';
   user: {
     username: string;
     avatar: string | null;

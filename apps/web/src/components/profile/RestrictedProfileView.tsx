@@ -53,9 +53,13 @@ export function RestrictedProfileView({ data }: RestrictedProfileViewProps) {
             <Lock className="h-6 w-6 text-muted-foreground" />
           </div>
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">Приватный профиль</h2>
+            <h2 className="text-lg font-semibold">
+              {data.reason === 'friends_only' ? 'Профиль только для друзей' : 'Приватный профиль'}
+            </h2>
             <p className="max-w-md text-sm text-muted-foreground">
-              Этот пользователь скрыл свой профиль от других
+              {data.reason === 'friends_only'
+                ? 'Этот профиль доступен только друзьям пользователя'
+                : 'Этот пользователь скрыл свой профиль от других'}
             </p>
           </div>
         </CardContent>

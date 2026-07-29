@@ -265,6 +265,7 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     isOnlineInGame: user.isOnlineInGame,
     currentServer: user.currentServer,
     lastServerActivity: user.lastServerActivity?.toISOString() ?? null,
+    ...(options.isOwner ? { profileVisibility: user.profileVisibility } : {}),
     ...(options.visibility ? { visibility: options.visibility } : {}),
   };
 }

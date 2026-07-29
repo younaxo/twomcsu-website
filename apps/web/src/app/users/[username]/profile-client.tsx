@@ -67,7 +67,8 @@ const SkinViewer3D = dynamic(
 
 interface ProfileClientProps {
   username: string;
-  initial: UserProfile;
+  initial: UserProfile | null;
+  initialRestricted?: RestrictedProfileResponse | null;
 }
 
 function parseRestricted(error: unknown): RestrictedProfileResponse | null {
@@ -90,10 +91,16 @@ function parseRestricted(error: unknown): RestrictedProfileResponse | null {
   return null;
 }
 
-export function ProfileClient({ username, initial }: ProfileClientProps) {
+export function ProfileClient({
+  username,
+  initial,
+  initialRestricted = null,
+}: ProfileClientProps) {
   const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(initial);
-  const [restricted, setRestricted] = useState<RestrictedProfileResponse | null>(null);
+  const [restricted, setRestricted] = useState<RestrictedProfileResponse | null>(
+    initialRestricted,
+  );
   const [friendsCount, setFriendsCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -148,9 +155,20 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
 
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const statsHidden = profile.statistics === null && !profile.isOwner;
+  const ownerPrivacyNote =
+    profile.isOwner && profile.profileVisibility === 'NOBODY'
+      ? 'Ваш профиль (виден только вам)'
+      : profile.isOwner && profile.profileVisibility === 'FRIENDS_ONLY'
+        ? 'Ваш профиль (виден только друзьям)'
+        : null;
 
   return (
     <div className="space-y-6">
+      {ownerPrivacyNote ? (
+        <div className="glass-medium rounded-xl border border-orange-500/30 px-4 py-3 text-sm text-orange-200">
+          {ownerPrivacyNote}
+        </div>
+      ) : null}
       <div className="glass-medium overflow-hidden rounded-2xl">
         <div className="relative h-[200px] w-full bg-secondary sm:h-[320px]">
           {bannerUrl ? (

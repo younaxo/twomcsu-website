@@ -776,31 +776,14 @@ export class UsersService {
       ? hasRoleGroup(viewer.roleGroup, RoleGroup.MODERATOR)
       : false;
 
-    if (user.profileVisibility === 'NOBODY' && !isOwner && !canBypassPrivate) {
-      const bannerUrl = await this.resolveBanner(user);
-
-      throw new ForbiddenException({
-        restricted: true,
-        reason: 'private',
-        user: {
-          username: user.username,
-          avatar: user.avatar,
-          position: toPublicPosition(user.position),
-          bannerUrl,
-          statusText: user.statusText,
-        },
-      });
-    }
-
-    if (user.profileVisibility === 'FRIENDS_ONLY' && !isOwner && !canBypassPrivate) {
-      const isFriend = viewer ? await this.friends.areFriends(viewer.id, user.id) : false;
-
-      if (!isFriend) {
+    // Owner always sees their own profile; privacy checks apply to others only
+    if (!isOwner) {
+      if (user.profileVisibility === 'NOBODY' && !canBypassPrivate) {
         const bannerUrl = await this.resolveBanner(user);
 
         throw new ForbiddenException({
           restricted: true,
-          reason: 'friends_only',
+          reason: 'private',
           user: {
             username: user.username,
             avatar: user.avatar,
@@ -809,6 +792,26 @@ export class UsersService {
             statusText: user.statusText,
           },
         });
+      }
+
+      if (user.profileVisibility === 'FRIENDS_ONLY' && !canBypassPrivate) {
+        const isFriend = viewer ? await this.friends.areFriends(viewer.id, user.id) : false;
+
+        if (!isFriend) {
+          const bannerUrl = await this.resolveBanner(user);
+
+          throw new ForbiddenException({
+            restricted: true,
+            reason: 'friends_only',
+            user: {
+              username: user.username,
+              avatar: user.avatar,
+              position: toPublicPosition(user.position),
+              bannerUrl,
+              statusText: user.statusText,
+            },
+          });
+        }
       }
     }
 
