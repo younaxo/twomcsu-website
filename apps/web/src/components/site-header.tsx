@@ -31,12 +31,16 @@ export function SiteHeader() {
 
   return (
     <>
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-40 h-24 lg:left-28" aria-hidden />
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 z-40 h-24 lg:left-[72px] xl:left-[260px]"
+        aria-hidden
+      />
       <header
         className={cn(
           'pointer-events-auto fixed left-1/2 top-5 z-50 flex w-[92%] max-w-[1440px] -translate-x-1/2 items-center justify-between gap-4',
           'glass-heavy rounded-[20px] px-5 py-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)] sm:px-7',
-          'lg:left-[calc(3.5rem+50%)] lg:w-[min(92%,calc(100%-7rem))]',
+          'lg:left-[calc(36px+50%)] lg:w-[min(92%,calc(100%-72px-1.5rem))]',
+          'xl:left-[calc(130px+50%)] xl:w-[min(92%,calc(100%-260px-1.5rem))]',
         )}
       >
         <Logo size="sm" withDivider showText className="no-select shrink-0" />

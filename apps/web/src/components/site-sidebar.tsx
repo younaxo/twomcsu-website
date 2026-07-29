@@ -5,6 +5,7 @@ import type { ComponentType } from 'react';
 import {
   AlertTriangle,
   BookOpen,
+  Home,
   LayoutDashboard,
   Menu,
   MessageCircle,
@@ -13,11 +14,11 @@ import {
   Shield,
   ShoppingBag,
   ShoppingCart,
-  Ticket,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { CurrencySelector } from '@/components/store/CurrencySelector';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -34,19 +35,33 @@ type NavItem = {
   icon: ComponentType<{ className?: string }>;
   soon?: boolean;
   action?: 'chat' | 'cart';
-  roles?: 'helper' | 'admin' | 'owner';
 };
 
-const mainNav: NavItem[] = [
-  { href: '/store', label: 'Магазин', icon: ShoppingBag },
-  { href: '/servers', label: 'Серверы', icon: Server },
-  { href: '/news', label: 'Новости', icon: Newspaper },
-  { href: '/wiki', label: 'Вики', icon: BookOpen, soon: true },
-  { href: '/support', label: 'Обращения', icon: Ticket, soon: true },
-  { href: '/reports', label: 'Репорты', icon: AlertTriangle, soon: true },
+type NavGroup = {
+  title: string;
+  items: NavItem[];
+};
+
+const mainGroups: NavGroup[] = [
+  {
+    title: 'Основное',
+    items: [
+      { href: '/', label: 'Главная', icon: Home },
+      { href: '/store', label: 'Магазин', icon: ShoppingBag },
+      { href: '/servers', label: 'Серверы', icon: Server },
+      { href: '/news', label: 'Новости', icon: Newspaper },
+    ],
+  },
+  {
+    title: 'Сообщество',
+    items: [
+      { href: '/wiki', label: 'Вики', icon: BookOpen, soon: true },
+      { href: '/reports', label: 'Репорты', icon: AlertTriangle, soon: true },
+    ],
+  },
 ];
 
-const bottomNav: NavItem[] = [
+const quickAccess: NavItem[] = [
   { label: 'Чат', icon: MessageCircle, action: 'chat' },
   { label: 'Корзина', icon: ShoppingCart, action: 'cart' },
 ];
@@ -68,11 +83,11 @@ function NavButton({
   const content = (
     <span
       className={cn(
-        'relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-colors',
+        'relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-150',
         collapsed && 'justify-center px-2',
         active
-          ? 'bg-primary/20 text-primary'
-          : 'text-[#b0b0b0] hover:bg-white/8 hover:text-white',
+          ? 'border-l-2 border-primary bg-primary/15 text-primary'
+          : 'border-l-2 border-transparent text-neutral-400 hover:bg-white/[0.06] hover:text-white',
         item.soon && 'opacity-70',
       )}
     >
@@ -124,6 +139,17 @@ function NavButton({
   );
 }
 
+function GroupTitle({ title, collapsed }: { title: string; collapsed?: boolean }) {
+  if (collapsed) {
+    return <div className="mx-auto my-2 h-px w-8 bg-white/10" aria-hidden />;
+  }
+  return (
+    <p className="px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500">
+      {title}
+    </p>
+  );
+}
+
 function SidebarNav({
   collapsed,
   onNavigate,
@@ -143,13 +169,13 @@ function SidebarNav({
 
   const roleItems: NavItem[] = [];
   if (user && hasRoleGroup(user.roleGroup, RoleGroup.HELPER)) {
-    roleItems.push({ href: '/moderation', label: 'Модерация', icon: Shield, roles: 'helper' });
+    roleItems.push({ href: '/moderation', label: 'Модерация', icon: Shield });
   }
   if (user && hasRoleGroup(user.roleGroup, RoleGroup.ADMIN)) {
-    roleItems.push({ href: '/admin', label: 'Админ', icon: LayoutDashboard, roles: 'admin' });
+    roleItems.push({ href: '/admin', label: 'Админ', icon: LayoutDashboard });
   }
   if (user && hasRoleGroup(user.roleGroup, RoleGroup.OWNER)) {
-    roleItems.push({ href: '/dashboard', label: 'Дашборд', icon: LayoutDashboard, roles: 'owner' });
+    roleItems.push({ href: '/dashboard', label: 'Дашборд', icon: LayoutDashboard });
   }
 
   const handleAction = (action?: 'chat' | 'cart') => {
@@ -158,38 +184,55 @@ function SidebarNav({
     onNavigate?.();
   };
 
+  const isActive = (href?: string) => {
+    if (!href) return false;
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
   return (
     <div className="flex h-full flex-col">
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
-        {mainNav.map((item) => {
-          const active = item.href
-            ? pathname === item.href || pathname.startsWith(`${item.href}/`)
-            : false;
-          return (
-            <div key={item.label} onClick={onNavigate}>
-              <NavButton item={item} active={active} collapsed={collapsed} />
-            </div>
-          );
-        })}
-        {roleItems.length > 0 ? (
-          <>
-            <div className="my-2 border-t border-white/10" />
-            {roleItems.map((item) => {
-              const active = item.href
-                ? pathname === item.href || pathname.startsWith(`${item.href}/`)
-                : false;
-              return (
+      <nav className="flex flex-1 flex-col overflow-y-auto px-2 py-3">
+        {mainGroups.map((group) => (
+          <div key={group.title} className="mb-1">
+            <GroupTitle title={group.title} collapsed={collapsed} />
+            <div className="flex flex-col gap-0.5">
+              {group.items.map((item) => (
                 <div key={item.label} onClick={onNavigate}>
-                  <NavButton item={item} active={active} collapsed={collapsed} />
+                  <NavButton
+                    item={item}
+                    active={isActive(item.href)}
+                    collapsed={collapsed}
+                  />
                 </div>
-              );
-            })}
-          </>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {roleItems.length > 0 ? (
+          <div className="mb-1">
+            <GroupTitle title="Панели" collapsed={collapsed} />
+            <div className="flex flex-col gap-0.5">
+              {roleItems.map((item) => (
+                <div key={item.label} onClick={onNavigate}>
+                  <NavButton item={item} active={isActive(item.href)} collapsed={collapsed} />
+                </div>
+              ))}
+            </div>
+          </div>
         ) : null}
       </nav>
 
-      <div className="mt-auto space-y-1 border-t border-white/10 p-2">
-        {bottomNav.map((item) => (
+      <div className="mt-auto space-y-1 border-t border-white/5 px-2 py-3">
+        {!collapsed ? (
+          <p className="px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500">
+            Быстрый доступ
+          </p>
+        ) : (
+          <div className="mx-auto my-1 h-px w-8 bg-white/10" aria-hidden />
+        )}
+        {quickAccess.map((item) => (
           <NavButton
             key={item.label}
             item={item}
@@ -198,6 +241,20 @@ function SidebarNav({
             onAction={() => handleAction(item.action)}
           />
         ))}
+        <div className={cn('pt-1', collapsed && 'flex justify-center')}>
+          {collapsed ? (
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <div className="w-full">
+                  <CurrencySelector compact className="h-10 w-full justify-center px-2" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">Валюта</TooltipContent>
+            </Tooltip>
+          ) : (
+            <CurrencySelector compact className="w-full" />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -213,16 +270,22 @@ export function SiteSidebar() {
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Desktop: wall-integrated rail */}
       <aside
         className={cn(
-          'pointer-events-auto fixed bottom-5 left-5 top-24 z-40 hidden w-[88px] flex-col overflow-hidden rounded-[20px]',
-          'border border-white/10 bg-[rgba(15,15,20,0.5)] shadow-[0_8px_32px_rgba(0,0,0,0.25)]',
-          'backdrop-blur-[30px] [backdrop-filter:blur(30px)_saturate(180%)] lg:flex',
+          'pointer-events-auto fixed bottom-0 left-0 top-0 z-40 hidden w-[72px] flex-col',
+          'border-r border-white/5 bg-neutral-950/70',
+          'backdrop-blur-[20px] xl:flex xl:w-[260px]',
+          'lg:flex',
         )}
         aria-label="Боковая навигация"
       >
-        <SidebarNav collapsed />
+        <div className="hidden h-full xl:block">
+          <SidebarNav />
+        </div>
+        <div className="h-full xl:hidden">
+          <SidebarNav collapsed />
+        </div>
       </aside>
 
       {/* Mobile hamburger */}
@@ -231,7 +294,7 @@ export function SiteSidebar() {
           <SheetTrigger asChild>
             <Button
               size="icon"
-              className="h-12 w-12 rounded-2xl border border-white/10 bg-[rgba(15,15,20,0.7)] shadow-lg backdrop-blur-xl"
+              className="h-12 w-12 rounded-2xl border border-white/10 bg-neutral-950/80 shadow-lg backdrop-blur-xl"
               aria-label="Открыть меню"
             >
               <Menu className="h-5 w-5" />
@@ -239,9 +302,9 @@ export function SiteSidebar() {
           </SheetTrigger>
           <SheetContent
             side="left"
-            className="w-[min(100vw-2rem,260px)] border-white/10 bg-[rgba(15,15,20,0.85)] p-0 backdrop-blur-[30px]"
+            className="w-[min(100vw-2rem,260px)] border-white/5 bg-neutral-950/90 p-0 backdrop-blur-[20px]"
           >
-            <SheetHeader className="border-b border-white/10 px-4 py-4 text-left">
+            <SheetHeader className="border-b border-white/5 px-4 py-4 text-left">
               <SheetTitle className="text-base">Навигация</SheetTitle>
             </SheetHeader>
             <div className="h-[calc(100%-4rem)]">

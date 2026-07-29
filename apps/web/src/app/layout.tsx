@@ -57,7 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <TooltipProvider delayDuration={300}>
               <MaintenanceGate>
                 <SiteSidebar />
-                <div className="flex min-h-screen flex-1 flex-col lg:pl-28">
+                <div className="flex min-h-screen flex-1 flex-col lg:pl-[72px] xl:pl-[260px]">
                   <SiteHeader />
                   <AnnouncementsBanner />
                   <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-32">
