@@ -406,8 +406,8 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | Зона | URL | Доступ | Содержание |
 | --- | --- | --- | --- |
 | Дашборд | `/dashboard/*` | ADMIN+ | Обзор, настройки сайта, объявления, audit log, статистика магазина/заказов, лояльность, валюты |
-| Админ | `/admin/*` | ADMIN+ | Позиции, префиксы, награды, серверы, каталог, промокоды, заказы, рассылка |
-| Модерация | `/moderation/*` | HELPER+ | Обращения, жалобы, медиа заявки, модерация чата |
+| Админ | `/admin/*` | ADMIN+ | Позиции, бейджи, награды, серверы, каталог, промокоды, заказы, рассылка |
+| Модерация | `/moderation/*` | HELPER+ | Жалобы, медиа заявки, модерация чата |
 
 Старые URL вроде `/admin/dashboard`, `/admin/media-requests`, `/admin/chat/*` редиректят на новые.
 
@@ -441,7 +441,14 @@ UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settin
 
 ## Дизайн
 
-Акцент оранжевый (`#F57C00` / `#FF9800`), логотип без glow/scale, sticky glassmorphism header + левая sidebar (Магазин/Серверы/Новости/Вики/Обращения/Репорты, снизу Чат и Корзина), утилиты `.glass-panel` / `.glass-card` / `.glass-modal`, валюта в хедере на весь сайт. Уведомления: glass-карточки, свайп влево — прочитать, вправо — удалить.
+Акцент оранжевый (`#F57C00` / `#E65100`), нейтральный тёмный фон без синевы.
+Плавающий glass header (уведомления + профиль с бейджем и chevron) и wall-интегрированная левая sidebar
+(категории Основное/Сообщество, снизу Чат, Корзина и выбор валюты).
+Утилиты `.glass-heavy` / `.glass-medium` / `.glass-light` / `.glass-strong`.
+Профиль: статистика «Рубинов» (поле `coins` в БД), короткие ID/тег, бейджи после ника.
+Обращения (`/support`) и связанные страницы — заглушка «В разработке».
+Уведомления: glass-карточки, свайп влево — прочитать, вправо — удалить.
+Техработы / модули / объявления: `/system/status`, админ-страницы в `/admin/settings/*`.
 
 ## Performance
 
@@ -502,14 +509,15 @@ apps/
         prisma/       PrismaService (глобальный модуль)
         redis/        ioredis клиент (глобальный модуль)
         store/        магазин: каталог, корзина, wishlist, заказы
+        system/       maintenance, modules, announcements, public status
         uploads/      sharp + раздача /uploads
         users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
     src/app/          (auth), /servers/*, /store/*, /users/[username], /profile/*, /dashboard/*, /admin/*, /moderation/*
-    src/components/   ui kit, chat, servers, store, profile, shared, admin, site-header, site-sidebar
-    src/hooks/        useAuth, useSocket, useChat, friends, comments, store/*, servers/*
+    src/components/   ui kit, chat, servers, store, profile, shared, admin, system, site-header, site-sidebar
+    src/hooks/        useAuth, useSocket, useChat, friends, comments, store/*, servers/*, useSystemStatus
     src/lib/          axios клиент, query-keys, profile helpers
     src/stores/       zustand: auth, storeUi, chat
 packages/
-  shared/             RoleGroup, Position, Profile (prefixes), Friends, Store, Servers, Chat, Auth типы
+  shared/             RoleGroup, Position, Profile (badges), Friends, Store, Servers, Chat, Auth типы
 ```
