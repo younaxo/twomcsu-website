@@ -7,6 +7,12 @@ import {
   setSessionLostHandler,
   setTokenRefreshedHandler,
 } from '@/lib/api';
+import { getQueryClient } from '@/lib/query-client';
+
+function clearAuthQueries() {
+  const queryClient = getQueryClient();
+  queryClient.clear();
+}
 
 interface LoginResult {
   requiresCaptcha: boolean;
@@ -58,6 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return { requiresCaptcha: true };
     }
 
+    clearAuthQueries();
     get().setAccessToken(data.accessToken);
     set({ user: data.user, isAuthenticated: true, isLoading: false });
 
@@ -77,6 +84,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       get().setAccessToken(null);
       set({ user: null, isAuthenticated: false });
+      clearAuthQueries();
     }
   },
 
@@ -113,4 +121,5 @@ setTokenRefreshedHandler((token) => useAuthStore.setState({ accessToken: token }
 setSessionLostHandler(() => {
   setApiAccessToken(null);
   useAuthStore.setState({ user: null, accessToken: null, isAuthenticated: false });
+  clearAuthQueries();
 });
