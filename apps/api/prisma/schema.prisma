@@ -370,11 +370,14 @@ model UserBadge {
   grantedAt DateTime      @default(now())
   expiresAt DateTime?
   isActive  Boolean       @default(true)
+  /// Manual display order on the profile (lower = first)
+  order     Int           @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, type])
   @@index([userId])
+  @@index([userId, order])
   @@map("user_badges")
 }
 
@@ -540,12 +543,15 @@ model UserAward {
   awardId   String
   grantedBy String?
   grantedAt DateTime @default(now())
+  /// Manual display order on the profile (lower = first)
+  order     Int      @default(0)
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   award Award @relation(fields: [awardId], references: [id], onDelete: Cascade)
 
   @@unique([userId, awardId])
   @@index([userId])
+  @@index([userId, order])
   @@map("user_awards")
 }
 

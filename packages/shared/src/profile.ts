@@ -139,6 +139,7 @@ export interface UserBadge {
   type: UserBadgeType;
   grantedAt: string;
   expiresAt: string | null;
+  order?: number;
 }
 
 export interface SocialLink {
@@ -164,6 +165,7 @@ export interface Award {
 
 export interface UserAward extends Award {
   grantedAt: string;
+  order?: number;
 }
 
 export interface PlayerStatistics {
