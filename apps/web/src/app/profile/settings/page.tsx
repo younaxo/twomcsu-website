@@ -5,8 +5,9 @@ import {
   FriendRequestPolicy,
   MediaGroup,
   type MyProfile,
-  ProfileVisibility,
   type SessionInfo,
+  getTopBadge,
+  ProfileVisibility,
 } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -21,11 +22,15 @@ import { BannerPresetPicker } from '@/components/profile/BannerPresetPicker';
 import { BannerUpload } from '@/components/profile/BannerUpload';
 import { CountrySelect } from '@/components/profile/CountrySelect';
 import { DateBirthPicker } from '@/components/profile/DateBirthPicker';
+import { DraggableAwardsGrid } from '@/components/profile/DraggableAwardsGrid';
+import { DraggableBadgesGrid } from '@/components/profile/DraggableBadgesGrid';
 import { GenderSelect } from '@/components/profile/GenderSelect';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
 import { ActivitySettingsTab } from '@/components/activity/ActivitySettingsTab';
 import { NotificationsSettingsTab } from '@/components/notifications/NotificationsSettingsTab';
 import { CaptchaField, CaptchaFieldHandle } from '@/components/shared/CaptchaField';
+import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -54,7 +59,7 @@ import {
 } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
 import { api, extractErrorMessage } from '@/lib/api';
-import { mediaGroupLabels } from '@/lib/profile';
+import { mediaGroupLabels, userBadgeLabels } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 import { checkPasswordPair } from '@/lib/validation';
 import { useChatStore } from '@/stores/chatStore';
@@ -236,6 +241,7 @@ export default function ProfileSettingsPage() {
       >
         <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="profile">Профиль</TabsTrigger>
+          <TabsTrigger value="display">Отображение</TabsTrigger>
           <TabsTrigger value="privacy">Приватность</TabsTrigger>
           <TabsTrigger value="socials">Соц сети</TabsTrigger>
           <TabsTrigger value="media">Медиа</TabsTrigger>
@@ -368,6 +374,90 @@ export default function ProfileSettingsPage() {
               <Button type="button" onClick={() => void saveProfile()} disabled={isSaving}>
                 {isSaving ? 'Сохраняем...' : 'Сохранить'}
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="display" className="space-y-6">
+          <Card className="glass-medium border-white/5">
+            <CardHeader>
+              <CardTitle>Мои бейджи</CardTitle>
+              <CardDescription>Перетаскивайте для изменения порядка</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DraggableBadgesGrid
+                badges={profile.badges}
+                onReorder={(badges) => setProfile({ ...profile, badges })}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="glass-medium border-white/5">
+            <CardHeader>
+              <CardTitle>Мои награды</CardTitle>
+              <CardDescription>Перетаскивайте для изменения порядка</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DraggableAwardsGrid
+                awards={profile.awards}
+                onReorder={(awards) => setProfile({ ...profile, awards })}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="glass-medium border-white/5">
+            <CardHeader>
+              <CardTitle>Бейдж возле ника</CardTitle>
+              <CardDescription>
+                Выберите, какой бейдж показывать рядом с ником в шапке сайта
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Select
+                value={profile.displayBadgeId ?? 'auto'}
+                onValueChange={async (value) => {
+                  const badgeId = value === 'auto' ? null : value;
+                  try {
+                    const { data } = await api.patch<MyProfile>('/users/me/display-badge', {
+                      badgeId,
+                    });
+                    setProfile(data);
+                    toast.success('Бейдж обновлён');
+                  } catch (error) {
+                    toast.error(extractErrorMessage(error, 'Не удалось сохранить бейдж'));
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Автоматически" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Автоматически</SelectItem>
+                  {profile.badges.map((badge) => (
+                    <SelectItem key={badge.id} value={badge.id}>
+                      <span className="inline-flex items-center gap-2">
+                        <UserBadgeIcon type={badge.type} size={16} />
+                        {userBadgeLabels[badge.type]}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="glass-light rounded-xl border border-white/5 px-4 py-3">
+                <p className="mb-2 text-xs text-muted-foreground">Так будет выглядеть в хедере:</p>
+                <div className="flex items-center gap-2">
+                  <ColoredUsername
+                    user={profile}
+                    badges={(() => {
+                      const badge = profile.displayBadge ?? getTopBadge(profile.badges);
+                      return badge ? [badge] : [];
+                    })()}
+                    size="md"
+                    linkToProfile={false}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
