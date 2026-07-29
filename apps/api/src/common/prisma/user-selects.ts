@@ -43,7 +43,7 @@ export const selectMinimalUser = {
   departments: selectUserDepartments,
   badges: {
     where: { isActive: true },
-    orderBy: { grantedAt: 'asc' as const },
+    orderBy: [{ order: 'asc' as const }, { grantedAt: 'asc' as const }],
     select: {
       id: true,
       type: true,
@@ -52,6 +52,7 @@ export const selectMinimalUser = {
       isActive: true,
       userId: true,
       grantedBy: true,
+      order: true,
     },
   },
 } satisfies Prisma.UserSelect;
@@ -73,7 +74,7 @@ export const selectAuthUser = {
   departments: selectUserDepartments,
   badges: {
     where: { isActive: true },
-    orderBy: { grantedAt: 'asc' as const },
+    orderBy: [{ order: 'asc' as const }, { grantedAt: 'asc' as const }],
     select: {
       id: true,
       type: true,
@@ -82,6 +83,7 @@ export const selectAuthUser = {
       isActive: true,
       userId: true,
       grantedBy: true,
+      order: true,
     },
   },
 } satisfies Prisma.UserSelect;
@@ -137,11 +139,11 @@ export const selectFullProfile = {
   departments: selectUserDepartments,
   badges: {
     where: { isActive: true },
-    orderBy: { grantedAt: 'asc' as const },
+    orderBy: [{ order: 'asc' as const }, { grantedAt: 'asc' as const }],
   },
   awards: {
     include: { award: true },
-    orderBy: { grantedAt: 'desc' as const },
+    orderBy: [{ order: 'asc' as const }, { grantedAt: 'desc' as const }],
   },
   mediaBadges: { where: { isApproved: true } },
   socialLinks: { orderBy: { platform: 'asc' as const } },

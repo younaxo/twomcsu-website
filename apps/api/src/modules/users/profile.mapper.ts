@@ -44,12 +44,15 @@ export function resolveBannerUrl(
   return null;
 }
 
-export function toUserBadge(row: UserBadgeRow): UserBadge {
+export function toUserBadge(
+  row: Pick<UserBadgeRow, 'id' | 'type' | 'grantedAt' | 'expiresAt'> & { order?: number },
+): UserBadge {
   return {
     id: row.id,
     type: row.type,
     grantedAt: row.grantedAt.toISOString(),
     expiresAt: row.expiresAt?.toISOString() ?? null,
+    order: row.order ?? 0,
   };
 }
 
@@ -64,6 +67,7 @@ export function toUserAward(row: UserAwardRow & { award: AwardRow }): UserAward 
     rarity: row.award.rarity,
     isActive: row.award.isActive,
     grantedAt: row.grantedAt.toISOString(),
+    order: row.order,
   };
 }
 

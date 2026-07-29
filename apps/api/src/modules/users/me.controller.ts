@@ -29,6 +29,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { imageUploadOptions } from '../uploads/multer.options';
 import { CreateMediaRequestDto } from './dto/create-media-request.dto';
 import { SetBannerPresetDto } from './dto/set-banner-preset.dto';
+import { UpdateAwardsOrderDto } from './dto/update-awards-order.dto';
+import { UpdateBadgesOrderDto } from './dto/update-badges-order.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpsertSocialLinkDto } from './dto/upsert-social-link.dto';
 import { UsersService } from './users.service';
@@ -49,6 +51,22 @@ export class MeController {
     @Body() dto: UpdateProfileDto,
   ): Promise<MyProfile> {
     return this.users.updateMyProfile(userId, dto);
+  }
+
+  @Patch('badges/order')
+  updateBadgesOrder(
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateBadgesOrderDto,
+  ) {
+    return this.users.updateBadgesOrder(userId, dto.orders);
+  }
+
+  @Patch('awards/order')
+  updateAwardsOrder(
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateAwardsOrderDto,
+  ) {
+    return this.users.updateAwardsOrder(userId, dto.orders);
   }
 
   @Post('avatar')

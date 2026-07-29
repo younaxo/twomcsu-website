@@ -28,6 +28,7 @@ import {
   SocialLink,
   SuccessResponse,
   UserBadge,
+  UserAward,
   UserProfile,
   MentionSearchResult,
   UserSearchHint,
@@ -62,6 +63,7 @@ import {
   toPublicProfile,
   toSocialLink,
   toStatistics,
+  toUserAward,
   toUserBadge,
 } from './profile.mapper';
 
@@ -318,10 +320,66 @@ export class UsersService {
 
     const rows = await this.prisma.userBadge.findMany({
       where: { userId },
-      orderBy: { grantedAt: 'asc' },
+      orderBy: [{ order: 'asc' }, { grantedAt: 'asc' }],
     });
 
     return rows.map(toUserBadge);
+  }
+
+  async updateBadgesOrder(
+    userId: string,
+    orders: Array<{ badgeId: string; order: number }>,
+  ): Promise<UserBadge[]> {
+    const owned = await this.prisma.userBadge.findMany({
+      where: { userId, id: { in: orders.map((item) => item.badgeId) } },
+      select: { id: true },
+    });
+
+    if (owned.length !== orders.length) {
+      throw new BadRequestException('Некоторые бейджи не принадлежат вам');
+    }
+
+    await this.prisma.$transaction(
+      orders.map((item) =>
+        this.prisma.userBadge.update({
+          where: { id: item.badgeId },
+          data: { order: item.order },
+        }),
+      ),
+    );
+
+    return this.listUserBadges(userId);
+  }
+
+  async updateAwardsOrder(
+    userId: string,
+    orders: Array<{ awardId: string; order: number }>,
+  ): Promise<UserAward[]> {
+    const owned = await this.prisma.userAward.findMany({
+      where: { userId, awardId: { in: orders.map((item) => item.awardId) } },
+      include: { award: true },
+    });
+
+    if (owned.length !== orders.length) {
+      throw new BadRequestException('Некоторые награды не принадлежат вам');
+    }
+
+    await this.prisma.$transaction(
+      orders.map((item) =>
+        this.prisma.userAward.update({
+          where: { userId_awardId: { userId, awardId: item.awardId } },
+          data: { order: item.order },
+        }),
+      ),
+    );
+
+    const rows = await this.prisma.userAward.findMany({
+      where: { userId },
+      include: { award: true },
+      orderBy: [{ order: 'asc' }, { grantedAt: 'desc' }],
+    });
+
+    return rows.map(toUserAward);
   }
 
   async grantBadge(userId: string, dto: GrantBadgeDto, grantedBy: string): Promise<UserBadge> {
