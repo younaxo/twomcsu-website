@@ -223,15 +223,21 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
   };
 
   return (
-    <div className={cn('flex h-full min-h-0 flex-col rounded-xl border border-border bg-card', className)}>
-      <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
+    <div className={cn('flex h-full min-h-0 flex-col', className)}>
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
         <div>
-          <p className="text-sm font-medium text-white">
-            {channel?.icon ? `${channel.icon} ` : null}
-            {channel?.name ?? 'Общий чат'}
-          </p>
+          <p className="text-sm font-semibold text-white">Чат TWOMC</p>
           <p className="text-xs text-muted-foreground">
-            {connected ? 'Онлайн' : isAuthenticated ? 'Подключение…' : 'Войдите, чтобы писать'}
+            {connected ? (
+              <>
+                <span className="text-emerald-400">●</span>{' '}
+                {onlineQuery.data?.length ?? 0} онлайн
+              </>
+            ) : isAuthenticated ? (
+              'Подключение…'
+            ) : (
+              'Войдите, чтобы писать'
+            )}
           </p>
         </div>
         <div className="flex gap-1">
@@ -247,19 +253,19 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 flex-col">
         <div className="relative flex min-w-0 flex-1 flex-col">
           <div
             ref={listRef}
             onScroll={onScroll}
-            className="flex-1 space-y-1 overflow-y-auto px-2 py-3"
+            className="flex-1 space-y-1.5 overflow-y-auto px-3 py-3"
           >
             {pinnedMessages.length > 0 ? (
-              <div className="sticky top-0 z-10 -mx-2 mb-2 space-y-1.5 bg-card/95 px-2 pb-2 pt-1 backdrop-blur-sm">
+              <div className="sticky top-0 z-10 -mx-1 mb-2 space-y-1.5 bg-[rgba(15,15,20,0.85)] px-1 pb-2 pt-1 backdrop-blur-sm">
                 {pinnedMessages.map((message) => (
                   <div
                     key={`pin-${message.id}`}
-                    className="rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-2"
+                    className="glass-light rounded-xl border-amber-400/30 px-3 py-2"
                   >
                     <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-amber-300">
                       <Pin className="h-3.5 w-3.5" />
@@ -331,9 +337,9 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
             <p className="px-3 pb-1 text-xs text-muted-foreground">{typingLabel}</p>
           ) : null}
 
-          <div className="px-3 pb-3">
+          <div className="border-t border-white/10 px-3 py-3">
             {!isAuthenticated ? (
-              <p className="rounded-lg border border-dashed border-border px-3 py-2 text-center text-sm text-muted-foreground">
+              <p className="glass-light rounded-xl px-3 py-2 text-center text-sm text-muted-foreground">
                 <Link href="/login" className="text-primary hover:underline">
                   Войдите
                 </Link>
@@ -357,16 +363,16 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
         </div>
 
         {showOnline ? (
-          <aside className="hidden w-44 shrink-0 overflow-y-auto border-l border-border p-2 md:block">
+          <aside className="max-h-40 shrink-0 overflow-y-auto border-t border-white/10 px-3 py-2">
             <p className="mb-2 text-xs font-medium text-muted-foreground">
               Онлайн ({onlineQuery.data?.length ?? 0})
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-wrap gap-1.5">
               {(onlineQuery.data ?? []).map((u) => (
                 <Link
                   key={u.id}
                   href={`/users/${u.username}`}
-                  className="block w-full truncate rounded px-1.5 py-1 text-left text-sm hover:bg-accent hover:underline"
+                  className="glass-light rounded-lg px-2 py-1 text-xs transition-colors hover:bg-white/10"
                 >
                   {u.username}
                 </Link>

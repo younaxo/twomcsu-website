@@ -85,8 +85,9 @@ export const MessageBubble = memo(function MessageBubble({
   return (
     <div
       className={cn(
-        'group relative rounded-lg px-2 py-1.5 hover:bg-accent/30',
-        message.isPinned && 'border-l-2 border-amber-400/60 bg-amber-500/5',
+        'group relative rounded-xl px-2.5 py-2 transition-colors duration-200',
+        'glass-light hover:bg-[rgba(20,20,28,0.55)]',
+        message.isPinned && 'border-l-2 border-amber-400/60',
       )}
     >
       {message.parent ? (
@@ -115,6 +116,8 @@ export const MessageBubble = memo(function MessageBubble({
                   username: message.author.username,
                   position: message.author.position,
                 }}
+                badges={message.author.badges}
+                maxBadges={2}
                 size="sm"
               />
             ) : (
