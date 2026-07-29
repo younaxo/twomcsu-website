@@ -3,6 +3,7 @@
 import type { MyProfile, UserBadge } from '@twomc/shared';
 import { getTopBadge } from '@twomc/shared';
 import {
+  ChevronDown,
   Heart,
   LogOut,
   Package,
@@ -106,7 +107,7 @@ function PreviewBody({
             <p className="text-sm font-semibold text-white">
               {profile.statistics?.coins ?? '—'}
             </p>
-            <p className="text-[10px] text-muted-foreground">Монет</p>
+            <p className="text-[10px] text-muted-foreground">Рубинов</p>
           </div>
         </div>
 
@@ -166,15 +167,16 @@ export function ProfileMiniPreview({ username, avatar, onLogout }: ProfileMiniPr
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative gap-2 px-2">
-          <Avatar className="h-8 w-8">
+        <Button variant="ghost" className="relative gap-1.5 px-2">
+          <Avatar className="h-8 w-8 no-select">
             <AvatarImage src={avatarUrl} alt={username} />
             <AvatarFallback className="p-0">
               <DefaultAvatar username={username} letterClassName="text-xs" />
             </AvatarFallback>
           </Avatar>
-          {topBadge ? <UserBadgeIcon type={topBadge.type} size={16} /> : null}
           <span className="hidden max-w-28 truncate text-sm font-medium md:inline">{username}</span>
+          {topBadge ? <UserBadgeIcon type={topBadge.type} size={16} /> : null}
+          <ChevronDown className="hidden h-3.5 w-3.5 shrink-0 text-muted-foreground sm:block" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
