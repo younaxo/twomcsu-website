@@ -1,6 +1,7 @@
 'use client';
 
 import type { FriendsCountResponse, RestrictedProfileResponse, UserProfile } from '@twomc/shared';
+import { RoleGroup, hasRoleGroup } from '@twomc/shared';
 import {
   Cake,
   Eye,
@@ -9,6 +10,7 @@ import {
   Heart,
   MapPin,
   Package,
+  Shield,
   Skull,
   Sword,
   TrendingUp,
@@ -38,6 +40,7 @@ import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
 import { ReportProfileDialog } from '@/components/profile/ReportProfileDialog';
 import { RestrictedProfileView } from '@/components/profile/RestrictedProfileView';
+import { UserContextMenu } from '@/components/moderation/UserContextMenu';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -96,7 +99,7 @@ export function ProfileClient({
   initial,
   initialRestricted = null,
 }: ProfileClientProps) {
-  const { isAuthenticated } = useAuth();
+  const { user: me, isAuthenticated } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(initial);
   const [restricted, setRestricted] = useState<RestrictedProfileResponse | null>(
     initialRestricted,
@@ -296,12 +299,30 @@ export function ProfileClient({
 
             <div className="flex flex-col items-start gap-3 sm:items-end">
               <AwardsList awards={profile.awards} size={28} />
-              {isAuthenticated && !profile.isOwner ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  <FriendButton username={profile.username} />
-                  <ReportProfileDialog username={profile.username} />
-                </div>
-              ) : null}
+              <div className="flex flex-wrap items-center gap-2">
+                {isAuthenticated && !profile.isOwner ? (
+                  <>
+                    <FriendButton username={profile.username} />
+                    <ReportProfileDialog username={profile.username} />
+                  </>
+                ) : null}
+                {me &&
+                !profile.isOwner &&
+                hasRoleGroup(me.roleGroup, RoleGroup.HELPER) ? (
+                  <UserContextMenu
+                    user={{
+                      id: profile.id,
+                      username: profile.username,
+                      avatar: profile.avatar,
+                    }}
+                  >
+                    <Button variant="secondary" size="sm" className="glass-hover-orange gap-2">
+                      <Shield className="h-4 w-4" />
+                      Модерация
+                    </Button>
+                  </UserContextMenu>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
