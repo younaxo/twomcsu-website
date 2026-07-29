@@ -48,7 +48,7 @@ export function BundleCard({ bundle, className }: BundleCardProps) {
     <Link
       href={`/store/bundle/${bundle.slug}`}
       className={cn(
-        'flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-md transition-colors hover:bg-white/10',
+        'flex flex-col overflow-hidden rounded-xl glass-medium transition-colors duration-200 hover:bg-white/10',
         className,
       )}
     >

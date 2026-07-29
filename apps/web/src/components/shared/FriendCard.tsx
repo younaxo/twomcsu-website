@@ -61,7 +61,7 @@ function FriendCardComponent({ friend, onRemoved, onBlocked, className }: Friend
   return (
     <div
       className={cn(
-        'group relative flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-md transition-colors hover:bg-white/10',
+        'group relative flex items-center gap-3 rounded-xl glass-medium p-3 transition-colors duration-200 hover:bg-white/10',
         className,
       )}
     >
@@ -80,7 +80,7 @@ function FriendCardComponent({ friend, onRemoved, onBlocked, className }: Friend
       </Link>
 
       <div className="min-w-0 flex-1 space-y-1">
-        <ColoredUsername user={friend} size="sm" badges={friend.badges} />
+        <ColoredUsername user={friend} size="sm" badges={friend.badges} maxBadges={1} />
         <PositionBadge position={friend.position} size="sm" />
       </div>
 

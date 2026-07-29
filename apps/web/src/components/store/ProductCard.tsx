@@ -60,7 +60,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     <Link
       href={`/store/product/${product.slug}`}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-md transition-colors hover:bg-white/10',
+        'group relative flex flex-col overflow-hidden rounded-xl glass-medium transition-colors duration-200 hover:bg-white/10',
         className,
       )}
       style={accent ? { borderColor: `${accent}40` } : undefined}

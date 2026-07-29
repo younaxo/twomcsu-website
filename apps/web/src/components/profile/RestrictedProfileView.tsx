@@ -24,7 +24,7 @@ export function RestrictedProfileView({ data }: RestrictedProfileViewProps) {
           {bannerUrl ? (
             <Image src={bannerUrl} alt="" fill className="object-cover" unoptimized />
           ) : (
-            <div className="h-full w-full bg-gradient-to-r from-secondary via-accent to-secondary" />
+            <div className="h-full w-full bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900" />
           )}
         </div>
 

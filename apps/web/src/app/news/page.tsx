@@ -1,10 +1,12 @@
-import type { Metadata } from 'next';
 import { ComingSoonPage } from '@/components/shared/ComingSoonPage';
 
-export const metadata: Metadata = {
-  title: 'Новости — twomc.su',
-};
-
+// TODO: implement news feed
 export default function NewsPage() {
-  return <ComingSoonPage title="Новости" description="Лента новостей проекта скоро появится." />;
+  return (
+    <ComingSoonPage
+      title="Раздел в разработке"
+      description="Скоро здесь появятся новости проекта"
+      icon="hammer"
+    />
+  );
 }

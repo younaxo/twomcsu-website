@@ -49,7 +49,7 @@ export const ServerCard = memo(function ServerCard({ server, className, compact 
   return (
     <article
       className={cn(
-        'flex flex-col gap-6 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-md sm:p-8',
+        'flex flex-col gap-6 rounded-2xl glass-medium p-6 shadow-[0_8px_32px_rgba(0,0,0,0.25)] sm:p-8',
         className,
       )}
       style={
@@ -78,7 +78,7 @@ export const ServerCard = memo(function ServerCard({ server, className, compact 
               <span
                 className="rounded-md px-2 py-0.5 text-xs font-medium"
                 style={{
-                  backgroundColor: `${server.category.color ?? '#6366F1'}22`,
+                  backgroundColor: `${server.category.color ?? '#F57C00'}22`,
                   color: server.category.color ?? '#A5B4FC',
                 }}
               >

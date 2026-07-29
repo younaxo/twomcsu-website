@@ -1,14 +1,20 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { NotificationType } from '@twomc/shared';
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { SwipeableNotificationItem } from '@/components/notifications/SwipeableNotificationItem';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,9 +28,22 @@ import { extractErrorMessage } from '@/lib/api';
 
 type Filter = 'all' | 'unread';
 
+const TYPE_FILTERS: Array<{ value: string; label: string }> = [
+  { value: 'all', label: 'Все типы' },
+  { value: NotificationType.COMMENT_ON_PROFILE, label: 'Комментарии' },
+  { value: NotificationType.COMMENT_MENTION, label: 'Упоминания' },
+  { value: NotificationType.COMMENT_REPLY, label: 'Ответы' },
+  { value: NotificationType.FRIEND_REQUEST, label: 'Заявки в друзья' },
+  { value: NotificationType.FRIEND_ACCEPTED, label: 'Дружба' },
+  { value: NotificationType.GIFT_RECEIVED, label: 'Подарки' },
+  { value: NotificationType.ORDER_STATUS_CHANGED, label: 'Заказы' },
+  { value: NotificationType.SYSTEM, label: 'Системные' },
+];
+
 export default function NotificationsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [filter, setFilter] = useState<Filter>('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [page, setPage] = useState(1);
   const list = useNotifications({
     page,
@@ -36,7 +55,13 @@ export default function NotificationsPage() {
   const markAll = useMarkAllNotificationsRead();
   const remove = useDeleteNotification();
 
-  if (authLoading) return <Skeleton className="h-64 w-full" />;
+  const items = useMemo(() => {
+    const raw = list.data?.items ?? [];
+    if (typeFilter === 'all') return raw;
+    return raw.filter((n) => n.type === typeFilter);
+  }, [list.data?.items, typeFilter]);
+
+  if (authLoading) return <Skeleton className="h-64 w-full rounded-2xl" />;
 
   if (!isAuthenticated) {
     return (
@@ -53,7 +78,6 @@ export default function NotificationsPage() {
     );
   }
 
-  const items = list.data?.items ?? [];
   const totalPages = list.data?.totalPages ?? 1;
 
   return (
@@ -74,7 +98,6 @@ export default function NotificationsPage() {
               .mutateAsync()
               .then(() => toast.success('Все уведомления прочитаны'))
               .catch((error: unknown) => {
-                console.error('markAllNotificationsRead failed', error);
                 toast.error(extractErrorMessage(error, 'Не удалось отметить уведомления'));
               });
           }}
@@ -83,21 +106,42 @@ export default function NotificationsPage() {
         </Button>
       </div>
 
-      <Tabs
-        value={filter}
-        onValueChange={(v) => {
-          setFilter(v as Filter);
-          setPage(1);
-        }}
-      >
-        <TabsList>
-          <TabsTrigger value="all">Все</TabsTrigger>
-          <TabsTrigger value="unread">Непрочитанные</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex flex-wrap items-center gap-3">
+        <Tabs
+          value={filter}
+          onValueChange={(v) => {
+            setFilter(v as Filter);
+            setPage(1);
+          }}
+        >
+          <TabsList>
+            <TabsTrigger value="all">Все</TabsTrigger>
+            <TabsTrigger value="unread">Непрочитанные</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <Select
+          value={typeFilter}
+          onValueChange={(v) => {
+            setTypeFilter(v);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Тип" />
+          </SelectTrigger>
+          <SelectContent>
+            {TYPE_FILTERS.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {list.isLoading ? (
-        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
       ) : items.length === 0 ? (
         <EmptyState
           icon={Bell}

@@ -20,6 +20,8 @@ import { PositionsModule } from './modules/positions/positions.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { StoreModule } from './modules/store/store.module';
+import { SystemModule } from './modules/system/system.module';
+import { MaintenanceMiddleware } from './modules/system/maintenance.middleware';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -51,11 +53,12 @@ import { UsersModule } from './modules/users/users.module';
     MinecraftModule,
     AdminModule,
     ChatModule,
+    SystemModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(PerformanceMiddleware).forRoutes('*');
+    consumer.apply(PerformanceMiddleware, MaintenanceMiddleware).forRoutes('*');
   }
 }
