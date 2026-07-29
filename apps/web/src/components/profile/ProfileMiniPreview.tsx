@@ -49,7 +49,7 @@ function PreviewBody({
   onLogout: () => void;
 }) {
   const friendsCount = useFriendsCount(profile.username);
-  const topBadge = getTopBadge(profile.badges);
+  const topBadge = profile.displayBadge ?? getTopBadge(profile.badges);
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const avatarUrl = resolveMediaUrl(profile.avatar);
   const skinHead = `https://mc-heads.net/head/${encodeURIComponent(getMinecraftUsername(profile.username))}/48`;
@@ -176,7 +176,9 @@ export function ProfileMiniPreview({ username, avatar, onLogout }: ProfileMiniPr
   const profile = useMyProfile(true);
   const skinUrl = `https://minotar.net/helm/${encodeURIComponent(username)}/64.png`;
   const avatarUrl = resolveMediaUrl(avatar) ?? skinUrl;
-  const topBadge = getTopBadge(profile.data?.badges);
+  const displayBadge =
+    profile.data?.displayBadge ?? getTopBadge(profile.data?.badges);
+  const topBadge = displayBadge;
 
   return (
     <DropdownMenu>
