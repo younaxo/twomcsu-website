@@ -42,6 +42,9 @@ export interface PublicUser {
   isBanned: boolean;
   createdAt: string;
   badges?: UserBadge[];
+  /** Selected header badge; null means auto (top by priority) */
+  displayBadgeId?: string | null;
+  displayBadge?: UserBadge | null;
 }
 
 /** Row of the username lookup in the admin panel */

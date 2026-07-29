@@ -260,6 +260,9 @@ export interface MyProfile extends PrivacySettings {
   mediaBadges: MediaBadge[];
   socials: SocialLink[];
   statistics: PlayerStatistics | null;
+  /** Selected header badge; null means auto (top by priority) */
+  displayBadgeId?: string | null;
+  displayBadge?: UserBadge | null;
 }
 
 /** Anyone can read this one, hidden fields are stripped before it leaves the api */
