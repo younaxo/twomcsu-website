@@ -2,15 +2,18 @@
 
 import type { FriendsCountResponse, RestrictedProfileResponse, UserProfile } from '@twomc/shared';
 import {
-  Coins,
+  Cake,
   Eye,
+  Gem,
   Gift,
   Heart,
+  MapPin,
   Package,
   Skull,
   Sword,
   TrendingUp,
   Tv,
+  UserRound,
   Video,
   Wrench,
 } from 'lucide-react';
@@ -84,11 +87,6 @@ function parseRestricted(error: unknown): RestrictedProfileResponse | null {
   return null;
 }
 
-function truncateId(id: string): string {
-  if (id.length <= 12) return id;
-  return `${id.slice(0, 6)}…${id.slice(-4)}`;
-}
-
 export function ProfileClient({ username, initial }: ProfileClientProps) {
   const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(initial);
@@ -150,7 +148,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-xl glass-card">
+      <div className="glass-medium overflow-hidden rounded-2xl">
         <div className="relative h-[200px] w-full bg-secondary sm:h-[320px]">
           {bannerUrl ? (
             <Image
@@ -159,29 +157,29 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
               fill
               priority
               quality={95}
-              className="object-cover"
+              className="object-cover no-select"
               sizes="(max-width: 1440px) 100vw, 1440px"
               unoptimized
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-r from-secondary via-primary/20 to-secondary" />
+            <div className="h-full w-full bg-gradient-to-r from-neutral-900 via-primary/15 to-neutral-900" />
           )}
         </div>
 
         <div className="relative px-4 pb-6 pt-4 sm:px-6 sm:pt-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="relative shrink-0">
-                <div className="relative h-32 w-32">
+              <div className="relative -mt-16 shrink-0 sm:-mt-20">
+                <div className="relative h-32 w-32 no-select">
                   {resolveMediaUrl(profile.avatar) ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={resolveMediaUrl(profile.avatar)!}
                       alt={profile.username}
-                      className="h-32 w-32 rounded-full object-cover"
+                      className="h-32 w-32 rounded-full object-cover ring-4 ring-[rgba(15,15,20,0.9)]"
                     />
                   ) : (
-                    <div className="h-32 w-32 overflow-hidden rounded-full">
+                    <div className="h-32 w-32 overflow-hidden rounded-full ring-4 ring-[rgba(15,15,20,0.9)]">
                       <DefaultAvatar username={profile.username} letterClassName="text-4xl" />
                     </div>
                   )}
@@ -192,36 +190,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                     className="absolute -bottom-1 -right-1 h-12 w-12 rounded-full"
                   />
                 </div>
-
-                {profile.statusText ? (
-                  <div className="absolute left-[calc(100%+0.75rem)] top-2 hidden max-w-[14rem] sm:block">
-                    <div
-                      className="relative px-3.5 py-2.5 text-sm text-foreground"
-                      style={{
-                        background:
-                          'linear-gradient(135deg, rgba(245, 124, 0, 0.2), rgba(255, 152, 0, 0.1))',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(245, 124, 0, 0.2)',
-                        borderRadius: 18,
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                      }}
-                    >
-                      {profile.statusText}
-                      <svg
-                        className="absolute -left-2 bottom-3"
-                        width="14"
-                        height="16"
-                        viewBox="0 0 14 16"
-                        aria-hidden
-                      >
-                        <path
-                          d="M14 0 C8 2 2 6 0 14 C4 10 10 8 14 8 Z"
-                          fill="rgba(245, 124, 0, 0.25)"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                ) : null}
               </div>
 
               <div className="space-y-2 pb-1">
@@ -231,6 +199,9 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                   linkToProfile={false}
                   badges={profile.badges}
                 />
+                {profile.statusText ? (
+                  <p className="max-w-xl text-sm text-muted-foreground">{profile.statusText}</p>
+                ) : null}
                 <div className="flex flex-wrap items-center gap-2">
                   <PositionBadge position={profile.position} size="md" />
                   {profile.mediaBadges.map((badge) => (
@@ -280,9 +251,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                     'Не в игре'
                   )}
                 </p>
-                {profile.statusText ? (
-                  <p className="text-sm text-muted-foreground sm:hidden">{profile.statusText}</p>
-                ) : null}
               </div>
             </div>
 
@@ -309,10 +277,10 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
         ) : (
           <>
             <StatCard
-              title="Коинов"
+              title="Рубинов"
               value={profile.statistics?.coins ?? 0}
-              icon={Coins}
-              tip="Баланс коинов на сервере"
+              icon={Gem}
+              tip="Баланс рубинов"
             />
             <StatCard
               title="Убийств"
@@ -379,11 +347,6 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                       />
                     ) : null}
                     {profile.tag ? <CopyableId label="Тег" value={profile.tag} /> : null}
-                    <CopyableId
-                      label="Длинный ID"
-                      value={profile.id}
-                      display={truncateId(profile.id)}
-                    />
                   </div>
                   <dl className="grid gap-2 text-sm sm:grid-cols-[140px_1fr]">
                     <dt className="text-muted-foreground">Роль</dt>
@@ -419,35 +382,42 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
               {(profile.country || profile.city || profile.gender || profile.age !== null) && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">Личное</CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <UserRound className="h-4 w-4 text-primary" />
+                      Личное
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <dl className="grid gap-2 text-sm sm:grid-cols-[140px_1fr]">
+                    <ul className="space-y-3 text-sm">
                       {profile.country ? (
-                        <>
-                          <dt className="text-muted-foreground">Страна</dt>
-                          <dd>{profile.country}</dd>
-                        </>
+                        <li className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          <span className="text-muted-foreground">Страна:</span>
+                          <span>{profile.country}</span>
+                        </li>
                       ) : null}
                       {profile.city ? (
-                        <>
-                          <dt className="text-muted-foreground">Город</dt>
-                          <dd>{profile.city}</dd>
-                        </>
+                        <li className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          <span className="text-muted-foreground">Город:</span>
+                          <span>{profile.city}</span>
+                        </li>
                       ) : null}
                       {profile.gender ? (
-                        <>
-                          <dt className="text-muted-foreground">Пол</dt>
-                          <dd>{genderLabels[profile.gender]}</dd>
-                        </>
+                        <li className="flex items-center gap-2">
+                          <UserRound className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          <span className="text-muted-foreground">Пол:</span>
+                          <span>{genderLabels[profile.gender]}</span>
+                        </li>
                       ) : null}
                       {profile.age !== null ? (
-                        <>
-                          <dt className="text-muted-foreground">Возраст</dt>
-                          <dd>{profile.age} лет</dd>
-                        </>
+                        <li className="flex items-center gap-2">
+                          <Cake className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          <span className="text-muted-foreground">Возраст:</span>
+                          <span>{profile.age} лет</span>
+                        </li>
                       ) : null}
-                    </dl>
+                    </ul>
                   </CardContent>
                 </Card>
               )}
