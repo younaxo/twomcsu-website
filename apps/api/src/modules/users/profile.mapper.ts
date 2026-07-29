@@ -207,6 +207,11 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     mediaBadges: user.mediaBadges.filter((b) => b.isApproved).map(toMediaBadge),
     socials: user.socialLinks.map(toSocialLink),
     statistics: user.statistics ? toStatistics(user.statistics) : null,
+    displayBadgeId: user.displayBadgeId,
+    displayBadge:
+      user.displayBadge && user.displayBadge.isActive
+        ? toUserBadge(user.displayBadge)
+        : null,
   };
 }
 

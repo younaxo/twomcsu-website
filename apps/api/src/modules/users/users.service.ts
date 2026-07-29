@@ -382,6 +382,27 @@ export class UsersService {
     return rows.map(toUserAward);
   }
 
+  async setDisplayBadge(userId: string, badgeId: string | null): Promise<MyProfile> {
+    if (badgeId) {
+      const badge = await this.prisma.userBadge.findFirst({
+        where: { id: badgeId, userId, isActive: true },
+      });
+
+      if (!badge) {
+        throw new BadRequestException('Бейдж не найден или неактивен');
+      }
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { displayBadgeId: badgeId },
+    });
+
+    await this.cache.del(cacheKeys.authMe(userId));
+
+    return this.getMyProfile(userId);
+  }
+
   async grantBadge(userId: string, dto: GrantBadgeDto, grantedBy: string): Promise<UserBadge> {
     await this.requireUserExists(userId);
 

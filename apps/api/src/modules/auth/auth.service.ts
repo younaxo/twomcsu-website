@@ -371,13 +371,38 @@ export class AuthService {
       ?.filter((b) => b.isActive)
       .map((b) => ({
         id: b.id,
-        userId: b.userId,
         type: b.type as import('@twomc/shared').UserBadgeType,
         grantedAt: b.grantedAt.toISOString(),
         expiresAt: b.expiresAt?.toISOString() ?? null,
-        isActive: b.isActive,
-        grantedBy: b.grantedBy,
+        order: 'order' in b ? (b.order as number) : 0,
       }));
+
+    const displayBadgeId =
+      'displayBadgeId' in user ? (user.displayBadgeId as string | null) : null;
+    const rawDisplay =
+      'displayBadge' in user
+        ? (user.displayBadge as
+            | {
+                id: string;
+                type: string;
+                grantedAt: Date;
+                expiresAt: Date | null;
+                isActive: boolean;
+                order?: number;
+              }
+            | null
+            | undefined)
+        : null;
+    const displayBadge =
+      rawDisplay && rawDisplay.isActive
+        ? {
+            id: rawDisplay.id,
+            type: rawDisplay.type as import('@twomc/shared').UserBadgeType,
+            grantedAt: rawDisplay.grantedAt.toISOString(),
+            expiresAt: rawDisplay.expiresAt?.toISOString() ?? null,
+            order: rawDisplay.order ?? 0,
+          }
+        : null;
 
     return {
       id: user.id,
@@ -394,6 +419,8 @@ export class AuthService {
       isVerified: user.isVerified,
       isBanned: user.isBanned,
       createdAt: user.createdAt.toISOString(),
+      displayBadgeId,
+      displayBadge,
       ...(badges ? { badges } : {}),
     };
   }

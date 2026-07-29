@@ -29,6 +29,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { imageUploadOptions } from '../uploads/multer.options';
 import { CreateMediaRequestDto } from './dto/create-media-request.dto';
 import { SetBannerPresetDto } from './dto/set-banner-preset.dto';
+import { SetDisplayBadgeDto } from './dto/set-display-badge.dto';
 import { UpdateAwardsOrderDto } from './dto/update-awards-order.dto';
 import { UpdateBadgesOrderDto } from './dto/update-badges-order.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -67,6 +68,14 @@ export class MeController {
     @Body() dto: UpdateAwardsOrderDto,
   ) {
     return this.users.updateAwardsOrder(userId, dto.orders);
+  }
+
+  @Patch('display-badge')
+  setDisplayBadge(
+    @CurrentUser('id') userId: string,
+    @Body() dto: SetDisplayBadgeDto,
+  ): Promise<MyProfile> {
+    return this.users.setDisplayBadge(userId, dto.badgeId ?? null);
   }
 
   @Post('avatar')
