@@ -67,4 +67,12 @@ export const queryKeys = {
   topic: (slug: string) => ['topics', 'detail', slug] as const,
   adminTopics: ['admin', 'topics'] as const,
   adminTopic: (id: string) => ['admin', 'topics', id] as const,
+  reports: (filters: Record<string, unknown>) => ['reports', 'list', filters] as const,
+  report: (reportNumber: string) => ['reports', 'detail', reportNumber] as const,
+  reportRules: (type: string) => ['reports', 'rules', type] as const,
+  moderationReports: (filters: Record<string, unknown>) =>
+    ['moderation', 'reports', filters] as const,
+  donationReports: (filters: Record<string, unknown>) =>
+    ['admin', 'support', 'donations', filters] as const,
+  reportStats: ['admin', 'reports', 'stats'] as const,
 };
