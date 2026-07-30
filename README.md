@@ -241,6 +241,34 @@ curl -i -X POST http://localhost:4000/auth/logout \
 
 Страницы: `/rules`, `/documents`, `/admin/topics`, `/admin/topics-internal`.
 
+## Новости (News & Blog)
+
+Публикации с категориями, тегами, лайками, комментариями, SEO и RSS.
+
+Категории: UPDATE, EVENT, GUIDE, ANNOUNCEMENT, PATCH_NOTES, COMMUNITY, OTHER.  
+Статусы: DRAFT, SCHEDULED, PUBLISHED, ARCHIVED.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /news` | публичный | Список (`category`, `tag`, `search`, `sort`, `featured`) |
+| `GET /news/featured\|latest\|popular` | публичный | Виджеты |
+| `GET /news/categories\|tags` | публичный | Счётчики |
+| `GET /news/:slug` | публичный | Детали + уникальные просмотры (24ч) |
+| `POST /news/:id/like` | JWT | Toggle лайк |
+| `GET/POST /news/:slug/comments` | публичный / JWT | Комментарии (throttle 5/мин) |
+| `PATCH/DELETE /news/:slug/comments/:id` | JWT | Правка / удаление |
+| `POST .../reactions` | JWT | Реакции (8 emoji) |
+| `PATCH/DELETE /moderation/news/comments/:id...` | MODERATOR+ | Pin / hard delete |
+| `GET/POST/PATCH/DELETE /admin/news` | ADMIN+ | CRUD (удаление → ARCHIVED) |
+| `POST /admin/news/:id/pin\|feature...` | ADMIN+ | Закреп / featured |
+| `POST /admin/news/upload-image` | ADMIN+ | Обложки/контент (webp, ≤5 МБ) |
+| `GET /admin/news/stats` | ADMIN+ | Статистика |
+| `GET /rss/news` | публичный | RSS 2.0 |
+
+Cron каждую минуту публикует `SCHEDULED` с `scheduledFor <= now` и шлёт `NEWS_PUBLISHED`.
+
+Страницы: `/news`, `/news/[slug]`, `/admin/news`, `/admin/news/new`, `/admin/news/[id]/edit`, `/admin/news/stats`, `/moderation/news-comments`.
+
 ## Бейджи
 
 До 3 активных `UserBadge` на игрока. В профиле показываются все; в хедере — один (топ).
@@ -448,8 +476,8 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | Зона | URL | Доступ | Содержание |
 | --- | --- | --- | --- |
 | Дашборд | `/dashboard/*` | ADMIN+ | Обзор, настройки сайта, объявления, audit log, статистика магазина/заказов, лояльность, валюты |
-| Админ | `/admin/*` | ADMIN+ | Префиксы, должности, отделы, темы, донат-обращения, бейджи, награды, серверы, каталог, промокоды, заказы, рассылка |
-| Модерация | `/moderation/*` | HELPER+ | Обращения, жалобы, медиа заявки, модерация чата |
+| Админ | `/admin/*` | ADMIN+ | Префиксы, должности, отделы, новости, темы, донат-обращения, бейджи, награды, серверы, каталог, промокоды, заказы, рассылка |
+| Модерация | `/moderation/*` | HELPER+ | Обращения, жалобы, комментарии новостей, медиа заявки, модерация чата |
 
 Старые URL вроде `/admin/dashboard`, `/admin/media-requests`, `/admin/chat/*` редиректят на новые.
 
