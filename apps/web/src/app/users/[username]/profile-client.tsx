@@ -31,6 +31,7 @@ import { CopyableId } from '@/components/shared/CopyableId';
 import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
+import { DepartmentBadgesList } from '@/components/shared/DepartmentBadgesList';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { CommentsList } from '@/components/comments/CommentsList';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
@@ -212,6 +213,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                 ) : null}
                 <div className="flex flex-wrap items-center gap-2">
                   <PositionBadge position={profile.position} size="md" />
+                  <DepartmentBadgesList departments={profile.departments ?? []} />
                   {profile.mediaBadges.map((badge) => (
                     <Tooltip key={badge.mediaGroup}>
                       <TooltipTrigger asChild>

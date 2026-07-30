@@ -15,6 +15,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
+import { DepartmentIcons } from '@/components/shared/DepartmentIcons';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -82,6 +83,7 @@ function PreviewBody({
           <ColoredUsername
             user={profile}
             badges={topBadge ? [topBadge] : []}
+            maxBadges={1}
             size="md"
             linkToProfile={false}
           />
@@ -94,8 +96,9 @@ function PreviewBody({
             {profile.customPosition.name}
           </p>
         ) : null}
-        <div className="mb-3">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
           <PositionBadge position={profile.position} size="sm" />
+          <DepartmentIcons departments={profile.departments ?? []} />
         </div>
 
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">
