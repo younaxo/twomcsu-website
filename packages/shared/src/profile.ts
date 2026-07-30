@@ -1,5 +1,6 @@
 import type { Position } from './position';
 import type { UserCustomPositionView } from './custom-position';
+import type { UserDepartmentView } from './department';
 
 export const Gender = {
   MALE: 'MALE',
@@ -55,6 +56,8 @@ export const UserBadgeType = {
 } as const;
 
 export type UserBadgeType = (typeof UserBadgeType)[keyof typeof UserBadgeType];
+
+export const MAX_USER_BADGES = 3;
 
 /** Highest priority first — used for top prefix and display order */
 export const userBadgeTypeOrder: UserBadgeType[] = [
@@ -235,6 +238,7 @@ export interface MyProfile extends PrivacySettings {
   username: string;
   position: Position;
   customPosition: UserCustomPositionView | null;
+  departments: UserDepartmentView[];
   avatar: string | null;
   banner: string | null;
   bannerPreset: string | null;
@@ -268,6 +272,7 @@ export interface UserProfile {
   bannerUrl: string | null;
   position: Position;
   customPosition: UserCustomPositionView | null;
+  departments: UserDepartmentView[];
   createdAt: string;
   lastLoginAt: string | null;
   statusText: string | null;

@@ -1,6 +1,7 @@
 import type { Position } from './position';
 import type { UserBadge } from './profile';
 import type { UserCustomPositionView } from './custom-position';
+import type { UserDepartmentView } from './department';
 
 export const RoleGroup = {
   PLAYER: 'PLAYER',
@@ -35,6 +36,7 @@ export interface PublicUser {
   roleGroup: RoleGroup;
   position: Position;
   customPosition: UserCustomPositionView | null;
+  departments?: UserDepartmentView[];
   avatar: string | null;
   isVerified: boolean;
   isBanned: boolean;
