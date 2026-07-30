@@ -8,6 +8,7 @@ export * from './friends';
 export * from './notifications';
 export * from './position';
 export * from './profile';
+export * from './report';
 export * from './servers';
 export * from './store';
 export * from './topic';
