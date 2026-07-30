@@ -9,8 +9,11 @@ import type {
   ReportStatus,
   ReportType,
   TopicDetails,
+  UserPunishmentSummary,
+  UserSearchHint,
 } from '@twomc/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ReportStatus as ReportStatusEnum } from '@twomc/shared';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query-keys';
 
@@ -22,6 +25,26 @@ export type ReportFilters = {
   server?: string;
   search?: string;
   assigned?: string;
+};
+
+export type CreateReportPayload = {
+  type: ReportType;
+  targets?: Array<{ username: string; order?: number }>;
+  evidenceLinks?: Array<{ url: string; title?: string; order?: number }>;
+  server?: string;
+  incidentDate?: string;
+  description: string;
+  additionalText?: string;
+  appealedPunishmentId?: string;
+  captchaToken?: string;
+};
+
+export type MyReportStats = {
+  total: number;
+  pending: number;
+  inReview: number;
+  resolved: number;
+  isLoading: boolean;
 };
 
 export function useReports(filters: ReportFilters, enabled = true) {
@@ -42,6 +65,40 @@ export function useReports(filters: ReportFilters, enabled = true) {
     },
     enabled,
   });
+}
+
+export function useMyReportStats(enabled = true): MyReportStats {
+  const statuses: Array<{ key: keyof Omit<MyReportStats, 'isLoading'>; status?: ReportStatus }> =
+    [
+      { key: 'total' },
+      { key: 'pending', status: ReportStatusEnum.PENDING },
+      { key: 'inReview', status: ReportStatusEnum.IN_REVIEW },
+      { key: 'resolved', status: ReportStatusEnum.RESOLVED },
+    ];
+
+  const queries = useQueries({
+    queries: statuses.map(({ key, status }) => ({
+      queryKey: [...queryKeys.myReportStats, key],
+      queryFn: async () => {
+        const { data } = await api.get<ReportListResponse>('/reports', {
+          params: { page: 1, limit: 1, status: status || undefined },
+        });
+        return data.total;
+      },
+      enabled,
+      staleTime: 30_000,
+    })),
+  });
+
+  const [totalQ, pendingQ, inReviewQ, resolvedQ] = queries;
+
+  return {
+    total: totalQ.data ?? 0,
+    pending: pendingQ.data ?? 0,
+    inReview: inReviewQ.data ?? 0,
+    resolved: resolvedQ.data ?? 0,
+    isLoading: queries.some((query) => query.isLoading),
+  };
 }
 
 export function useReport(reportNumber: string, enabled = true) {
@@ -69,11 +126,40 @@ export function useReportRules(type: ReportType | null, enabled = true) {
   });
 }
 
+export function useMyPunishments(onlyAppealable?: boolean, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.myPunishments(onlyAppealable),
+    queryFn: async () => {
+      const { data } = await api.get<UserPunishmentSummary[]>('/users/me/punishments', {
+        params: { onlyAppealable: onlyAppealable || undefined },
+      });
+      return data;
+    },
+    enabled,
+  });
+}
+
+export function useUserSearchHint(username: string, enabled = true) {
+  const trimmed = username.trim();
+  return useQuery({
+    queryKey: queryKeys.userSearchHint(trimmed),
+    queryFn: async () => {
+      const { data } = await api.get<UserSearchHint>(
+        `/users/${encodeURIComponent(trimmed)}/search-hint`,
+        { skipAuthRedirect: true },
+      );
+      return data;
+    },
+    enabled: enabled && trimmed.length >= 2,
+    staleTime: 60_000,
+  });
+}
+
 export function useCreateReport() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: Record<string, unknown>) => {
+    mutationFn: async (payload: CreateReportPayload) => {
       const { data } = await api.post<ReportDetails>('/reports', payload);
       return data;
     },
@@ -236,18 +322,20 @@ export function usePunishReport() {
   return useMutation({
     mutationFn: async ({
       reportNumber,
+      targetUsername,
       punishmentType,
       duration,
       reason,
     }: {
       reportNumber: string;
+      targetUsername: string;
       punishmentType: PunishmentType;
       duration?: string;
       reason: string;
     }) => {
       const { data } = await api.post<ReportDetails>(
         `/moderation/reports/${reportNumber}/punish`,
-        { punishmentType, duration, reason },
+        { targetUsername, punishmentType, duration, reason },
       );
       return data;
     },

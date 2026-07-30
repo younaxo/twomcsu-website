@@ -75,4 +75,8 @@ export const queryKeys = {
   donationReports: (filters: Record<string, unknown>) =>
     ['admin', 'support', 'donations', filters] as const,
   reportStats: ['admin', 'reports', 'stats'] as const,
+  myPunishments: (onlyAppealable?: boolean) =>
+    ['users', 'me', 'punishments', onlyAppealable ?? false] as const,
+  userSearchHint: (username: string) => ['users', 'search-hint', username] as const,
+  myReportStats: ['reports', 'my-stats'] as const,
 };
