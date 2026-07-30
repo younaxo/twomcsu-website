@@ -5,6 +5,7 @@ export * from './comments';
 export * from './custom-position';
 export * from './department';
 export * from './friends';
+export * from './news';
 export * from './notifications';
 export * from './position';
 export * from './profile';
