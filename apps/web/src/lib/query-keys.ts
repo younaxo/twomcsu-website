@@ -79,4 +79,16 @@ export const queryKeys = {
     ['users', 'me', 'punishments', onlyAppealable ?? false] as const,
   userSearchHint: (username: string) => ['users', 'search-hint', username] as const,
   myReportStats: ['reports', 'my-stats'] as const,
+  news: (filters: Record<string, unknown>) => ['news', 'list', filters] as const,
+  newsFeatured: ['news', 'featured'] as const,
+  newsLatest: (limit: number) => ['news', 'latest', limit] as const,
+  newsPopular: ['news', 'popular'] as const,
+  newsBySlug: (slug: string) => ['news', 'detail', slug] as const,
+  newsCategories: ['news', 'categories'] as const,
+  newsTags: (limit: number) => ['news', 'tags', limit] as const,
+  newsComments: (slug: string, filters?: Record<string, unknown>) =>
+    ['news', 'comments', slug, filters ?? {}] as const,
+  adminNews: (filters: Record<string, unknown>) => ['admin', 'news', filters] as const,
+  adminNewsItem: (id: string) => ['admin', 'news', id] as const,
+  adminNewsStats: ['admin', 'news', 'stats'] as const,
 };
