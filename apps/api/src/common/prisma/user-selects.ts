@@ -13,6 +13,14 @@ export const selectPublicPosition = {
   priority: true,
 } satisfies Prisma.PositionSelect;
 
+const selectUserCustomPosition = {
+  include: {
+    customPosition: {
+      select: { id: true, name: true, slug: true, color: true, icon: true, description: true },
+    },
+  },
+} as const;
+
 /** Compact user card for lists (friends, search, assign dialog) */
 export const selectMinimalUser = {
   id: true,
@@ -22,6 +30,7 @@ export const selectMinimalUser = {
   avatar: true,
   roleGroup: true,
   position: { select: selectPublicPosition },
+  customPosition: selectUserCustomPosition,
   badges: {
     where: { isActive: true },
     orderBy: { grantedAt: 'asc' as const },
@@ -50,6 +59,7 @@ export const selectAuthUser = {
   isBanned: true,
   createdAt: true,
   position: { select: selectPublicPosition },
+  customPosition: selectUserCustomPosition,
   badges: {
     where: { isActive: true },
     orderBy: { grantedAt: 'asc' as const },
@@ -112,6 +122,7 @@ export const selectFullProfile = {
   isOnlineInGame: true,
   positionId: true,
   position: { select: selectPublicPosition },
+  customPosition: selectUserCustomPosition,
   badges: {
     where: { isActive: true },
     orderBy: { grantedAt: 'asc' as const },

@@ -8,6 +8,7 @@ import { configuration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { AuthModule } from './modules/auth/auth.module';
 import { AwardsModule } from './modules/awards/awards.module';
+import { CustomPositionsModule } from './modules/custom-positions/custom-positions.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommentsModule } from './modules/comments/comments.module';
@@ -46,6 +47,7 @@ import { UsersModule } from './modules/users/users.module';
     PositionsModule,
     UsersModule,
     AwardsModule,
+    CustomPositionsModule,
     FriendsModule,
     CommentsModule,
     NotificationsModule,

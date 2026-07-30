@@ -18,6 +18,7 @@ import {
   SocialLink,
   UserAward,
   UserBadge,
+  UserCustomPositionView,
   UserProfile,
 } from '@twomc/shared';
 import { FullProfileRow } from '../../common/prisma/user-selects';
@@ -90,6 +91,23 @@ export function toStatistics(row: StatsRow): PlayerStatistics {
   };
 }
 
+type UserCustomPositionRow = NonNullable<ProfileUser['customPosition']>;
+
+export function toCustomPositionView(
+  row: UserCustomPositionRow | null | undefined,
+): UserCustomPositionView | null {
+  if (!row?.customPosition) return null;
+  return {
+    id: row.customPosition.id,
+    name: row.customPosition.name,
+    slug: row.customPosition.slug,
+    color: row.customPosition.color,
+    icon: row.customPosition.icon,
+    description: row.customPosition.description,
+    assignedAt: row.assignedAt.toISOString(),
+  };
+}
+
 const DATE_ONLY_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 export function formatBirthDate(date: Date): string {
@@ -141,6 +159,7 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     email: user.email,
     username: user.username,
     position: toPublicPosition(user.position),
+    customPosition: toCustomPositionView(user.customPosition),
     avatar: user.avatar,
     banner: user.banner,
     bannerPreset: user.bannerPreset,
@@ -205,6 +224,7 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     avatar: user.avatar,
     bannerUrl: options.bannerUrl,
     position: toPublicPosition(user.position),
+    customPosition: toCustomPositionView(user.customPosition),
     createdAt: user.createdAt.toISOString(),
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
     statusText: user.statusText,
