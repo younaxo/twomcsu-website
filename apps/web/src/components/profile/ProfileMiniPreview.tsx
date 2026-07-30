@@ -88,16 +88,18 @@ function PreviewBody({
             linkToProfile={false}
           />
         </div>
+        <div className="mb-1">
+          <PositionBadge position={profile.position} size="sm" />
+        </div>
         {profile.customPosition ? (
           <p
             className="mb-1 text-sm italic"
-            style={{ color: profile.customPosition.color ?? undefined }}
+            style={{ color: profile.customPosition.color ?? '#F57C00' }}
           >
             {profile.customPosition.name}
           </p>
         ) : null}
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <PositionBadge position={profile.position} size="sm" />
+        <div className="mb-3">
           <DepartmentIcons departments={profile.departments ?? []} />
         </div>
 
