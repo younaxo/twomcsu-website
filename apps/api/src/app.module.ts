@@ -21,6 +21,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { PositionsModule } from './modules/positions/positions.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { StoreModule } from './modules/store/store.module';
 import { SystemModule } from './modules/system/system.module';
 import { TopicsModule } from './modules/topics/topics.module';
@@ -60,6 +61,7 @@ import { UsersModule } from './modules/users/users.module';
     ChatModule,
     SystemModule,
     TopicsModule,
+    ReportsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

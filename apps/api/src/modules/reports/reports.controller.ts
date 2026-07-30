@@ -1,0 +1,240 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Ip,
+  Param,
+  ParseFilePipeBuilder,
+  Patch,
+  Post,
+  Query,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import {
+  ReportAttachment,
+  ReportBanInfo,
+  ReportDetails,
+  ReportListResponse,
+  ReportStats,
+  RoleGroup,
+  TopicDetails,
+} from '@twomc/shared';
+import { AuthenticatedUser } from '../auth/authenticated-user';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Public } from '../auth/decorators/public.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import {
+  AddReportMessageDto,
+  AssignReportDto,
+  BanReportsDto,
+  ChangeReportStatusDto,
+  CreateDonationProblemDto,
+  CreateReportDto,
+  ListReportsQueryDto,
+  LockReportDto,
+  PunishReportDto,
+  ReportRulesQueryDto,
+  SetVerdictDto,
+} from './dto/reports.dto';
+import { ReportsService } from './reports.service';
+
+@Controller()
+@UseGuards(JwtAuthGuard)
+export class ReportsController {
+  constructor(private readonly reports: ReportsService) {}
+
+  @Get('reports/rules')
+  @Public()
+  getRules(@Query() query: ReportRulesQueryDto): Promise<TopicDetails | null> {
+    return this.reports.getRules(query.type);
+  }
+
+  @Get('reports')
+  listMine(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListReportsQueryDto,
+  ): Promise<ReportListResponse> {
+    return this.reports.listMine(user.id, user.roleGroup, query);
+  }
+
+  @Get('reports/:reportNumber')
+  getOne(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<ReportDetails> {
+    return this.reports.getByNumber(reportNumber, user.id, user.roleGroup);
+  }
+
+  @Post('reports')
+  @HttpCode(HttpStatus.CREATED)
+  create(
+    @CurrentUser('id') userId: string,
+    @Body() dto: CreateReportDto,
+    @Ip() ip: string,
+  ): Promise<ReportDetails> {
+    return this.reports.createReport(userId, dto, ip);
+  }
+
+  @Post('reports/:reportNumber/messages')
+  @HttpCode(HttpStatus.CREATED)
+  addMessage(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: AddReportMessageDto,
+  ): Promise<ReportDetails> {
+    return this.reports.addMessage(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Post('reports/:reportNumber/attachments')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 20 * 1024 * 1024, files: 1 },
+    }),
+  )
+  uploadAttachment(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addMaxSizeValidator({ maxSize: 20 * 1024 * 1024 })
+        .build({ fileIsRequired: true }),
+    )
+    file: Express.Multer.File,
+  ): Promise<ReportAttachment> {
+    return this.reports.uploadAttachment(reportNumber, user.id, user.roleGroup, file);
+  }
+
+  @Get('moderation/reports')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  listModeration(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListReportsQueryDto,
+  ): Promise<ReportListResponse> {
+    return this.reports.listModeration(user.roleGroup, query, user.id);
+  }
+
+  @Patch('moderation/reports/:reportNumber/assign')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  assign(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: AssignReportDto,
+  ): Promise<ReportDetails> {
+    return this.reports.assign(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Patch('moderation/reports/:reportNumber/status')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  changeStatus(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ChangeReportStatusDto,
+  ): Promise<ReportDetails> {
+    return this.reports.changeStatus(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Patch('moderation/reports/:reportNumber/verdict')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  setVerdict(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: SetVerdictDto,
+  ): Promise<ReportDetails> {
+    return this.reports.setVerdict(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Post('moderation/reports/:reportNumber/messages')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  @HttpCode(HttpStatus.CREATED)
+  moderationMessage(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: AddReportMessageDto,
+  ): Promise<ReportDetails> {
+    return this.reports.addMessage(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Post('moderation/reports/:reportNumber/punish')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.MODERATOR)
+  @HttpCode(HttpStatus.CREATED)
+  punish(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: PunishReportDto,
+  ): Promise<ReportDetails> {
+    return this.reports.punish(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Post('moderation/reports/:reportNumber/lock')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  lock(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: LockReportDto,
+  ): Promise<ReportDetails> {
+    return this.reports.lock(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Get('admin/reports/stats')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  stats(): Promise<ReportStats> {
+    return this.reports.stats();
+  }
+
+  @Post('admin/reports/ban/:userId')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  banUser(
+    @Param('userId') userId: string,
+    @CurrentUser('id') actorId: string,
+    @Body() dto: BanReportsDto,
+  ): Promise<ReportBanInfo> {
+    return this.reports.banUser(userId, actorId, dto);
+  }
+
+  @Delete('admin/reports/ban/:userId')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  unbanUser(@Param('userId') userId: string): Promise<void> {
+    return this.reports.unbanUser(userId);
+  }
+
+  @Post('support/donation-problem')
+  @HttpCode(HttpStatus.CREATED)
+  donationProblem(
+    @CurrentUser('id') userId: string,
+    @Body() dto: CreateDonationProblemDto,
+    @Ip() ip: string,
+  ): Promise<ReportDetails> {
+    return this.reports.createDonationProblem(userId, dto, ip);
+  }
+
+  @Get('admin/support/donations')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.OWNER)
+  listDonations(@Query() query: ListReportsQueryDto): Promise<ReportListResponse> {
+    return this.reports.listDonations(query);
+  }
+}
