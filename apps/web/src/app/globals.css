@@ -184,6 +184,15 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
+  .glass-hover {
+    transition: background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
+  }
+
+  .glass-hover:hover {
+    background: rgba(30, 30, 40, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
   .bg-gradient-primary {
     background-image: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
   }
