@@ -1276,6 +1276,32 @@ model UserDepartment {
   @@map("user_departments")
 }
 
+enum ReportType {
+  PLAYER_COMPLAINT
+  ADMIN_COMPLAINT
+  PUNISHMENT_APPEAL
+  TECHNICAL_ISSUE
+  DONATION_PROBLEM
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  IN_REVIEW
+  WAITING_RESPONSE
+  RESOLVED
+  REJECTED
+  CLOSED
+}
+
+enum PunishmentType {
+  WARN
+  MUTE
+  KICK
+  TEMPBAN
+  PERMBAN
+}
+
 enum TopicCategory {
   RULES
   DOCUMENTS
