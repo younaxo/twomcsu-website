@@ -1,3 +1,6 @@
+import type { Position } from './position';
+import { RoleGroup, hasRoleGroup } from './user';
+
 export const ReportType = {
   PLAYER_COMPLAINT: 'PLAYER_COMPLAINT',
   ADMIN_COMPLAINT: 'ADMIN_COMPLAINT',
@@ -74,13 +77,35 @@ export const REPORT_RULES_SLUGS: Record<Exclude<ReportType, 'DONATION_PROBLEM'>,
   OTHER: 'other-report-rules',
 };
 
+/** Minimum role group allowed to review a report of this type */
+export function minRoleForReportType(type: ReportType): RoleGroup {
+  switch (type) {
+    case ReportType.PLAYER_COMPLAINT:
+      return RoleGroup.MODERATOR;
+    case ReportType.ADMIN_COMPLAINT:
+    case ReportType.PUNISHMENT_APPEAL:
+      return RoleGroup.ADMIN;
+    case ReportType.DONATION_PROBLEM:
+      return RoleGroup.OWNER;
+    case ReportType.TECHNICAL_ISSUE:
+    case ReportType.OTHER:
+    default:
+      return RoleGroup.HELPER;
+  }
+}
+
+export function canReviewReportType(roleGroup: RoleGroup, type: ReportType): boolean {
+  return hasRoleGroup(roleGroup, minRoleForReportType(type));
+}
+
 export interface ReportUserSummary {
   id: string;
   shortId: number;
   tag: string;
   username: string;
   avatar: string | null;
-  roleGroup: string;
+  roleGroup: RoleGroup;
+  position: Position;
 }
 
 export interface ReportAttachment {

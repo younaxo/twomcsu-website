@@ -6,6 +6,7 @@ import {
   ReportStatus,
   ReportType,
   User,
+  Position,
 } from '@prisma/client';
 import {
   ReportAttachment,
@@ -14,10 +15,34 @@ import {
   ReportSummary,
   ReportUserSummary,
 } from '@twomc/shared';
+import { selectPublicPosition } from '../../common/prisma/user-selects';
 
-type ReportUserRow = Pick<User, 'id' | 'shortId' | 'tag' | 'username' | 'avatar' | 'roleGroup'>;
+type ReportUserRow = Pick<User, 'id' | 'shortId' | 'tag' | 'username' | 'avatar' | 'roleGroup'> & {
+  position: Pick<
+    Position,
+    | 'id'
+    | 'name'
+    | 'slug'
+    | 'displayName'
+    | 'group'
+    | 'color'
+    | 'backgroundColor'
+    | 'icon'
+    | 'priority'
+  >;
+};
 
 const OVERDUE_MS = 24 * 60 * 60 * 1000;
+
+export const reportUserSelect = {
+  id: true,
+  shortId: true,
+  tag: true,
+  username: true,
+  avatar: true,
+  roleGroup: true,
+  position: { select: selectPublicPosition },
+} as const;
 
 export function toReportUser(row: ReportUserRow): ReportUserSummary {
   return {
@@ -27,6 +52,17 @@ export function toReportUser(row: ReportUserRow): ReportUserSummary {
     username: row.username,
     avatar: row.avatar,
     roleGroup: row.roleGroup,
+    position: {
+      id: row.position.id,
+      name: row.position.name,
+      slug: row.position.slug,
+      displayName: row.position.displayName,
+      group: row.position.group,
+      color: row.position.color,
+      backgroundColor: row.position.backgroundColor,
+      icon: row.position.icon,
+      priority: row.position.priority,
+    },
   };
 }
 

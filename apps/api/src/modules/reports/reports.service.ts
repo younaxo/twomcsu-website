@@ -30,7 +30,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { toTopicDetails } from '../topics/topic.mapper';
 import { canReviewReportType, isStaffRole, minRoleForReportType } from './report-access.util';
-import { toReportDetails, toReportSummary } from './report.mapper';
+import { reportUserSelect, toReportDetails, toReportSummary } from './report.mapper';
 import {
   AddReportMessageDto,
   AssignReportDto,
@@ -50,15 +50,6 @@ import { PUNISHMENT_TYPE_LABELS } from '@twomc/shared';
 const DAILY_LIMIT = 3;
 const INCIDENT_MAX_AGE_MS = 72 * 60 * 60 * 1000;
 const DUPLICATE_WINDOW_MS = 72 * 60 * 60 * 1000;
-
-const reportUserSelect = {
-  id: true,
-  shortId: true,
-  tag: true,
-  username: true,
-  avatar: true,
-  roleGroup: true,
-} as const;
 
 const reportInclude = {
   author: { select: reportUserSelect },
