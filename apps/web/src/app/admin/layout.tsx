@@ -6,7 +6,7 @@ import { RolePanelLayout } from '@/components/admin/RolePanelLayout';
 import { useRoleGuard } from '@/components/admin/useRoleGuard';
 
 const adminLinks = [
-  { href: '/admin/positions', label: 'Позиции' },
+  { href: '/admin/positions', label: 'Префиксы' },
   { href: '/admin/badges', label: 'Бейджи' },
   { href: '/admin/awards', label: 'Награды' },
   { href: '/admin/servers', label: 'Серверы' },
