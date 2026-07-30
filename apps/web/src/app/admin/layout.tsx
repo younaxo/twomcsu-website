@@ -12,7 +12,7 @@ import { useDashboardOverview } from '@/hooks/admin';
 
 const adminLinks = [
   { href: '/admin/users', label: 'Пользователи' },
-  { href: '/admin/positions', label: 'Позиции' },
+  { href: '/admin/positions', label: 'Префиксы' },
   { href: '/admin/badges', label: 'Бейджи' },
   { href: '/admin/awards', label: 'Награды' },
   { href: '/admin/departments', label: 'Отделы' },
