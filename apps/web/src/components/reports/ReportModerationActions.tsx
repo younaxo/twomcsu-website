@@ -125,6 +125,7 @@ export function ReportModerationActions({
       />
       <PunishmentDialog
         reportNumber={report.reportNumber}
+        targets={report.targets}
         open={punishOpen}
         onOpenChange={setPunishOpen}
       />

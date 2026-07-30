@@ -1,7 +1,11 @@
 'use client';
 
-import { PunishmentType, PUNISHMENT_TYPE_LABELS } from '@twomc/shared';
-import { useState } from 'react';
+import {
+  PunishmentType,
+  PUNISHMENT_TYPE_LABELS,
+  type ReportTarget,
+} from '@twomc/shared';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,21 +28,44 @@ import { Textarea } from '@/components/ui/textarea';
 import { usePunishReport } from '@/hooks/reports/useReports';
 import { extractErrorMessage } from '@/lib/api';
 
+function resolveTargetUsernames(targets: ReportTarget[]): string[] {
+  if (targets.length > 0) {
+    return targets.map((target) => target.username);
+  }
+  return [];
+}
+
 export function PunishmentDialog({
   reportNumber,
+  targets = [],
   open,
   onOpenChange,
 }: {
   reportNumber: string;
+  targets?: ReportTarget[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
   const punish = usePunishReport();
+  const targetOptions = resolveTargetUsernames(targets);
+  const [targetUsername, setTargetUsername] = useState('');
   const [punishmentType, setPunishmentType] = useState<PunishmentType>(PunishmentType.WARN);
   const [duration, setDuration] = useState('');
   const [reason, setReason] = useState('');
 
+  useEffect(() => {
+    if (open) {
+      setTargetUsername(targetOptions[0] ?? '');
+      setReason('');
+      setDuration('');
+    }
+  }, [open, targetOptions.join('|')]);
+
   const submit = async () => {
+    if (!targetUsername.trim()) {
+      toast.error('Выберите игрока');
+      return;
+    }
     if (reason.trim().length < 3) {
       toast.error('Укажите причину');
       return;
@@ -46,6 +73,7 @@ export function PunishmentDialog({
     try {
       await punish.mutateAsync({
         reportNumber,
+        targetUsername: targetUsername.trim(),
         punishmentType,
         duration: duration.trim() || undefined,
         reason: reason.trim(),
@@ -66,6 +94,29 @@ export function PunishmentDialog({
           <DialogTitle>Выдать наказание</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Игрок</Label>
+            {targetOptions.length > 0 ? (
+              <Select value={targetUsername} onValueChange={setTargetUsername}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите игрока" />
+                </SelectTrigger>
+                <SelectContent>
+                  {targetOptions.map((username) => (
+                    <SelectItem key={username} value={username}>
+                      @{username}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                value={targetUsername}
+                onChange={(event) => setTargetUsername(event.target.value)}
+                placeholder="Никнейм игрока"
+              />
+            )}
+          </div>
           <div className="space-y-2">
             <Label>Тип</Label>
             <Select

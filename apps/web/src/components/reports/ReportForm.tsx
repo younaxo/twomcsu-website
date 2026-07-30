@@ -1,16 +1,21 @@
 'use client';
 
 import { ReportType } from '@twomc/shared';
-import type { UserSearchResult } from '@twomc/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { CaptchaField, type CaptchaFieldHandle } from '@/components/shared/CaptchaField';
-import { UserSearchInput } from '@/components/shared/UserSearchInput';
+import {
+  EvidenceLinksInput,
+  getValidEvidenceLinks,
+  type EvidenceLinkDraft,
+} from '@/components/reports/EvidenceLinksInput';
 import { FileUploadZone } from '@/components/reports/FileUploadZone';
+import { PunishmentSelector } from '@/components/reports/PunishmentSelector';
 import { ReportRulesCard } from '@/components/reports/ReportRulesCard';
+import { TargetsInput, type TargetDraft } from '@/components/reports/TargetsInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +31,7 @@ import { useServers } from '@/hooks/servers';
 import {
   useCreateReport,
   useReportRules,
+  type CreateReportPayload,
 } from '@/hooks/reports/useReports';
 import { api, extractErrorMessage } from '@/lib/api';
 
@@ -43,12 +49,14 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
 
   const [step, setStep] = useState<1 | 2>(1);
   const [agreed, setAgreed] = useState(false);
-  const [target, setTarget] = useState<UserSearchResult | null>(null);
+  const [targets, setTargets] = useState<TargetDraft[]>([]);
+  const [appealedPunishmentId, setAppealedPunishmentId] = useState<string | null>(null);
   const [server, setServer] = useState('');
   const [incidentDate, setIncidentDate] = useState('');
   const [incidentTime, setIncidentTime] = useState('');
   const [description, setDescription] = useState('');
-  const [links, setLinks] = useState<string[]>(['']);
+  const [additionalText, setAdditionalText] = useState('');
+  const [evidenceLinks, setEvidenceLinks] = useState<EvidenceLinkDraft[]>([{ url: '', title: '' }]);
   const [files, setFiles] = useState<File[]>([]);
 
   const needsTarget =
@@ -59,19 +67,21 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
     type === ReportType.PLAYER_COMPLAINT ||
     type === ReportType.ADMIN_COMPLAINT ||
     type === ReportType.PUNISHMENT_APPEAL;
+  const isAppeal = type === ReportType.PUNISHMENT_APPEAL;
 
-  const validLinks = useMemo(
-    () => links.map((link) => link.trim()).filter(Boolean),
-    [links],
-  );
+  const validLinks = useMemo(() => getValidEvidenceLinks(evidenceLinks), [evidenceLinks]);
 
   const submit = form.handleSubmit(async ({ captchaToken }) => {
     if (description.trim().length < 20) {
       toast.error('Описание должно содержать минимум 20 символов');
       return;
     }
-    if (needsTarget && !target) {
-      toast.error('Укажите игрока');
+    if (needsTarget && targets.length < 1) {
+      toast.error('Укажите хотя бы одного игрока');
+      return;
+    }
+    if (isAppeal && !appealedPunishmentId) {
+      toast.error('Выберите наказание для обжалования');
       return;
     }
     if (needsServer && !server) {
@@ -96,11 +106,11 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
         return;
       }
       if (needsIncident) {
-        const age = Date.now() - parsed.getTime();
         if (parsed.getTime() > Date.now()) {
           toast.error('Дата не может быть в будущем');
           return;
         }
+        const age = Date.now() - parsed.getTime();
         if (age > 72 * 60 * 60 * 1000) {
           toast.error('Жалобу можно подать только в течение 72 часов');
           return;
@@ -109,16 +119,34 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
       incidentIso = parsed.toISOString();
     }
 
+    const payload: CreateReportPayload = {
+      type,
+      description: description.trim(),
+      captchaToken,
+    };
+
+    if (needsTarget) {
+      payload.targets = targets.map((target, order) => ({
+        username: target.username,
+        order,
+      }));
+    }
+
+    if (validLinks.length > 0) {
+      payload.evidenceLinks = validLinks.map((link, order) => ({
+        url: link.url,
+        title: link.title || undefined,
+        order,
+      }));
+    }
+
+    if (server) payload.server = server;
+    if (incidentIso) payload.incidentDate = incidentIso;
+    if (additionalText.trim()) payload.additionalText = additionalText.trim();
+    if (appealedPunishmentId) payload.appealedPunishmentId = appealedPunishmentId;
+
     try {
-      const report = await createReport.mutateAsync({
-        type,
-        targetUsername: target?.username,
-        server: server || undefined,
-        incidentDate: incidentIso,
-        description: description.trim(),
-        evidenceLinks: validLinks,
-        captchaToken,
-      });
+      const report = await createReport.mutateAsync(payload);
 
       if (files.length > 0) {
         for (const file of files) {
@@ -170,33 +198,33 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
       ) : (
         <FormProvider {...form}>
           <form onSubmit={submit} className="space-y-5 rounded-2xl glass-strong p-5">
-            {needsTarget ? (
+            {isAppeal ? (
               <div className="space-y-2">
-                <Label>
-                  {type === ReportType.ADMIN_COMPLAINT
-                    ? 'Ник администратора / хелпера *'
-                    : 'Ник нарушителя *'}
-                </Label>
-                {target ? (
-                  <div className="flex items-center justify-between rounded-lg glass-light px-3 py-2">
-                    <span className="text-sm text-white">{target.username}</span>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setTarget(null)}>
-                      Изменить
-                    </Button>
-                  </div>
-                ) : (
-                  <UserSearchInput onSelect={setTarget} />
-                )}
+                <Label>Наказание для обжалования *</Label>
+                <PunishmentSelector
+                  value={appealedPunishmentId}
+                  onChange={setAppealedPunishmentId}
+                />
               </div>
+            ) : null}
+
+            {needsTarget ? (
+              <TargetsInput
+                value={targets}
+                onChange={setTargets}
+                label={
+                  type === ReportType.ADMIN_COMPLAINT
+                    ? 'Ник администратора / хелпера *'
+                    : 'Ник нарушителя *'
+                }
+              />
             ) : null}
 
             {(needsServer ||
               type === ReportType.ADMIN_COMPLAINT ||
               type === ReportType.TECHNICAL_ISSUE) && (
               <div className="space-y-2">
-                <Label>
-                  Сервер{needsServer ? ' *' : ''}
-                </Label>
+                <Label>Сервер{needsServer ? ' *' : ''}</Label>
                 <Select value={server} onValueChange={setServer}>
                   <SelectTrigger>
                     <SelectValue placeholder="Выберите сервер" />
@@ -217,9 +245,7 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
               type === ReportType.PUNISHMENT_APPEAL) && (
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>
-                    Дата{needsIncident ? ' *' : ''}
-                  </Label>
+                  <Label>Дата{needsIncident ? ' *' : ''}</Label>
                   <Input
                     type="date"
                     value={incidentDate}
@@ -248,46 +274,28 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
               <p className="text-xs text-muted-foreground">{description.length} / мин. 20</p>
             </div>
 
+            <div className="space-y-2">
+              <Label>Дополнительная информация</Label>
+              <Textarea
+                value={additionalText}
+                onChange={(event) => setAdditionalText(event.target.value)}
+                rows={3}
+                placeholder="Любые дополнительные детали (необязательно)"
+              />
+            </div>
+
             {(needsEvidence || type === ReportType.TECHNICAL_ISSUE) && (
-              <div className="space-y-3">
-                <Label>Доказательства{needsEvidence ? ' *' : ''}</Label>
-                {type === ReportType.PLAYER_COMPLAINT ? (
-                  <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
-                    Скриншоты не являются доказательством, но могут быть приложены как дополнение к
-                    ссылкам на видео
-                  </p>
-                ) : null}
-                {links.map((link, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={link}
-                      onChange={(event) => {
-                        const next = [...links];
-                        next[index] = event.target.value;
-                        setLinks(next);
-                      }}
-                      placeholder="https://..."
-                    />
-                    {links.length > 1 ? (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => setLinks(links.filter((_, i) => i !== index))}
-                      >
-                        Удалить
-                      </Button>
-                    ) : null}
-                  </div>
-                ))}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setLinks([...links, ''])}
-                >
-                  + Добавить ссылку
-                </Button>
-              </div>
+              <EvidenceLinksInput
+                value={evidenceLinks}
+                onChange={setEvidenceLinks}
+                label="Доказательства"
+                required={needsEvidence}
+                hint={
+                  type === ReportType.PLAYER_COMPLAINT
+                    ? 'Скриншоты не являются доказательством, но могут быть приложены как дополнение к ссылкам на видео'
+                    : undefined
+                }
+              />
             )}
 
             <div className="space-y-2">
