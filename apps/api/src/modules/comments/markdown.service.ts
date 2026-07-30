@@ -21,6 +21,18 @@ export class MarkdownService {
     'br',
     'a',
     'span',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'img',
+    'hr',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
   ];
 
   render(markdown: string): string {
@@ -41,6 +53,13 @@ export class MarkdownService {
       allowedAttributes: {
         a: ['href', 'rel', 'target'],
         span: ['class', 'data-username'],
+        img: ['src', 'alt', 'title', 'width', 'height'],
+        h1: ['id'],
+        h2: ['id'],
+        h3: ['id'],
+        h4: ['id'],
+        th: ['colspan', 'rowspan'],
+        td: ['colspan', 'rowspan'],
       },
       allowedClasses: {
         span: ['spoiler', 'mention'],
