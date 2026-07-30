@@ -18,6 +18,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import {
+  GamePunishmentSummary,
+  GameReportSummary,
   ReportAttachment,
   ReportBanInfo,
   ReportDetails,
@@ -35,18 +37,22 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import {
   AddReportMessageDto,
+  ArchiveReportDto,
   AssignReportDto,
   BanReportsDto,
   ChangeReportStatusDto,
   CreateDonationProblemDto,
+  CreateModeratorNoteDto,
   CreatePunishmentDto,
   CreateReportDto,
   ListReportsQueryDto,
   LockReportDto,
   MyPunishmentsQueryDto,
-  PunishReportDto,
   ReportRulesQueryDto,
   SetVerdictDto,
+  SoftDeleteMessageDto,
+  UpdateModeratorNoteDto,
+  UpdateOwnReportMessageDto,
   UpdatePunishmentDto,
 } from './dto/reports.dto';
 import { ReportsPunishmentsService } from './reports-punishments.service';
@@ -102,6 +108,22 @@ export class ReportsController {
     return this.reports.addMessage(reportNumber, user.id, user.roleGroup, dto);
   }
 
+  @Patch('reports/:reportNumber/messages/:messageId')
+  updateOwnMessage(
+    @Param('reportNumber') reportNumber: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateOwnReportMessageDto,
+  ): Promise<ReportDetails> {
+    return this.reports.updateOwnMessage(
+      reportNumber,
+      messageId,
+      user.id,
+      user.roleGroup,
+      dto,
+    );
+  }
+
   @Post('reports/:reportNumber/attachments')
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
@@ -121,6 +143,42 @@ export class ReportsController {
     file: Express.Multer.File,
   ): Promise<ReportAttachment> {
     return this.reports.uploadAttachment(reportNumber, user.id, user.roleGroup, file);
+  }
+
+  @Get('game-reports')
+  listGameReports(): Promise<GameReportSummary[]> {
+    return this.reports.listGameReports();
+  }
+
+  @Get('users/:username/game-reports/incoming')
+  listIncomingGameReports(
+    @Param('username') username: string,
+  ): Promise<GameReportSummary[]> {
+    return this.reports.listIncomingGameReports(username);
+  }
+
+  @Get('users/:username/game-reports/outgoing')
+  listOutgoingGameReports(
+    @Param('username') username: string,
+  ): Promise<GameReportSummary[]> {
+    return this.reports.listOutgoingGameReports(username);
+  }
+
+  @Get('bans')
+  listActiveGamePunishments(): Promise<GamePunishmentSummary[]> {
+    return this.reports.listActiveGamePunishments();
+  }
+
+  @Get('users/:username/punishments-history')
+  listGamePunishmentHistory(
+    @Param('username') username: string,
+  ): Promise<GamePunishmentSummary[]> {
+    return this.reports.listGamePunishmentHistory(username);
+  }
+
+  @Get('users/me/game-punishments')
+  listMyGamePunishments(@CurrentUser('id') userId: string): Promise<GamePunishmentSummary[]> {
+    return this.reports.listMyGamePunishments(userId);
   }
 
   @Get('moderation/reports')
@@ -178,16 +236,96 @@ export class ReportsController {
     return this.reports.addMessage(reportNumber, user.id, user.roleGroup, dto);
   }
 
-  @Post('moderation/reports/:reportNumber/punish')
+  @Delete('moderation/reports/:reportNumber/messages/:messageId')
   @UseGuards(RolesGuard)
-  @Roles(RoleGroup.MODERATOR)
+  @Roles(RoleGroup.HELPER)
+  softDeleteMessage(
+    @Param('reportNumber') reportNumber: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: SoftDeleteMessageDto,
+  ): Promise<ReportDetails> {
+    return this.reports.softDeleteMessage(
+      reportNumber,
+      messageId,
+      user.id,
+      user.roleGroup,
+      dto,
+    );
+  }
+
+  @Patch('moderation/reports/:reportNumber/messages/:messageId/pin')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  pinMessage(
+    @Param('reportNumber') reportNumber: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<ReportDetails> {
+    return this.reports.pinMessage(reportNumber, messageId, user.id, user.roleGroup);
+  }
+
+  @Patch('moderation/reports/:reportNumber/messages/:messageId/unpin')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  unpinMessage(
+    @Param('reportNumber') reportNumber: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<ReportDetails> {
+    return this.reports.unpinMessage(reportNumber, messageId, user.id, user.roleGroup);
+  }
+
+  @Post('moderation/reports/:reportNumber/notes')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
   @HttpCode(HttpStatus.CREATED)
-  punish(
+  createModeratorNote(
     @Param('reportNumber') reportNumber: string,
     @CurrentUser() user: AuthenticatedUser,
-    @Body() dto: PunishReportDto,
+    @Body() dto: CreateModeratorNoteDto,
   ): Promise<ReportDetails> {
-    return this.reports.punish(reportNumber, user.id, user.roleGroup, dto);
+    return this.reports.createModeratorNote(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Patch('moderation/reports/:reportNumber/notes/:noteId')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  updateModeratorNote(
+    @Param('reportNumber') reportNumber: string,
+    @Param('noteId') noteId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateModeratorNoteDto,
+  ): Promise<ReportDetails> {
+    return this.reports.updateModeratorNote(
+      reportNumber,
+      noteId,
+      user.id,
+      user.roleGroup,
+      dto,
+    );
+  }
+
+  @Delete('moderation/reports/:reportNumber/notes/:noteId')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  deleteModeratorNote(
+    @Param('reportNumber') reportNumber: string,
+    @Param('noteId') noteId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<ReportDetails> {
+    return this.reports.deleteModeratorNote(reportNumber, noteId, user.id, user.roleGroup);
+  }
+
+  @Patch('moderation/reports/:reportNumber/notes/:noteId/pin')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.HELPER)
+  pinModeratorNote(
+    @Param('reportNumber') reportNumber: string,
+    @Param('noteId') noteId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<ReportDetails> {
+    return this.reports.pinModeratorNote(reportNumber, noteId, user.id, user.roleGroup);
   }
 
   @Post('moderation/reports/:reportNumber/lock')
@@ -207,6 +345,67 @@ export class ReportsController {
   @Roles(RoleGroup.ADMIN)
   stats(): Promise<ReportStats> {
     return this.reports.stats();
+  }
+
+  @Get('admin/reports/archived')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  listArchived(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListReportsQueryDto,
+  ): Promise<ReportListResponse> {
+    return this.reports.listArchived(user.roleGroup, query);
+  }
+
+  @Post('admin/reports/:reportNumber/archive')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  archiveReport(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ArchiveReportDto,
+  ): Promise<ReportDetails> {
+    return this.reports.archiveReport(reportNumber, user.id, user.roleGroup, dto);
+  }
+
+  @Post('admin/reports/:reportNumber/unarchive')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  unarchiveReport(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<ReportDetails> {
+    return this.reports.unarchiveReport(reportNumber, user.id, user.roleGroup);
+  }
+
+  @Delete('admin/reports/:reportNumber')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteReport(
+    @Param('reportNumber') reportNumber: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<void> {
+    return this.reports.deleteReport(reportNumber, user.id, user.roleGroup);
+  }
+
+  @Delete('admin/reports/:reportNumber/messages/:messageId')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  hardDeleteMessage(
+    @Param('reportNumber') reportNumber: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<void> {
+    return this.reports.hardDeleteMessage(
+      reportNumber,
+      messageId,
+      user.id,
+      user.roleGroup,
+    );
   }
 
   @Post('admin/reports/ban/:userId')

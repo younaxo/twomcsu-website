@@ -5,6 +5,7 @@ import {
   IsDateString,
   IsEmail,
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -156,6 +157,11 @@ export class ListReportsQueryDto {
   @MaxLength(100)
   search?: string;
 
+  /** author | target | moderator | all — my reports list only */
+  @IsOptional()
+  @IsIn(['author', 'target', 'moderator', 'all'])
+  role?: 'author' | 'target' | 'moderator' | 'all';
+
   /** all | me | free — moderation list only */
   @IsOptional()
   @IsString()
@@ -167,10 +173,18 @@ export class AddReportMessageDto {
   @MinLength(1)
   @MaxLength(5_000)
   content!: string;
+}
+
+export class UpdateOwnReportMessageDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(5_000)
+  content?: string;
 
   @IsOptional()
   @IsBoolean()
-  isInternal?: boolean;
+  delete?: boolean;
 }
 
 export class AssignReportDto {
@@ -183,6 +197,11 @@ export class AssignReportDto {
 export class ChangeReportStatusDto {
   @IsEnum(ReportStatus)
   status!: ReportStatus;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1_000)
+  comment?: string;
 }
 
 export class SetVerdictDto {
@@ -192,24 +211,25 @@ export class SetVerdictDto {
   verdict!: string;
 }
 
-export class PunishReportDto {
+export class CreateModeratorNoteDto {
   @IsString()
-  @MinLength(2)
-  @MaxLength(16)
-  targetUsername!: string;
+  @MinLength(1)
+  @MaxLength(5_000)
+  content!: string;
+}
 
-  @IsEnum(PunishmentType)
-  punishmentType!: PunishmentType;
+export class UpdateModeratorNoteDto {
+  @IsString()
+  @MinLength(1)
+  @MaxLength(5_000)
+  content!: string;
+}
 
+export class SoftDeleteMessageDto {
   @IsOptional()
   @IsString()
-  @MaxLength(64)
-  duration?: string;
-
-  @IsString()
-  @MinLength(3)
   @MaxLength(500)
-  reason!: string;
+  reason?: string;
 }
 
 export class CreatePunishmentDto {
@@ -264,6 +284,13 @@ export class LockReportDto {
   @MinLength(3)
   @MaxLength(500)
   reason!: string;
+}
+
+export class ArchiveReportDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
 }
 
 export class BanReportsDto {

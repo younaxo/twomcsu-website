@@ -149,57 +149,6 @@ export class ReportsPunishmentsService {
     return toUserPunishmentSummary(row);
   }
 
-  async createFromReport(params: {
-    targetUsername: string;
-    actorId: string;
-    punishmentType: PrismaPunishmentType;
-    duration?: string | null;
-    reason: string;
-    server?: string | null;
-    reportNumber: string;
-  }): Promise<{ punishmentId: string; targetUserId: string | null }> {
-    const targetUser = await this.prisma.user.findUnique({
-      where: { username: params.targetUsername },
-      select: { id: true, username: true },
-    });
-
-    if (!targetUser) {
-      throw new BadRequestException(
-        `Игрок «${params.targetUsername}» не зарегистрирован — наказание в системе не создано`,
-      );
-    }
-
-    const expiresAt = parseDurationToExpires(params.duration);
-
-    const row = await this.prisma.userPunishment.create({
-      data: {
-        userId: targetUser.id,
-        punishmentType: params.punishmentType,
-        reason: params.reason,
-        duration: params.duration ?? null,
-        server: params.server ?? null,
-        issuedBy: params.actorId,
-        expiresAt,
-        isActive: true,
-        isAppealable: true,
-      },
-    });
-
-    const label = PUNISHMENT_TYPE_LABELS[params.punishmentType as keyof typeof PUNISHMENT_TYPE_LABELS];
-    const durationPart = params.duration ? ` на ${params.duration}` : '';
-
-    await this.notifications.createNotification({
-      userId: targetUser.id,
-      type: NotificationType.SYSTEM,
-      title: `Вы получили ${label}${durationPart}`,
-      message: `Причина: ${params.reason}`,
-      link: `/report/${params.reportNumber}`,
-      fromUserId: params.actorId,
-    });
-
-    return { punishmentId: row.id, targetUserId: targetUser.id };
-  }
-
   async requireAppealableForUser(punishmentId: string, userId: string) {
     const row = await this.prisma.userPunishment.findFirst({
       where: { id: punishmentId, userId },

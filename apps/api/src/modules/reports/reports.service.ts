@@ -7,7 +7,6 @@ import {
 import {
   Prisma,
   NotificationType,
-  PunishmentType as PrismaPunishmentType,
   ReportStatus as PrismaReportStatus,
   ReportType as PrismaReportType,
   RoleGroup,
@@ -17,6 +16,8 @@ import {
   REPORT_RULES_SLUGS,
   REPORT_STATUS_LABELS,
   REPORT_TYPE_LABELS,
+  GamePunishmentSummary,
+  GameReportSummary,
   ReportBanInfo,
   ReportDetails,
   ReportListResponse,
@@ -26,26 +27,35 @@ import {
   TopicDetails,
   detectEvidenceLinkType,
   hasRoleGroup,
-  PUNISHMENT_TYPE_LABELS,
 } from '@twomc/shared';
+import { AuditService } from '../admin/audit.service';
 import { CaptchaService } from '../auth/captcha.service';
 import { MarkdownService } from '../comments/markdown.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { toTopicDetails } from '../topics/topic.mapper';
-import { canReviewReportType, isStaffRole, minRoleForReportType } from './report-access.util';
+import {
+  canReviewReportType,
+  isReportTarget,
+  isStaffRole,
+  minRoleForReportType,
+} from './report-access.util';
 import { reportUserSelect, toReportDetails, toReportSummary } from './report.mapper';
 import {
   AddReportMessageDto,
+  ArchiveReportDto,
   AssignReportDto,
   BanReportsDto,
   ChangeReportStatusDto,
   CreateDonationProblemDto,
+  CreateModeratorNoteDto,
   CreateReportDto,
   ListReportsQueryDto,
   LockReportDto,
-  PunishReportDto,
   SetVerdictDto,
+  SoftDeleteMessageDto,
+  UpdateModeratorNoteDto,
+  UpdateOwnReportMessageDto,
 } from './dto/reports.dto';
 import { ReportsAttachmentsService } from './reports-attachments.service';
 import { ReportsPunishmentsService } from './reports-punishments.service';
@@ -53,6 +63,8 @@ import { ReportsPunishmentsService } from './reports-punishments.service';
 const DAILY_LIMIT = 3;
 const INCIDENT_MAX_AGE_MS = 72 * 60 * 60 * 1000;
 const DUPLICATE_WINDOW_MS = 72 * 60 * 60 * 1000;
+const MESSAGE_EDIT_WINDOW_MS = 5 * 60 * 1000;
+const MAX_PINNED_MESSAGES = 3;
 
 const targetInclude = {
   orderBy: { order: 'asc' as const },
@@ -72,11 +84,17 @@ const reportDetailInclude = {
     orderBy: { createdAt: 'asc' as const },
     include: { author: { select: reportUserSelect } },
   },
+  moderatorNotes: {
+    orderBy: [{ isPinned: 'desc' as const }, { createdAt: 'asc' as const }],
+    include: { author: { select: reportUserSelect } },
+  },
   attachments: { orderBy: { createdAt: 'asc' as const } },
   appealedPunishment: {
     include: { issuedByUser: { select: reportUserSelect } },
   },
-} as const;
+};
+
+type ReportRow = Prisma.ReportGetPayload<{ include: typeof reportDetailInclude }>;
 
 @Injectable()
 export class ReportsService {
@@ -87,6 +105,7 @@ export class ReportsService {
     private readonly captcha: CaptchaService,
     private readonly attachments: ReportsAttachmentsService,
     private readonly punishments: ReportsPunishmentsService,
+    private readonly audit: AuditService,
   ) {}
 
   async createReport(
@@ -185,7 +204,7 @@ export class ReportsService {
 
     await this.notifyStaffAboutNewReport(row.reportNumber, row.type as ReportType, authorId);
 
-    return toReportDetails(row, { includeInternal: false });
+    return this.mapDetails(row, authorId, RoleGroup.PLAYER);
   }
 
   async createDonationProblem(
@@ -217,7 +236,7 @@ export class ReportsService {
 
     await this.notifyStaffAboutNewReport(row.reportNumber, ReportType.DONATION_PROBLEM, authorId);
 
-    return toReportDetails(row, { includeInternal: false });
+    return this.mapDetails(row, authorId, RoleGroup.PLAYER);
   }
 
   async listMine(
@@ -227,14 +246,34 @@ export class ReportsService {
   ): Promise<ReportListResponse> {
     const page = Math.max(1, query.page ?? 1);
     const limit = Math.min(50, Math.max(1, query.limit ?? 20));
+    const participationOr: Prisma.ReportWhereInput[] = [
+      { authorId: userId },
+      { targets: { some: { userId } } },
+      { assignedToId: userId },
+    ];
+
+    let roleFilter: Prisma.ReportWhereInput;
+    switch (query.role) {
+      case 'author':
+        roleFilter = { authorId: userId };
+        break;
+      case 'target':
+        roleFilter = { targets: { some: { userId } } };
+        break;
+      case 'moderator':
+        roleFilter = { assignedToId: userId };
+        break;
+      case 'all':
+      default:
+        roleFilter = { OR: participationOr };
+        break;
+    }
+
     const where = this.buildListWhere(query, {
-      OR: [
-        { authorId: userId },
-        ...(isStaffRole(roleGroup) ? [{ assignedToId: userId }] : []),
-      ],
+      ...roleFilter,
+      isArchived: false,
     });
 
-    // Hide donation problems from non-owners even if somehow assigned
     if (!hasRoleGroup(roleGroup, RoleGroup.OWNER)) {
       where.AND = [
         ...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []),
@@ -247,7 +286,7 @@ export class ReportsService {
       ];
     }
 
-    return this.paginate(where, page, limit);
+    return this.paginate(where, page, limit, userId);
   }
 
   async listModeration(
@@ -267,6 +306,7 @@ export class ReportsService {
 
     const where = this.buildListWhere(query, {
       type: { in: allowedTypes as PrismaReportType[] },
+      isArchived: false,
     });
 
     if (query.assigned === 'me') {
@@ -275,6 +315,20 @@ export class ReportsService {
       where.assignedToId = null;
     }
 
+    return this.paginate(where, page, limit, viewerId);
+  }
+
+  async listArchived(
+    roleGroup: RoleGroup,
+    query: ListReportsQueryDto,
+  ): Promise<ReportListResponse> {
+    if (!hasRoleGroup(roleGroup, RoleGroup.ADMIN)) {
+      throw new ForbiddenException();
+    }
+
+    const page = Math.max(1, query.page ?? 1);
+    const limit = Math.min(50, Math.max(1, query.limit ?? 20));
+    const where = this.buildListWhere(query, { isArchived: true });
     return this.paginate(where, page, limit);
   }
 
@@ -283,8 +337,39 @@ export class ReportsService {
     const limit = Math.min(50, Math.max(1, query.limit ?? 20));
     const where = this.buildListWhere(query, {
       type: PrismaReportType.DONATION_PROBLEM,
+      isArchived: false,
     });
     return this.paginate(where, page, limit);
+  }
+
+  // TODO: Wire TigerReports plugin sync
+  listGameReports(): Promise<GameReportSummary[]> {
+    return Promise.resolve([]);
+  }
+
+  // TODO: Wire TigerReports plugin sync
+  listIncomingGameReports(_username: string): Promise<GameReportSummary[]> {
+    return Promise.resolve([]);
+  }
+
+  // TODO: Wire TigerReports plugin sync
+  listOutgoingGameReports(_username: string): Promise<GameReportSummary[]> {
+    return Promise.resolve([]);
+  }
+
+  // TODO: Wire LiteBans plugin sync
+  listActiveGamePunishments(): Promise<GamePunishmentSummary[]> {
+    return Promise.resolve([]);
+  }
+
+  // TODO: Wire LiteBans plugin sync
+  listGamePunishmentHistory(_username: string): Promise<GamePunishmentSummary[]> {
+    return Promise.resolve([]);
+  }
+
+  // TODO: Wire LiteBans plugin sync
+  listMyGamePunishments(_userId: string): Promise<GamePunishmentSummary[]> {
+    return Promise.resolve([]);
   }
 
   async getByNumber(
@@ -294,8 +379,7 @@ export class ReportsService {
   ): Promise<ReportDetails> {
     const row = await this.requireReport(reportNumber);
     this.assertCanView(row, viewerId, roleGroup);
-    const includeInternal = canReviewReportType(roleGroup, row.type as ReportType);
-    return toReportDetails(row, { includeInternal });
+    return this.mapDetails(row, viewerId, roleGroup);
   }
 
   async addMessage(
@@ -313,13 +397,10 @@ export class ReportsService {
 
     const isStaff = canReviewReportType(roleGroup, row.type as ReportType);
     const isAuthor = row.authorId === authorId;
+    const isTarget = isReportTarget(row, authorId);
 
-    if (!isAuthor && !isStaff) {
+    if (!isAuthor && !isStaff && !isTarget) {
       throw new ForbiddenException();
-    }
-
-    if (dto.isInternal && !isStaff) {
-      throw new ForbiddenException('Внутренние заметки доступны только модераторам');
     }
 
     const contentHtml = this.markdown.render(dto.content);
@@ -331,22 +412,300 @@ export class ReportsService {
         content: dto.content,
         contentHtml,
         isStaff,
-        isInternal: Boolean(dto.isInternal) && isStaff,
       },
     });
 
-    if (isStaff && !dto.isInternal && row.authorId !== authorId) {
+    if ((isStaff || isTarget) && row.authorId !== authorId) {
       await this.notifications.createNotification({
         userId: row.authorId,
         type: NotificationType.SYSTEM,
         title: `Новый ответ по обращению ${row.reportNumber}`,
-        message: 'Модератор ответил на ваше обращение',
+        message: isStaff
+          ? 'Модератор ответил на ваше обращение'
+          : 'Участник обращения оставил сообщение',
         link: `/report/${row.reportNumber}`,
         fromUserId: authorId,
       });
     }
 
     return this.getByNumber(reportNumber, authorId, roleGroup);
+  }
+
+  async updateOwnMessage(
+    reportNumber: string,
+    messageId: string,
+    authorId: string,
+    roleGroup: RoleGroup,
+    dto: UpdateOwnReportMessageDto,
+  ): Promise<ReportDetails> {
+    if (!dto.content && !dto.delete) {
+      throw new BadRequestException('Укажите content или delete');
+    }
+    if (dto.content && dto.delete) {
+      throw new BadRequestException('Нельзя одновременно редактировать и удалять сообщение');
+    }
+
+    const row = await this.requireReport(reportNumber);
+    this.assertCanView(row, authorId, roleGroup);
+
+    const message = row.messages.find((item) => item.id === messageId);
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
+    if (message.authorId !== authorId) {
+      throw new ForbiddenException('Можно изменять только свои сообщения');
+    }
+    if (message.isSystem) {
+      throw new BadRequestException('Системные сообщения нельзя изменять');
+    }
+    if (message.isDeleted) {
+      throw new BadRequestException('Сообщение уже удалено');
+    }
+    if (Date.now() - message.createdAt.getTime() > MESSAGE_EDIT_WINDOW_MS) {
+      throw new BadRequestException('Редактирование доступно только в течение 5 минут');
+    }
+
+    if (dto.delete) {
+      await this.prisma.reportMessage.update({
+        where: { id: messageId },
+        data: {
+          isDeleted: true,
+          deletedAt: new Date(),
+          deletedBy: authorId,
+        },
+      });
+    } else {
+      await this.prisma.reportMessage.update({
+        where: { id: messageId },
+        data: {
+          content: dto.content!,
+          contentHtml: this.markdown.render(dto.content!),
+        },
+      });
+    }
+
+    return this.getByNumber(reportNumber, authorId, roleGroup);
+  }
+
+  async softDeleteMessage(
+    reportNumber: string,
+    messageId: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+    dto: SoftDeleteMessageDto,
+  ): Promise<ReportDetails> {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanModerate(row, roleGroup);
+
+    const message = row.messages.find((item) => item.id === messageId);
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
+    if (message.isDeleted) {
+      throw new BadRequestException('Сообщение уже удалено');
+    }
+
+    await this.prisma.reportMessage.update({
+      where: { id: messageId },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+        deletedBy: actorId,
+        deleteReason: dto.reason ?? null,
+      },
+    });
+
+    return this.getByNumber(reportNumber, actorId, roleGroup);
+  }
+
+  async hardDeleteMessage(
+    reportNumber: string,
+    messageId: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+  ): Promise<void> {
+    if (!hasRoleGroup(roleGroup, RoleGroup.ADMIN)) {
+      throw new ForbiddenException();
+    }
+
+    const row = await this.requireReport(reportNumber);
+    const message = row.messages.find((item) => item.id === messageId);
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
+
+    await this.prisma.reportMessage.delete({ where: { id: messageId } });
+
+    await this.audit.log({
+      actorId,
+      action: 'report.message.delete',
+      targetType: 'ReportMessage',
+      targetId: messageId,
+      changes: { reportNumber, messageId },
+    });
+  }
+
+  async pinMessage(
+    reportNumber: string,
+    messageId: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+  ): Promise<ReportDetails> {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanModerate(row, roleGroup);
+
+    const message = row.messages.find((item) => item.id === messageId);
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
+    if (message.isDeleted) {
+      throw new BadRequestException('Нельзя закрепить удалённое сообщение');
+    }
+    if (message.isPinned) {
+      return this.getByNumber(reportNumber, actorId, roleGroup);
+    }
+
+    const pinnedCount = row.messages.filter((item) => item.isPinned && !item.isDeleted).length;
+    if (pinnedCount >= MAX_PINNED_MESSAGES) {
+      throw new BadRequestException(`Можно закрепить не более ${MAX_PINNED_MESSAGES} сообщений`);
+    }
+
+    await this.prisma.reportMessage.update({
+      where: { id: messageId },
+      data: {
+        isPinned: true,
+        pinnedAt: new Date(),
+        pinnedBy: actorId,
+      },
+    });
+
+    return this.getByNumber(reportNumber, actorId, roleGroup);
+  }
+
+  async unpinMessage(
+    reportNumber: string,
+    messageId: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+  ): Promise<ReportDetails> {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanModerate(row, roleGroup);
+
+    const message = row.messages.find((item) => item.id === messageId);
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
+
+    await this.prisma.reportMessage.update({
+      where: { id: messageId },
+      data: {
+        isPinned: false,
+        pinnedAt: null,
+        pinnedBy: null,
+      },
+    });
+
+    return this.getByNumber(reportNumber, actorId, roleGroup);
+  }
+
+  async createModeratorNote(
+    reportNumber: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+    dto: CreateModeratorNoteDto,
+  ): Promise<ReportDetails> {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanModerate(row, roleGroup);
+
+    const contentHtml = this.markdown.render(dto.content);
+    await this.prisma.reportModeratorNote.create({
+      data: {
+        reportId: row.id,
+        authorId: actorId,
+        content: dto.content,
+        contentHtml,
+      },
+    });
+
+    return this.getByNumber(reportNumber, actorId, roleGroup);
+  }
+
+  async updateModeratorNote(
+    reportNumber: string,
+    noteId: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+    dto: UpdateModeratorNoteDto,
+  ): Promise<ReportDetails> {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanModerate(row, roleGroup);
+
+    const note = row.moderatorNotes.find((item) => item.id === noteId);
+    if (!note) {
+      throw new NotFoundException('Заметка не найдена');
+    }
+
+    const canEdit =
+      note.authorId === actorId || hasRoleGroup(roleGroup, RoleGroup.ADMIN);
+    if (!canEdit) {
+      throw new ForbiddenException('Редактировать заметку может только автор или администратор');
+    }
+
+    await this.prisma.reportModeratorNote.update({
+      where: { id: noteId },
+      data: {
+        content: dto.content,
+        contentHtml: this.markdown.render(dto.content),
+      },
+    });
+
+    return this.getByNumber(reportNumber, actorId, roleGroup);
+  }
+
+  async deleteModeratorNote(
+    reportNumber: string,
+    noteId: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+  ): Promise<ReportDetails> {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanModerate(row, roleGroup);
+
+    const note = row.moderatorNotes.find((item) => item.id === noteId);
+    if (!note) {
+      throw new NotFoundException('Заметка не найдена');
+    }
+
+    const canDelete =
+      note.authorId === actorId || hasRoleGroup(roleGroup, RoleGroup.ADMIN);
+    if (!canDelete) {
+      throw new ForbiddenException('Удалить заметку может только автор или администратор');
+    }
+
+    await this.prisma.reportModeratorNote.delete({ where: { id: noteId } });
+    return this.getByNumber(reportNumber, actorId, roleGroup);
+  }
+
+  async pinModeratorNote(
+    reportNumber: string,
+    noteId: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+  ): Promise<ReportDetails> {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanModerate(row, roleGroup);
+
+    const note = row.moderatorNotes.find((item) => item.id === noteId);
+    if (!note) {
+      throw new NotFoundException('Заметка не найдена');
+    }
+
+    await this.prisma.reportModeratorNote.update({
+      where: { id: noteId },
+      data: { isPinned: !note.isPinned },
+    });
+
+    return this.getByNumber(reportNumber, actorId, roleGroup);
   }
 
   async uploadAttachment(
@@ -364,7 +723,9 @@ export class ReportsService {
     }
 
     const isStaff = canReviewReportType(roleGroup, row.type as ReportType);
-    if (row.authorId !== userId && !isStaff) {
+    const isAuthor = row.authorId === userId;
+    const isTarget = isReportTarget(row, userId);
+    if (!isAuthor && !isStaff && !isTarget) {
       throw new ForbiddenException();
     }
 
@@ -441,6 +802,7 @@ export class ReportsService {
     const row = await this.requireReport(reportNumber);
     this.assertCanModerate(row, roleGroup);
 
+    const previousStatus = row.status as ReportStatus;
     const resolvedAt =
       dto.status === ReportStatus.RESOLVED ||
       dto.status === ReportStatus.REJECTED ||
@@ -456,11 +818,12 @@ export class ReportsService {
       },
     });
 
-    await this.addSystemMessage(
-      row.id,
-      actorId,
-      `Статус изменён на «${REPORT_STATUS_LABELS[dto.status]}»`,
-    );
+    let systemMessage = `Статус изменён с «${REPORT_STATUS_LABELS[previousStatus]}» на «${REPORT_STATUS_LABELS[dto.status]}»`;
+    if (dto.comment?.trim()) {
+      systemMessage += `. ${dto.comment.trim()}`;
+    }
+
+    await this.addSystemMessage(row.id, actorId, systemMessage);
     await this.notifyStatusChange(row.reportNumber, row.authorId, dto.status);
 
     return this.getByNumber(reportNumber, actorId, roleGroup);
@@ -482,14 +845,12 @@ export class ReportsService {
       data: {
         verdict: dto.verdict,
         verdictHtml,
-        status: PrismaReportStatus.RESOLVED,
         resolvedAt: new Date(),
         assignedToId: row.assignedToId ?? actorId,
       },
     });
 
-    await this.addSystemMessage(row.id, actorId, 'Вынесен вердикт. Статус: «Рассмотрено»');
-    await this.notifyStatusChange(row.reportNumber, row.authorId, ReportStatus.RESOLVED);
+    await this.addSystemMessage(row.id, actorId, 'Вынесен вердикт');
 
     await this.notifications.createNotification({
       userId: row.authorId,
@@ -499,60 +860,6 @@ export class ReportsService {
       link: `/report/${row.reportNumber}`,
       fromUserId: actorId,
     });
-
-    return this.getByNumber(reportNumber, actorId, roleGroup);
-  }
-
-  async punish(
-    reportNumber: string,
-    actorId: string,
-    roleGroup: RoleGroup,
-    dto: PunishReportDto,
-  ): Promise<ReportDetails> {
-    const row = await this.requireReport(reportNumber);
-    this.assertCanModerate(row, roleGroup);
-
-    if (row.type !== PrismaReportType.PLAYER_COMPLAINT) {
-      throw new BadRequestException('Наказание доступно только для жалоб на игроков');
-    }
-
-    const targetUsername = dto.targetUsername.trim();
-    const matchedTarget = row.targets.find(
-      (target) => target.username.toLowerCase() === targetUsername.toLowerCase(),
-    );
-
-    if (!matchedTarget) {
-      throw new BadRequestException('Указанный игрок не является целью этого обращения');
-    }
-
-    await this.punishments.createFromReport({
-      targetUsername: matchedTarget.username,
-      actorId,
-      punishmentType: dto.punishmentType as PrismaPunishmentType,
-      duration: dto.duration ?? null,
-      reason: dto.reason,
-      server: row.server,
-      reportNumber: row.reportNumber,
-    });
-
-    await this.prisma.report.update({
-      where: { id: row.id },
-      data: {
-        punishmentType: dto.punishmentType,
-        punishmentDuration: dto.duration ?? null,
-        punishmentReason: dto.reason,
-        assignedToId: row.assignedToId ?? actorId,
-      },
-    });
-
-    const label = PUNISHMENT_TYPE_LABELS[dto.punishmentType];
-    const durationPart = dto.duration ? ` на ${dto.duration}` : '';
-
-    await this.addSystemMessage(
-      row.id,
-      actorId,
-      `Выдано наказание игроку ${matchedTarget.username}: ${label}${durationPart}. Причина: ${dto.reason}`,
-    );
 
     return this.getByNumber(reportNumber, actorId, roleGroup);
   }
@@ -584,13 +891,115 @@ export class ReportsService {
     return this.getByNumber(reportNumber, actorId, roleGroup);
   }
 
+  async archiveReport(
+    reportNumber: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+    dto: ArchiveReportDto,
+  ): Promise<ReportDetails> {
+    if (!hasRoleGroup(roleGroup, RoleGroup.ADMIN)) {
+      throw new ForbiddenException();
+    }
+
+    const row = await this.requireReport(reportNumber);
+    if (row.isArchived) {
+      throw new BadRequestException('Обращение уже в архиве');
+    }
+
+    await this.prisma.report.update({
+      where: { id: row.id },
+      data: {
+        isArchived: true,
+        archivedAt: new Date(),
+        archivedBy: actorId,
+        archiveReason: dto.reason ?? null,
+      },
+    });
+
+    await this.audit.log({
+      actorId,
+      action: 'report.archive',
+      targetType: 'Report',
+      targetId: row.id,
+      changes: { reportNumber, reason: dto.reason ?? null },
+    });
+
+    return this.getByNumber(reportNumber, actorId, roleGroup);
+  }
+
+  async unarchiveReport(
+    reportNumber: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+  ): Promise<ReportDetails> {
+    if (!hasRoleGroup(roleGroup, RoleGroup.ADMIN)) {
+      throw new ForbiddenException();
+    }
+
+    const row = await this.requireReport(reportNumber);
+    if (!row.isArchived) {
+      throw new BadRequestException('Обращение не в архиве');
+    }
+
+    await this.prisma.report.update({
+      where: { id: row.id },
+      data: {
+        isArchived: false,
+        archivedAt: null,
+        archivedBy: null,
+        archiveReason: null,
+      },
+    });
+
+    await this.audit.log({
+      actorId,
+      action: 'report.unarchive',
+      targetType: 'Report',
+      targetId: row.id,
+      changes: { reportNumber },
+    });
+
+    return this.getByNumber(reportNumber, actorId, roleGroup);
+  }
+
+  async deleteReport(
+    reportNumber: string,
+    actorId: string,
+    roleGroup: RoleGroup,
+  ): Promise<void> {
+    if (!hasRoleGroup(roleGroup, RoleGroup.ADMIN)) {
+      throw new ForbiddenException();
+    }
+
+    const row = await this.requireReport(reportNumber);
+
+    await this.prisma.report.delete({ where: { id: row.id } });
+
+    await this.audit.log({
+      actorId,
+      action: 'report.delete',
+      targetType: 'Report',
+      targetId: row.id,
+      changes: { reportNumber, type: row.type, authorId: row.authorId },
+    });
+  }
+
   async stats(): Promise<ReportStats> {
     const [total, byStatusRows, byTypeRows, openRows, resolved] = await Promise.all([
-      this.prisma.report.count(),
-      this.prisma.report.groupBy({ by: ['status'], _count: { _all: true } }),
-      this.prisma.report.groupBy({ by: ['type'], _count: { _all: true } }),
+      this.prisma.report.count({ where: { isArchived: false } }),
+      this.prisma.report.groupBy({
+        by: ['status'],
+        where: { isArchived: false },
+        _count: { _all: true },
+      }),
+      this.prisma.report.groupBy({
+        by: ['type'],
+        where: { isArchived: false },
+        _count: { _all: true },
+      }),
       this.prisma.report.findMany({
         where: {
+          isArchived: false,
           status: {
             in: [
               PrismaReportStatus.PENDING,
@@ -602,7 +1011,7 @@ export class ReportsService {
         select: { updatedAt: true, status: true, createdAt: true },
       }),
       this.prisma.report.findMany({
-        where: { resolvedAt: { not: null } },
+        where: { resolvedAt: { not: null }, isArchived: false },
         select: { createdAt: true, resolvedAt: true },
         take: 500,
         orderBy: { resolvedAt: 'desc' },
@@ -613,27 +1022,30 @@ export class ReportsService {
       (Object.values(ReportStatus) as ReportStatus[]).map((status) => [status, 0]),
     ) as Record<ReportStatus, number>;
 
-    for (const row of byStatusRows) {
-      byStatus[row.status as ReportStatus] = row._count._all;
+    for (const statusRow of byStatusRows) {
+      byStatus[statusRow.status as ReportStatus] = statusRow._count._all;
     }
 
     const byType = Object.fromEntries(
       (Object.values(ReportType) as ReportType[]).map((type) => [type, 0]),
     ) as Record<ReportType, number>;
 
-    for (const row of byTypeRows) {
-      byType[row.type as ReportType] = row._count._all;
+    for (const typeRow of byTypeRows) {
+      byType[typeRow.type as ReportType] = typeRow._count._all;
     }
 
     const overdue = openRows.filter(
-      (row) => Date.now() - row.updatedAt.getTime() > 24 * 60 * 60 * 1000,
+      (openRow) => Date.now() - openRow.updatedAt.getTime() > 24 * 60 * 60 * 1000,
     ).length;
 
     let avgResolutionHours: number | null = null;
     if (resolved.length > 0) {
-      const totalHours = resolved.reduce((sum, row) => {
-        if (!row.resolvedAt) return sum;
-        return sum + (row.resolvedAt.getTime() - row.createdAt.getTime()) / (60 * 60 * 1000);
+      const totalHours = resolved.reduce((sum, resolvedRow) => {
+        if (!resolvedRow.resolvedAt) return sum;
+        return (
+          sum +
+          (resolvedRow.resolvedAt.getTime() - resolvedRow.createdAt.getTime()) / (60 * 60 * 1000)
+        );
       }, 0);
       avgResolutionHours = Math.round((totalHours / resolved.length) * 10) / 10;
     }
@@ -676,6 +1088,15 @@ export class ReportsService {
     await this.prisma.reportBan.updateMany({
       where: { userId, isActive: true },
       data: { isActive: false },
+    });
+  }
+
+  private mapDetails(row: ReportRow, viewerId: string, roleGroup: RoleGroup): ReportDetails {
+    const includeModeratorNotes = canReviewReportType(roleGroup, row.type as ReportType);
+    return toReportDetails(row, {
+      includeModeratorNotes,
+      revealDeletedContent: includeModeratorNotes,
+      viewerId,
     });
   }
 
@@ -768,6 +1189,7 @@ export class ReportsService {
         targets: { some: { username: targetUsername } },
         type: type as PrismaReportType,
         createdAt: { gte: since },
+        isArchived: false,
         status: {
           notIn: [
             PrismaReportStatus.RESOLVED,
@@ -837,6 +1259,7 @@ export class ReportsService {
     where: Prisma.ReportWhereInput,
     page: number,
     limit: number,
+    viewerId?: string,
   ): Promise<ReportListResponse> {
     const skip = (page - 1) * limit;
     const [total, rows] = await this.prisma.$transaction([
@@ -851,7 +1274,7 @@ export class ReportsService {
     ]);
 
     return {
-      items: rows.map(toReportSummary),
+      items: rows.map((row) => toReportSummary(row, viewerId ? { viewerId } : undefined)),
       total,
       page,
       limit,
@@ -859,7 +1282,7 @@ export class ReportsService {
     };
   }
 
-  private async requireReport(reportNumber: string) {
+  private async requireReport(reportNumber: string): Promise<ReportRow> {
     const row = await this.prisma.report.findUnique({
       where: { reportNumber },
       include: reportDetailInclude,
@@ -872,12 +1295,12 @@ export class ReportsService {
     return row;
   }
 
-  private assertCanView(
-    row: { authorId: string; type: PrismaReportType; assignedToId: string | null },
-    viewerId: string,
-    roleGroup: RoleGroup,
-  ): void {
+  private assertCanView(row: ReportRow, viewerId: string, roleGroup: RoleGroup): void {
     if (row.authorId === viewerId) {
+      return;
+    }
+
+    if (isReportTarget(row, viewerId)) {
       return;
     }
 
@@ -899,10 +1322,7 @@ export class ReportsService {
     throw new ForbiddenException();
   }
 
-  private assertCanModerate(
-    row: { type: PrismaReportType },
-    roleGroup: RoleGroup,
-  ): void {
+  private assertCanModerate(row: { type: PrismaReportType }, roleGroup: RoleGroup): void {
     if (!canReviewReportType(roleGroup, row.type as ReportType)) {
       throw new ForbiddenException('Недостаточно прав для этого типа обращения');
     }

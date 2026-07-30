@@ -109,6 +109,8 @@ export function detectEvidenceLinkType(
   return 'other';
 }
 
+export type ReportParticipationRole = 'author' | 'target' | 'moderator';
+
 export interface ReportUserSummary {
   id: string;
   shortId: number;
@@ -152,9 +154,21 @@ export interface ReportMessage {
   content: string;
   contentHtml: string | null;
   isStaff: boolean;
-  isInternal: boolean;
   isSystem: boolean;
+  isDeleted: boolean;
+  isPinned: boolean;
+  pinnedAt: string | null;
   createdAt: string;
+  author: ReportUserSummary;
+}
+
+export interface ReportModeratorNote {
+  id: string;
+  content: string;
+  contentHtml: string | null;
+  isPinned: boolean;
+  createdAt: string;
+  updatedAt: string;
   author: ReportUserSummary;
 }
 
@@ -169,6 +183,16 @@ export interface UserPunishmentSummary {
   isActive: boolean;
   isAppealable: boolean;
   issuedByUser: ReportUserSummary | null;
+}
+
+/** Placeholder until TigerReports bridge is wired */
+export interface GameReportSummary {
+  id: string;
+}
+
+/** Placeholder until LiteBans bridge is wired */
+export interface GamePunishmentSummary {
+  id: string;
 }
 
 export interface ReportSummary {
@@ -189,6 +213,8 @@ export interface ReportSummary {
   createdAt: string;
   updatedAt: string;
   resolvedAt: string | null;
+  /** Current viewer's role in this report, when known */
+  viewerRole?: ReportParticipationRole | null;
 }
 
 export interface ReportDetails extends ReportSummary {
@@ -208,8 +234,13 @@ export interface ReportDetails extends ReportSummary {
   appealedPunishment: UserPunishmentSummary | null;
   lockedBy: string | null;
   lockedReason: string | null;
+  isArchived?: boolean;
+  archivedAt?: string | null;
+  archivedBy?: string | null;
+  archiveReason?: string | null;
   messages: ReportMessage[];
   attachments: ReportAttachment[];
+  moderatorNotes?: ReportModeratorNote[];
 }
 
 export interface ReportListResponse {
