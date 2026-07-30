@@ -2,8 +2,7 @@
 
 import { Construction } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { usePathname } from 'next/navigation';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { ProfileMiniPreview } from '@/components/profile/ProfileMiniPreview';
 import { CartDrawer } from '@/components/store/CartDrawer';
@@ -21,15 +20,13 @@ const navItems = [
 ] as const;
 
 export function SiteHeader() {
-  const router = useRouter();
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
-    toast.success('Вы вышли из аккаунта');
-    router.push('/');
-    router.refresh();
+    // Full reload clears React Query + Zustand leftover session state
+    window.location.assign('/login');
   };
 
   return (

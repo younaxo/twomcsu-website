@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -32,7 +31,6 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const { login } = useAuth();
   const captcha = useRef<CaptchaFieldHandle>(null);
 
@@ -54,8 +52,8 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/');
-      router.refresh();
+      // Full reload clears React Query + Zustand leftover session state
+      window.location.assign('/');
     } catch (error) {
       captcha.current?.reset();
       toast.error(extractErrorMessage(error, 'Не удалось войти'));

@@ -11,7 +11,6 @@ import {
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Globe, Lock, Users } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -90,7 +89,6 @@ function parseBrowser(userAgent: string | null): string {
 }
 
 export default function ProfileSettingsPage() {
-  const router = useRouter();
   const { logout } = useAuth();
   const [profile, setProfile] = useState<MyProfile | null>(null);
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
@@ -170,7 +168,7 @@ export default function ProfileSettingsPage() {
       await api.post('/auth/change-password', values);
       toast.success('Пароль изменён');
       await logout();
-      router.push('/login');
+      window.location.assign('/login');
     } catch (error) {
       captcha.current?.reset();
       toast.error(extractErrorMessage(error, 'Не удалось сменить пароль'));
@@ -192,7 +190,7 @@ export default function ProfileSettingsPage() {
       await api.delete('/auth/sessions');
       toast.success('Все сессии завершены');
       await logout();
-      router.push('/login');
+      window.location.assign('/login');
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось выйти со всех устройств'));
     }
