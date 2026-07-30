@@ -1606,3 +1606,20 @@ model GamePunishment {
   @@index([type, isActive])
   @@map("game_punishments")
 }
+
+enum NewsCategory {
+  UPDATE
+  EVENT
+  GUIDE
+  ANNOUNCEMENT
+  PATCH_NOTES
+  COMMUNITY
+  OTHER
+}
+
+enum NewsStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
