@@ -9,6 +9,7 @@ const adminLinks = [
   { href: '/admin/positions', label: 'Префиксы' },
   { href: '/admin/custom-positions', label: 'Должности' },
   { href: '/admin/departments', label: 'Отделы' },
+  { href: '/admin/news', label: 'Новости' },
   { href: '/admin/topics', label: 'Темы' },
   { href: '/admin/topics-internal', label: 'Внутренние' },
   { href: '/admin/support/donations', label: 'Донат-обращения' },
