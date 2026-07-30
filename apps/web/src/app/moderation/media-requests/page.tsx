@@ -29,7 +29,7 @@ export default function AdminMediaRequestsPage() {
       const { data } = await api.get<MediaBadgeRequestAdmin[]>('/admin/media-requests');
       setRows(data);
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╖╨░╨│╤Ç╤â╨╖╨╕╤é╤î ╨╖╨░╤Å╨▓╨║╨╕'));
+      toast.error(extractErrorMessage(error, 'Не удалось загрузить заявки'));
     }
   }, []);
 
@@ -40,40 +40,40 @@ export default function AdminMediaRequestsPage() {
   const review = async (id: string, status: 'APPROVED' | 'REJECTED') => {
     try {
       await api.patch(`/admin/media-requests/${id}`, { status });
-      toast.success(status === 'APPROVED' ? '╨ù╨░╤Å╨▓╨║╨░ ╨╛╨┤╨╛╨▒╤Ç╨╡╨╜╨░' : '╨ù╨░╤Å╨▓╨║╨░ ╨╛╤é╨║╨╗╨╛╨╜╨╡╨╜╨░');
+      toast.success(status === 'APPROVED' ? 'Заявка одобрена' : 'Заявка отклонена');
       await load();
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╛╨▒╤Ç╨░╨▒╨╛╤é╨░╤é╤î ╨╖╨░╤Å╨▓╨║╤â'));
+      toast.error(extractErrorMessage(error, 'Не удалось обработать заявку'));
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">╨£╨╡╨┤╨╕╨░-╨╖╨░╤Å╨▓╨║╨╕</h1>
-        <p className="text-sm text-muted-foreground">╨£╨╛╨┤╨╡╤Ç╨░╤å╨╕╤Å ╨╖╨░╤Å╨▓╨╛╨║ ╨╜╨░ ╨╝╨╡╨┤╨╕╨░-╨▒╨╡╨╣╨┤╨╢</p>
+        <h1 className="text-2xl font-semibold">Медиа-заявки</h1>
+        <p className="text-sm text-muted-foreground">Модерация заявок на медиа-бейдж</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>╨₧╤ç╨╡╤Ç╨╡╨┤╤î</CardTitle>
+          <CardTitle>Очередь</CardTitle>
         </CardHeader>
         <CardContent>
           {rows.length === 0 ? (
             <AdminEmptyState
               icon={Clapperboard}
-              title="╨ù╨░╤Å╨▓╨╛╨║ ╨╜╨╡╤é"
-              description="╨¥╨╛╨▓╤ï╤à ╨╝╨╡╨┤╨╕╨░-╨╖╨░╤Å╨▓╨╛╨║ ╨┐╨╛╨║╨░ ╨╜╨╡╤é"
+              title="Заявок нет"
+              description="Новых медиа-заявок пока нет"
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>╨ÿ╨│╤Ç╨╛╨║</TableHead>
-                  <TableHead>╨ƒ╨╗╨░╤é╤ä╨╛╤Ç╨╝╨░</TableHead>
-                  <TableHead>╨Ü╨░╨╜╨░╨╗</TableHead>
-                  <TableHead>╨í╤é╨░╤é╤â╤ü</TableHead>
-                  <TableHead>╨ö╨░╤é╨░</TableHead>
+                  <TableHead>Игрок</TableHead>
+                  <TableHead>Платформа</TableHead>
+                  <TableHead>Канал</TableHead>
+                  <TableHead>Статус</TableHead>
+                  <TableHead>Дата</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -86,7 +86,7 @@ export default function AdminMediaRequestsPage() {
                     <TableCell>{mediaGroupLabels[row.mediaGroup]}</TableCell>
                     <TableCell>
                       <a href={row.channelUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">
-                        ╤ü╤ü╤ï╨╗╨║╨░
+                        ссылка
                       </a>
                     </TableCell>
                     <TableCell>{row.status}</TableCell>
@@ -97,7 +97,7 @@ export default function AdminMediaRequestsPage() {
                       {row.status === 'PENDING' ? (
                         <>
                           <Button type="button" size="sm" onClick={() => void review(row.id, 'APPROVED')}>
-                            ╨₧╨┤╨╛╨▒╤Ç╨╕╤é╤î
+                            Одобрить
                           </Button>
                           <Button
                             type="button"
@@ -105,7 +105,7 @@ export default function AdminMediaRequestsPage() {
                             variant="outline"
                             onClick={() => void review(row.id, 'REJECTED')}
                           >
-                            ╨₧╤é╨║╨╗╨╛╨╜╨╕╤é╤î
+                            Отклонить
                           </Button>
                         </>
                       ) : null}

@@ -24,7 +24,7 @@ export default function AdminChatChannelsPage() {
       const { data } = await api.get<ChatChannel[]>('/chat/channels');
       setItems(data);
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╖╨░╨│╤Ç╤â╨╖╨╕╤é╤î ╨║╨░╨╜╨░╨╗╤ï'));
+      toast.error(extractErrorMessage(error, 'Не удалось загрузить каналы'));
     } finally {
       setLoading(false);
     }
@@ -37,23 +37,23 @@ export default function AdminChatChannelsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="╨Ü╨░╨╜╨░╨╗╤ï ╤ç╨░╤é╨░"
-        description="╨í╨╡╨╣╤ç╨░╤ü ╨╕╤ü╨┐╨╛╨╗╤î╨╖╤â╨╡╤é╤ü╤Å ╨╛╨┤╨╕╨╜ ╨╛╨▒╤ë╨╕╨╣ ╨║╨░╨╜╨░╨╗. ╨₧╤ü╤é╨░╨╗╤î╨╜╤ï╨╡ ╨║╨░╨╜╨░╨╗╤ï ╤ü╨╛╤à╤Ç╨░╨╜╨╡╨╜╤ï ╨▓ ╨æ╨ö ╨╜╨░ ╨▒╤â╨┤╤â╤ë╨╡╨╡."
+        title="Каналы чата"
+        description="Сейчас используется один общий канал. Остальные каналы сохранены в БД на будущее."
       />
 
       {loading ? (
         <Skeleton className="h-64 w-full" />
       ) : items.length === 0 ? (
-        <AdminEmptyState title="╨¥╨╡╤é ╨░╨║╤é╨╕╨▓╨╜╤ï╤à ╨║╨░╨╜╨░╨╗╨╛╨▓" description="╨ù╨░╨┐╤â╤ü╤é╨╕╤é╨╡ seed ╨┤╨╗╤Å ╤ü╨╛╨╖╨┤╨░╨╜╨╕╤Å general" />
+        <AdminEmptyState title="Нет активных каналов" description="Запустите seed для создания general" />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>╨Ü╨░╨╜╨░╨╗</TableHead>
+                <TableHead>Канал</TableHead>
                 <TableHead>Slug</TableHead>
-                <TableHead>╨ó╨╕╨┐</TableHead>
-                <TableHead>╨₧╨┐╨╕╤ü╨░╨╜╨╕╨╡</TableHead>
+                <TableHead>Тип</TableHead>
+                <TableHead>Описание</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -64,7 +64,7 @@ export default function AdminChatChannelsPage() {
                   </TableCell>
                   <TableCell className="font-mono text-xs">{row.slug}</TableCell>
                   <TableCell>{row.type}</TableCell>
-                  <TableCell className="text-muted-foreground">{row.description ?? 'ΓÇö'}</TableCell>
+                  <TableCell className="text-muted-foreground">{row.description ?? '—'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -33,7 +33,7 @@ export default function AdminChatMutesPage() {
       const { data } = await api.get<MuteRow[]>('/admin/chat/mutes');
       setItems(data);
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╖╨░╨│╤Ç╤â╨╖╨╕╤é╤î ╨╝╤â╤é╤ï'));
+      toast.error(extractErrorMessage(error, 'Не удалось загрузить муты'));
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ export default function AdminChatMutesPage() {
   const unmute = async (id: string) => {
     try {
       await api.delete(`/admin/chat/mutes/${id}`);
-      toast.success('╨£╤â╤é ╤ü╨╜╤Å╤é');
+      toast.success('Мут снят');
       await load();
     } catch (error) {
       toast.error(extractErrorMessage(error));
@@ -55,20 +55,20 @@ export default function AdminChatMutesPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="╨£╤â╤é╤ï ╤ç╨░╤é╨░" description="╨É╨║╤é╨╕╨▓╨╜╤ï╨╡ ╨╛╨│╤Ç╨░╨╜╨╕╤ç╨╡╨╜╨╕╤Å" />
+      <AdminPageHeader title="Муты чата" description="Активные ограничения" />
       {loading ? (
         <Skeleton className="h-64 w-full" />
       ) : items.length === 0 ? (
-        <AdminEmptyState icon={VolumeX} title="╨É╨║╤é╨╕╨▓╨╜╤ï╤à ╨╝╤â╤é╨╛╨▓ ╨╜╨╡╤é" />
+        <AdminEmptyState icon={VolumeX} title="Активных мутов нет" />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>╨ÿ╨│╤Ç╨╛╨║</TableHead>
-                <TableHead>╨Ü╨░╨╜╨░╨╗</TableHead>
-                <TableHead>╨ƒ╤Ç╨╕╤ç╨╕╨╜╨░</TableHead>
-                <TableHead>╨ö╨╛</TableHead>
+                <TableHead>Игрок</TableHead>
+                <TableHead>Канал</TableHead>
+                <TableHead>Причина</TableHead>
+                <TableHead>До</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -76,16 +76,16 @@ export default function AdminChatMutesPage() {
               {items.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>{row.user.username}</TableCell>
-                  <TableCell>{row.channel?.name ?? '╨Æ╤ü╨╡'}</TableCell>
+                  <TableCell>{row.channel?.name ?? 'Все'}</TableCell>
                   <TableCell>{row.reason}</TableCell>
                   <TableCell>
                     {row.mutedUntil
                       ? new Date(row.mutedUntil).toLocaleString('ru-RU')
-                      : '╨¥╨░╨▓╤ü╨╡╨│╨┤╨░'}
+                      : 'Навсегда'}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button size="sm" variant="outline" onClick={() => void unmute(row.id)}>
-                      ╨í╨╜╤Å╤é╤î
+                      Снять
                     </Button>
                   </TableCell>
                 </TableRow>

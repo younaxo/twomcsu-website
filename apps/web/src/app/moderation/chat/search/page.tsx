@@ -16,7 +16,7 @@ export default function AdminChatSearchPage() {
 
   const search = async () => {
     if (q.trim().length < 2) {
-      toast.error('╨Æ╨▓╨╡╨┤╨╕╤é╨╡ ╨╝╨╕╨╜╨╕╨╝╤â╨╝ 2 ╤ü╨╕╨╝╨▓╨╛╨╗╨░');
+      toast.error('Введите минимум 2 символа');
       return;
     }
     try {
@@ -26,36 +26,36 @@ export default function AdminChatSearchPage() {
       setItems(data);
       setSearched(true);
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨ƒ╨╛╨╕╤ü╨║ ╨╜╨╡ ╤â╨┤╨░╨╗╤ü╤Å'));
+      toast.error(extractErrorMessage(error, 'Поиск не удался'));
     }
   };
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="╨ƒ╨╛╨╕╤ü╨║ ╨┐╨╛ ╤ç╨░╤é╤â" description="╨í╨╛╨╛╨▒╤ë╨╡╨╜╨╕╤Å ╨▓╨╛ ╨▓╤ü╨╡╤à ╨║╨░╨╜╨░╨╗╨░╤à" />
+      <AdminPageHeader title="Поиск по чату" description="Сообщения во всех каналах" />
       <div className="flex gap-2">
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="╨ó╨╡╨║╤ü╤é ╤ü╨╛╨╛╨▒╤ë╨╡╨╜╨╕╤ÅΓÇª"
+          placeholder="Текст сообщения…"
           onKeyDown={(e) => {
             if (e.key === 'Enter') void search();
           }}
         />
         <Button onClick={() => void search()}>
           <Search className="mr-2 h-4 w-4" />
-          ╨¥╨░╨╣╤é╨╕
+          Найти
         </Button>
       </div>
 
       {searched && items.length === 0 ? (
-        <AdminEmptyState title="╨¥╨╕╤ç╨╡╨│╨╛ ╨╜╨╡ ╨╜╨░╨╣╨┤╨╡╨╜╨╛" description="╨ƒ╨╛╨┐╤Ç╨╛╨▒╤â╨╣╤é╨╡ ╨┤╤Ç╤â╨│╨╛╨╣ ╨╖╨░╨┐╤Ç╨╛╤ü" />
+        <AdminEmptyState title="Ничего не найдено" description="Попробуйте другой запрос" />
       ) : (
         <div className="space-y-2">
           {items.map((m) => (
             <div key={m.id} className="rounded-lg border border-border p-3 text-sm">
               <p className="text-xs text-muted-foreground">
-                {m.author?.username ?? 'ΓÇö'} ┬╖ {new Date(m.createdAt).toLocaleString('ru-RU')}
+                {m.author?.username ?? '—'} · {new Date(m.createdAt).toLocaleString('ru-RU')}
               </p>
               <p className="mt-1 text-white">{m.content}</p>
             </div>

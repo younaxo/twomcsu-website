@@ -28,11 +28,11 @@ import {
 import { api, extractErrorMessage } from '@/lib/api';
 
 const reasonLabels: Record<CommentReport['reason'], string> = {
-  SPAM: '╨í╨┐╨░╨╝',
-  INAPPROPRIATE: '╨¥╨╡╨┐╤Ç╨╕╨╡╨╝╨╗╨╡╨╝╤ï╨╣ ╨║╨╛╨╜╤é╨╡╨╜╤é',
-  HARASSMENT: '╨₧╤ü╨║╨╛╤Ç╨▒╨╗╨╡╨╜╨╕╤Å',
-  IMPERSONATION: '╨Æ╤ï╨┤╨░╤æ╤é ╤ü╨╡╨▒╤Å ╨╖╨░ ╨┤╤Ç╤â╨│╨╛╨│╨╛',
-  OTHER: '╨ö╤Ç╤â╨│╨╛╨╡',
+  SPAM: 'Спам',
+  INAPPROPRIATE: 'Неприемлемый контент',
+  HARASSMENT: 'Оскорбления',
+  IMPERSONATION: 'Выдаёт себя за другого',
+  OTHER: 'Другое',
 };
 
 export default function AdminCommentReportsPage() {
@@ -50,7 +50,7 @@ export default function AdminCommentReportsPage() {
       });
       setRows(data.data);
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╖╨░╨│╤Ç╤â╨╖╨╕╤é╤î ╨╢╨░╨╗╨╛╨▒╤ï'));
+      toast.error(extractErrorMessage(error, 'Не удалось загрузить жалобы'));
     }
   }, [status]);
 
@@ -61,10 +61,10 @@ export default function AdminCommentReportsPage() {
   const review = async (id: string, nextStatus: 'RESOLVED' | 'REJECTED') => {
     try {
       await api.patch(`/admin/comment-reports/${id}`, { status: nextStatus });
-      toast.success(nextStatus === 'RESOLVED' ? '╨Ü╨╛╨╝╨╝╨╡╨╜╤é╨░╤Ç╨╕╨╣ ╤â╨┤╨░╨╗╤æ╨╜' : '╨û╨░╨╗╨╛╨▒╨░ ╨╛╤é╨║╨╗╨╛╨╜╨╡╨╜╨░');
+      toast.success(nextStatus === 'RESOLVED' ? 'Комментарий удалён' : 'Жалоба отклонена');
       await load();
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╛╨▒╤Ç╨░╨▒╨╛╤é╨░╤é╤î ╨╢╨░╨╗╨╛╨▒╤â'));
+      toast.error(extractErrorMessage(error, 'Не удалось обработать жалобу'));
     }
   };
 
@@ -72,8 +72,8 @@ export default function AdminCommentReportsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">╨û╨░╨╗╨╛╨▒╤ï ╨╜╨░ ╨║╨╛╨╝╨╝╨╡╨╜╤é╨░╤Ç╨╕╨╕</h1>
-          <p className="text-sm text-muted-foreground">╨£╨╛╨┤╨╡╤Ç╨░╤å╨╕╤Å ╨║╨╛╨╝╨╝╨╡╨╜╤é╨░╤Ç╨╕╨╡╨▓ ╨╜╨░ ╨┐╤Ç╨╛╤ä╨╕╨╗╤Å╤à</p>
+          <h1 className="text-2xl font-semibold">Жалобы на комментарии</h1>
+          <p className="text-sm text-muted-foreground">Модерация комментариев на профилях</p>
         </div>
         <Select
           value={status}
@@ -83,36 +83,36 @@ export default function AdminCommentReportsPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">╨Æ╤ü╨╡</SelectItem>
-            <SelectItem value="PENDING">╨₧╨╢╨╕╨┤╨░╤Ä╤é</SelectItem>
-            <SelectItem value="RESOLVED">╨₧╨┤╨╛╨▒╤Ç╨╡╨╜╤ï</SelectItem>
-            <SelectItem value="REJECTED">╨₧╤é╨║╨╗╨╛╨╜╨╡╨╜╤ï</SelectItem>
+            <SelectItem value="ALL">Все</SelectItem>
+            <SelectItem value="PENDING">Ожидает</SelectItem>
+            <SelectItem value="RESOLVED">Одобрены</SelectItem>
+            <SelectItem value="REJECTED">Отклонены</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>╨₧╤ç╨╡╤Ç╨╡╨┤╤î</CardTitle>
+          <CardTitle>Очередь</CardTitle>
         </CardHeader>
         <CardContent>
           {rows.length === 0 ? (
             <AdminEmptyState
               icon={Flag}
-              title="╨û╨░╨╗╨╛╨▒ ╨╜╨╡╤é"
-              description="╨₧╤ç╨╡╤Ç╨╡╨┤╤î ╨╝╨╛╨┤╨╡╤Ç╨░╤å╨╕╨╕ ╨┐╤â╤ü╤é╨░"
+              title="Жалоб нет"
+              description="Очередь модерации пуста"
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>╨ƒ╤Ç╨╛╤ä╨╕╨╗╤î</TableHead>
-                  <TableHead>╨É╨▓╤é╨╛╤Ç</TableHead>
-                  <TableHead>╨₧╤é ╨║╨╛╨│╨╛</TableHead>
-                  <TableHead>╨Ü╨╛╨╝╨╝╨╡╨╜╤é╨░╤Ç╨╕╨╣</TableHead>
-                  <TableHead>╨ƒ╤Ç╨╕╤ç╨╕╨╜╨░</TableHead>
-                  <TableHead>╨í╤é╨░╤é╤â╤ü</TableHead>
-                  <TableHead>╨ö╨░╤é╨░</TableHead>
+                  <TableHead>Профиль</TableHead>
+                  <TableHead>Автор</TableHead>
+                  <TableHead>От кого</TableHead>
+                  <TableHead>Комментарий</TableHead>
+                  <TableHead>Причина</TableHead>
+                  <TableHead>Статус</TableHead>
+                  <TableHead>Дата</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -138,7 +138,7 @@ export default function AdminCommentReportsPage() {
                             size="sm"
                             onClick={() => void review(row.id, 'RESOLVED')}
                           >
-                            ╨₧╨┤╨╛╨▒╤Ç╨╕╤é╤î
+                            Одобрить
                           </Button>
                           <Button
                             type="button"
@@ -146,7 +146,7 @@ export default function AdminCommentReportsPage() {
                             variant="outline"
                             onClick={() => void review(row.id, 'REJECTED')}
                           >
-                            ╨₧╤é╨║╨╗╨╛╨╜╨╕╤é╤î
+                            Отклонить
                           </Button>
                         </>
                       ) : null}

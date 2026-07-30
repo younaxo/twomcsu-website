@@ -32,7 +32,7 @@ export default function AdminChatBansPage() {
       const { data } = await api.get<BanRow[]>('/admin/chat/bans');
       setItems(data);
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╖╨░╨│╤Ç╤â╨╖╨╕╤é╤î ╨▒╨░╨╜╤ï'));
+      toast.error(extractErrorMessage(error, 'Не удалось загрузить баны'));
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export default function AdminChatBansPage() {
   const unban = async (id: string) => {
     try {
       await api.delete(`/admin/chat/bans/${id}`);
-      toast.success('╨æ╨░╨╜ ╤ü╨╜╤Å╤é');
+      toast.success('Бан снят');
       await load();
     } catch (error) {
       toast.error(extractErrorMessage(error));
@@ -54,19 +54,19 @@ export default function AdminChatBansPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="╨æ╨░╨╜╤ï ╤ç╨░╤é╨░" description="╨É╨║╤é╨╕╨▓╨╜╤ï╨╡ ╨▒╨╗╨╛╨║╨╕╤Ç╨╛╨▓╨║╨╕" />
+      <AdminPageHeader title="Баны чата" description="Активные блокировки" />
       {loading ? (
         <Skeleton className="h-64 w-full" />
       ) : items.length === 0 ? (
-        <AdminEmptyState icon={Ban} title="╨É╨║╤é╨╕╨▓╨╜╤ï╤à ╨▒╨░╨╜╨╛╨▓ ╨╜╨╡╤é" />
+        <AdminEmptyState icon={Ban} title="Активных банов нет" />
       ) : (
         <div className="rounded-xl border border-border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>╨ÿ╨│╤Ç╨╛╨║</TableHead>
-                <TableHead>╨ƒ╤Ç╨╕╤ç╨╕╨╜╨░</TableHead>
-                <TableHead>╨ö╨╛</TableHead>
+                <TableHead>Игрок</TableHead>
+                <TableHead>Причина</TableHead>
+                <TableHead>До</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -78,11 +78,11 @@ export default function AdminChatBansPage() {
                   <TableCell>
                     {row.bannedUntil
                       ? new Date(row.bannedUntil).toLocaleString('ru-RU')
-                      : '╨¥╨░╨▓╤ü╨╡╨│╨┤╨░'}
+                      : 'Навсегда'}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button size="sm" variant="outline" onClick={() => void unban(row.id)}>
-                      ╨í╨╜╤Å╤é╤î
+                      Снять
                     </Button>
                   </TableCell>
                 </TableRow>

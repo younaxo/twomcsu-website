@@ -29,7 +29,7 @@ export default function AdminChatSettingsPage() {
       const { data } = await api.get<ChatSettings>('/admin/chat/settings');
       setSettings(data);
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╖╨░╨│╤Ç╤â╨╖╨╕╤é╤î ╨╜╨░╤ü╤é╤Ç╨╛╨╣╨║╨╕'));
+      toast.error(extractErrorMessage(error, 'Не удалось загрузить настройки'));
     }
   }, []);
 
@@ -41,7 +41,7 @@ export default function AdminChatSettingsPage() {
     try {
       const { data } = await api.patch<ChatSettings>('/admin/chat/settings', settings);
       setSettings(data);
-      toast.success('╨í╨╛╤à╤Ç╨░╨╜╨╡╨╜╨╛');
+      toast.success('Сохранено');
     } catch (error) {
       toast.error(extractErrorMessage(error));
     }
@@ -49,17 +49,17 @@ export default function AdminChatSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="╨¥╨░╤ü╤é╤Ç╨╛╨╣╨║╨╕ ╤ç╨░╤é╨░" description="Anti-spam ╨╕ ╨┐╤Ç╨╡╨▓╤î╤Ä ╤ü╤ü╤ï╨╗╨╛╨║" />
+      <AdminPageHeader title="Настройки чата" description="Anti-spam и превью ссылок" />
       <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <div className="space-y-1">
-          <Label>╨º╤æ╤Ç╨╜╤ï╨╣ ╤ü╨┐╨╕╤ü╨╛╨║ ╤ü╨╗╨╛╨▓ (╤ç╨╡╤Ç╨╡╨╖ ╨╖╨░╨┐╤Å╤é╤â╤Ä)</Label>
+          <Label>Чёрный список слов (через запятую)</Label>
           <Textarea
             value={settings.blacklist}
             onChange={(e) => setSettings({ ...settings, blacklist: e.target.value })}
           />
         </div>
         <div className="space-y-1">
-          <Label>Whitelist ╨┤╨╛╨╝╨╡╨╜╨╛╨▓ ╨┤╨╗╤Å preview</Label>
+          <Label>Whitelist доменов для preview</Label>
           <Input
             value={settings.previewWhitelist}
             onChange={(e) => setSettings({ ...settings, previewWhitelist: e.target.value })}
@@ -67,7 +67,7 @@ export default function AdminChatSettingsPage() {
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
-            <Label>╨¢╨╕╨╝╨╕╤é ╤ü╨╛╨╛╨▒╤ë╨╡╨╜╨╕╨╣</Label>
+            <Label>Лимит сообщений</Label>
             <Input
               type="number"
               value={settings.rateLimitCount}
@@ -77,7 +77,7 @@ export default function AdminChatSettingsPage() {
             />
           </div>
           <div className="space-y-1">
-            <Label>╨₧╨║╨╜╨╛, ╤ü╨╡╨║</Label>
+            <Label>Окно, сек</Label>
             <Input
               type="number"
               value={settings.rateLimitWindowSec}
@@ -87,7 +87,7 @@ export default function AdminChatSettingsPage() {
             />
           </div>
         </div>
-        <Button onClick={() => void save()}>╨í╨╛╤à╤Ç╨░╨╜╨╕╤é╤î</Button>
+        <Button onClick={() => void save()}>Сохранить</Button>
       </div>
     </div>
   );

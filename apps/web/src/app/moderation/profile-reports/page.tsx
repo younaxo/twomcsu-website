@@ -29,7 +29,7 @@ export default function AdminProfileReportsPage() {
       const { data } = await api.get<ProfileReport[]>('/admin/profile-reports');
       setRows(data);
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╖╨░╨│╤Ç╤â╨╖╨╕╤é╤î ╨╢╨░╨╗╨╛╨▒╤ï'));
+      toast.error(extractErrorMessage(error, 'Не удалось загрузить жалобы'));
     }
   }, []);
 
@@ -40,40 +40,40 @@ export default function AdminProfileReportsPage() {
   const review = async (id: string, status: 'RESOLVED' | 'REJECTED') => {
     try {
       await api.patch(`/admin/profile-reports/${id}`, { status });
-      toast.success(status === 'RESOLVED' ? '╨û╨░╨╗╨╛╨▒╨░ ╨╖╨░╨║╤Ç╤ï╤é╨░' : '╨û╨░╨╗╨╛╨▒╨░ ╨╛╤é╨║╨╗╨╛╨╜╨╡╨╜╨░');
+      toast.success(status === 'RESOLVED' ? 'Жалоба закрыта' : 'Жалоба отклонена');
       await load();
     } catch (error) {
-      toast.error(extractErrorMessage(error, '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨╛╨▒╤Ç╨░╨▒╨╛╤é╨░╤é╤î ╨╢╨░╨╗╨╛╨▒╤â'));
+      toast.error(extractErrorMessage(error, 'Не удалось обработать жалобу'));
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">╨û╨░╨╗╨╛╨▒╤ï ╨╜╨░ ╨┐╤Ç╨╛╤ä╨╕╨╗╨╕</h1>
-        <p className="text-sm text-muted-foreground">╨£╨╛╨┤╨╡╤Ç╨░╤å╨╕╤Å ╨╢╨░╨╗╨╛╨▒</p>
+        <h1 className="text-2xl font-semibold">Жалобы на профили</h1>
+        <p className="text-sm text-muted-foreground">Модерация жалоб</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>╨₧╤ç╨╡╤Ç╨╡╨┤╤î</CardTitle>
+          <CardTitle>Очередь</CardTitle>
         </CardHeader>
         <CardContent>
           {rows.length === 0 ? (
             <AdminEmptyState
               icon={ShieldAlert}
-              title="╨û╨░╨╗╨╛╨▒ ╨╜╨╡╤é"
-              description="╨₧╤ç╨╡╤Ç╨╡╨┤╤î ╨╝╨╛╨┤╨╡╤Ç╨░╤å╨╕╨╕ ╨┐╤â╤ü╤é╨░"
+              title="Жалоб нет"
+              description="Очередь модерации пуста"
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>╨ƒ╤Ç╨╛╤ä╨╕╨╗╤î</TableHead>
-                  <TableHead>╨₧╤é ╨║╨╛╨│╨╛</TableHead>
-                  <TableHead>╨ƒ╤Ç╨╕╤ç╨╕╨╜╨░</TableHead>
-                  <TableHead>╨í╤é╨░╤é╤â╤ü</TableHead>
-                  <TableHead>╨ö╨░╤é╨░</TableHead>
+                  <TableHead>Профиль</TableHead>
+                  <TableHead>От кого</TableHead>
+                  <TableHead>Причина</TableHead>
+                  <TableHead>Статус</TableHead>
+                  <TableHead>Дата</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -95,7 +95,7 @@ export default function AdminProfileReportsPage() {
                       {row.status === 'PENDING' ? (
                         <>
                           <Button type="button" size="sm" onClick={() => void review(row.id, 'RESOLVED')}>
-                            ╨ù╨░╨║╤Ç╤ï╤é╤î
+                            Закрыть
                           </Button>
                           <Button
                             type="button"
@@ -103,7 +103,7 @@ export default function AdminProfileReportsPage() {
                             variant="outline"
                             onClick={() => void review(row.id, 'REJECTED')}
                           >
-                            ╨₧╤é╨║╨╗╨╛╨╜╨╕╤é╤î
+                            Отклонить
                           </Button>
                         </>
                       ) : null}
