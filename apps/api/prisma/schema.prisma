@@ -1409,6 +1409,7 @@ model Report {
   resolvedAt      DateTime?
 
   messages        ReportMessage[]
+  attachments     ReportAttachment[]
 
   @@index([authorId])
   @@index([type, status])
@@ -1433,4 +1434,19 @@ model ReportMessage {
 
   @@index([reportId, createdAt])
   @@map("report_messages")
+}
+
+model ReportAttachment {
+  id          String   @id @default(cuid())
+  reportId    String
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  fileName    String
+  fileUrl     String
+  fileSize    Int
+  mimeType    String
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+
+  @@index([reportId])
+  @@map("report_attachments")
 }
