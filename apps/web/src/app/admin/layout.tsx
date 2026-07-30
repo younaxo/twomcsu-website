@@ -8,6 +8,9 @@ import { useRoleGuard } from '@/components/admin/useRoleGuard';
 const adminLinks = [
   { href: '/admin/positions', label: 'Префиксы' },
   { href: '/admin/custom-positions', label: 'Должности' },
+  { href: '/admin/departments', label: 'Отделы' },
+  { href: '/admin/topics', label: 'Темы' },
+  { href: '/admin/topics-internal', label: 'Внутренние' },
   { href: '/admin/badges', label: 'Бейджи' },
   { href: '/admin/awards', label: 'Награды' },
   { href: '/admin/servers', label: 'Серверы' },
