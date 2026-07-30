@@ -1,6 +1,5 @@
 'use client';
 
-import { Construction } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -14,7 +13,10 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', label: 'Главная' },
-  { href: '/wiki', label: 'Вики', soon: true },
+  { href: '/store', label: 'Магазин' },
+  { href: '/rules', label: 'Правила' },
+  { href: '/report', label: 'Обращения' },
+  { href: '/wiki', label: 'Вики', disabled: true },
 ] as const;
 
 export function SiteHeader() {
@@ -31,41 +33,47 @@ export function SiteHeader() {
 
   return (
     <>
-      <div
-        className="pointer-events-none fixed inset-x-0 top-0 z-40 h-24 lg:left-[72px] xl:left-[260px]"
-        aria-hidden
-      />
       <header
         className={cn(
-          'pointer-events-auto fixed left-1/2 top-5 z-50 flex w-[92%] max-w-[1440px] -translate-x-1/2 items-center justify-between gap-4',
-          'glass-heavy rounded-[20px] px-5 py-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)] sm:px-7',
-          'lg:left-[calc(36px+50%)] lg:w-[min(92%,calc(100%-72px-1.5rem))]',
-          'xl:left-[calc(130px+50%)] xl:w-[min(92%,calc(100%-260px-1.5rem))]',
+          'sticky top-0 z-30 flex h-16 w-full shrink-0 items-center justify-between gap-4',
+          'border-b border-white/5 px-4 sm:px-6',
+          'glass-strong',
         )}
       >
         <Logo size="sm" withDivider showText className="no-select shrink-0" />
 
-        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 md:flex">
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-6 md:flex">
           {navItems.map((item) => {
+            const disabled = 'disabled' in item && item.disabled;
             const active =
-              item.href === '/'
+              !disabled &&
+              (item.href === '/'
                 ? pathname === '/'
-                : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                : pathname === item.href || pathname.startsWith(`${item.href}/`));
+
+            if (disabled) {
+              return (
+                <span
+                  key={item.label}
+                  className="cursor-not-allowed text-[15px] font-medium text-[#b0b0b0] opacity-40"
+                >
+                  {item.label}
+                </span>
+              );
+            }
+
             return (
               <Link
                 key={item.label}
                 href={item.href}
                 className={cn(
-                  'relative inline-flex items-center gap-1.5 text-[15px] font-medium transition-colors duration-250',
+                  'relative inline-flex items-center border-b-2 border-transparent pb-0.5 text-[15px] font-medium transition-all duration-200',
                   active
-                    ? 'font-semibold text-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-primary'
+                    ? 'border-[#F57C00] font-semibold text-[#F57C00]'
                     : 'text-[#b0b0b0] hover:text-white',
                 )}
               >
                 {item.label}
-                {'soon' in item && item.soon ? (
-                  <Construction className="h-3.5 w-3.5 text-muted-foreground" aria-label="В разработке" />
-                ) : null}
               </Link>
             );
           })}
@@ -84,7 +92,11 @@ export function SiteHeader() {
             />
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
-              <Button variant="ghost" className="text-[#b0b0b0] hover:text-white" asChild>
+              <Button
+                variant="ghost"
+                className="glass-hover-orange text-[#b0b0b0] hover:text-white"
+                asChild
+              >
                 <Link href="/login">Войти</Link>
               </Button>
               <Button asChild className="bg-gradient-primary shadow-glow-primary">
