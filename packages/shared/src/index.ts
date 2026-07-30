@@ -2,6 +2,7 @@ export * from './api';
 export * from './auth';
 export * from './chat';
 export * from './comments';
+export * from './custom-position';
 export * from './friends';
 export * from './notifications';
 export * from './position';

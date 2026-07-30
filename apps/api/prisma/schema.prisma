@@ -100,6 +100,7 @@ model User {
   notifyOnOrder            Boolean       @default(true)
 
   position               Position             @relation(fields: [positionId], references: [id])
+  customPosition         UserCustomPosition?
   refreshTokens          RefreshToken[]
   passwordResetTokens    PasswordResetToken[]
   promoCodeUsages        PromoCodeUsage[]
@@ -1205,4 +1206,37 @@ model ChatBan {
 
   @@index([userId, isActive])
   @@map("chat_bans")
+}
+
+/// Free-text staff title (e.g. "Технический директор"), separate from Position
+model CustomPosition {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  color       String?
+  icon        String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users UserCustomPosition[]
+
+  @@index([slug])
+  @@map("custom_positions")
+}
+
+model UserCustomPosition {
+  id               String         @id @default(cuid())
+  userId           String         @unique
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customPositionId String
+  customPosition   CustomPosition @relation(fields: [customPositionId], references: [id], onDelete: Cascade)
+  assignedBy       String?
+  assignedAt       DateTime       @default(now())
+
+  @@index([userId])
+  @@index([customPositionId])
+  @@map("user_custom_positions")
 }

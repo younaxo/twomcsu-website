@@ -1,4 +1,5 @@
 import type { Position } from './position';
+import type { UserCustomPositionView } from './custom-position';
 
 export const Gender = {
   MALE: 'MALE',
@@ -233,6 +234,7 @@ export interface MyProfile extends PrivacySettings {
   email: string;
   username: string;
   position: Position;
+  customPosition: UserCustomPositionView | null;
   avatar: string | null;
   banner: string | null;
   bannerPreset: string | null;
@@ -265,6 +267,7 @@ export interface UserProfile {
   avatar: string | null;
   bannerUrl: string | null;
   position: Position;
+  customPosition: UserCustomPositionView | null;
   createdAt: string;
   lastLoginAt: string | null;
   statusText: string | null;
