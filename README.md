@@ -448,8 +448,8 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | Зона | URL | Доступ | Содержание |
 | --- | --- | --- | --- |
 | Дашборд | `/dashboard/*` | ADMIN+ | Обзор, настройки сайта, объявления, audit log, статистика магазина/заказов, лояльность, валюты |
-| Админ | `/admin/*` | ADMIN+ | Префиксы, должности, отделы, темы, бейджи, награды, серверы, каталог, промокоды, заказы, рассылка |
-| Модерация | `/moderation/*` | HELPER+ | Жалобы, медиа заявки, модерация чата |
+| Админ | `/admin/*` | ADMIN+ | Префиксы, должности, отделы, темы, донат-обращения, бейджи, награды, серверы, каталог, промокоды, заказы, рассылка |
+| Модерация | `/moderation/*` | HELPER+ | Обращения, жалобы, медиа заявки, модерация чата |
 
 Старые URL вроде `/admin/dashboard`, `/admin/media-requests`, `/admin/chat/*` редиректят на новые.
 
@@ -488,9 +488,32 @@ UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settin
 (категории Основное/Сообщество, снизу Чат, Корзина и выбор валюты).
 Утилиты `.glass-heavy` / `.glass-medium` / `.glass-light` / `.glass-strong`.
 Профиль: статистика «Рубинов» (поле `coins` в БД), короткие ID/тег, бейджи после ника.
-Обращения (`/support`) и связанные страницы — заглушка «В разработке».
 Уведомления: glass-карточки, свайп влево — прочитать, вправо — удалить.
 Техработы / модули / объявления: `/system/status`, админ-страницы в `/admin/settings/*`.
+
+## Обращения и поддержка
+
+Система обращений с типами: жалоба на игрока/админа, обжалование, техника, донат, другое.
+Номер формата `10R-xxxxx`. Лимит 3 обращения в сутки. Правила берутся из Topics (`category=RULES`).
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /reports` | авторизованный | Мои обращения (+ назначенные модератору) |
+| `GET /reports/:reportNumber` | автор / staff | Детали |
+| `POST /reports` | авторизованный | Создать обращение |
+| `POST /reports/:reportNumber/messages` | автор / staff | Сообщение в переписке |
+| `POST /reports/:reportNumber/attachments` | автор / staff | Загрузка файла |
+| `GET /reports/rules?type=` | публичный | Правила из Topics |
+| `GET /moderation/reports` | HELPER+ | Очередь модерации (по уровню типа) |
+| `PATCH /moderation/reports/:n/assign\|status\|verdict` | staff | Назначение / статус / вердикт |
+| `POST /moderation/reports/:n/punish\|lock` | MOD+/ADMIN+ | Наказание / блокировка |
+| `GET /admin/reports/stats` | ADMIN+ | Статистика |
+| `POST/DELETE /admin/reports/ban/:userId` | ADMIN+ | Бан на создание обращений |
+| `POST /support/donation-problem` | авторизованный | Проблема с донатом → OWNER |
+| `GET /admin/support/donations` | OWNER | Список донат-обращений |
+
+Страницы: `/report`, `/report/new`, `/report/new/*`, `/report/[reportNumber]`, `/support`,
+`/moderation/reports`, `/admin/support/donations`.
 
 ## Performance
 
