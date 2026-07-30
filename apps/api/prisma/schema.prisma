@@ -154,6 +154,12 @@ model User {
   punishments       UserPunishment[] @relation("PunishedUser")
   issuedPunishments UserPunishment[] @relation("Punisher")
 
+  authoredNews          News[]
+  newsComments          NewsComment[]
+  newsCommentReactions  NewsCommentReaction[]
+  newsLikes             NewsLike[]
+  newsViews             NewsView[]
+
   @@index([email])
   @@index([username])
   @@index([tag])
@@ -919,6 +925,8 @@ enum NotificationType {
   GIFT_RECEIVED
   ORDER_STATUS_CHANGED
   CHAT_MENTION
+  NEWS_PUBLISHED
+  NEWS_COMMENT_REPLY
   SYSTEM
 }
 
