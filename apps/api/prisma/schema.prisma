@@ -1737,3 +1737,18 @@ model NewsLike {
   @@index([newsId])
   @@map("news_likes")
 }
+
+model NewsView {
+  id        String   @id @default(cuid())
+  newsId    String
+  news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  ipAddress String?
+  userAgent String?
+  viewedAt  DateTime @default(now())
+
+  @@index([newsId, viewedAt])
+  @@index([userId])
+  @@map("news_views")
+}
