@@ -21,6 +21,15 @@ const selectUserCustomPosition = {
   },
 } as const;
 
+const selectUserDepartments = {
+  orderBy: { order: 'asc' as const },
+  include: {
+    department: {
+      select: { id: true, name: true, slug: true, color: true, icon: true },
+    },
+  },
+} as const;
+
 /** Compact user card for lists (friends, search, assign dialog) */
 export const selectMinimalUser = {
   id: true,
@@ -31,6 +40,7 @@ export const selectMinimalUser = {
   roleGroup: true,
   position: { select: selectPublicPosition },
   customPosition: selectUserCustomPosition,
+  departments: selectUserDepartments,
   badges: {
     where: { isActive: true },
     orderBy: { grantedAt: 'asc' as const },
@@ -60,6 +70,7 @@ export const selectAuthUser = {
   createdAt: true,
   position: { select: selectPublicPosition },
   customPosition: selectUserCustomPosition,
+  departments: selectUserDepartments,
   badges: {
     where: { isActive: true },
     orderBy: { grantedAt: 'asc' as const },
@@ -123,6 +134,7 @@ export const selectFullProfile = {
   positionId: true,
   position: { select: selectPublicPosition },
   customPosition: selectUserCustomPosition,
+  departments: selectUserDepartments,
   badges: {
     where: { isActive: true },
     orderBy: { grantedAt: 'asc' as const },

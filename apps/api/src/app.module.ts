@@ -9,6 +9,7 @@ import { validateEnv } from './config/env.validation';
 import { AuthModule } from './modules/auth/auth.module';
 import { AwardsModule } from './modules/awards/awards.module';
 import { CustomPositionsModule } from './modules/custom-positions/custom-positions.module';
+import { DepartmentsModule } from './modules/departments/departments.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommentsModule } from './modules/comments/comments.module';
@@ -22,6 +23,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { StoreModule } from './modules/store/store.module';
 import { SystemModule } from './modules/system/system.module';
+import { TopicsModule } from './modules/topics/topics.module';
 import { MaintenanceMiddleware } from './modules/system/maintenance.middleware';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
@@ -48,6 +50,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     AwardsModule,
     CustomPositionsModule,
+    DepartmentsModule,
     FriendsModule,
     CommentsModule,
     NotificationsModule,
@@ -56,6 +59,7 @@ import { UsersModule } from './modules/users/users.module';
     AdminModule,
     ChatModule,
     SystemModule,
+    TopicsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

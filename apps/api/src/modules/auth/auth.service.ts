@@ -29,7 +29,7 @@ import { generateUserTag } from '../../common/user-identifier';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { toPublicPosition } from '../positions/position.mapper';
-import { toCustomPositionView } from '../users/profile.mapper';
+import { toCustomPositionView, toUserDepartments } from '../users/profile.mapper';
 import { PositionsService } from '../positions/positions.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -389,6 +389,7 @@ export class AuthService {
       position: toPublicPosition(user.position),
       customPosition:
         'customPosition' in user ? toCustomPositionView(user.customPosition) : null,
+      departments: 'departments' in user ? toUserDepartments(user.departments) : undefined,
       avatar: user.avatar,
       isVerified: user.isVerified,
       isBanned: user.isBanned,

@@ -19,9 +19,11 @@ import {
   UserAward,
   UserBadge,
   UserCustomPositionView,
+  UserDepartmentView,
   UserProfile,
 } from '@twomc/shared';
 import { FullProfileRow } from '../../common/prisma/user-selects';
+import { toUserDepartmentView } from '../departments/department.mapper';
 import { toPublicPosition } from '../positions/position.mapper';
 
 /** Profile page payload — selected fields only, no password */
@@ -93,6 +95,12 @@ export function toStatistics(row: StatsRow): PlayerStatistics {
 
 type UserCustomPositionRow = NonNullable<ProfileUser['customPosition']>;
 
+export function toUserDepartments(
+  rows: ProfileUser['departments'] | undefined,
+): UserDepartmentView[] {
+  return (rows ?? []).map((row) => toUserDepartmentView(row));
+}
+
 export function toCustomPositionView(
   row: UserCustomPositionRow | null | undefined,
 ): UserCustomPositionView | null {
@@ -160,6 +168,7 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     username: user.username,
     position: toPublicPosition(user.position),
     customPosition: toCustomPositionView(user.customPosition),
+    departments: toUserDepartments(user.departments),
     avatar: user.avatar,
     banner: user.banner,
     bannerPreset: user.bannerPreset,
@@ -225,6 +234,7 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     bannerUrl: options.bannerUrl,
     position: toPublicPosition(user.position),
     customPosition: toCustomPositionView(user.customPosition),
+    departments: toUserDepartments(user.departments),
     createdAt: user.createdAt.toISOString(),
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
     statusText: user.statusText,
