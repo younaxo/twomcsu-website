@@ -16,7 +16,7 @@ import { seedChat } from './chat.data';
 import { seedCurrencyRates } from './currency-rates.data';
 import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
-import { seedReports } from './reports.data';
+import { seedPunishments, seedReports } from './reports.data';
 import { seedTopics, TOPIC_PLACEHOLDER_CONTENT } from './topics.data';
 import { seedBundles } from './store-bundles.data';
 import { seedCategories } from './store-categories.data';
@@ -910,12 +910,63 @@ async function main() {
   }
 
   await seedProfileComments(userIds);
-  await seedTestReports(userIds);
+  const punishmentIds = await seedTestPunishments(userIds);
+  await seedTestReports(userIds, punishmentIds);
   await seedChat(prisma);
 }
 
+/** Idempotent demo punishments for appeal testing */
+async function seedTestPunishments(userIds: Map<string, string>) {
+  const ids = new Map<string, string>();
+  let created = 0;
+
+  for (const item of seedPunishments) {
+    const userId = userIds.get(item.username);
+    const issuedBy = userIds.get(item.issuedByUsername);
+    if (!userId || !issuedBy) continue;
+
+    const existing = await prisma.userPunishment.findFirst({
+      where: {
+        userId,
+        punishmentType: item.punishmentType,
+        reason: item.reason,
+        issuedAt: item.issuedAt,
+      },
+      select: { id: true },
+    });
+
+    if (existing) {
+      ids.set(item.key, existing.id);
+      continue;
+    }
+
+    const row = await prisma.userPunishment.create({
+      data: {
+        userId,
+        punishmentType: item.punishmentType,
+        reason: item.reason,
+        duration: item.duration ?? null,
+        server: item.server ?? null,
+        issuedBy,
+        issuedAt: item.issuedAt,
+        expiresAt: item.expiresAt ?? null,
+        isActive: item.isActive,
+        isAppealable: item.isAppealable,
+      },
+    });
+    ids.set(item.key, row.id);
+    created += 1;
+  }
+
+  console.log(`punishments: ${created} created (${seedPunishments.length} defined)`);
+  return ids;
+}
+
 /** Idempotent demo support reports for local testing */
-async function seedTestReports(userIds: Map<string, string>) {
+async function seedTestReports(
+  userIds: Map<string, string>,
+  punishmentIds: Map<string, string>,
+) {
   let created = 0;
 
   for (const report of seedReports) {
@@ -924,11 +975,11 @@ async function seedTestReports(userIds: Map<string, string>) {
       continue;
     }
 
-    const targetUserId = report.targetUsername
-      ? userIds.get(report.targetUsername) ?? null
-      : null;
     const assignedToId = report.assignedToUsername
       ? userIds.get(report.assignedToUsername) ?? null
+      : null;
+    const appealedPunishmentId = report.appealedPunishmentKey
+      ? punishmentIds.get(report.appealedPunishmentKey) ?? null
       : null;
 
     const existing = await prisma.report.findUnique({
@@ -946,15 +997,33 @@ async function seedTestReports(userIds: Map<string, string>) {
         type: report.type,
         status: report.status,
         authorId,
-        targetUsername: report.targetUsername ?? null,
-        targetUserId,
         server: report.server ?? null,
         incidentDate: report.incidentDate ?? null,
         description: report.description,
         descriptionHtml: report.descriptionHtml,
-        evidenceLinks: report.evidenceLinks,
+        additionalText: report.additionalText ?? null,
         assignedToId,
+        appealedPunishmentId,
         resolvedAt: report.status === 'RESOLVED' ? new Date() : null,
+        targets: report.targets?.length
+          ? {
+              create: report.targets.map((target) => ({
+                username: target.username,
+                userId: userIds.get(target.username) ?? null,
+                order: target.order ?? 0,
+              })),
+            }
+          : undefined,
+        evidenceLinks: report.evidenceLinks?.length
+          ? {
+              create: report.evidenceLinks.map((link) => ({
+                url: link.url,
+                title: link.title ?? null,
+                type: link.type ?? null,
+                order: link.order ?? 0,
+              })),
+            }
+          : undefined,
       },
     });
     created += 1;
