@@ -32,7 +32,6 @@ import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { DepartmentBadgesList } from '@/components/shared/DepartmentBadgesList';
-import { PositionBadge } from '@/components/shared/PositionBadge';
 import { CommentsList } from '@/components/comments/CommentsList';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
@@ -193,51 +192,61 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                 </div>
               </div>
 
-              <div className="space-y-2 pb-1">
+              <div className="space-y-1.5 pb-1">
                 <ColoredUsername
                   user={profile}
                   size="lg"
                   linkToProfile={false}
                   badges={profile.badges}
+                  maxBadges={3}
                 />
                 {profile.customPosition ? (
                   <p
-                    className="text-sm italic"
-                    style={{ color: profile.customPosition.color ?? undefined }}
+                    className="text-sm italic leading-snug"
+                    style={{ color: profile.customPosition.color ?? '#F57C00' }}
                   >
                     {profile.customPosition.name}
                   </p>
                 ) : null}
-                {profile.statusText ? (
-                  <p className="max-w-xl text-sm italic text-muted-foreground">{profile.statusText}</p>
+                <p
+                  className="text-[13px] font-medium leading-snug"
+                  style={{ color: profile.position.color }}
+                >
+                  {profile.position.displayName}
+                </p>
+                <DepartmentBadgesList departments={profile.departments ?? []} />
+                {profile.mediaBadges.length > 0 ? (
+                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                    {profile.mediaBadges.map((badge) => (
+                      <Tooltip key={badge.mediaGroup}>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={badge.channelUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="cursor-pointer text-muted-foreground hover:text-foreground"
+                          >
+                            {badge.mediaGroup === 'YOUTUBE' ? (
+                              <Video className="h-4 w-4" />
+                            ) : badge.mediaGroup === 'TWITCH' ? (
+                              <Tv className="h-4 w-4" />
+                            ) : (
+                              <span className="text-xs font-medium">
+                                {mediaGroupLabels[badge.mediaGroup]}
+                              </span>
+                            )}
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>{mediaGroupLabels[badge.mediaGroup]}</TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </div>
                 ) : null}
-                <div className="flex flex-wrap items-center gap-2">
-                  <PositionBadge position={profile.position} size="md" />
-                  <DepartmentBadgesList departments={profile.departments ?? []} />
-                  {profile.mediaBadges.map((badge) => (
-                    <Tooltip key={badge.mediaGroup}>
-                      <TooltipTrigger asChild>
-                        <a
-                          href={badge.channelUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="cursor-pointer text-muted-foreground hover:text-foreground"
-                        >
-                          {badge.mediaGroup === 'YOUTUBE' ? (
-                            <Video className="h-4 w-4" />
-                          ) : badge.mediaGroup === 'TWITCH' ? (
-                            <Tv className="h-4 w-4" />
-                          ) : (
-                            <span className="text-xs font-medium">
-                              {mediaGroupLabels[badge.mediaGroup]}
-                            </span>
-                          )}
-                        </a>
-                      </TooltipTrigger>
-                      <TooltipContent>{mediaGroupLabels[badge.mediaGroup]}</TooltipContent>
-                    </Tooltip>
-                  ))}
-                </div>
+                {profile.statusText ? (
+                  <p className="max-w-xl text-sm italic text-muted-foreground">
+                    {profile.statusText}
+                  </p>
+                ) : null}
                 <p className="text-sm text-muted-foreground">
                   {profile.isOnlineInGame && profile.currentServer ? (
                     <>
