@@ -1710,3 +1710,17 @@ model NewsComment {
   @@index([parentId])
   @@map("news_comments")
 }
+
+model NewsCommentReaction {
+  id        String      @id @default(cuid())
+  commentId String
+  comment   NewsComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  emoji     String
+  createdAt DateTime    @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@map("news_comment_reactions")
+}
