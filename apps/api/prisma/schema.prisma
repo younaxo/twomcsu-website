@@ -145,6 +145,9 @@ model User {
   chatMutes        ChatMute[]
   chatBans         ChatBan[]
 
+  authoredReports Report[] @relation("ReportAuthor")
+  assignedReports Report[] @relation("ReportAssignee")
+
   @@index([email])
   @@index([username])
   @@index([tag])
@@ -1361,4 +1364,53 @@ model TopicAttachment {
 
   @@index([topicId])
   @@map("topic_attachments")
+}
+
+model Report {
+  id              String       @id @default(cuid())
+  reportNumber    String       @unique
+  type            ReportType
+  status          ReportStatus @default(PENDING)
+
+  authorId        String
+  author          User         @relation("ReportAuthor", fields: [authorId], references: [id])
+
+  targetUsername  String?
+  targetUserId    String?
+
+  server          String?
+  incidentDate    DateTime?
+  description     String       @db.Text
+  descriptionHtml String?      @db.Text
+  evidenceLinks   String[]
+
+  contactEmail    String?
+  contactPhone    String?
+  paymentDate     DateTime?
+  additionalText  String?      @db.Text
+
+  assignedToId    String?
+  assignedTo      User?        @relation("ReportAssignee", fields: [assignedToId], references: [id])
+  verdict         String?      @db.Text
+  verdictHtml     String?      @db.Text
+  internalNote    String?      @db.Text
+
+  punishmentType     PunishmentType?
+  punishmentDuration String?
+  punishmentReason   String?
+
+  isLocked        Boolean      @default(false)
+  lockedBy        String?
+  lockedReason    String?
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  resolvedAt      DateTime?
+
+  @@index([authorId])
+  @@index([type, status])
+  @@index([reportNumber])
+  @@index([status])
+  @@index([assignedToId])
+  @@map("reports")
 }
