@@ -5,26 +5,27 @@ import {
   REPORT_TYPE_LABELS,
   canReviewReportType,
 } from '@twomc/shared';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { FileText, Gavel, Users } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowLeft, CheckCircle2, Gavel, Users, XCircle } from 'lucide-react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
-import { EvidenceLinks } from '@/components/reports/EvidenceLinks';
 import { ReportMessageInput } from '@/components/reports/ReportMessageInput';
 import { ReportMessagesList } from '@/components/reports/ReportMessagesList';
+import { ReportModeratorNotes } from '@/components/reports/ReportModeratorNotes';
 import { ReportModerationActions } from '@/components/reports/ReportModerationActions';
+import { ReportNumberBadge } from '@/components/reports/ReportNumberBadge';
 import { ReportStatusBadge } from '@/components/reports/ReportStatusBadge';
-import { ReportTimeline } from '@/components/reports/ReportTimeline';
 import { ReportTypeIcon } from '@/components/reports/ReportTypeIcon';
 import { TargetChip } from '@/components/reports/TargetChip';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/hooks/reports/useReports';
-import { resolveMediaUrl } from '@/lib/profile';
+import { cn } from '@/lib/utils';
 
 export default function ReportDetailsPage() {
   const params = useParams<{ reportNumber: string }>();
@@ -67,51 +68,109 @@ export default function ReportDetailsPage() {
           ]
         : [];
 
-  return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
-      <header className="space-y-4 rounded-2xl glass-strong p-5 md:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
-            <p className="font-mono text-2xl font-semibold text-[#F57C00]">{data.reportNumber}</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <ReportTypeIcon type={data.type} showLabel />
-              <ReportStatusBadge status={data.status} />
-              <span className="text-sm text-muted-foreground">
-                {format(new Date(data.createdAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
-                {' · '}
-                {formatDistanceToNow(new Date(data.createdAt), { addSuffix: true, locale: ru })}
-              </span>
-            </div>
-            <p className="text-sm text-neutral-400">{REPORT_TYPE_LABELS[data.type]}</p>
-          </div>
-          {isModerator ? (
-            <ReportModerationActions report={data} roleGroup={user.roleGroup} />
-          ) : null}
-        </div>
+  const backHref = isModerator ? '/moderation/reports' : '/report';
+  const isRejected = data.status === 'REJECTED';
+  const hasVerdict = Boolean(data.verdict);
 
-        <div className="flex flex-wrap gap-6 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">Автор:</span>
-            <AvatarWithSkin user={data.author} size="sm" />
-            <ColoredUsername user={data.author} size="sm" />
+  // Original description as first timeline entry, then thread replies
+  const threadMessages = [
+    {
+      id: `desc-${data.id}`,
+      content: data.description,
+      contentHtml: data.descriptionHtml,
+      isStaff: false,
+      isSystem: false,
+      isDeleted: false,
+      isPinned: false,
+      pinnedAt: null,
+      createdAt: data.createdAt,
+      author: data.author,
+    },
+    ...data.messages,
+  ];
+
+  return (
+    <div className="mx-auto max-w-6xl space-y-5 px-4 pb-10 pt-4">
+      <header className="sticky top-16 z-20 -mx-4 border-b border-white/5 glass-strong px-4 py-3 md:mx-0 md:rounded-2xl md:border">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" asChild className="shrink-0">
+            <Link href={backHref}>
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              Назад
+            </Link>
+          </Button>
+          <div className="flex flex-1 justify-center">
+            <ReportNumberBadge
+              reportNumber={data.reportNumber}
+              className="text-base font-semibold"
+            />
           </div>
-          {data.assignedTo ? (
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Модератор:</span>
-              <AvatarWithSkin user={data.assignedTo} size="sm" />
-              <ColoredUsername user={data.assignedTo} size="sm" />
-            </div>
-          ) : null}
+          <ReportStatusBadge status={data.status} className="shrink-0" />
         </div>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
-        <div className="space-y-4">
+      <div className={cn('grid gap-5', isModerator && 'lg:grid-cols-[1fr_260px]')}>
+        <div className="space-y-5">
+          <section className="rounded-2xl glass-medium p-5">
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <ReportTypeIcon type={data.type} size="xl" />
+              <div>
+                <h1 className="text-xl font-semibold text-white">{REPORT_TYPE_LABELS[data.type]}</h1>
+                <p className="text-sm text-muted-foreground">Основная информация</p>
+              </div>
+            </div>
+
+            <dl className="grid gap-3 text-sm sm:grid-cols-2">
+              <div className="flex items-center gap-2 sm:col-span-2">
+                <dt className="text-muted-foreground">Автор:</dt>
+                <dd className="flex items-center gap-2">
+                  <AvatarWithSkin user={data.author} size="sm" />
+                  <ColoredUsername user={data.author} size="sm" />
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Создано</dt>
+                <dd className="text-white">
+                  {format(new Date(data.createdAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Обновлено</dt>
+                <dd className="text-white">
+                  {format(new Date(data.updatedAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                </dd>
+              </div>
+              {data.incidentDate ? (
+                <div>
+                  <dt className="text-muted-foreground">Инцидент</dt>
+                  <dd className="text-white">
+                    {format(new Date(data.incidentDate), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                  </dd>
+                </div>
+              ) : null}
+              {data.server ? (
+                <div>
+                  <dt className="text-muted-foreground">Сервер</dt>
+                  <dd className="text-white">{data.server}</dd>
+                </div>
+              ) : null}
+              {data.assignedTo ? (
+                <div className="flex items-center gap-2 sm:col-span-2">
+                  <dt className="text-muted-foreground">Модератор:</dt>
+                  <dd className="flex items-center gap-2">
+                    <AvatarWithSkin user={data.assignedTo} size="sm" />
+                    <ColoredUsername user={data.assignedTo} size="sm" />
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+          </section>
+
           {targets.length > 0 ? (
             <section className="rounded-2xl glass-medium p-5">
               <h2 className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Users className="h-4 w-4" />
-                Участники обращения
+                Обвиняемые
               </h2>
               <div className="flex flex-wrap gap-2">
                 {targets.map((target) => (
@@ -140,133 +199,83 @@ export default function ReportDetailsPage() {
                     <dd className="text-white">{data.appealedPunishment.duration}</dd>
                   </div>
                 ) : null}
-                {data.appealedPunishment.server ? (
-                  <div>
-                    <dt className="text-muted-foreground">Сервер</dt>
-                    <dd className="text-white">{data.appealedPunishment.server}</dd>
-                  </div>
-                ) : null}
                 <div className="sm:col-span-2">
                   <dt className="text-muted-foreground">Причина</dt>
                   <dd className="whitespace-pre-wrap text-white">{data.appealedPunishment.reason}</dd>
-                </div>
-                {data.appealedPunishment.issuedByUser ? (
-                  <div>
-                    <dt className="text-muted-foreground">Выдал</dt>
-                    <dd>
-                      <ColoredUsername user={data.appealedPunishment.issuedByUser} size="sm" />
-                    </dd>
-                  </div>
-                ) : null}
-                <div>
-                  <dt className="text-muted-foreground">Дата</dt>
-                  <dd className="text-white">
-                    {format(new Date(data.appealedPunishment.issuedAt), 'dd.MM.yyyy HH:mm', {
-                      locale: ru,
-                    })}
-                  </dd>
                 </div>
               </dl>
             </section>
           ) : null}
 
-          <section className="rounded-2xl glass-medium p-5">
-            <h2 className="mb-3 text-sm font-medium text-muted-foreground">Описание</h2>
-            {data.descriptionHtml ? (
-              <div
-                className="prose prose-invert max-w-none text-sm"
-                dangerouslySetInnerHTML={{ __html: data.descriptionHtml }}
-              />
-            ) : (
-              <p className="whitespace-pre-wrap text-sm text-neutral-200">{data.description}</p>
-            )}
+          <section className="space-y-4 rounded-2xl glass-medium p-5">
+            <h2 className="text-lg font-medium text-white">Переписка</h2>
+            <ReportMessagesList
+              messages={threadMessages}
+              reportNumber={data.reportNumber}
+              currentUserId={user.id}
+              roleGroup={user.roleGroup}
+              authorId={data.author.id}
+              evidenceLinks={data.evidenceLinks}
+              attachments={data.attachments}
+            />
+
+            {hasVerdict ? (
+              <article
+                className={cn(
+                  'rounded-2xl glass-strong p-5 animate-in fade-in duration-500',
+                  isRejected
+                    ? 'border border-red-500/40'
+                    : 'border border-emerald-500/40',
+                )}
+              >
+                <div className="mb-3 flex items-center gap-2">
+                  {isRejected ? (
+                    <XCircle className="h-6 w-6 text-red-400" />
+                  ) : (
+                    <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                  )}
+                  <h3 className="text-lg font-semibold text-white">Вердикт по обращению</h3>
+                </div>
+                {data.verdictHtml ? (
+                  <div
+                    className="prose prose-invert max-w-none text-sm"
+                    dangerouslySetInnerHTML={{ __html: data.verdictHtml }}
+                  />
+                ) : (
+                  <p className="whitespace-pre-wrap text-sm text-neutral-100">{data.verdict}</p>
+                )}
+                {data.resolvedAt ? (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    {format(new Date(data.resolvedAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
+                  </p>
+                ) : null}
+              </article>
+            ) : null}
+
+            <ReportMessageInput reportNumber={data.reportNumber} isLocked={data.isLocked} />
           </section>
 
-          {data.additionalText ? (
-            <section className="rounded-2xl glass-medium p-5">
-              <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-                Дополнительная информация
-              </h2>
-              <p className="whitespace-pre-wrap text-sm text-neutral-200">{data.additionalText}</p>
-            </section>
-          ) : null}
-
-          {data.evidenceLinks.length > 0 ? (
-            <section className="rounded-2xl glass-medium p-5">
-              <h2 className="mb-3 text-sm font-medium text-muted-foreground">Доказательства</h2>
-              <EvidenceLinks links={data.evidenceLinks} />
-            </section>
-          ) : null}
-
-          {data.attachments.length > 0 ? (
-            <section className="rounded-2xl glass-medium p-5">
-              <h2 className="mb-3 text-sm font-medium text-muted-foreground">Файлы</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {data.attachments.map((file) => {
-                  const url = resolveMediaUrl(file.fileUrl) ?? file.fileUrl;
-                  const isImage = file.mimeType.startsWith('image/');
-                  return (
-                    <a
-                      key={file.id}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 rounded-xl glass-light p-3 hover:bg-white/10"
-                    >
-                      {isImage ? (
-                        <Image
-                          src={url}
-                          alt={file.fileName}
-                          width={48}
-                          height={48}
-                          className="h-12 w-12 rounded object-cover"
-                          unoptimized
-                        />
-                      ) : (
-                        <FileText className="h-10 w-10 text-red-400" />
-                      )}
-                      <div className="min-w-0">
-                        <p className="truncate text-sm text-white">{file.fileName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {(file.fileSize / 1024).toFixed(0)} КБ
-                        </p>
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
-            </section>
-          ) : null}
-
-          {data.verdict ? (
-            <section className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5">
-              <h2 className="mb-3 text-sm font-medium text-emerald-300">Вердикт</h2>
-              {data.verdictHtml ? (
-                <div
-                  className="prose prose-invert max-w-none text-sm"
-                  dangerouslySetInnerHTML={{ __html: data.verdictHtml }}
-                />
-              ) : (
-                <p className="whitespace-pre-wrap text-sm">{data.verdict}</p>
-              )}
-            </section>
+          {isModerator ? (
+            <ReportModeratorNotes
+              reportNumber={data.reportNumber}
+              notes={data.moderatorNotes ?? []}
+              currentUserId={user.id}
+              roleGroup={user.roleGroup}
+            />
           ) : null}
         </div>
 
-        <aside className="rounded-2xl glass-medium p-5">
-          <ReportTimeline report={data} />
-        </aside>
+        {isModerator ? (
+          <aside className="h-fit space-y-3 lg:sticky lg:top-36">
+            <div className="rounded-2xl glass-medium p-4">
+              <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Действия
+              </p>
+              <ReportModerationActions report={data} roleGroup={user.roleGroup} />
+            </div>
+          </aside>
+        ) : null}
       </div>
-
-      <section className="space-y-4 rounded-2xl glass-medium p-5">
-        <h2 className="text-lg font-medium text-white">Переписка</h2>
-        <ReportMessagesList messages={data.messages} />
-        <ReportMessageInput
-          reportNumber={data.reportNumber}
-          isLocked={data.isLocked}
-          canInternal={isModerator}
-        />
-      </section>
     </div>
   );
 }

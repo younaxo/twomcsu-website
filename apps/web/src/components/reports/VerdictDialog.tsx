@@ -19,10 +19,12 @@ export function VerdictDialog({
   reportNumber,
   open,
   onOpenChange,
+  onStatusReminder,
 }: {
   reportNumber: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onStatusReminder?: () => void;
 }) {
   const setVerdict = useSetVerdict();
   const [verdict, setVerdictText] = useState('');
@@ -34,9 +36,18 @@ export function VerdictDialog({
     }
     try {
       await setVerdict.mutateAsync({ reportNumber, verdict: verdict.trim() });
-      toast.success('Вердикт вынесен');
       onOpenChange(false);
       setVerdictText('');
+      toast.success('Вердикт вынесен', {
+        description: 'Не забудьте изменить статус обращения',
+        action: onStatusReminder
+          ? {
+              label: 'Изменить статус',
+              onClick: () => onStatusReminder(),
+            }
+          : undefined,
+        duration: 8000,
+      });
     } catch (error) {
       toast.error(extractErrorMessage(error, 'Не удалось сохранить вердикт'));
     }
@@ -56,6 +67,9 @@ export function VerdictDialog({
             rows={5}
             placeholder="Опишите решение по обращению..."
           />
+          <p className="text-xs text-muted-foreground">
+            Вердикт не меняет статус автоматически — измените его отдельно.
+          </p>
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
@@ -64,7 +78,7 @@ export function VerdictDialog({
           <Button
             onClick={() => void submit()}
             disabled={setVerdict.isPending}
-            className="bg-[#F57C00] text-black hover:bg-[#F57C00]/90"
+            className="bg-[#F57C00] text-black hover:bg-[#E65100]"
           >
             Сохранить
           </Button>
