@@ -22,6 +22,7 @@ import {
   PlayerStatistics,
   ProfileReactionSummary,
   ProfileReport,
+  MAX_USER_BADGES,
   RoleGroup,
   SocialLink,
   SuccessResponse,
@@ -315,28 +316,36 @@ export class UsersService {
   async grantBadge(userId: string, dto: GrantBadgeDto, grantedBy: string): Promise<UserBadge> {
     await this.requireUserExists(userId);
 
-    try {
-      const row = await this.prisma.userBadge.upsert({
-        where: { userId_type: { userId, type: dto.type } },
-        create: {
-          userId,
-          type: dto.type,
-          grantedBy,
-          expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
-          isActive: true,
-        },
-        update: {
-          grantedBy,
-          grantedAt: new Date(),
-          expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
-          isActive: true,
-        },
-      });
+    const existing = await this.prisma.userBadge.findUnique({
+      where: { userId_type: { userId, type: dto.type } },
+    });
 
-      return toUserBadge(row);
-    } catch (error) {
-      throw error;
+    const activeCount = await this.prisma.userBadge.count({
+      where: { userId, isActive: true },
+    });
+
+    if (existing?.isActive !== true && activeCount >= MAX_USER_BADGES) {
+      throw new BadRequestException('Максимум 3 префикса на игрока');
     }
+
+    const row = await this.prisma.userBadge.upsert({
+      where: { userId_type: { userId, type: dto.type } },
+      create: {
+        userId,
+        type: dto.type,
+        grantedBy,
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+        isActive: true,
+      },
+      update: {
+        grantedBy,
+        grantedAt: new Date(),
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+        isActive: true,
+      },
+    });
+
+    return toUserBadge(row);
   }
 
   async revokeBadge(userId: string, type: string): Promise<void> {
