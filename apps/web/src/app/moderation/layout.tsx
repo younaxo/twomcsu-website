@@ -9,6 +9,7 @@ const moderationLinks = [
   { href: '/moderation/reports', label: 'Обращения' },
   { href: '/moderation/profile-reports', label: 'Жалобы на профили' },
   { href: '/moderation/comment-reports', label: 'Жалобы на комментарии' },
+  { href: '/moderation/news-comments', label: 'Комментарии новостей' },
   { href: '/moderation/media-requests', label: 'Медиа заявки' },
   { href: '/moderation/chat/channels', label: 'Чат: каналы' },
   { href: '/moderation/chat/mutes', label: 'Чат: муты' },
