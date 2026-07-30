@@ -98,6 +98,17 @@ export function canReviewReportType(roleGroup: RoleGroup, type: ReportType): boo
   return hasRoleGroup(roleGroup, minRoleForReportType(type));
 }
 
+export function detectEvidenceLinkType(
+  url: string,
+): 'youtube' | 'twitch' | 'imgur' | 'google_drive' | 'other' {
+  const lower = url.toLowerCase();
+  if (lower.includes('youtube.com') || lower.includes('youtu.be')) return 'youtube';
+  if (lower.includes('twitch.tv')) return 'twitch';
+  if (lower.includes('imgur.com')) return 'imgur';
+  if (lower.includes('drive.google.com')) return 'google_drive';
+  return 'other';
+}
+
 export interface ReportUserSummary {
   id: string;
   shortId: number;
@@ -106,6 +117,24 @@ export interface ReportUserSummary {
   avatar: string | null;
   roleGroup: RoleGroup;
   position: Position;
+}
+
+export interface ReportTarget {
+  id: string;
+  username: string;
+  userId: string | null;
+  user: ReportUserSummary | null;
+  order: number;
+  createdAt: string;
+}
+
+export interface ReportEvidenceLink {
+  id: string;
+  url: string;
+  title: string | null;
+  type: string | null;
+  order: number;
+  createdAt: string;
 }
 
 export interface ReportAttachment {
@@ -129,14 +158,29 @@ export interface ReportMessage {
   author: ReportUserSummary;
 }
 
+export interface UserPunishmentSummary {
+  id: string;
+  punishmentType: PunishmentType;
+  reason: string;
+  duration: string | null;
+  server: string | null;
+  issuedAt: string;
+  expiresAt: string | null;
+  isActive: boolean;
+  isAppealable: boolean;
+  issuedByUser: ReportUserSummary | null;
+}
+
 export interface ReportSummary {
   id: string;
   reportNumber: string;
   type: ReportType;
   status: ReportStatus;
   author: ReportUserSummary;
+  /** @deprecated use targets — kept for list preview of first nickname */
   targetUsername: string | null;
   targetUserId: string | null;
+  targets: ReportTarget[];
   server: string | null;
   incidentDate: string | null;
   assignedTo: ReportUserSummary | null;
@@ -150,7 +194,7 @@ export interface ReportSummary {
 export interface ReportDetails extends ReportSummary {
   description: string;
   descriptionHtml: string | null;
-  evidenceLinks: string[];
+  evidenceLinks: ReportEvidenceLink[];
   contactEmail: string | null;
   contactPhone: string | null;
   paymentDate: string | null;
@@ -160,6 +204,8 @@ export interface ReportDetails extends ReportSummary {
   punishmentType: PunishmentType | null;
   punishmentDuration: string | null;
   punishmentReason: string | null;
+  appealedPunishmentId: string | null;
+  appealedPunishment: UserPunishmentSummary | null;
   lockedBy: string | null;
   lockedReason: string | null;
   messages: ReportMessage[];
@@ -190,4 +236,10 @@ export interface ReportBanInfo {
   bannedUntil: string | null;
   isActive: boolean;
   createdAt: string;
+}
+
+export interface UserSearchHint {
+  id: string;
+  username: string;
+  exists: boolean;
 }
