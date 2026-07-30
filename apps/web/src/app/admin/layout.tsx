@@ -12,6 +12,7 @@ const adminLinks = [
   { href: '/admin/topics', label: 'Темы' },
   { href: '/admin/topics-internal', label: 'Внутренние' },
   { href: '/admin/support/donations', label: 'Донат-обращения' },
+  { href: '/admin/reports/archived', label: 'Архив обращений' },
   { href: '/admin/badges', label: 'Бейджи' },
   { href: '/admin/awards', label: 'Награды' },
   { href: '/admin/servers', label: 'Серверы' },
