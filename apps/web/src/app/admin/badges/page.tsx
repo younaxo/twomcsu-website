@@ -1,7 +1,7 @@
 'use client';
 
 import type { UserBadge, UserBadgeType, UserSearchResult } from '@twomc/shared';
-import { userBadgeTypeOrder } from '@twomc/shared';
+import { MAX_USER_BADGES, userBadgeTypeOrder } from '@twomc/shared';
 import { BadgeCheck } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -71,6 +71,9 @@ export default function AdminBadgesPage() {
       toast.error(extractErrorMessage(error, 'Не удалось снять бейдж'));
     }
   };
+
+  const hasBadgeType = badges.some((badge) => badge.type === type);
+  const atBadgeLimit = badges.length >= MAX_USER_BADGES && !hasBadgeType;
 
   const disableComments = async () => {
     if (!selected || !disableReason.trim()) {
@@ -150,22 +153,27 @@ export default function AdminBadgesPage() {
               ) : null}
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Select value={type} onValueChange={(value) => setType(value as UserBadgeType)}>
-                <SelectTrigger className="w-56">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {userBadgeTypeOrder.map((item) => (
-                    <SelectItem key={item} value={item}>
-                      {userBadgeLabels[item]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button type="button" onClick={() => void grant()}>
-                Выдать бейдж
-              </Button>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Максимум {MAX_USER_BADGES} активных бейджа на игрока
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Select value={type} onValueChange={(value) => setType(value as UserBadgeType)}>
+                  <SelectTrigger className="w-56">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {userBadgeTypeOrder.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {userBadgeLabels[item]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button type="button" disabled={atBadgeLimit} onClick={() => void grant()}>
+                  Выдать бейдж
+                </Button>
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-2 border-t border-border pt-4">
