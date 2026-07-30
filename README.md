@@ -494,7 +494,12 @@ UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settin
 ## Обращения и поддержка
 
 Система обращений с типами: жалоба на игрока/админа, обжалование, техника, донат, другое.
-Номер формата `10R-xxxxx`. Лимит 3 обращения в сутки. Правила берутся из Topics (`category=RULES`).
+Номер формата `10R-xxxxx` (клик копирует номер). Лимит 3 обращения в сутки. Правила из Topics (`category=RULES`).
+
+Список `/report` включает автора, обвиняемых (`ReportTarget.userId`) и назначенного модератора
+(`?role=author|target|moderator|all`). Переписка — единый timeline; заметки staff — `ReportModeratorNote`.
+Вердикт не меняет статус. Наказания через обращения убраны (используйте admin punishments).
+Placeholder `GameReport`/`GamePunishment` под TigerReports/LiteBans. См. `apps/api/src/modules/BATTLEPASS_TODO.md`.
 
 Жалоба может содержать **несколько целей** (`ReportTarget[]`): ник сохраняется даже если игрок не
 зарегистрирован на сайте (`userId = null`). Доказательства — массив ссылок `evidenceLinks[{url, title}]`
@@ -506,28 +511,34 @@ UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settin
 
 | Метод и путь | Доступ | Что делает |
 | --- | --- | --- |
-| `GET /reports` | авторизованный | Мои обращения (+ назначенные модератору) |
-| `GET /reports/:reportNumber` | автор / staff | Детали (targets, evidenceLinks, appealedPunishment) |
-| `POST /reports` | авторизованный | Создать обращение (`targets[]`, `evidenceLinks[]`) |
-| `POST /reports/:reportNumber/messages` | автор / staff | Сообщение в переписке |
+| `GET /reports?role=` | авторизованный | Автор / цель / модератор (без архивных) |
+| `GET /reports/:reportNumber` | автор / цель / staff | Детали + notes для staff |
+| `POST /reports` | авторизованный | Создать обращение |
+| `POST /reports/:reportNumber/messages` | автор / цель / staff | Сообщение в переписке |
+| `PATCH /reports/:reportNumber/messages/:id` | автор (5 мин) | Правка / soft-delete своего |
 | `POST /reports/:reportNumber/attachments` | автор / staff | Загрузка файла |
 | `GET /reports/rules?type=` | публичный | Правила из Topics |
-| `GET /users/me/punishments?onlyAppealable=` | авторизованный | Мои наказания (фильтр обжалуемых) |
+| `GET /users/me/punishments?onlyAppealable=` | авторизованный | Мои наказания |
 | `GET /users/:username/search-hint` | публичный | Подсказка: зарегистрирован ли ник |
-| `GET /moderation/reports` | HELPER+ | Очередь модерации (по уровню типа) |
-| `PATCH /moderation/reports/:n/assign\|status\|verdict` | staff | Назначение / статус / вердикт |
-| `POST /moderation/reports/:n/punish` | MOD+/ADMIN+ | Наказание по обращению (`targetUsername` обязателен) |
-| `POST /moderation/reports/:n/lock` | MOD+/ADMIN+ | Блокировка обращения |
+| `GET /moderation/reports` | HELPER+ | Очередь модерации |
+| `PATCH /moderation/reports/:n/assign\|status\|verdict` | staff | Назначение / статус (+comment) / вердикт |
+| `POST/PATCH/DELETE .../notes` (+ pin) | staff | Заметки модераторов |
+| `DELETE .../messages/:id` + pin/unpin | staff | Soft-delete / закрепление |
+| `POST /moderation/reports/:n/lock` | ADMIN+ | Блокировка новых сообщений |
+| `GET /admin/reports/archived` | ADMIN+ | Архив |
+| `POST /admin/reports/:n/archive\|unarchive` | ADMIN+ | Архив / восстановление |
+| `DELETE /admin/reports/:n` (+ hard-delete messages) | ADMIN+ | Полное удаление |
 | `GET /admin/users/:username/punishments` | MOD+ | История наказаний игрока |
 | `POST /admin/users/:userId/punishments` | MOD+ | Выдать наказание |
-| `PATCH /admin/users/:userId/punishments/:id` | MOD+ | Изменить наказание (активность, обжалование) |
+| `PATCH /admin/users/:userId/punishments/:id` | MOD+ | Изменить наказание |
 | `GET /admin/reports/stats` | ADMIN+ | Статистика |
 | `POST/DELETE /admin/reports/ban/:userId` | ADMIN+ | Бан на создание обращений |
+| `GET /game-reports`, `/bans`, `.../game-punishments` | — | Placeholder TigerReports / LiteBans |
 | `POST /support/donation-problem` | авторизованный | Проблема с донатом → OWNER |
 | `GET /admin/support/donations` | OWNER | Список донат-обращений |
 
 Страницы: `/report`, `/report/new`, `/report/new/*`, `/report/[reportNumber]`, `/support`,
-`/moderation/reports`, `/admin/support/donations`.
+`/moderation/reports`, `/admin/reports/archived`, `/admin/support/donations`.
 
 ## Performance
 
