@@ -1,16 +1,22 @@
 'use client';
 
 import { Copy } from 'lucide-react';
+import type { MouseEvent } from 'react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 interface ReportNumberBadgeProps {
   reportNumber: string;
   className?: string;
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
-export function ReportNumberBadge({ reportNumber, className }: ReportNumberBadgeProps) {
-  const copy = async () => {
+export function ReportNumberBadge({ reportNumber, className, onClick }: ReportNumberBadgeProps) {
+  const copy = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onClick?.(event);
+
     try {
       await navigator.clipboard.writeText(reportNumber);
       toast.success(`Скопировано: ${reportNumber}`);
@@ -22,7 +28,7 @@ export function ReportNumberBadge({ reportNumber, className }: ReportNumberBadge
   return (
     <button
       type="button"
-      onClick={() => void copy()}
+      onClick={(event) => void copy(event)}
       title="Скопировать номер обращения"
       className={cn(
         'group inline-flex items-center gap-1.5 rounded-md font-mono text-sm text-foreground/90 transition-opacity hover:opacity-80',

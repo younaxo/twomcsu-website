@@ -8,6 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { ChevronRight, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { ReportNumberBadge } from '@/components/reports/ReportNumberBadge';
 import { ReportStatusBadge } from '@/components/reports/ReportStatusBadge';
 import { ReportTypeIcon } from '@/components/reports/ReportTypeIcon';
 import { cn } from '@/lib/utils';
@@ -29,11 +30,13 @@ export function ReportCard({
   href,
   onClick,
   className,
+  viewerUserId,
 }: {
   report: ReportSummary;
   href?: string;
   onClick?: () => void;
   className?: string;
+  viewerUserId?: string;
 }) {
   const targetsLabel = formatTargetUsernames(report);
   const createdRelative = formatDistanceToNow(new Date(report.createdAt), {
@@ -41,6 +44,14 @@ export function ReportCard({
     locale: ru,
   });
   const linkHref = href ?? `/report/${report.reportNumber}`;
+
+  const roleLabel = (() => {
+    if (!viewerUserId) return null;
+    if (report.author.id === viewerUserId) return 'Ваше обращение';
+    if (report.targets.some((t) => t.userId === viewerUserId)) return 'На вас';
+    if (report.assignedTo?.id === viewerUserId) return 'На модерации';
+    return null;
+  })();
 
   const content = (
     <>
@@ -50,10 +61,22 @@ export function ReportCard({
 
       <div className="min-w-0 flex-1 space-y-1.5">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="truncate text-base font-medium text-white">
-            #{report.reportNumber} · {REPORT_TYPE_LABELS[report.type]}
-          </h3>
+          <div className="flex min-w-0 items-center gap-2">
+            <ReportNumberBadge
+              reportNumber={report.reportNumber}
+              className="text-base font-medium text-white"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <span className="truncate text-base font-medium text-white">
+              · {REPORT_TYPE_LABELS[report.type]}
+            </span>
+          </div>
           <ReportStatusBadge status={report.status} />
+          {roleLabel ? (
+            <span className="rounded-md bg-white/10 px-2 py-0.5 text-xs text-muted-foreground">
+              {roleLabel}
+            </span>
+          ) : null}
         </div>
 
         <p className="text-sm text-muted-foreground">
@@ -81,7 +104,7 @@ export function ReportCard({
           <Clock className="h-4 w-4 shrink-0" />
           <span>{report.isOverdue ? 'Просрочено' : createdRelative}</span>
         </div>
-        <ChevronRight className="h-5 w-5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[#F57C00]" />
+        <ChevronRight className="h-5 w-5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-white/70" />
       </div>
     </>
   );

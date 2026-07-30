@@ -25,6 +25,7 @@ export type ReportFilters = {
   server?: string;
   search?: string;
   assigned?: string;
+  role?: 'author' | 'target' | 'moderator' | 'all' | '';
 };
 
 export type CreateReportPayload = {
@@ -59,6 +60,7 @@ export function useReports(filters: ReportFilters, enabled = true) {
           status: filters.status || undefined,
           server: filters.server || undefined,
           search: filters.search || undefined,
+          role: filters.role && filters.role !== 'all' ? filters.role : undefined,
         },
       });
       return data;

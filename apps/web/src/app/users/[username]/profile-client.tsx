@@ -52,6 +52,7 @@ import {
   resolveMediaUrl,
   socialPlatformLabels,
 } from '@/lib/profile';
+import { getMinecraftUsername } from '@/lib/username-aliases';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 
 const SkinViewer3D = dynamic(

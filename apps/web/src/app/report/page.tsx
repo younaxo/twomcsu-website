@@ -66,7 +66,7 @@ function StatCard({
 
 export default function ReportListPage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const servers = useServers(isAuthenticated);
   const stats = useMyReportStats(isAuthenticated);
   const [page, setPage] = useState(1);
@@ -74,6 +74,7 @@ export default function ReportListPage() {
   const [server, setServer] = useState('');
   const [type, setType] = useState<ReportType | ''>('');
   const [status, setStatus] = useState<ReportStatus | ''>('');
+  const [role, setRole] = useState<'author' | 'target' | 'moderator' | 'all'>('all');
 
   const list = useReports(
     {
@@ -83,6 +84,7 @@ export default function ReportListPage() {
       server: server || undefined,
       type: type || undefined,
       status: status || undefined,
+      role,
     },
     isAuthenticated,
   );
@@ -173,7 +175,7 @@ export default function ReportListPage() {
 
       <div className="rounded-2xl glass-medium p-4 md:p-5">
         <p className="mb-4 text-sm font-medium text-white">Фильтры</p>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           <div className="relative xl:col-span-2">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -227,6 +229,23 @@ export default function ReportListPage() {
             </SelectContent>
           </Select>
           <Select
+            value={role}
+            onValueChange={(value) => {
+              setRole(value as 'author' | 'target' | 'moderator' | 'all');
+              setPage(1);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Роль" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все роли</SelectItem>
+              <SelectItem value="author">Автор</SelectItem>
+              <SelectItem value="target">Обвиняемый</SelectItem>
+              <SelectItem value="moderator">Модератор</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
             value={status || 'all'}
             onValueChange={(value) => {
               setStatus(value === 'all' ? '' : (value as ReportStatus));
@@ -274,7 +293,7 @@ export default function ReportListPage() {
         <>
           <div className="space-y-3">
             {items.map((item) => (
-              <ReportCard key={item.id} report={item} />
+              <ReportCard key={item.id} report={item} viewerUserId={user?.id} />
             ))}
           </div>
           {totalPages > 1 ? (
