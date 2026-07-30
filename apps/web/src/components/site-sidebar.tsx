@@ -8,6 +8,7 @@ import {
   FileText,
   Home,
   LayoutDashboard,
+  Mail,
   Menu,
   MessageCircle,
   Newspaper,
@@ -197,11 +198,20 @@ function SidebarNav({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-3">
-        {mainGroups.map((group) => (
+        {mainGroups.map((group) => {
+          const items =
+            group.title === 'Сообщество' && isAuthenticated
+              ? [
+                  ...group.items,
+                  { href: '/report', label: 'Обращения', icon: Mail } satisfies NavItem,
+                ]
+              : group.items;
+
+          return (
           <div key={group.title} className="mb-1">
             <GroupTitle title={group.title} collapsed={collapsed} />
             <div className="flex flex-col gap-0.5">
-              {group.items.map((item) => (
+              {items.map((item) => (
                 <div key={item.label} onClick={onNavigate}>
                   <NavButton
                     item={item}
@@ -212,7 +222,8 @@ function SidebarNav({
               ))}
             </div>
           </div>
-        ))}
+          );
+        })}
 
         {roleItems.length > 0 ? (
           <div className="mb-1">
