@@ -9,12 +9,14 @@ import {
 } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
+import { seedDepartments } from './departments.data';
 import { seedAwards } from './awards.data';
 import { seedBannerPresets } from './banner-presets.data';
 import { seedChat } from './chat.data';
 import { seedCurrencyRates } from './currency-rates.data';
 import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
+import { seedTopics, TOPIC_PLACEHOLDER_CONTENT } from './topics.data';
 import { seedBundles } from './store-bundles.data';
 import { seedCategories } from './store-categories.data';
 import { seedBulkDiscounts, seedLoyaltyDiscounts } from './store-discounts.data';
@@ -160,6 +162,24 @@ async function upsertPositions(): Promise<Map<string, string>> {
   }
 
   console.log(`positions: ${ids.size}`);
+
+  return ids;
+}
+
+async function upsertDepartments(createdBy: string = 'seed'): Promise<Map<string, string>> {
+  const ids = new Map<string, string>();
+
+  for (const [index, { name, slug, color, icon }] of seedDepartments.entries()) {
+    const department = await prisma.department.upsert({
+      where: { slug },
+      update: { name, color, icon, order: index, isActive: true },
+      create: { name, slug, color, icon, order: index, createdBy },
+    });
+
+    ids.set(department.slug, department.id);
+  }
+
+  console.log(`departments: ${ids.size}`);
 
   return ids;
 }
@@ -486,6 +506,35 @@ async function upsertAwards(): Promise<Map<string, string>> {
   return ids;
 }
 
+async function upsertTopics(createdBy: string): Promise<void> {
+  for (const topic of seedTopics) {
+    await prisma.topic.upsert({
+      where: { slug: topic.slug },
+      update: {
+        title: topic.title,
+        category: topic.category,
+        visibility: topic.visibility,
+        description: topic.description ?? null,
+        content: TOPIC_PLACEHOLDER_CONTENT,
+        order: topic.order,
+        isActive: true,
+      },
+      create: {
+        slug: topic.slug,
+        title: topic.title,
+        category: topic.category,
+        visibility: topic.visibility,
+        description: topic.description ?? null,
+        content: TOPIC_PLACEHOLDER_CONTENT,
+        order: topic.order,
+        createdBy,
+      },
+    });
+  }
+
+  console.log(`topics: ${seedTopics.length}`);
+}
+
 async function upsertUser(
   {
     email,
@@ -789,6 +838,7 @@ async function upsertServers(categoryIds: Map<string, string>) {
 
 async function main() {
   const positionIds = await upsertPositions();
+  await upsertDepartments();
 
   await upsertPromoCodes();
   await upsertBannerPresets();
@@ -818,6 +868,7 @@ async function main() {
   );
 
   await applyShowcase(ownerId, ownerShowcase, awardIds);
+  await upsertTopics(ownerId);
 
   // Reserved public ids: KleekYT=#1, younaxo_=#2 (create or reassign)
   await ensureReservedShortId({
