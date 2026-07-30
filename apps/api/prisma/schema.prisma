@@ -147,6 +147,7 @@ model User {
 
   authoredReports Report[] @relation("ReportAuthor")
   assignedReports Report[] @relation("ReportAssignee")
+  reportMessages  ReportMessage[]
 
   @@index([email])
   @@index([username])
@@ -1407,10 +1408,29 @@ model Report {
   updatedAt       DateTime     @updatedAt
   resolvedAt      DateTime?
 
+  messages        ReportMessage[]
+
   @@index([authorId])
   @@index([type, status])
   @@index([reportNumber])
   @@index([status])
   @@index([assignedToId])
   @@map("reports")
+}
+
+model ReportMessage {
+  id          String   @id @default(cuid())
+  reportId    String
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  content     String   @db.Text
+  contentHtml String?  @db.Text
+  isStaff     Boolean  @default(false)
+  isInternal  Boolean  @default(false)
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([reportId, createdAt])
+  @@map("report_messages")
 }
