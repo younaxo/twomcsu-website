@@ -148,6 +148,7 @@ model User {
   authoredReports Report[] @relation("ReportAuthor")
   assignedReports Report[] @relation("ReportAssignee")
   reportMessages  ReportMessage[]
+  reportBans      ReportBan[]
 
   @@index([email])
   @@index([username])
@@ -1449,4 +1450,18 @@ model ReportAttachment {
 
   @@index([reportId])
   @@map("report_attachments")
+}
+
+model ReportBan {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reason      String
+  bannedBy    String
+  bannedUntil DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, isActive])
+  @@map("report_bans")
 }
