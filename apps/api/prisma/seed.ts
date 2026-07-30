@@ -16,6 +16,7 @@ import { seedChat } from './chat.data';
 import { seedCurrencyRates } from './currency-rates.data';
 import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
+import { seedReports } from './reports.data';
 import { seedTopics, TOPIC_PLACEHOLDER_CONTENT } from './topics.data';
 import { seedBundles } from './store-bundles.data';
 import { seedCategories } from './store-categories.data';
@@ -909,7 +910,57 @@ async function main() {
   }
 
   await seedProfileComments(userIds);
+  await seedTestReports(userIds);
   await seedChat(prisma);
+}
+
+/** Idempotent demo support reports for local testing */
+async function seedTestReports(userIds: Map<string, string>) {
+  let created = 0;
+
+  for (const report of seedReports) {
+    const authorId = userIds.get(report.authorUsername);
+    if (!authorId) {
+      continue;
+    }
+
+    const targetUserId = report.targetUsername
+      ? userIds.get(report.targetUsername) ?? null
+      : null;
+    const assignedToId = report.assignedToUsername
+      ? userIds.get(report.assignedToUsername) ?? null
+      : null;
+
+    const existing = await prisma.report.findUnique({
+      where: { reportNumber: report.reportNumber },
+      select: { id: true },
+    });
+
+    if (existing) {
+      continue;
+    }
+
+    await prisma.report.create({
+      data: {
+        reportNumber: report.reportNumber,
+        type: report.type,
+        status: report.status,
+        authorId,
+        targetUsername: report.targetUsername ?? null,
+        targetUserId,
+        server: report.server ?? null,
+        incidentDate: report.incidentDate ?? null,
+        description: report.description,
+        descriptionHtml: report.descriptionHtml,
+        evidenceLinks: report.evidenceLinks,
+        assignedToId,
+        resolvedAt: report.status === 'RESOLVED' ? new Date() : null,
+      },
+    });
+    created += 1;
+  }
+
+  console.log(`reports: ${created} created (${seedReports.length} defined)`);
 }
 
 /** Idempotent demo comments for local profiles */
