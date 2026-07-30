@@ -185,7 +185,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                   )}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={`https://mc-heads.net/head/${encodeURIComponent(profile.username)}/48`}
+                    src={`https://mc-heads.net/head/${encodeURIComponent(getMinecraftUsername(profile.username))}/48`}
                     alt=""
                     className="absolute -bottom-1 -right-1 h-12 w-12 rounded-full"
                   />

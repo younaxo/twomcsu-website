@@ -30,6 +30,7 @@ import {
 import { useFriendRequestsCount } from '@/hooks/useFriendRequestsCount';
 import { useFriendsCount, useMyProfile } from '@/hooks/useFriendsQueries';
 import { resolveMediaUrl } from '@/lib/profile';
+import { getMinecraftUsername } from '@/lib/username-aliases';
 import { cn } from '@/lib/utils';
 
 export { getTopBadge };
@@ -51,7 +52,7 @@ function PreviewBody({
   const topBadge = getTopBadge(profile.badges);
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const avatarUrl = resolveMediaUrl(profile.avatar);
-  const skinHead = `https://mc-heads.net/head/${encodeURIComponent(profile.username)}/48`;
+  const skinHead = `https://mc-heads.net/head/${encodeURIComponent(getMinecraftUsername(profile.username))}/48`;
   const incoming = useFriendRequestsCount();
 
   return (

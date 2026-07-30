@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
+import { getMinecraftUsername } from '@/lib/username-aliases';
 import { cn } from '@/lib/utils';
 
 interface SkinHeadProps {
@@ -14,8 +15,9 @@ interface SkinHeadProps {
 }
 
 export function SkinHead({ avatar, username, size = 64, className }: SkinHeadProps) {
+  const skinName = getMinecraftUsername(username);
   const src = username
-    ? `https://mc-heads.net/avatar/${encodeURIComponent(username)}/${size}`
+    ? `https://mc-heads.net/avatar/${encodeURIComponent(skinName)}/${size}`
     : (avatar ?? undefined);
 
   return (

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { SkinViewer } from 'skinview3d';
+import { getMinecraftUsername } from '@/lib/username-aliases';
 import { cn } from '@/lib/utils';
 
 interface SkinViewer3DProps {
@@ -50,11 +51,12 @@ export function SkinViewer3D({
       return;
     }
 
+    const skinName = getMinecraftUsername(username);
     const viewer = new SkinViewer({
       canvas: canvasRef.current,
       width: size.width,
       height: size.height,
-      skin: `https://mc-heads.net/skin/${encodeURIComponent(username)}`,
+      skin: `https://mc-heads.net/skin/${encodeURIComponent(skinName)}`,
     });
 
     viewer.autoRotate = true;

@@ -3,6 +3,7 @@
 import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { resolveMediaUrl } from '@/lib/profile';
+import { getMinecraftUsername } from '@/lib/username-aliases';
 import { cn } from '@/lib/utils';
 
 const sizes = {
@@ -20,7 +21,8 @@ interface AvatarWithSkinProps {
 export function AvatarWithSkin({ user, size = 'md', className }: AvatarWithSkinProps) {
   const dim = sizes[size];
   const avatarUrl = resolveMediaUrl(user.avatar);
-  const headUrl = `https://mc-heads.net/head/${encodeURIComponent(user.username)}/${dim.head}`;
+  const skinName = getMinecraftUsername(user.username);
+  const headUrl = `https://mc-heads.net/head/${encodeURIComponent(skinName)}/${dim.head}`;
 
   return (
     <div
@@ -33,7 +35,7 @@ export function AvatarWithSkin({ user, size = 'md', className }: AvatarWithSkinP
           {user.username ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={`https://mc-heads.net/avatar/${encodeURIComponent(user.username)}/${dim.avatar}`}
+              src={`https://mc-heads.net/avatar/${encodeURIComponent(skinName)}/${dim.avatar}`}
               alt={user.username}
               className="h-full w-full object-cover"
             />
