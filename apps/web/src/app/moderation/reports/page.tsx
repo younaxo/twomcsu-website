@@ -2,18 +2,13 @@
 
 import {
   REPORT_STATUS_LABELS,
-  REPORT_TYPE_LABELS,
   ReportStatus,
   ReportType,
 } from '@twomc/shared';
-import { format, formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
-import { Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Loader2, Search } from 'lucide-react';
 import { useState } from 'react';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { ReportStatusBadge } from '@/components/reports/ReportStatusBadge';
-import { ReportTypeIcon } from '@/components/reports/ReportTypeIcon';
+import { ReportCard } from '@/components/reports/ReportCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -24,19 +19,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useModerationReports } from '@/hooks/reports/useReports';
 import { cn } from '@/lib/utils';
 
 type TypeTab = 'all' | 'complaints' | 'appeals' | 'technical' | 'other';
+type AssignedTab = 'all' | 'me' | 'free';
 
 function typeFilter(tab: TypeTab): ReportType | '' {
   switch (tab) {
@@ -54,19 +42,18 @@ function typeFilter(tab: TypeTab): ReportType | '' {
 }
 
 export default function ModerationReportsPage() {
-  const router = useRouter();
   const [page, setPage] = useState(1);
-  const [tab, setTab] = useState<TypeTab>('all');
+  const [typeTab, setTypeTab] = useState<TypeTab>('all');
+  const [assignedTab, setAssignedTab] = useState<AssignedTab>('all');
   const [status, setStatus] = useState<ReportStatus | ''>('');
-  const [assigned, setAssigned] = useState('all');
   const [search, setSearch] = useState('');
 
   const list = useModerationReports({
     page,
     limit: 20,
-    type: typeFilter(tab) || undefined,
+    type: typeFilter(typeTab) || undefined,
     status: status || undefined,
-    assigned: assigned === 'all' ? undefined : assigned,
+    assigned: assignedTab === 'all' ? undefined : assignedTab,
     search: search.trim() || undefined,
   });
 
@@ -78,14 +65,28 @@ export default function ModerationReportsPage() {
       <h1 className="text-2xl font-semibold text-white">Обращения на модерации</h1>
 
       <Tabs
-        value={tab}
+        value={assignedTab}
         onValueChange={(value) => {
-          setTab(value as TypeTab);
+          setAssignedTab(value as AssignedTab);
           setPage(1);
         }}
       >
         <TabsList className="glass-medium">
           <TabsTrigger value="all">Все</TabsTrigger>
+          <TabsTrigger value="me">Мои</TabsTrigger>
+          <TabsTrigger value="free">Свободные</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <Tabs
+        value={typeTab}
+        onValueChange={(value) => {
+          setTypeTab(value as TypeTab);
+          setPage(1);
+        }}
+      >
+        <TabsList className="glass-medium">
+          <TabsTrigger value="all">Все типы</TabsTrigger>
           <TabsTrigger value="complaints">Жалобы</TabsTrigger>
           <TabsTrigger value="appeals">Обжалования</TabsTrigger>
           <TabsTrigger value="technical">Технические</TabsTrigger>
@@ -93,7 +94,7 @@ export default function ModerationReportsPage() {
         </TabsList>
       </Tabs>
 
-      <div className="grid gap-3 rounded-2xl glass-medium p-4 md:grid-cols-3">
+      <div className="grid gap-3 rounded-2xl glass-medium p-4 md:grid-cols-2">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -125,99 +126,59 @@ export default function ModerationReportsPage() {
             ))}
           </SelectContent>
         </Select>
-        <Select
-          value={assigned}
-          onValueChange={(value) => {
-            setAssigned(value);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Назначение" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Все</SelectItem>
-            <SelectItem value="me">Назначены мне</SelectItem>
-            <SelectItem value="free">Свободные</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {list.isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton key={index} className="h-28 w-full rounded-2xl" />
+          ))}
+        </div>
       ) : items.length === 0 ? (
-        <EmptyState title="Нет обращений" description="По текущим фильтрам ничего не найдено" />
+        <EmptyState
+          title="Нет обращений"
+          description="По текущим фильтрам ничего не найдено"
+          className="glass-medium border-white/10"
+        />
       ) : (
-        <div className="overflow-hidden rounded-2xl glass-medium">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead>#</TableHead>
-                <TableHead>Тип</TableHead>
-                <TableHead>Автор</TableHead>
-                <TableHead>На кого</TableHead>
-                <TableHead>Дата</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead>Назначен</TableHead>
-                <TableHead>SLA</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((item) => (
-                <TableRow
-                  key={item.id}
-                  className={cn(
-                    'cursor-pointer border-white/5 hover:bg-white/[0.04]',
-                    item.isOverdue && 'bg-red-500/15 text-red-100',
-                  )}
-                  onClick={() => router.push(`/moderation/reports/${item.reportNumber}`)}
-                >
-                  <TableCell className="font-mono text-sm text-primary">
-                    {item.reportNumber}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <ReportTypeIcon type={item.type} size="sm" />
-                      <span className="text-xs">{REPORT_TYPE_LABELS[item.type]}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{item.author.username}</TableCell>
-                  <TableCell>{item.targetUsername ?? '—'}</TableCell>
-                  <TableCell className="text-sm">
-                    {format(new Date(item.createdAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
-                  </TableCell>
-                  <TableCell>
-                    <ReportStatusBadge status={item.status} />
-                  </TableCell>
-                  <TableCell>{item.assignedTo?.username ?? '—'}</TableCell>
-                  <TableCell className="text-xs">
-                    {formatDistanceToNow(new Date(item.updatedAt), { addSuffix: true, locale: ru })}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+        <>
+          <div className="space-y-3">
+            {items.map((item) => (
+              <ReportCard
+                key={item.id}
+                report={item}
+                href={`/moderation/reports/${item.reportNumber}`}
+                className={cn(item.isOverdue && 'ring-1 ring-red-500/40')}
+              />
+            ))}
+          </div>
 
-      {totalPages > 1 ? (
-        <div className="flex items-center justify-center gap-2">
-          <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            Назад
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {page} / {totalPages}
-          </span>
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Далее
-          </Button>
-        </div>
-      ) : null}
+          {totalPages > 1 ? (
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                Назад
+              </Button>
+              <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                {list.isFetching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                {page} / {totalPages}
+              </span>
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Далее
+              </Button>
+            </div>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
