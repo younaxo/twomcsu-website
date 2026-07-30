@@ -1623,3 +1623,59 @@ enum NewsStatus {
   PUBLISHED
   ARCHIVED
 }
+
+model News {
+  id              String       @id @default(cuid())
+  slug            String       @unique
+  title           String
+  excerpt         String?      @db.Text
+  content         String       @db.Text
+  contentHtml     String?      @db.Text
+  coverImage      String?
+  category        NewsCategory
+  status          NewsStatus   @default(DRAFT)
+
+  authorId        String
+  author          User         @relation(fields: [authorId], references: [id])
+
+  metaTitle       String?
+  metaDescription String?      @db.Text
+  metaKeywords    String[]
+  ogImage         String?
+
+  publishedAt     DateTime?
+  scheduledFor    DateTime?
+
+  viewsCount      Int          @default(0)
+  likesCount      Int          @default(0)
+  commentsCount   Int          @default(0)
+
+  allowComments   Boolean      @default(true)
+  isPinned        Boolean      @default(false)
+  isFeatured      Boolean      @default(false)
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  comments        NewsComment[]
+  likes           NewsLike[]
+  views           NewsView[]
+  tags            NewsTag[]
+
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@index([category])
+  @@index([isPinned, isFeatured])
+  @@map("news")
+}
+
+model NewsTag {
+  id     String @id @default(cuid())
+  newsId String
+  news   News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  tag    String
+
+  @@unique([newsId, tag])
+  @@index([tag])
+  @@map("news_tags")
+}
