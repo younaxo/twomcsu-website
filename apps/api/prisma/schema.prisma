@@ -1679,3 +1679,34 @@ model NewsTag {
   @@index([tag])
   @@map("news_tags")
 }
+
+model NewsComment {
+  id          String       @id @default(cuid())
+  newsId      String
+  news        News         @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id])
+  content     String       @db.Text
+  contentHtml String?      @db.Text
+
+  parentId String?
+  parent   NewsComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  NewsComment[] @relation("CommentReplies")
+
+  isPinned  Boolean   @default(false)
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+  isEdited  Boolean   @default(false)
+  editedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reactions NewsCommentReaction[]
+
+  @@index([newsId, createdAt])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("news_comments")
+}
