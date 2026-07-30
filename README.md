@@ -141,7 +141,7 @@ case-insensitive. Невалидный код не ломает регистра
 
 Создаются `pnpm db:seed`, в `NODE_ENV=production` сидится только владелец.
 
-| Email                 | Пароль                | Группа    | Позиция               |
+| Email                 | Пароль                | Группа    | Префикс               |
 | --------------------- | --------------------- | --------- | --------------------- |
 | `owner@localhost`     | `SEED_OWNER_PASSWORD` | OWNER     | Owner                 |
 | `admin@localhost`     | `Admin1234`           | ADMIN     | Special Administrator |
@@ -180,34 +180,76 @@ curl -i -X POST http://localhost:4000/auth/logout \
 Что стоит проверить руками: занятый email и никнейм дают 409, три неверных пароля включают капчу,
 десятый подряд — 429, `/auth/me` без токена — 401, а старый refresh после логаута — 401.
 
-## Позиции
+## Префиксы (Position)
 
-Позиция — это титул внутри группы: цвет ника, бейдж, приоритет в списках. Права она не даёт,
-их определяет только `roleGroup` пользователя. У каждой группы есть одна позиция с `isDefault`,
-её получают новые аккаунты. При назначении позиции `roleGroup` пользователя подтягивается
-под группу этой позиции.
+В UI — «Префикс». В БД и коде модель остаётся `Position`: титул внутри группы (цвет ника,
+приоритет). Права даёт только `roleGroup`. У каждой группы одна позиция с `isDefault`.
 
 | Метод и путь                | Доступ    | Что делает                                             |
 | --------------------------- | --------- | ------------------------------------------------------ |
-| `GET /positions`            | публичный | Видимые позиции, фильтр `?group=OWNER`                 |
-| `GET /positions/manage`     | ADMIN+    | Все позиции, включая скрытые — для админки             |
-| `GET /positions/:slug`      | публичный | Позиция целиком плюс до 100 её носителей               |
-| `POST /positions`           | OWNER     | Создать позицию                                        |
-| `PATCH /positions/:id`      | OWNER     | Обновить позицию                                       |
-| `DELETE /positions/:id`     | OWNER     | Удалить, если она не дефолтная и на ней никто не висит |
-| `POST /positions/:id/assign` | ADMIN+   | Выдать позицию игроку, `{ "userId": "..." }`           |
-| `GET /users/:username/public` | публичный | Публичный профиль с позицией                         |
-| `GET /users/search?q=`      | ADMIN+    | Поиск по никнейму для модалки назначения               |
+| `GET /positions`            | публичный | Видимые префиксы, фильтр `?group=OWNER`                |
+| `GET /positions/manage`     | ADMIN+    | Все префиксы, включая скрытые                          |
+| `GET /positions/:slug`      | публичный | Префикс целиком плюс до 100 носителей                  |
+| `POST /positions`           | OWNER     | Создать префикс                                        |
+| `PATCH /positions/:id`      | OWNER     | Обновить префикс                                       |
+| `DELETE /positions/:id`     | OWNER     | Удалить, если не дефолтный и никто не назначен         |
+| `POST /positions/:id/assign` | ADMIN+   | Выдать префикс игроку, `{ "userId": "..." }`           |
 
-Выдать позицию выше своей группы нельзя, как и трогать пользователя старше себя.
+Страницы: `/admin/positions` — управление префиксами.
 
-Страницы: `/users/<никнейм>` — публичный профиль, `/admin/positions` — управление
-(ADMIN видит список и назначение, кнопки создания и удаления только у OWNER).
+## Кастомные должности
+
+Свободный текст поверх префикса («Технический директор»). Один на игрока.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /custom-positions` | публичный | Активные должности |
+| `GET/POST/PATCH/DELETE /admin/custom-positions` | OWNER | CRUD |
+| `POST /admin/users/:userId/custom-position` | OWNER | Назначить `{ customPositionId }` |
+| `DELETE /admin/users/:userId/custom-position` | OWNER | Снять |
+
+Страница: `/admin/custom-positions`.
+
+## Отделы (Departments)
+
+Подразделения команды. Максимум 3 отдела на игрока.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /departments` | публичный | Активные отделы |
+| `GET/POST/PATCH/DELETE /admin/departments` | OWNER | CRUD |
+| `POST /admin/users/:userId/departments` | ADMIN+ | Назначить (макс 3) |
+| `DELETE /admin/users/:userId/departments/:departmentId` | ADMIN+ | Убрать |
+| `PATCH /admin/users/:userId/departments/order` | ADMIN+ | Порядок |
+
+Страница: `/admin/departments`. Сид: Технический, PR, Модерация, Разработка, Курирование.
+
+## Темы (Topics)
+
+Правила, документы и внутренние материалы. Visibility: PUBLIC … OWNER_ONLY.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /topics` | публичный* | Список с учётом роли (`?category=RULES`) |
+| `GET /topics/:slug` | публичный* | Детали + инкремент views |
+| `GET/POST/PATCH/DELETE /admin/topics` | OWNER | CRUD |
+| `POST /admin/topics/:id/pin\|unpin` | OWNER | Закрепить / открепить |
+| `POST /admin/topics/reorder` | OWNER | Порядок |
+| `POST/DELETE /admin/topics/:id/attachments...` | OWNER | Вложения |
+
+\* недоступные по visibility → 403 / скрыты из списка.
+
+Страницы: `/rules`, `/documents`, `/admin/topics`, `/admin/topics-internal`.
+
+## Бейджи
+
+До 3 активных `UserBadge` на игрока. В профиле показываются все; в хедере — один (топ).
 
 ## Расширенный профиль
 
 Профиль игрока: баннер, аватар, статус, био, страна/город, пол, возраст, приватность,
 соцсети, медиа-бейджи, награды, статистика, лайки/дизлайки, просмотры и жалобы.
+В шапке: ник + бейджи, кастомная должность, префикс, отделы (до 3).
 
 Загрузки картинок лежат в `UPLOADS_DIR` (по умолчанию `./uploads` относительно `apps/api`)
 и отдаются по `/uploads/...`. Лимиты: `UPLOAD_MAX_AVATAR_SIZE` (5 МБ) и `UPLOAD_MAX_BANNER_SIZE` (10 МБ).
@@ -406,7 +448,7 @@ curl -i -X POST http://localhost:4000/auth/logout \
 | Зона | URL | Доступ | Содержание |
 | --- | --- | --- | --- |
 | Дашборд | `/dashboard/*` | ADMIN+ | Обзор, настройки сайта, объявления, audit log, статистика магазина/заказов, лояльность, валюты |
-| Админ | `/admin/*` | ADMIN+ | Позиции, бейджи, награды, серверы, каталог, промокоды, заказы, рассылка |
+| Админ | `/admin/*` | ADMIN+ | Префиксы, должности, отделы, темы, бейджи, награды, серверы, каталог, промокоды, заказы, рассылка |
 | Модерация | `/moderation/*` | HELPER+ | Жалобы, медиа заявки, модерация чата |
 
 Старые URL вроде `/admin/dashboard`, `/admin/media-requests`, `/admin/chat/*` редиректят на новые.
@@ -457,7 +499,7 @@ UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settin
 ### Backend
 
 - Prisma SQL-логи только при `PRISMA_DEBUG=true` (в production всегда выключены)
-- Redis `CacheService`: `/auth/me`, список позиций, счётчики друзей
+- Redis `CacheService`: `/auth/me`, список префиксов, счётчики друзей
 - Индексы на `friendships (addresseeId, status)`, `users (roleGroup, isBanned)` и др.
 - Списки друзей/запросов отдают `{ data, pagination }` с `limit` ≤ 100
 - `GET /health` проверяет PostgreSQL (`SELECT 1`) и Redis (`PING`)
