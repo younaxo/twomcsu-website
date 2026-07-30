@@ -1,17 +1,20 @@
 'use client';
 
-import { ExternalLink, Play } from 'lucide-react';
+import type { ReportEvidenceLink } from '@twomc/shared';
+import { EvidenceLinkCard } from '@/components/reports/EvidenceLinkCard';
 import { cn } from '@/lib/utils';
 
-function isVideoUrl(url: string): boolean {
-  return /youtube\.com|youtu\.be|vimeo\.com|twitch\.tv|medal\.tv|streamable\.com/i.test(url);
+function isEvidenceLinkObject(
+  item: string | ReportEvidenceLink,
+): item is ReportEvidenceLink {
+  return typeof item === 'object' && item !== null && 'url' in item;
 }
 
 export function EvidenceLinks({
   links,
   className,
 }: {
-  links: string[];
+  links: string[] | ReportEvidenceLink[];
   className?: string;
 }) {
   if (links.length === 0) {
@@ -20,19 +23,14 @@ export function EvidenceLinks({
 
   return (
     <ul className={cn('space-y-2', className)}>
-      {links.map((link) => {
-        const video = isVideoUrl(link);
+      {links.map((link, index) => {
+        const item = isEvidenceLinkObject(link)
+          ? link
+          : { id: `legacy-${index}`, url: link, title: null, type: null, order: index, createdAt: '' };
+
         return (
-          <li key={link}>
-            <a
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg glass-light px-3 py-2 text-sm text-primary transition hover:bg-white/10"
-            >
-              {video ? <Play className="h-4 w-4 shrink-0" /> : <ExternalLink className="h-4 w-4 shrink-0" />}
-              <span className="truncate">{link}</span>
-            </a>
+          <li key={isEvidenceLinkObject(link) ? link.id : `${link}-${index}`}>
+            <EvidenceLinkCard link={item} />
           </li>
         );
       })}

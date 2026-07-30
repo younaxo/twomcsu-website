@@ -30,11 +30,18 @@ export function ReportTypeIcon({
   type: ReportType;
   className?: string;
   showLabel?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }) {
   const meta = TYPE_META[type];
   const Icon = meta.icon;
-  const sizeClass = size === 'lg' ? 'h-10 w-10' : size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
+  const sizeClass =
+    size === 'xl'
+      ? 'h-12 w-12'
+      : size === 'lg'
+        ? 'h-10 w-10'
+        : size === 'sm'
+          ? 'h-4 w-4'
+          : 'h-5 w-5';
 
   return (
     <span className={cn('inline-flex items-center gap-2', className)} style={{ color: meta.color }}>
