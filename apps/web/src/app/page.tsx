@@ -3,12 +3,15 @@
 import Link from 'next/link';
 import { OnlineCounter } from '@/components/servers/OnlineCounter';
 import { TopServersList } from '@/components/servers/TopServersList';
+import { NewsCard } from '@/components/news/NewsCard';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useNewsLatest } from '@/hooks/news';
 import { useServersOverview } from '@/hooks/servers';
 
 export default function HomePage() {
   const overview = useServersOverview();
+  const latestNews = useNewsLatest(3);
 
   return (
     <div className="space-y-10">
@@ -66,6 +69,32 @@ export default function HomePage() {
             <TopServersList servers={overview.data?.topServers ?? []} />
           )}
         </div>
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-white">Последние новости</h2>
+          <Link href="/news" className="text-sm text-primary hover:underline">
+            Все новости →
+          </Link>
+        </div>
+        {latestNews.isLoading ? (
+          <div className="grid gap-4 md:grid-cols-3">
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : latestNews.data?.length ? (
+          <div className="grid gap-4 md:grid-cols-3">
+            {latestNews.data.map((item) => (
+              <NewsCard key={item.id} news={item} compact />
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-2xl glass-medium p-6 text-sm text-muted-foreground">
+            Пока нет опубликованных новостей
+          </p>
+        )}
       </section>
     </div>
   );
