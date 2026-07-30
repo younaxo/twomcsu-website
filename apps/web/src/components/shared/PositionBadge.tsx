@@ -1,5 +1,6 @@
 import type { Position } from '@twomc/shared';
 import { memo } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 type BadgeSize = 'sm' | 'md' | 'lg';
@@ -30,7 +31,7 @@ function PositionBadgeComponent({
 }: PositionBadgeProps) {
   const icon = showIcon ? position.icon : null;
 
-  return (
+  const badge = (
     <span
       className={cn(
         'inline-flex items-center whitespace-nowrap rounded-full border font-medium leading-none',
@@ -46,6 +47,13 @@ function PositionBadgeComponent({
       {icon ? <PositionIcon icon={icon} size={iconSizes[size]} /> : null}
       {position.displayName}
     </span>
+  );
+
+  return (
+    <Tooltip delayDuration={200}>
+      <TooltipTrigger asChild>{badge}</TooltipTrigger>
+      <TooltipContent>Префикс</TooltipContent>
+    </Tooltip>
   );
 }
 

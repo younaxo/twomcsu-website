@@ -40,7 +40,7 @@ export default function AdminPositionsPage() {
       const { data } = await api.get<PositionSummary[]>('/positions/manage');
       setPositions(data);
     } catch (error) {
-      toast.error(extractErrorMessage(error, 'Не удалось загрузить позиции'));
+      toast.error(extractErrorMessage(error, 'Не удалось загрузить префиксы'));
     } finally {
       setLoading(false);
     }
@@ -61,16 +61,16 @@ export default function AdminPositionsPage() {
   };
 
   const remove = async (position: PositionSummary) => {
-    if (!window.confirm(`Удалить позицию «${position.displayName}»?`)) {
+    if (!window.confirm(`Удалить префикс «${position.displayName}»?`)) {
       return;
     }
 
     try {
       await api.delete(`/positions/${position.id}`);
-      toast.success('Позиция удалена');
+      toast.success('Префикс удалён');
       await load();
     } catch (error) {
-      toast.error(extractErrorMessage(error, 'Не удалось удалить позицию'));
+      toast.error(extractErrorMessage(error, 'Не удалось удалить префикс'));
     }
   };
 
@@ -78,7 +78,7 @@ export default function AdminPositionsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Позиции</h1>
+          <h1 className="text-2xl font-semibold">Префиксы</h1>
           <p className="text-sm text-muted-foreground">
             Титулы внутри групп. Права зависят только от группы.
           </p>
@@ -103,8 +103,8 @@ export default function AdminPositionsPage() {
       ) : positions.length === 0 ? (
         <AdminEmptyState
           icon={Briefcase}
-          title="Нет позиций"
-          description="Создайте позицию или назначьте игроку"
+          title="Нет префиксов"
+          description="Создайте префикс или назначьте игроку"
           action={
             isOwner ? (
               <Button onClick={openCreate}>
@@ -128,7 +128,7 @@ export default function AdminPositionsPage() {
                 <CardTitle className="flex items-center gap-3 text-base">
                   {group}
                   <span className="text-sm font-normal text-muted-foreground">
-                    {rows.length} поз.
+                    {rows.length} преф.
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -138,7 +138,7 @@ export default function AdminPositionsPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12">Цвет</TableHead>
-                      <TableHead>Позиция</TableHead>
+                      <TableHead>Префикс</TableHead>
                       <TableHead className="w-24 text-right">Приоритет</TableHead>
                       <TableHead className="w-24 text-right">Игроков</TableHead>
                       <TableHead className="w-32" />

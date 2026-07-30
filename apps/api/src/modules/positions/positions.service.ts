@@ -81,7 +81,7 @@ export class PositionsService {
       });
 
       if (!position) {
-        throw new NotFoundException('Позиция не найдена');
+        throw new NotFoundException('Префикс не найден');
       }
 
       return this.toDetails(position);
@@ -126,7 +126,7 @@ export class PositionsService {
     const current = await this.prisma.position.findUnique({ where: { id } });
 
     if (!current) {
-      throw new NotFoundException('Позиция не найдена');
+      throw new NotFoundException('Префикс не найден');
     }
 
     const group = dto.group ?? current.group;
@@ -134,7 +134,7 @@ export class PositionsService {
 
     if (current.isDefault && isDefault === false) {
       throw new BadRequestException(
-        'Нельзя снять флаг по умолчанию, назначьте его другой позиции группы',
+        'Нельзя снять флаг по умолчанию, назначьте его другому префиксу группы',
       );
     }
 
@@ -186,16 +186,16 @@ export class PositionsService {
     });
 
     if (!position) {
-      throw new NotFoundException('Позиция не найдена');
+      throw new NotFoundException('Префикс не найден');
     }
 
     if (position.isDefault) {
-      throw new BadRequestException('Нельзя удалить позицию по умолчанию');
+      throw new BadRequestException('Нельзя удалить префикс по умолчанию');
     }
 
     if (position._count.users > 0) {
       throw new ConflictException(
-        `Позиция занята: ${position._count.users} польз., сначала переведите их`,
+        `Префикс занят: ${position._count.users} польз., сначала переведите их`,
       );
     }
 
@@ -210,7 +210,7 @@ export class PositionsService {
     });
 
     if (!position) {
-      throw new NotFoundException('Позиция не найдена');
+      throw new NotFoundException('Префикс не найден');
     }
 
     const user = await this.prisma.user.findUnique({

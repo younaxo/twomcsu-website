@@ -57,11 +57,11 @@ export function AssignPositionDialog({
 
     try {
       await api.post(`/positions/${positionId}/assign`, { userId: selected.id });
-      toast.success(`${selected.username} получил новую позицию`);
+      toast.success(`${selected.username} получил новый префикс`);
       onOpenChange(false);
       onAssigned();
     } catch (error) {
-      toast.error(extractErrorMessage(error, 'Не удалось назначить позицию'));
+      toast.error(extractErrorMessage(error, 'Не удалось назначить префикс'));
     } finally {
       setSaving(false);
     }
@@ -71,9 +71,9 @@ export function AssignPositionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Назначить позицию</DialogTitle>
+          <DialogTitle>Назначить префикс</DialogTitle>
           <DialogDescription>
-            Группа прав игрока изменится на группу выбранной позиции.
+            Группа прав игрока изменится на группу выбранного префикса.
           </DialogDescription>
         </DialogHeader>
 
@@ -98,10 +98,10 @@ export function AssignPositionDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Позиция</Label>
+            <Label>Префикс игрока</Label>
             <Select value={positionId} onValueChange={setPositionId}>
               <SelectTrigger>
-                <SelectValue placeholder="Выберите позицию" />
+                <SelectValue placeholder="Выберите префикс" />
               </SelectTrigger>
               <SelectContent className="max-h-72">
                 {positions.map((position) => (

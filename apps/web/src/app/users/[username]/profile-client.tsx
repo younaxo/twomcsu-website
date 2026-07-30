@@ -349,7 +349,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                     {profile.tag ? <CopyableId label="Тег" value={profile.tag} /> : null}
                   </div>
                   <dl className="grid gap-2 text-sm sm:grid-cols-[140px_1fr]">
-                    <dt className="text-muted-foreground">Роль</dt>
+                    <dt className="text-muted-foreground">Префикс</dt>
                     <dd style={{ color: profile.position.color }}>{profile.position.displayName}</dd>
                     <dt className="text-muted-foreground">Регистрация</dt>
                     <dd>{format(new Date(profile.createdAt), 'dd.MM.yyyy', { locale: ru })}</dd>

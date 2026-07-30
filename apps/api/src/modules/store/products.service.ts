@@ -565,7 +565,7 @@ export class ProductsService {
   private async requirePosition(id: string) {
     const position = await this.prisma.position.findUnique({ where: { id } });
     if (!position) {
-      throw new NotFoundException('Должность не найдена');
+      throw new NotFoundException('Префикс не найден');
     }
   }
 
