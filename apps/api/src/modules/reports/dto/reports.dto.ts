@@ -288,6 +288,3 @@ export class MyPunishmentsQueryDto {
   @Type(() => Boolean)
   onlyAppealable?: boolean;
 }
-
-// Keep ArrayMinSize imported for potential future use
-void ArrayMinSize;
