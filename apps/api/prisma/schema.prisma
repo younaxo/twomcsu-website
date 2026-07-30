@@ -145,10 +145,13 @@ model User {
   chatMutes        ChatMute[]
   chatBans         ChatBan[]
 
-  authoredReports Report[] @relation("ReportAuthor")
-  assignedReports Report[] @relation("ReportAssignee")
-  reportMessages  ReportMessage[]
-  reportBans      ReportBan[]
+  authoredReports   Report[]       @relation("ReportAuthor")
+  assignedReports   Report[]       @relation("ReportAssignee")
+  reportedIn        ReportTarget[] @relation("ReportedUser")
+  reportMessages    ReportMessage[]
+  reportBans        ReportBan[]
+  punishments       UserPunishment[] @relation("PunishedUser")
+  issuedPunishments UserPunishment[] @relation("Punisher")
 
   @@index([email])
   @@index([username])
@@ -1377,19 +1380,18 @@ model Report {
   authorId        String
   author          User         @relation("ReportAuthor", fields: [authorId], references: [id])
 
-  targetUsername  String?
-  targetUserId    String?
-
   server          String?
   incidentDate    DateTime?
   description     String       @db.Text
   descriptionHtml String?      @db.Text
-  evidenceLinks   String[]
+  additionalText  String?      @db.Text
 
   contactEmail    String?
   contactPhone    String?
   paymentDate     DateTime?
-  additionalText  String?      @db.Text
+
+  appealedPunishmentId String?
+  appealedPunishment   UserPunishment? @relation("AppealedPunishment", fields: [appealedPunishmentId], references: [id])
 
   assignedToId    String?
   assignedTo      User?        @relation("ReportAssignee", fields: [assignedToId], references: [id])
@@ -1409,6 +1411,8 @@ model Report {
   updatedAt       DateTime     @updatedAt
   resolvedAt      DateTime?
 
+  targets         ReportTarget[]
+  evidenceLinks   ReportEvidenceLink[]
   messages        ReportMessage[]
   attachments     ReportAttachment[]
 
@@ -1417,7 +1421,40 @@ model Report {
   @@index([reportNumber])
   @@index([status])
   @@index([assignedToId])
+  @@index([appealedPunishmentId])
   @@map("reports")
+}
+
+/// Multiple offender nicknames per report (registered or not)
+model ReportTarget {
+  id        String   @id @default(cuid())
+  reportId  String
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  username  String
+  userId    String?
+  user      User?    @relation("ReportedUser", fields: [userId], references: [id])
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([reportId])
+  @@index([userId])
+  @@index([username])
+  @@map("report_targets")
+}
+
+/// Multiple evidence URLs with optional title and detected type
+model ReportEvidenceLink {
+  id        String   @id @default(cuid())
+  reportId  String
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  url       String
+  title     String?
+  type      String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([reportId])
+  @@map("report_evidence_links")
 }
 
 model ReportMessage {
@@ -1464,4 +1501,27 @@ model ReportBan {
 
   @@index([userId, isActive])
   @@map("report_bans")
+}
+
+/// Player punishment history (appealable via reports)
+model UserPunishment {
+  id             String         @id @default(cuid())
+  userId         String
+  user           User           @relation("PunishedUser", fields: [userId], references: [id])
+  punishmentType PunishmentType
+  reason         String
+  duration       String?
+  server         String?
+  issuedBy       String
+  issuedByUser   User?          @relation("Punisher", fields: [issuedBy], references: [id])
+  issuedAt       DateTime       @default(now())
+  expiresAt      DateTime?
+  isActive       Boolean        @default(true)
+  isAppealable   Boolean        @default(true)
+
+  reports Report[] @relation("AppealedPunishment")
+
+  @@index([userId, isActive])
+  @@index([issuedBy])
+  @@map("user_punishments")
 }
