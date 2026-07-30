@@ -1,5 +1,6 @@
 import type { Position } from '@twomc/shared';
 import { memo } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 type BadgeSize = 'sm' | 'md' | 'lg';
@@ -31,21 +32,26 @@ function PositionBadgeComponent({
   const icon = showIcon ? position.icon : null;
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center whitespace-nowrap rounded-full border font-medium leading-none',
-        sizeClasses[size],
-        className,
-      )}
-      style={{
-        color: position.color,
-        backgroundColor: position.backgroundColor ?? `${position.color}${FILL_ALPHA}`,
-        borderColor: `${position.color}${BORDER_ALPHA}`,
-      }}
-    >
-      {icon ? <PositionIcon icon={icon} size={iconSizes[size]} /> : null}
-      {position.displayName}
-    </span>
+    <Tooltip delayDuration={300}>
+      <TooltipTrigger asChild>
+        <span
+          className={cn(
+            'inline-flex items-center whitespace-nowrap rounded-full border font-medium leading-none',
+            sizeClasses[size],
+            className,
+          )}
+          style={{
+            color: position.color,
+            backgroundColor: position.backgroundColor ?? `${position.color}${FILL_ALPHA}`,
+            borderColor: `${position.color}${BORDER_ALPHA}`,
+          }}
+        >
+          {icon ? <PositionIcon icon={icon} size={iconSizes[size]} /> : null}
+          {position.displayName}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>Префикс: {position.displayName}</TooltipContent>
+    </Tooltip>
   );
 }
 

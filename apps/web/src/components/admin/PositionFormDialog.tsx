@@ -120,16 +120,16 @@ export function PositionFormDialog({
 
       if (position) {
         await api.patch(`/positions/${position.id}`, payload);
-        toast.success('Позиция обновлена');
+        toast.success('Префикс обновлён');
       } else {
         await api.post('/positions', payload);
-        toast.success('Позиция создана');
+        toast.success('Префикс создан');
       }
 
       onOpenChange(false);
       onSaved();
     } catch (error) {
-      toast.error(extractErrorMessage(error, 'Не удалось сохранить позицию'));
+      toast.error(extractErrorMessage(error, 'Не удалось сохранить префикс'));
     }
   });
 
@@ -154,9 +154,9 @@ export function PositionFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{position ? 'Редактирование позиции' : 'Новая позиция'}</DialogTitle>
+          <DialogTitle>{position ? 'Редактирование префикса' : 'Новый префикс'}</DialogTitle>
           <DialogDescription>
-            Права даёт только группа, позиция отвечает за оформление ника.
+            Права даёт только группа, префикс отвечает за оформление ника.
           </DialogDescription>
         </DialogHeader>
 
@@ -171,7 +171,7 @@ export function PositionFormDialog({
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Название позиции"
+                      placeholder="Название префикса"
                       onChange={(event) => {
                         field.onChange(event);
                         syncSlug(event.target.value);
