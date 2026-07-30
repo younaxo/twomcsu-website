@@ -5,11 +5,13 @@ import type { ComponentType } from 'react';
 import {
   AlertTriangle,
   BookOpen,
+  FileText,
   Home,
   LayoutDashboard,
   Menu,
   MessageCircle,
   Newspaper,
+  Scale,
   Server,
   Shield,
   ShoppingBag,
@@ -55,6 +57,8 @@ const mainGroups: NavGroup[] = [
   {
     title: 'Сообщество',
     items: [
+      { href: '/rules', label: 'Правила', icon: Scale },
+      { href: '/documents', label: 'Документы', icon: FileText },
       { href: '/wiki', label: 'Вики', icon: BookOpen, soon: true },
       { href: '/reports', label: 'Репорты', icon: AlertTriangle, soon: true },
     ],
@@ -191,8 +195,8 @@ function SidebarNav({
   };
 
   return (
-    <div className="flex h-full flex-col">
-      <nav className="flex flex-1 flex-col overflow-y-auto px-2 py-3">
+    <div className="flex h-full min-h-0 flex-col">
+      <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-3">
         {mainGroups.map((group) => (
           <div key={group.title} className="mb-1">
             <GroupTitle title={group.title} collapsed={collapsed} />
@@ -224,7 +228,7 @@ function SidebarNav({
         ) : null}
       </nav>
 
-      <div className="mt-auto space-y-1 border-t border-white/5 px-2 py-3">
+      <div className="mt-auto shrink-0 space-y-1 border-t border-white/5 px-2 py-3">
         {!collapsed ? (
           <p className="px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500">
             Быстрый доступ
@@ -270,20 +274,19 @@ export function SiteSidebar() {
 
   return (
     <>
-      {/* Desktop: wall-integrated rail */}
+      {/* Desktop: fixed rail — does not scroll with the page */}
       <aside
         className={cn(
-          'pointer-events-auto fixed bottom-0 left-0 top-0 z-40 hidden w-[72px] flex-col',
-          'border-r border-white/5 bg-neutral-950/70',
-          'backdrop-blur-[20px] xl:flex xl:w-[260px]',
-          'lg:flex',
+          'pointer-events-auto fixed left-0 top-0 z-40 hidden h-screen w-[72px] flex-col overflow-hidden',
+          'border-r border-white/5 bg-neutral-950/70 backdrop-blur-[20px]',
+          'lg:flex xl:w-[260px]',
         )}
         aria-label="Боковая навигация"
       >
-        <div className="hidden h-full xl:block">
+        <div className="hidden h-full min-h-0 xl:block">
           <SidebarNav />
         </div>
-        <div className="h-full xl:hidden">
+        <div className="h-full min-h-0 xl:hidden">
           <SidebarNav collapsed />
         </div>
       </aside>
@@ -307,7 +310,7 @@ export function SiteSidebar() {
             <SheetHeader className="border-b border-white/5 px-4 py-4 text-left">
               <SheetTitle className="text-base">Навигация</SheetTitle>
             </SheetHeader>
-            <div className="h-[calc(100%-4rem)]">
+            <div className="h-[calc(100%-4rem)] overflow-y-auto">
               <SidebarNav onNavigate={() => setMobileOpen(false)} />
             </div>
           </SheetContent>
