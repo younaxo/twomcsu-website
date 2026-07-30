@@ -101,6 +101,7 @@ model User {
 
   position               Position             @relation(fields: [positionId], references: [id])
   customPosition         UserCustomPosition?
+  departments            UserDepartment[]
   refreshTokens          RefreshToken[]
   passwordResetTokens    PasswordResetToken[]
   promoCodeUsages        PromoCodeUsage[]
@@ -1239,4 +1240,99 @@ model UserCustomPosition {
   @@index([userId])
   @@index([customPositionId])
   @@map("user_custom_positions")
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  color       String?
+  icon        String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  members     UserDepartment[]
+
+  @@index([slug])
+  @@map("departments")
+}
+
+model UserDepartment {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  order        Int        @default(0)
+  assignedBy   String?
+  assignedAt   DateTime   @default(now())
+
+  @@unique([userId, departmentId])
+  @@index([userId])
+  @@index([departmentId])
+  @@map("user_departments")
+}
+
+enum TopicCategory {
+  RULES
+  DOCUMENTS
+  INFORMATION
+  ADMIN_INTERNAL
+  FAQ
+  ANNOUNCEMENT
+  OTHER
+}
+
+enum TopicVisibility {
+  PUBLIC
+  AUTHENTICATED
+  HELPER_ONLY
+  MODERATOR_ONLY
+  ADMIN_ONLY
+  OWNER_ONLY
+}
+
+model Topic {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  title         String
+  category      TopicCategory
+  visibility    TopicVisibility @default(PUBLIC)
+  icon          String?
+  color         String?
+  description   String?
+  content       String          @db.Text
+  contentHtml   String?         @db.Text
+  order         Int             @default(0)
+  isActive      Boolean         @default(true)
+  isPinned      Boolean         @default(false)
+  views         Int             @default(0)
+  createdBy     String
+  updatedBy     String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  attachments   TopicAttachment[]
+
+  @@index([slug])
+  @@index([category, visibility])
+  @@index([isActive, isPinned, order])
+  @@map("topics")
+}
+
+model TopicAttachment {
+  id          String   @id @default(cuid())
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  fileName    String
+  fileUrl     String
+  fileSize    Int
+  mimeType    String
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+
+  @@index([topicId])
+  @@map("topic_attachments")
 }
