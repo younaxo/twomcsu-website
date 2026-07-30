@@ -496,17 +496,31 @@ UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settin
 Система обращений с типами: жалоба на игрока/админа, обжалование, техника, донат, другое.
 Номер формата `10R-xxxxx`. Лимит 3 обращения в сутки. Правила берутся из Topics (`category=RULES`).
 
+Жалоба может содержать **несколько целей** (`ReportTarget[]`): ник сохраняется даже если игрок не
+зарегистрирован на сайте (`userId = null`). Доказательства — массив ссылок `evidenceLinks[{url, title}]`
+(тип определяется автоматически). Обжалование привязывается к записи `UserPunishment` через
+`appealedPunishmentId`.
+
+`POST /reports` (тело): `type`, `description`, опционально `targets[]`, `evidenceLinks[]`,
+`server`, `incidentDate`, `additionalText`, `appealedPunishmentId` (для обжалований), `captchaToken`.
+
 | Метод и путь | Доступ | Что делает |
 | --- | --- | --- |
 | `GET /reports` | авторизованный | Мои обращения (+ назначенные модератору) |
-| `GET /reports/:reportNumber` | автор / staff | Детали |
-| `POST /reports` | авторизованный | Создать обращение |
+| `GET /reports/:reportNumber` | автор / staff | Детали (targets, evidenceLinks, appealedPunishment) |
+| `POST /reports` | авторизованный | Создать обращение (`targets[]`, `evidenceLinks[]`) |
 | `POST /reports/:reportNumber/messages` | автор / staff | Сообщение в переписке |
 | `POST /reports/:reportNumber/attachments` | автор / staff | Загрузка файла |
 | `GET /reports/rules?type=` | публичный | Правила из Topics |
+| `GET /users/me/punishments?onlyAppealable=` | авторизованный | Мои наказания (фильтр обжалуемых) |
+| `GET /users/:username/search-hint` | публичный | Подсказка: зарегистрирован ли ник |
 | `GET /moderation/reports` | HELPER+ | Очередь модерации (по уровню типа) |
 | `PATCH /moderation/reports/:n/assign\|status\|verdict` | staff | Назначение / статус / вердикт |
-| `POST /moderation/reports/:n/punish\|lock` | MOD+/ADMIN+ | Наказание / блокировка |
+| `POST /moderation/reports/:n/punish` | MOD+/ADMIN+ | Наказание по обращению (`targetUsername` обязателен) |
+| `POST /moderation/reports/:n/lock` | MOD+/ADMIN+ | Блокировка обращения |
+| `GET /admin/users/:username/punishments` | MOD+ | История наказаний игрока |
+| `POST /admin/users/:userId/punishments` | MOD+ | Выдать наказание |
+| `PATCH /admin/users/:userId/punishments/:id` | MOD+ | Изменить наказание (активность, обжалование) |
 | `GET /admin/reports/stats` | ADMIN+ | Статистика |
 | `POST/DELETE /admin/reports/ban/:userId` | ADMIN+ | Бан на создание обращений |
 | `POST /support/donation-problem` | авторизованный | Проблема с донатом → OWNER |
