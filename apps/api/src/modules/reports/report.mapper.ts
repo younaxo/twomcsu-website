@@ -2,18 +2,24 @@ import {
   PunishmentType,
   Report,
   ReportAttachment as ReportAttachmentRow,
+  ReportEvidenceLink as ReportEvidenceLinkRow,
   ReportMessage as ReportMessageRow,
   ReportStatus,
+  ReportTarget as ReportTargetRow,
   ReportType,
   User,
+  UserPunishment,
   Position,
 } from '@prisma/client';
 import {
   ReportAttachment,
   ReportDetails,
+  ReportEvidenceLink,
   ReportMessage,
   ReportSummary,
+  ReportTarget,
   ReportUserSummary,
+  UserPunishmentSummary,
 } from '@twomc/shared';
 import { selectPublicPosition } from '../../common/prisma/user-selects';
 
@@ -93,9 +99,51 @@ export function toReportMessage(
   };
 }
 
+export function toReportTarget(
+  row: ReportTargetRow & { user: ReportUserRow | null },
+): ReportTarget {
+  return {
+    id: row.id,
+    username: row.username,
+    userId: row.userId,
+    user: row.user ? toReportUser(row.user) : null,
+    order: row.order,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+export function toReportEvidenceLink(row: ReportEvidenceLinkRow): ReportEvidenceLink {
+  return {
+    id: row.id,
+    url: row.url,
+    title: row.title,
+    type: row.type,
+    order: row.order,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+export function toUserPunishmentSummary(
+  row: UserPunishment & { issuedByUser: ReportUserRow | null },
+): UserPunishmentSummary {
+  return {
+    id: row.id,
+    punishmentType: row.punishmentType as PunishmentType,
+    reason: row.reason,
+    duration: row.duration,
+    server: row.server,
+    issuedAt: row.issuedAt.toISOString(),
+    expiresAt: row.expiresAt?.toISOString() ?? null,
+    isActive: row.isActive,
+    isAppealable: row.isAppealable,
+    issuedByUser: row.issuedByUser ? toReportUser(row.issuedByUser) : null,
+  };
+}
+
 type ReportListRow = Report & {
   author: ReportUserRow;
   assignedTo: ReportUserRow | null;
+  targets?: (ReportTargetRow & { user: ReportUserRow | null })[];
 };
 
 export function isReportOverdue(row: Pick<Report, 'status' | 'createdAt' | 'updatedAt'>): boolean {
@@ -111,14 +159,18 @@ export function isReportOverdue(row: Pick<Report, 'status' | 'createdAt' | 'upda
 }
 
 export function toReportSummary(row: ReportListRow): ReportSummary {
+  const targets = (row.targets ?? []).map(toReportTarget);
+  const first = targets[0] ?? null;
+
   return {
     id: row.id,
     reportNumber: row.reportNumber,
     type: row.type as ReportType,
     status: row.status as ReportStatus,
     author: toReportUser(row.author),
-    targetUsername: row.targetUsername,
-    targetUserId: row.targetUserId,
+    targetUsername: first?.username ?? null,
+    targetUserId: first?.userId ?? null,
+    targets,
     server: row.server,
     incidentDate: row.incidentDate?.toISOString() ?? null,
     assignedTo: row.assignedTo ? toReportUser(row.assignedTo) : null,
@@ -133,6 +185,10 @@ export function toReportSummary(row: ReportListRow): ReportSummary {
 type ReportDetailRow = ReportListRow & {
   messages: (ReportMessageRow & { author: ReportUserRow })[];
   attachments: ReportAttachmentRow[];
+  evidenceLinks: ReportEvidenceLinkRow[];
+  appealedPunishment:
+    | (UserPunishment & { issuedByUser: ReportUserRow | null })
+    | null;
 };
 
 export function toReportDetails(
@@ -147,7 +203,7 @@ export function toReportDetails(
     ...toReportSummary(row),
     description: row.description,
     descriptionHtml: row.descriptionHtml,
-    evidenceLinks: row.evidenceLinks,
+    evidenceLinks: (row.evidenceLinks ?? []).map(toReportEvidenceLink),
     contactEmail: row.contactEmail,
     contactPhone: row.contactPhone,
     paymentDate: row.paymentDate?.toISOString() ?? null,
@@ -157,6 +213,10 @@ export function toReportDetails(
     punishmentType: (row.punishmentType as PunishmentType | null) ?? null,
     punishmentDuration: row.punishmentDuration,
     punishmentReason: row.punishmentReason,
+    appealedPunishmentId: row.appealedPunishmentId,
+    appealedPunishment: row.appealedPunishment
+      ? toUserPunishmentSummary(row.appealedPunishment)
+      : null,
     lockedBy: row.lockedBy,
     lockedReason: row.lockedReason,
     messages: messages.map(toReportMessage),

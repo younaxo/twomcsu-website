@@ -28,6 +28,7 @@ import {
   SuccessResponse,
   UserBadge,
   UserProfile,
+  UserSearchHint,
   UserSearchResult,
   hasRoleGroup,
 } from '@twomc/shared';
@@ -840,6 +841,24 @@ export class UsersService {
     return this.cache.wrap(cacheKey, CACHE_TTL.USER_SEARCH, async () =>
       this.findUsersBySearch(q, take),
     );
+  }
+
+  async searchHint(username: string): Promise<UserSearchHint> {
+    const normalized = username.trim();
+    if (!normalized || normalized.length < 2 || normalized.length > 16) {
+      return { id: '', username: normalized, exists: false };
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { username: normalized },
+      select: { id: true, username: true },
+    });
+
+    if (!user) {
+      return { id: '', username: normalized, exists: false };
+    }
+
+    return { id: user.id, username: user.username, exists: true };
   }
 
   private async findUsersBySearch(query: string, limit: number): Promise<UserSearchResult[]> {

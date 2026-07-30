@@ -25,6 +25,7 @@ import {
   ReportStats,
   RoleGroup,
   TopicDetails,
+  UserPunishmentSummary,
 } from '@twomc/shared';
 import { AuthenticatedUser } from '../auth/authenticated-user';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -38,19 +39,26 @@ import {
   BanReportsDto,
   ChangeReportStatusDto,
   CreateDonationProblemDto,
+  CreatePunishmentDto,
   CreateReportDto,
   ListReportsQueryDto,
   LockReportDto,
+  MyPunishmentsQueryDto,
   PunishReportDto,
   ReportRulesQueryDto,
   SetVerdictDto,
+  UpdatePunishmentDto,
 } from './dto/reports.dto';
+import { ReportsPunishmentsService } from './reports-punishments.service';
 import { ReportsService } from './reports.service';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class ReportsController {
-  constructor(private readonly reports: ReportsService) {}
+  constructor(
+    private readonly reports: ReportsService,
+    private readonly punishments: ReportsPunishmentsService,
+  ) {}
 
   @Get('reports/rules')
   @Public()
@@ -236,5 +244,45 @@ export class ReportsController {
   @Roles(RoleGroup.OWNER)
   listDonations(@Query() query: ListReportsQueryDto): Promise<ReportListResponse> {
     return this.reports.listDonations(query);
+  }
+
+  @Get('users/me/punishments')
+  listMyPunishments(
+    @CurrentUser('id') userId: string,
+    @Query() query: MyPunishmentsQueryDto,
+  ): Promise<UserPunishmentSummary[]> {
+    return this.punishments.listMyPunishments(userId, Boolean(query.onlyAppealable));
+  }
+
+  @Get('admin/users/:username/punishments')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.MODERATOR)
+  listUserPunishments(
+    @Param('username') username: string,
+  ): Promise<UserPunishmentSummary[]> {
+    return this.punishments.listByUsername(username);
+  }
+
+  @Post('admin/users/:userId/punishments')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.MODERATOR)
+  @HttpCode(HttpStatus.CREATED)
+  issuePunishment(
+    @Param('userId') userId: string,
+    @CurrentUser('id') actorId: string,
+    @Body() dto: CreatePunishmentDto,
+  ): Promise<UserPunishmentSummary> {
+    return this.punishments.issuePunishment(userId, actorId, dto);
+  }
+
+  @Patch('admin/users/:userId/punishments/:id')
+  @UseGuards(RolesGuard)
+  @Roles(RoleGroup.MODERATOR)
+  updatePunishment(
+    @Param('userId') userId: string,
+    @Param('id') id: string,
+    @Body() dto: UpdatePunishmentDto,
+  ): Promise<UserPunishmentSummary> {
+    return this.punishments.updatePunishment(userId, id, dto);
   }
 }

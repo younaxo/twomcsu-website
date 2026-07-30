@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import {
   Prisma,
+  NotificationType,
+  PunishmentType as PrismaPunishmentType,
   ReportStatus as PrismaReportStatus,
   ReportType as PrismaReportType,
   RoleGroup,
@@ -22,7 +24,9 @@ import {
   ReportStatus,
   ReportType,
   TopicDetails,
+  detectEvidenceLinkType,
   hasRoleGroup,
+  PUNISHMENT_TYPE_LABELS,
 } from '@twomc/shared';
 import { CaptchaService } from '../auth/captcha.service';
 import { MarkdownService } from '../comments/markdown.service';
@@ -44,25 +48,34 @@ import {
   SetVerdictDto,
 } from './dto/reports.dto';
 import { ReportsAttachmentsService } from './reports-attachments.service';
-import { NotificationType } from '@prisma/client';
-import { PUNISHMENT_TYPE_LABELS } from '@twomc/shared';
+import { ReportsPunishmentsService } from './reports-punishments.service';
 
 const DAILY_LIMIT = 3;
 const INCIDENT_MAX_AGE_MS = 72 * 60 * 60 * 1000;
 const DUPLICATE_WINDOW_MS = 72 * 60 * 60 * 1000;
 
+const targetInclude = {
+  orderBy: { order: 'asc' as const },
+  include: { user: { select: reportUserSelect } },
+} as const;
+
 const reportInclude = {
   author: { select: reportUserSelect },
   assignedTo: { select: reportUserSelect },
+  targets: targetInclude,
 } as const;
 
 const reportDetailInclude = {
   ...reportInclude,
+  evidenceLinks: { orderBy: { order: 'asc' as const } },
   messages: {
     orderBy: { createdAt: 'asc' as const },
     include: { author: { select: reportUserSelect } },
   },
   attachments: { orderBy: { createdAt: 'asc' as const } },
+  appealedPunishment: {
+    include: { issuedByUser: { select: reportUserSelect } },
+  },
 } as const;
 
 @Injectable()
@@ -73,6 +86,7 @@ export class ReportsService {
     private readonly notifications: NotificationsService,
     private readonly captcha: CaptchaService,
     private readonly attachments: ReportsAttachmentsService,
+    private readonly punishments: ReportsPunishmentsService,
   ) {}
 
   async createReport(
@@ -88,39 +102,86 @@ export class ReportsService {
     await this.assertCanCreate(authorId);
     this.validateCreateDto(dto);
 
-    const target = dto.targetUsername
-      ? await this.prisma.user.findUnique({
-          where: { username: dto.targetUsername },
+    const targetsInput = dto.targets ?? [];
+    const resolvedTargets = await Promise.all(
+      targetsInput.map(async (target, index) => {
+        const user = await this.prisma.user.findUnique({
+          where: { username: target.username },
           select: { id: true, username: true },
-        })
-      : null;
+        });
+        return {
+          username: user?.username ?? target.username,
+          userId: user?.id ?? null,
+          order: target.order ?? index,
+        };
+      }),
+    );
 
-    if (dto.targetUsername && !target) {
-      throw new BadRequestException('Игрок с таким ником не найден');
+    if (
+      dto.type === ReportType.PLAYER_COMPLAINT ||
+      dto.type === ReportType.ADMIN_COMPLAINT
+    ) {
+      for (const target of resolvedTargets) {
+        await this.assertNoDuplicate(authorId, target.username, dto.type);
+      }
     }
 
-    if (target && (dto.type === ReportType.PLAYER_COMPLAINT || dto.type === ReportType.ADMIN_COMPLAINT)) {
-      await this.assertNoDuplicate(authorId, target.username, dto.type);
+    let appealedPunishment: Awaited<
+      ReturnType<ReportsPunishmentsService['requireAppealableForUser']>
+    > | null = null;
+
+    if (dto.type === ReportType.PUNISHMENT_APPEAL) {
+      appealedPunishment = await this.punishments.requireAppealableForUser(
+        dto.appealedPunishmentId!,
+        authorId,
+      );
     }
 
     const reportNumber = await this.generateReportNumber();
     const descriptionHtml = this.markdown.render(dto.description);
+    const evidenceLinksInput = dto.evidenceLinks ?? [];
 
     const row = await this.prisma.report.create({
       data: {
         reportNumber,
         type: dto.type as PrismaReportType,
         authorId,
-        targetUsername: target?.username ?? dto.targetUsername ?? null,
-        targetUserId: target?.id ?? null,
         server: dto.server ?? null,
         incidentDate: dto.incidentDate ? new Date(dto.incidentDate) : null,
         description: dto.description,
         descriptionHtml,
-        evidenceLinks: dto.evidenceLinks ?? [],
+        additionalText: dto.additionalText ?? null,
+        appealedPunishmentId:
+          dto.type === ReportType.PUNISHMENT_APPEAL ? dto.appealedPunishmentId! : null,
+        targets: {
+          create: resolvedTargets.map((target) => ({
+            username: target.username,
+            userId: target.userId,
+            order: target.order,
+          })),
+        },
+        evidenceLinks: {
+          create: evidenceLinksInput.map((link, index) => ({
+            url: link.url,
+            title: link.title ?? null,
+            type: detectEvidenceLinkType(link.url),
+            order: link.order ?? index,
+          })),
+        },
       },
       include: reportDetailInclude,
     });
+
+    if (appealedPunishment?.issuedBy) {
+      await this.notifications.createNotification({
+        userId: appealedPunishment.issuedBy,
+        type: NotificationType.SYSTEM,
+        title: `Обжалование наказания по обращению ${row.reportNumber}`,
+        message: 'Игрок подал обжалование на выданное наказание',
+        link: `/moderation/reports/${row.reportNumber}`,
+        fromUserId: authorId,
+      });
+    }
 
     await this.notifyStaffAboutNewReport(row.reportNumber, row.type as ReportType, authorId);
 
@@ -146,7 +207,6 @@ export class ReportsService {
         server: dto.server,
         description: dto.description,
         descriptionHtml,
-        evidenceLinks: [],
         contactEmail: dto.contactEmail,
         contactPhone: dto.contactPhone,
         paymentDate: new Date(dto.paymentDate),
@@ -456,6 +516,25 @@ export class ReportsService {
       throw new BadRequestException('Наказание доступно только для жалоб на игроков');
     }
 
+    const targetUsername = dto.targetUsername.trim();
+    const matchedTarget = row.targets.find(
+      (target) => target.username.toLowerCase() === targetUsername.toLowerCase(),
+    );
+
+    if (!matchedTarget) {
+      throw new BadRequestException('Указанный игрок не является целью этого обращения');
+    }
+
+    await this.punishments.createFromReport({
+      targetUsername: matchedTarget.username,
+      actorId,
+      punishmentType: dto.punishmentType as PrismaPunishmentType,
+      duration: dto.duration ?? null,
+      reason: dto.reason,
+      server: row.server,
+      reportNumber: row.reportNumber,
+    });
+
     await this.prisma.report.update({
       where: { id: row.id },
       data: {
@@ -472,19 +551,8 @@ export class ReportsService {
     await this.addSystemMessage(
       row.id,
       actorId,
-      `Выдано наказание: ${label}${durationPart}. Причина: ${dto.reason}`,
+      `Выдано наказание игроку ${matchedTarget.username}: ${label}${durationPart}. Причина: ${dto.reason}`,
     );
-
-    if (row.targetUserId) {
-      await this.notifications.createNotification({
-        userId: row.targetUserId,
-        type: NotificationType.SYSTEM,
-        title: `Вы получили ${label}${durationPart}`,
-        message: `Причина: ${dto.reason}`,
-        link: `/report/${row.reportNumber}`,
-        fromUserId: actorId,
-      });
-    }
 
     return this.getByNumber(reportNumber, actorId, roleGroup);
   }
@@ -612,11 +680,12 @@ export class ReportsService {
   }
 
   private validateCreateDto(dto: CreateReportDto): void {
+    const targets = dto.targets ?? [];
     const links = dto.evidenceLinks ?? [];
 
     if (dto.type === ReportType.PLAYER_COMPLAINT) {
-      if (!dto.targetUsername) {
-        throw new BadRequestException('Укажите ник нарушителя');
+      if (targets.length < 1) {
+        throw new BadRequestException('Укажите хотя бы одного нарушителя');
       }
       if (!dto.server) {
         throw new BadRequestException('Укажите сервер');
@@ -631,7 +700,7 @@ export class ReportsService {
     }
 
     if (dto.type === ReportType.ADMIN_COMPLAINT) {
-      if (!dto.targetUsername) {
+      if (targets.length < 1) {
         throw new BadRequestException('Укажите ник администратора или хелпера');
       }
       if (links.length < 1) {
@@ -640,6 +709,9 @@ export class ReportsService {
     }
 
     if (dto.type === ReportType.PUNISHMENT_APPEAL) {
+      if (!dto.appealedPunishmentId) {
+        throw new BadRequestException('Укажите наказание для обжалования');
+      }
       if (links.length < 1) {
         throw new BadRequestException('Добавьте хотя бы одну ссылку на доказательства');
       }
@@ -693,7 +765,7 @@ export class ReportsService {
     const duplicate = await this.prisma.report.findFirst({
       where: {
         authorId,
-        targetUsername,
+        targets: { some: { username: targetUsername } },
         type: type as PrismaReportType,
         createdAt: { gte: since },
         status: {
@@ -750,7 +822,7 @@ export class ReportsService {
         {
           OR: [
             { reportNumber: { contains: q, mode: 'insensitive' } },
-            { targetUsername: { contains: q, mode: 'insensitive' } },
+            { targets: { some: { username: { contains: q, mode: 'insensitive' } } } },
             { author: { username: { contains: q, mode: 'insensitive' } } },
             { description: { contains: q, mode: 'insensitive' } },
           ],

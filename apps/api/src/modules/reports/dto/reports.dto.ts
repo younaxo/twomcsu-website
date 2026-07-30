@@ -1,15 +1,19 @@
 import {
+  ArrayMaxSize,
   IsArray,
   IsBoolean,
   IsDateString,
   IsEmail,
   IsEnum,
+  IsInt,
   IsOptional,
   IsString,
   IsUrl,
   MaxLength,
+  Min,
   MinLength,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -18,14 +22,53 @@ import {
   ReportType,
 } from '@twomc/shared';
 
+export class ReportTargetInputDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(16)
+  username!: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  order?: number;
+}
+
+export class ReportEvidenceLinkInputDto {
+  @IsUrl()
+  @MaxLength(2000)
+  url!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  title?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  order?: number;
+}
+
 export class CreateReportDto {
   @IsEnum(ReportType)
   type!: ReportType;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(16)
-  targetUsername?: string;
+  @IsArray()
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
+  @Type(() => ReportTargetInputDto)
+  targets?: ReportTargetInputDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
+  @Type(() => ReportEvidenceLinkInputDto)
+  evidenceLinks?: ReportEvidenceLinkInputDto[];
 
   @IsOptional()
   @IsString()
@@ -42,9 +85,13 @@ export class CreateReportDto {
   description!: string;
 
   @IsOptional()
-  @IsArray()
-  @IsUrl({}, { each: true })
-  evidenceLinks?: string[];
+  @IsString()
+  @MaxLength(5_000)
+  additionalText?: string;
+
+  @IsOptional()
+  @IsString()
+  appealedPunishmentId?: string;
 
   @IsOptional()
   @IsString()
@@ -146,6 +193,11 @@ export class SetVerdictDto {
 }
 
 export class PunishReportDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(16)
+  targetUsername!: string;
+
   @IsEnum(PunishmentType)
   punishmentType!: PunishmentType;
 
@@ -158,6 +210,53 @@ export class PunishReportDto {
   @MinLength(3)
   @MaxLength(500)
   reason!: string;
+}
+
+export class CreatePunishmentDto {
+  @IsEnum(PunishmentType)
+  punishmentType!: PunishmentType;
+
+  @IsString()
+  @MinLength(3)
+  @MaxLength(500)
+  reason!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  duration?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  server?: string;
+
+  @IsOptional()
+  @IsDateString()
+  expiresAt?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isAppealable?: boolean;
+}
+
+export class UpdatePunishmentDto {
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  duration?: string;
+
+  @IsOptional()
+  @IsDateString()
+  expiresAt?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  isAppealable?: boolean;
 }
 
 export class LockReportDto {
@@ -182,3 +281,13 @@ export class ReportRulesQueryDto {
   @IsEnum(ReportType)
   type!: ReportType;
 }
+
+export class MyPunishmentsQueryDto {
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  onlyAppealable?: boolean;
+}
+
+// Keep ArrayMinSize imported for potential future use
+void ArrayMinSize;

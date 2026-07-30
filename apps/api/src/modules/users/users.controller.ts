@@ -19,10 +19,12 @@ import {
   SuccessResponse,
   UserBadge,
   UserProfile,
+  UserSearchHint,
   UserSearchResult,
 } from '@twomc/shared';
 import { AuthenticatedUser } from '../auth/authenticated-user';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
@@ -44,6 +46,12 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   search(@Query() query: SearchUsersDto): Promise<UserSearchResult[]> {
     return this.users.search(query.q, query.limit ?? 10);
+  }
+
+  @Get(':username/search-hint')
+  @Public()
+  searchHint(@Param('username') username: string): Promise<UserSearchHint> {
+    return this.users.searchHint(username);
   }
 
   @Get(':username/public')
