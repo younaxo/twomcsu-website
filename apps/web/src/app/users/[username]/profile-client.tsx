@@ -199,8 +199,16 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                   linkToProfile={false}
                   badges={profile.badges}
                 />
+                {profile.customPosition ? (
+                  <p
+                    className="text-sm italic"
+                    style={{ color: profile.customPosition.color ?? undefined }}
+                  >
+                    {profile.customPosition.name}
+                  </p>
+                ) : null}
                 {profile.statusText ? (
-                  <p className="max-w-xl text-sm text-muted-foreground">{profile.statusText}</p>
+                  <p className="max-w-xl text-sm italic text-muted-foreground">{profile.statusText}</p>
                 ) : null}
                 <div className="flex flex-wrap items-center gap-2">
                   <PositionBadge position={profile.position} size="md" />
