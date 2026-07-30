@@ -1724,3 +1724,16 @@ model NewsCommentReaction {
   @@index([commentId])
   @@map("news_comment_reactions")
 }
+
+model NewsLike {
+  id        String   @id @default(cuid())
+  newsId    String
+  news      News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([newsId, userId])
+  @@index([newsId])
+  @@map("news_likes")
+}
