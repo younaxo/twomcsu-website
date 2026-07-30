@@ -86,6 +86,14 @@ function PreviewBody({
             linkToProfile={false}
           />
         </div>
+        {profile.customPosition ? (
+          <p
+            className="mb-1 text-sm italic"
+            style={{ color: profile.customPosition.color ?? undefined }}
+          >
+            {profile.customPosition.name}
+          </p>
+        ) : null}
         <div className="mb-3">
           <PositionBadge position={profile.position} size="sm" />
         </div>
