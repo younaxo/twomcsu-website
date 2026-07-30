@@ -1,7 +1,6 @@
 'use client';
 
 import type {
-  PunishmentType,
   ReportAttachment,
   ReportDetails,
   ReportListResponse,
@@ -189,7 +188,7 @@ export function useAddReportMessage(reportNumber: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: { content: string; isInternal?: boolean }) => {
+    mutationFn: async (payload: { content: string }) => {
       const { data } = await api.post<ReportDetails>(
         `/reports/${reportNumber}/messages`,
         payload,
@@ -275,13 +274,15 @@ export function useChangeReportStatus() {
     mutationFn: async ({
       reportNumber,
       status,
+      comment,
     }: {
       reportNumber: string;
       status: ReportStatus;
+      comment?: string;
     }) => {
       const { data } = await api.patch<ReportDetails>(
         `/moderation/reports/${reportNumber}/status`,
-        { status },
+        { status, comment },
       );
       return data;
     },
@@ -318,36 +319,6 @@ export function useSetVerdict() {
   });
 }
 
-export function usePunishReport() {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      reportNumber,
-      targetUsername,
-      punishmentType,
-      duration,
-      reason,
-    }: {
-      reportNumber: string;
-      targetUsername: string;
-      punishmentType: PunishmentType;
-      duration?: string;
-      reason: string;
-    }) => {
-      const { data } = await api.post<ReportDetails>(
-        `/moderation/reports/${reportNumber}/punish`,
-        { targetUsername, punishmentType, duration, reason },
-      );
-      return data;
-    },
-    onSuccess: (data) => {
-      qc.setQueryData(queryKeys.report(data.reportNumber), data);
-      void qc.invalidateQueries({ queryKey: ['reports'] });
-    },
-  });
-}
-
 export function useLockReport() {
   const qc = useQueryClient();
 
@@ -369,6 +340,236 @@ export function useLockReport() {
       qc.setQueryData(queryKeys.report(data.reportNumber), data);
       void qc.invalidateQueries({ queryKey: ['reports'] });
     },
+  });
+}
+
+export function useArchiveReport() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      reportNumber,
+      reason,
+    }: {
+      reportNumber: string;
+      reason?: string;
+    }) => {
+      const { data } = await api.post<ReportDetails>(
+        `/admin/reports/${reportNumber}/archive`,
+        { reason },
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(data.reportNumber), data);
+      void qc.invalidateQueries({ queryKey: ['reports'] });
+      void qc.invalidateQueries({ queryKey: ['moderation', 'reports'] });
+      void qc.invalidateQueries({ queryKey: ['admin', 'reports', 'archived'] });
+    },
+  });
+}
+
+export function useUnarchiveReport() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (reportNumber: string) => {
+      const { data } = await api.post<ReportDetails>(
+        `/admin/reports/${reportNumber}/unarchive`,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(data.reportNumber), data);
+      void qc.invalidateQueries({ queryKey: ['admin', 'reports', 'archived'] });
+    },
+  });
+}
+
+export function useDeleteReport() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (reportNumber: string) => {
+      await api.delete(`/admin/reports/${reportNumber}`);
+      return reportNumber;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['reports'] });
+      void qc.invalidateQueries({ queryKey: ['moderation', 'reports'] });
+    },
+  });
+}
+
+export function useSoftDeleteReportMessage() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      reportNumber,
+      messageId,
+      reason,
+    }: {
+      reportNumber: string;
+      messageId: string;
+      reason?: string;
+    }) => {
+      const { data } = await api.delete<ReportDetails>(
+        `/moderation/reports/${reportNumber}/messages/${messageId}`,
+        { data: { reason } },
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(data.reportNumber), data);
+    },
+  });
+}
+
+export function useHardDeleteReportMessage() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      reportNumber,
+      messageId,
+    }: {
+      reportNumber: string;
+      messageId: string;
+    }) => {
+      const { data } = await api.delete<ReportDetails>(
+        `/admin/reports/${reportNumber}/messages/${messageId}`,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(data.reportNumber), data);
+    },
+  });
+}
+
+export function useDeleteOwnReportMessage(reportNumber: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (messageId: string) => {
+      const { data } = await api.patch<ReportDetails>(
+        `/reports/${reportNumber}/messages/${messageId}`,
+        { delete: true },
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(reportNumber), data);
+    },
+  });
+}
+
+export function usePinReportMessage() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      reportNumber,
+      messageId,
+      pin,
+    }: {
+      reportNumber: string;
+      messageId: string;
+      pin: boolean;
+    }) => {
+      const path = pin ? 'pin' : 'unpin';
+      const { data } = await api.patch<ReportDetails>(
+        `/moderation/reports/${reportNumber}/messages/${messageId}/${path}`,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(data.reportNumber), data);
+    },
+  });
+}
+
+export function useCreateModeratorNote(reportNumber: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (content: string) => {
+      const { data } = await api.post<ReportDetails>(
+        `/moderation/reports/${reportNumber}/notes`,
+        { content },
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(reportNumber), data);
+    },
+  });
+}
+
+export function useUpdateModeratorNote(reportNumber: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ noteId, content }: { noteId: string; content: string }) => {
+      const { data } = await api.patch<ReportDetails>(
+        `/moderation/reports/${reportNumber}/notes/${noteId}`,
+        { content },
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(reportNumber), data);
+    },
+  });
+}
+
+export function useDeleteModeratorNote(reportNumber: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (noteId: string) => {
+      const { data } = await api.delete<ReportDetails>(
+        `/moderation/reports/${reportNumber}/notes/${noteId}`,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(reportNumber), data);
+    },
+  });
+}
+
+export function usePinModeratorNote(reportNumber: string) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (noteId: string) => {
+      const { data } = await api.patch<ReportDetails>(
+        `/moderation/reports/${reportNumber}/notes/${noteId}/pin`,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData(queryKeys.report(reportNumber), data);
+    },
+  });
+}
+
+export function useArchivedReports(filters: ReportFilters, enabled = true) {
+  return useQuery({
+    queryKey: ['admin', 'reports', 'archived', filters],
+    queryFn: async () => {
+      const { data } = await api.get<ReportListResponse>('/admin/reports/archived', {
+        params: {
+          page: filters.page,
+          limit: filters.limit,
+          search: filters.search || undefined,
+        },
+      });
+      return data;
+    },
+    enabled,
   });
 }
 
