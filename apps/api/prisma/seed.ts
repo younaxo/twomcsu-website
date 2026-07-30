@@ -17,6 +17,7 @@ import { seedCurrencyRates } from './currency-rates.data';
 import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
 import { seedPunishments, seedReports } from './reports.data';
+import { seedNews, seedNewsComments } from './news.data';
 import { seedTopics, TOPIC_PLACEHOLDER_CONTENT } from './topics.data';
 import { seedBundles } from './store-bundles.data';
 import { seedCategories } from './store-categories.data';
@@ -536,6 +537,173 @@ async function upsertTopics(createdBy: string): Promise<void> {
   console.log(`topics: ${seedTopics.length}`);
 }
 
+async function upsertNews(userIds: Map<string, string>): Promise<void> {
+  const ownerUsername = process.env.SEED_OWNER_USERNAME ?? 'owner';
+  const resolveAuthor = (key: string) => {
+    if (key === 'owner') {
+      return userIds.get(ownerUsername) ?? userIds.get('owner');
+    }
+    return userIds.get(key);
+  };
+
+  const newsIds = new Map<string, string>();
+
+  for (const item of seedNews) {
+    const authorId = resolveAuthor(item.authorUsername);
+    if (!authorId) {
+      throw new Error(`news seed: missing author ${item.authorUsername}`);
+    }
+
+    const publishedAt = new Date(
+      Date.now() - item.publishedDaysAgo * 24 * 60 * 60 * 1000,
+    );
+    const coverImage = `https://picsum.photos/1200/600?random=${item.coverRandom}`;
+    const contentHtml = item.content
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .split(/\n\n+/)
+      .map((block) => {
+        if (block.startsWith('<h')) return block;
+        if (block.startsWith('- ') || block.startsWith('1. ')) {
+          const items = block
+            .split('\n')
+            .map((line) => line.replace(/^[-*\d.]+\s+/, ''))
+            .map((line) => `<li>${line}</li>`)
+            .join('');
+          return `<ul>${items}</ul>`;
+        }
+        return `<p>${block.replace(/\n/g, '<br/>')}</p>`;
+      })
+      .join('');
+
+    const row = await prisma.news.upsert({
+      where: { slug: item.slug },
+      update: {
+        title: item.title,
+        excerpt: item.excerpt,
+        content: item.content,
+        contentHtml,
+        coverImage,
+        category: item.category,
+        status: item.status,
+        isPinned: item.isPinned ?? false,
+        isFeatured: item.isFeatured ?? false,
+        publishedAt,
+        metaTitle: item.metaTitle ?? item.title,
+        metaDescription: item.metaDescription ?? item.excerpt,
+        metaKeywords: item.tags,
+        authorId,
+      },
+      create: {
+        slug: item.slug,
+        title: item.title,
+        excerpt: item.excerpt,
+        content: item.content,
+        contentHtml,
+        coverImage,
+        category: item.category,
+        status: item.status,
+        isPinned: item.isPinned ?? false,
+        isFeatured: item.isFeatured ?? false,
+        publishedAt,
+        metaTitle: item.metaTitle ?? item.title,
+        metaDescription: item.metaDescription ?? item.excerpt,
+        metaKeywords: item.tags,
+        authorId,
+        viewsCount: 50 + Math.floor(Math.random() * 400),
+        likesCount: 0,
+        commentsCount: 0,
+      },
+    });
+
+    newsIds.set(item.slug, row.id);
+
+    await prisma.newsTag.deleteMany({ where: { newsId: row.id } });
+    await prisma.newsTag.createMany({
+      data: item.tags.map((tag) => ({ newsId: row.id, tag })),
+      skipDuplicates: true,
+    });
+  }
+
+  // Likes from demo users
+  const likers = ['player1', 'player2', 'helper', 'moderator', 'admin']
+    .map((u) => userIds.get(u))
+    .filter((id): id is string => Boolean(id));
+
+  for (const [, newsId] of newsIds) {
+    for (const userId of likers.slice(0, 2 + Math.floor(Math.random() * 3))) {
+      await prisma.newsLike.upsert({
+        where: { newsId_userId: { newsId, userId } },
+        update: {},
+        create: { newsId, userId },
+      });
+    }
+    const likesCount = await prisma.newsLike.count({ where: { newsId } });
+    await prisma.news.update({ where: { id: newsId }, data: { likesCount } });
+  }
+
+  // Wipe and reseed comments for demo news
+  await prisma.newsCommentReaction.deleteMany({
+    where: { comment: { newsId: { in: [...newsIds.values()] } } },
+  });
+  await prisma.newsComment.deleteMany({
+    where: { newsId: { in: [...newsIds.values()] } },
+  });
+
+  for (const entry of seedNewsComments) {
+    const newsId = newsIds.get(entry.newsSlug);
+    const authorId = resolveAuthor(entry.authorUsername) ?? userIds.get(entry.authorUsername);
+    if (!newsId || !authorId) {
+      continue;
+    }
+
+    const parent = await prisma.newsComment.create({
+      data: {
+        newsId,
+        authorId,
+        content: entry.content,
+        contentHtml: `<p>${entry.content}</p>`,
+      },
+    });
+
+    for (const reply of entry.replies ?? []) {
+      const replyAuthor =
+        resolveAuthor(reply.authorUsername) ?? userIds.get(reply.authorUsername);
+      if (!replyAuthor) {
+        continue;
+      }
+      await prisma.newsComment.create({
+        data: {
+          newsId,
+          authorId: replyAuthor,
+          parentId: parent.id,
+          content: reply.content,
+          contentHtml: `<p>${reply.content}</p>`,
+        },
+      });
+    }
+
+    // Sample reactions
+    const reactor = userIds.get('player1');
+    if (reactor && reactor !== authorId) {
+      await prisma.newsCommentReaction.create({
+        data: { commentId: parent.id, userId: reactor, emoji: 'thumbs_up' },
+      });
+    }
+  }
+
+  for (const newsId of newsIds.values()) {
+    const commentsCount = await prisma.newsComment.count({ where: { newsId } });
+    await prisma.news.update({ where: { id: newsId }, data: { commentsCount } });
+  }
+
+  console.log(`news: ${seedNews.length} posts, ${seedNewsComments.length} comment threads`);
+}
+
+
 async function upsertUser(
   {
     email,
@@ -913,6 +1081,7 @@ async function main() {
   const punishmentIds = await seedTestPunishments(userIds);
   await seedTestReports(userIds, punishmentIds);
   await seedChat(prisma);
+  await upsertNews(userIds);
 }
 
 /** Idempotent demo punishments for appeal testing */
@@ -1169,6 +1338,7 @@ const SYSTEM_MODULES = [
   'tickets',
   'marketplace',
   'forum',
+  'news',
 ] as const;
 
 async function seedSystemDefaults() {
