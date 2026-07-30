@@ -270,25 +270,22 @@ export function SiteSidebar() {
 
   return (
     <>
-      {/* Desktop: wall-integrated rail */}
       <aside
         className={cn(
-          'pointer-events-auto fixed bottom-0 left-0 top-0 z-40 hidden w-[72px] flex-col',
-          'border-r border-white/5 bg-neutral-950/70',
-          'backdrop-blur-[20px] xl:flex xl:w-[260px]',
-          'lg:flex',
+          'pointer-events-auto fixed left-0 top-0 z-40 hidden h-screen w-[72px] flex-col overflow-y-auto',
+          'border-r border-white/5 bg-neutral-950/70 backdrop-blur-[20px]',
+          'lg:flex xl:w-[260px]',
         )}
         aria-label="Боковая навигация"
       >
-        <div className="hidden h-full xl:block">
+        <div className="hidden h-full min-h-0 xl:block">
           <SidebarNav />
         </div>
-        <div className="h-full xl:hidden">
+        <div className="h-full min-h-0 xl:hidden">
           <SidebarNav collapsed />
         </div>
       </aside>
 
-      {/* Mobile hamburger */}
       <div className="fixed bottom-5 left-5 z-40 lg:hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
@@ -307,7 +304,7 @@ export function SiteSidebar() {
             <SheetHeader className="border-b border-white/5 px-4 py-4 text-left">
               <SheetTitle className="text-base">Навигация</SheetTitle>
             </SheetHeader>
-            <div className="h-[calc(100%-4rem)]">
+            <div className="h-[calc(100%-4rem)] overflow-y-auto">
               <SidebarNav onNavigate={() => setMobileOpen(false)} />
             </div>
           </SheetContent>
