@@ -19,7 +19,7 @@ interface ColoredUsernameProps {
   showBadge?: boolean;
   linkToProfile?: boolean;
   badges?: BadgeLike[];
-  /** Limit badges shown after the nick (e.g. 1 in header, 2 in chat). */
+  /** Limit badges shown after the nick (default 3; e.g. 1 in header, 2 in chat). */
   maxBadges?: number;
   className?: string;
 }
@@ -42,7 +42,7 @@ function ColoredUsernameComponent({
   showBadge = false,
   linkToProfile = true,
   badges,
-  maxBadges,
+  maxBadges = 3,
   className,
 }: ColoredUsernameProps) {
   const prefetchProfile = usePrefetchProfile();
@@ -54,7 +54,7 @@ function ColoredUsernameComponent({
       (a, b) =>
         (rank.get(a.type as UserBadgeType) ?? 99) - (rank.get(b.type as UserBadgeType) ?? 99),
     );
-    return typeof maxBadges === 'number' ? sorted.slice(0, maxBadges) : sorted;
+    return sorted.slice(0, maxBadges);
   }, [badges, maxBadges]);
 
   const name = (
