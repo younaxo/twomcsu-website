@@ -387,6 +387,7 @@ export class ReportsService {
     authorId: string,
     roleGroup: RoleGroup,
     dto: AddReportMessageDto,
+    options?: { asModerator?: boolean },
   ): Promise<ReportDetails> {
     const row = await this.requireReport(reportNumber);
     this.assertCanView(row, authorId, roleGroup);
@@ -395,11 +396,18 @@ export class ReportsService {
       throw new BadRequestException('Обращение заблокировано');
     }
 
-    const isStaff = canReviewReportType(roleGroup, row.type as ReportType);
+    if (options?.asModerator) {
+      this.assertCanModerate(row, roleGroup);
+      this.assertNotSelfTarget(row, authorId);
+    }
+
     const isAuthor = row.authorId === authorId;
     const isTarget = isReportTarget(row, authorId);
+    // Staff named as targets may reply as participants, not as reviewers
+    const asStaff =
+      canReviewReportType(roleGroup, row.type as ReportType) && !isTarget;
 
-    if (!isAuthor && !isStaff && !isTarget) {
+    if (!isAuthor && !asStaff && !isTarget) {
       throw new ForbiddenException();
     }
 
@@ -411,16 +419,16 @@ export class ReportsService {
         authorId,
         content: dto.content,
         contentHtml,
-        isStaff,
+        isStaff: asStaff,
       },
     });
 
-    if ((isStaff || isTarget) && row.authorId !== authorId) {
+    if ((asStaff || isTarget) && row.authorId !== authorId) {
       await this.notifications.createNotification({
         userId: row.authorId,
         type: NotificationType.SYSTEM,
         title: `Новый ответ по обращению ${row.reportNumber}`,
-        message: isStaff
+        message: asStaff
           ? 'Модератор ответил на ваше обращение'
           : 'Участник обращения оставил сообщение',
         link: `/report/${row.reportNumber}`,
@@ -758,6 +766,8 @@ export class ReportsService {
     const assigneeId = dto.userId === undefined ? actorId : dto.userId;
 
     if (assigneeId) {
+      this.assertNotSelfTarget(row, assigneeId);
+
       const assignee = await this.prisma.user.findUnique({
         where: { id: assigneeId },
         select: { id: true, roleGroup: true },
@@ -801,6 +811,7 @@ export class ReportsService {
   ): Promise<ReportDetails> {
     const row = await this.requireReport(reportNumber);
     this.assertCanModerate(row, roleGroup);
+    this.assertNotSelfTarget(row, actorId);
 
     const previousStatus = row.status as ReportStatus;
     const resolvedAt =
@@ -837,6 +848,7 @@ export class ReportsService {
   ): Promise<ReportDetails> {
     const row = await this.requireReport(reportNumber);
     this.assertCanModerate(row, roleGroup);
+    this.assertNotSelfTarget(row, actorId);
 
     const verdictHtml = this.markdown.render(dto.verdict);
 
@@ -1325,6 +1337,15 @@ export class ReportsService {
   private assertCanModerate(row: { type: PrismaReportType }, roleGroup: RoleGroup): void {
     if (!canReviewReportType(roleGroup, row.type as ReportType)) {
       throw new ForbiddenException('Недостаточно прав для этого типа обращения');
+    }
+  }
+
+  private assertNotSelfTarget(
+    row: { targets?: { userId: string | null }[] },
+    userId: string,
+  ): void {
+    if (isReportTarget(row, userId)) {
+      throw new ForbiddenException('Вы не можете рассматривать обращение на самого себя');
     }
   }
 

@@ -233,7 +233,9 @@ export class ReportsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: AddReportMessageDto,
   ): Promise<ReportDetails> {
-    return this.reports.addMessage(reportNumber, user.id, user.roleGroup, dto);
+    return this.reports.addMessage(reportNumber, user.id, user.roleGroup, dto, {
+      asModerator: true,
+    });
   }
 
   @Delete('moderation/reports/:reportNumber/messages/:messageId')
