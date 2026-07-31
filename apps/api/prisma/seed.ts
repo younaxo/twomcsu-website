@@ -18,6 +18,7 @@ import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
 import { seedPunishments, seedReports } from './reports.data';
 import { seedNews, seedNewsComments } from './news.data';
+import { seedActivityFeed } from './activity.data';
 import { seedTopics, TOPIC_PLACEHOLDER_CONTENT } from './topics.data';
 import { seedBundles } from './store-bundles.data';
 import { seedCategories } from './store-categories.data';
@@ -1082,6 +1083,7 @@ async function main() {
   await seedTestReports(userIds, punishmentIds);
   await seedChat(prisma);
   await upsertNews(userIds);
+  await seedActivityFeed(prisma, userIds);
 }
 
 /** Idempotent demo punishments for appeal testing */
