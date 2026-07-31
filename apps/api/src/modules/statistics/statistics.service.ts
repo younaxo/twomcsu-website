@@ -218,6 +218,7 @@ export class StatisticsService {
     return fillDaySeries(
       safeDays,
       rows.map((r) => ({ date: toDateKey(r.date), value: Number(r.count) })),
+      'count',
     );
   }
 
@@ -235,7 +236,7 @@ export class StatisticsService {
       safeDays,
       rows.map((r) => ({ date: toDateKey(r.date), value: Number(r.total) })),
       'total',
-    ).map((row) => ({ date: row.date, total: row.total }));
+    );
   }
 
   async getReportsChartData(days = 30) {
