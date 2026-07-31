@@ -217,8 +217,7 @@ export class StatisticsService {
     `;
     return fillDaySeries(
       safeDays,
-      rows.map((r) => ({ date: toDateKey(r.date), count: Number(r.count) })),
-      'count',
+      rows.map((r) => ({ date: toDateKey(r.date), value: Number(r.count) })),
     );
   }
 
@@ -234,9 +233,9 @@ export class StatisticsService {
     `;
     return fillDaySeries(
       safeDays,
-      rows.map((r) => ({ date: toDateKey(r.date), total: Number(r.total) })),
+      rows.map((r) => ({ date: toDateKey(r.date), value: Number(r.total) })),
       'total',
-    );
+    ).map((row) => ({ date: row.date, total: row.total }));
   }
 
   async getReportsChartData(days = 30) {
@@ -335,15 +334,19 @@ export class StatisticsService {
       take,
     });
 
+    const userIds = grouped
+      .map((g) => g.userId)
+      .filter((id): id is string => typeof id === 'string');
+
     const users = await this.prisma.user.findMany({
-      where: { id: { in: grouped.map((g) => g.userId) } },
+      where: { id: { in: userIds } },
       select: { id: true, username: true, avatar: true, shortId: true, tag: true },
     });
     const byId = new Map(users.map((u) => [u.id, u]));
 
     return grouped.map((g, index) => ({
       rank: index + 1,
-      user: byId.get(g.userId) ?? null,
+      user: g.userId ? byId.get(g.userId) ?? null : null,
       totalSpent: Number(g._sum.total ?? 0),
       ordersCount: g._count._all,
     }));
@@ -446,17 +449,19 @@ function toDateKey(value: Date | string): string {
   return d.toISOString().slice(0, 10);
 }
 
-function fillDaySeries<T extends Record<string, number>>(
+function fillDaySeries(
   days: number,
-  rows: Array<{ date: string } & T>,
-  valueKey: keyof T & string,
+  rows: Array<{ date: string; value: number }>,
+  valueKey = 'count',
 ): Array<{ date: string } & Record<string, number>> {
-  const map = new Map(rows.map((r) => [r.date, Number(r[valueKey])]));
+  const map = new Map(rows.map((r) => [r.date, r.value]));
   const result: Array<{ date: string } & Record<string, number>> = [];
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
     const key = d.toISOString().slice(0, 10);
-    result.push({ date: key, [valueKey]: map.get(key) ?? 0 });
+    result.push({ date: key, [valueKey]: map.get(key) ?? 0 } as {
+      date: string;
+    } & Record<string, number>);
   }
   return result;
 }
