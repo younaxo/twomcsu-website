@@ -128,14 +128,14 @@ export function ReportModerationActions({
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex w-full min-w-0 flex-col gap-2">
       {!report.assignedTo ? (
         <Button
           type="button"
           size="sm"
           onClick={() => void take()}
           disabled={assign.isPending}
-          className="bg-[#F57C00] text-black hover:bg-[#E65100]"
+          className="w-full bg-[#F57C00] text-black hover:bg-[#E65100]"
         >
           Взять себе
         </Button>
@@ -148,7 +148,7 @@ export function ReportModerationActions({
           setStatusOpen(true);
         }}
       >
-        <SelectTrigger className="h-9 w-full glass-light">
+        <SelectTrigger className="h-9 w-full min-w-0 glass-light">
           <SelectValue placeholder="Изменить статус" />
         </SelectTrigger>
         <SelectContent>
@@ -160,22 +160,46 @@ export function ReportModerationActions({
         </SelectContent>
       </Select>
 
-      <Button type="button" size="sm" variant="secondary" onClick={() => setVerdictOpen(true)}>
+      <Button
+        type="button"
+        size="sm"
+        variant="secondary"
+        className="w-full"
+        onClick={() => setVerdictOpen(true)}
+      >
         Вынести вердикт
       </Button>
 
       {isAdmin && !report.isLocked ? (
-        <Button type="button" size="sm" variant="secondary" onClick={() => setLockOpen(true)}>
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          className="w-full"
+          onClick={() => setLockOpen(true)}
+        >
           Заблокировать сообщения
         </Button>
       ) : null}
 
       {isAdmin ? (
         <>
-          <Button type="button" size="sm" variant="secondary" onClick={() => setArchiveOpen(true)}>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="w-full"
+            onClick={() => setArchiveOpen(true)}
+          >
             Архивировать
           </Button>
-          <Button type="button" size="sm" variant="destructive" onClick={() => setDeleteOpen(true)}>
+          <Button
+            type="button"
+            size="sm"
+            variant="destructive"
+            className="w-full"
+            onClick={() => setDeleteOpen(true)}
+          >
             Удалить
           </Button>
         </>

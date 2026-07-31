@@ -109,8 +109,13 @@ export default function ReportDetailsPage() {
         </div>
       </header>
 
-      <div className={cn('grid gap-5', isModerator && 'lg:grid-cols-[1fr_260px]')}>
-        <div className="space-y-5">
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-6',
+          isModerator && 'lg:grid-cols-[minmax(0,1fr)_320px]',
+        )}
+      >
+        <div className="min-w-0 space-y-5">
           <section className="rounded-2xl glass-medium p-5">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <ReportTypeIcon type={data.type} size="xl" />
@@ -266,7 +271,7 @@ export default function ReportDetailsPage() {
         </div>
 
         {isModerator ? (
-          <aside className="h-fit space-y-3 lg:sticky lg:top-36">
+          <aside className="w-full min-w-0 lg:sticky lg:top-20 lg:h-fit">
             <div className="rounded-2xl glass-medium p-4">
               <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Действия
