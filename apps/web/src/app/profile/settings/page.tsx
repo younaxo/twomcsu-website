@@ -24,6 +24,7 @@ import { DateBirthPicker } from '@/components/profile/DateBirthPicker';
 import { GenderSelect } from '@/components/profile/GenderSelect';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
 import { ActivitySettingsTab } from '@/components/activity/ActivitySettingsTab';
+import { NotificationsSettingsTab } from '@/components/notifications/NotificationsSettingsTab';
 import { CaptchaField, CaptchaFieldHandle } from '@/components/shared/CaptchaField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -107,6 +108,7 @@ export default function ProfileSettingsPage() {
       'media',
       'chat',
       'activity',
+      'notifications',
       'security',
     ]);
     if (hash && allowed.has(hash)) {
@@ -239,6 +241,7 @@ export default function ProfileSettingsPage() {
           <TabsTrigger value="media">Медиа</TabsTrigger>
           <TabsTrigger value="chat">Чат</TabsTrigger>
           <TabsTrigger value="activity">Активность</TabsTrigger>
+          <TabsTrigger value="notifications">Уведомления</TabsTrigger>
           <TabsTrigger value="security">Безопасность</TabsTrigger>
         </TabsList>
 
@@ -712,6 +715,10 @@ export default function ProfileSettingsPage() {
 
         <TabsContent value="activity">
           <ActivitySettingsTab />
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6">
+          <NotificationsSettingsTab />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
