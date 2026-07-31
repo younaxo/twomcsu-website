@@ -1390,7 +1390,7 @@ export class ReportsService {
     row: { targets?: { userId: string | null }[] },
     userId: string,
   ): void {
-    if (isReportTarget(row, userId)) {
+    if (row.targets?.some((target) => target.userId === userId)) {
       throw new ForbiddenException('Вы не можете рассматривать обращение на самого себя');
     }
   }
