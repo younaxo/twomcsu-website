@@ -475,21 +475,42 @@ Cron каждую минуту публикует `SCHEDULED` с `scheduledFor <
 
 | Зона | URL | Доступ | Содержание |
 | --- | --- | --- | --- |
-| Дашборд | `/dashboard/*` | ADMIN+ | Обзор, настройки сайта, объявления, audit log, статистика магазина/заказов, лояльность, валюты |
-| Админ | `/admin/*` | ADMIN+ | Префиксы, должности, отделы, новости, темы, донат-обращения, бейджи, награды, серверы, каталог, промокоды, заказы, рассылка |
+| Дашборд | `/dashboard/*` | OWNER | Аналитика, overview-карточки, графики, топы, закладки, настройки сайта |
+| Админ | `/admin/*` | ADMIN+ | Пользователи, контент, магазин, audit log, экспорт, site settings |
 | Модерация | `/moderation/*` | HELPER+ | Обращения, жалобы, комментарии новостей, медиа заявки, модерация чата |
 
 Старые URL вроде `/admin/dashboard`, `/admin/media-requests`, `/admin/chat/*` редиректят на новые.
 
+### Admin panel enhancement
+
 | Метод и путь | Доступ | Что делает |
 | --- | --- | --- |
-| `GET /admin/dashboard` | ADMIN+ | Метрики и графики |
-| `GET /admin/audit-log` | ADMIN+ | Журнал действий |
-| `POST /admin/broadcast` | ADMIN+ | Массовые уведомления |
-| `GET/PATCH /admin/settings` | ADMIN+ | SiteSettings (key-value) |
-| `GET/POST/PATCH/DELETE /admin/announcements` | ADMIN+ | Объявления на сайте |
+| `GET /admin/dashboard/overview` | ADMIN+ | Сводные метрики |
+| `GET /admin/dashboard/charts/*` | ADMIN+ | users / revenue / reports / servers |
+| `GET /admin/dashboard/top-products\|top-buyers\|moderator-activity` | ADMIN+ | Топы и активность модераторов |
+| `GET /admin/users` | ADMIN+ | Список с фильтрами и сортировкой |
+| `PATCH /admin/users/bulk` | ADMIN+ | Массовые действия |
+| `GET /admin/users/:id/full` | ADMIN+ | Полная карточка пользователя |
+| `POST /admin/users\|orders\|reports\|news\|audit-log/export` | ADMIN+ | Экспорт CSV / Excel / PDF |
+| `GET /admin/audit-log` + `/stats` | ADMIN+ | Журнал с severity и статистикой |
+| `CRUD /admin/saved-filters` | ADMIN+ | Сохранённые фильтры |
+| `CRUD /admin/bookmarks` | ADMIN+ | Быстрые ссылки дашборда |
+| `CRUD /admin/exports/scheduled` | ADMIN+ | Запланированные экспорты (cron) |
+| `GET/PATCH /admin/settings/site` | ADMIN+ | Структурированные настройки сайта |
+| `GET /admin/security/sessions\|suspicious\|logins` | ADMIN+ | Security dashboard |
+| `POST /admin/security/ip-whitelist` | ADMIN+ | IP whitelist для админов |
 
-Общие UI-компоненты: `AdminPageHeader`, `AdminFilters`, `AdminTable`, `AdminEmptyState`, `AdminCreateEditDialog`, `AdminDeleteConfirm`, `RolePanelLayout`, `UserSearchInput`.
+Страницы: `/dashboard`, `/admin/users`, `/admin/users/[id]`, `/admin/audit-log`, `/admin/settings/site`, `/admin/exports/scheduled`.
+Ctrl+K — Quick Actions. `lastActivityAt` обновляется interceptor’ом на authenticated-запросах.
+
+Общие UI-компоненты: `DashboardCard`, `*ChartCard`, `AdminTable`, `FilterPanel`, `BulkActionsBar`, `ExportDialog`, `BookmarksGrid`, `QuickActionsMenu`, `RolePanelLayout`.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /admin/dashboard` | ADMIN+ | Legacy-метрики (совместимость) |
+| `POST /admin/broadcast` | ADMIN+ | Массовые уведомления |
+| `GET/PATCH /admin/settings` | ADMIN+ | SiteSetting (key-value) |
+| `GET/POST/PATCH/DELETE /admin/announcements` | ADMIN+ | Объявления на сайте |
 
 ## Чат (Socket.IO)
 
