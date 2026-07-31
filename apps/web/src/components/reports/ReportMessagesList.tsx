@@ -4,7 +4,7 @@ import type { ReportMessage as ReportMessageType, RoleGroup } from '@twomc/share
 import { RoleGroup as RG, hasRoleGroup } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Pin, Trash2 } from 'lucide-react';
+import { FileText, Pin, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
@@ -172,6 +172,36 @@ function MessageCard({
       ) : (
         <p className="whitespace-pre-wrap text-sm text-neutral-200">{message.content}</p>
       )}
+
+      {!message.isDeleted && message.attachments?.length ? (
+        <div className="mt-3 flex flex-wrap gap-2 border-t border-white/5 pt-3">
+          {message.attachments.map((file) =>
+            file.mimeType.startsWith('image/') ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <a
+                key={file.id}
+                href={file.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="block overflow-hidden rounded-lg glass-light"
+              >
+                <img src={file.fileUrl} alt={file.fileName} className="h-24 w-24 object-cover" />
+              </a>
+            ) : (
+              <a
+                key={file.id}
+                href={file.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg glass-light px-3 py-2 text-xs text-neutral-200 transition hover:opacity-80"
+              >
+                <FileText className="h-4 w-4 shrink-0" />
+                {file.fileName}
+              </a>
+            ),
+          )}
+        </div>
+      ) : null}
     </article>
   );
 }
