@@ -58,10 +58,12 @@ model User {
   isBanned      Boolean   @default(false)
   banReason     String?
   bannedUntil   DateTime?
-  lastLoginAt   DateTime?
-  lastLoginIp   String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  lastLoginAt    DateTime?
+  lastLoginIp    String?
+  /// Updated on authenticated API activity
+  lastActivityAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   /// Uploaded image, wins over bannerPreset when both are set
   banner        String?
@@ -167,6 +169,7 @@ model User {
   @@index([positionId])
   @@index([roleGroup, isBanned])
   @@index([lastLoginAt])
+  @@index([lastActivityAt])
   @@index([currentServerId])
   @@index([isOnlineInGame])
   @@map("users")
