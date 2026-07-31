@@ -1942,3 +1942,21 @@ model ActivityReaction {
   @@index([activityId])
   @@map("activity_reactions")
 }
+
+model ActivityComment {
+  id          String    @id @default(cuid())
+  activityId  String
+  activity    Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  content     String    @db.Text
+  contentHtml String?   @db.Text
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  deletedBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([activityId, createdAt])
+  @@map("activity_comments")
+}
