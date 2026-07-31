@@ -263,6 +263,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  emitActivity(
+    event: 'activity:new' | 'activity:updated' | 'activity:deleted',
+    payload: unknown,
+  ) {
+    this.server.emit(event, payload);
+  }
+
   private requireUser(client: AuthedSocket) {
     if (!client.data.user) {
       throw new Error('Не авторизован');

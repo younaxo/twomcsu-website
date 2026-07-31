@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
   forwardRef,
 } from '@nestjs/common';
 import {
@@ -37,6 +38,7 @@ import { selectFullProfile, selectMinimalUser } from '../../common/prisma/user-s
 import { buildUserSearchWhere } from '../../common/user-search';
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { AuthenticatedUser } from '../auth/authenticated-user';
+import { ActivityService } from '../activity/activity.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { FriendsService } from '../friends/friends.service';
@@ -70,6 +72,9 @@ export class UsersService {
     private readonly cache: CacheService,
     @Inject(forwardRef(() => FriendsService))
     private readonly friends: FriendsService,
+    @Optional()
+    @Inject(forwardRef(() => ActivityService))
+    private readonly activity?: ActivityService,
   ) {}
 
   async getMyProfile(userId: string): Promise<MyProfile> {
@@ -161,6 +166,8 @@ export class UsersService {
     await this.uploads.remove(user.avatar);
     await this.invalidateUserCache(userId);
 
+    void this.activity?.recordProfileUpdate(userId, 'avatar').catch(() => undefined);
+
     return this.getMyProfile(userId);
   }
 
@@ -198,6 +205,8 @@ export class UsersService {
     });
     await this.uploads.remove(user.banner);
     await this.invalidateUserCache(userId);
+
+    void this.activity?.recordProfileUpdate(userId, 'banner').catch(() => undefined);
 
     return this.getMyProfile(userId);
   }
@@ -345,6 +354,8 @@ export class UsersService {
         isActive: true,
       },
     });
+
+    void this.activity?.recordBadge(userId, { type: row.type }).catch(() => undefined);
 
     return toUserBadge(row);
   }

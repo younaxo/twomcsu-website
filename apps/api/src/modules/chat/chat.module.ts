@@ -22,6 +22,6 @@ import { ModerationService } from './moderation.service';
     AntiSpamService,
     LinkPreviewService,
   ],
-  exports: [ChannelsService, MessagesService, ModerationService],
+  exports: [ChannelsService, MessagesService, ModerationService, ChatGateway],
 })
 export class ChatModule {}

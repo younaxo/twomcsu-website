@@ -1,17 +1,26 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
+  forwardRef,
 } from '@nestjs/common';
 import { Award as AwardRow, Prisma } from '@prisma/client';
 import { Award } from '@twomc/shared';
+import { ActivityService } from '../activity/activity.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAwardDto } from './dto/create-award.dto';
 import { UpdateAwardDto } from './dto/update-award.dto';
 
 @Injectable()
 export class AwardsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional()
+    @Inject(forwardRef(() => ActivityService))
+    private readonly activity?: ActivityService,
+  ) {}
 
   async listPublic(): Promise<Award[]> {
     const rows = await this.prisma.award.findMany({
@@ -88,7 +97,7 @@ export class AwardsService {
 
   async assign(userId: string, awardId: string, grantedBy: string): Promise<void> {
     await this.requireUser(userId);
-    await this.requireAward(awardId);
+    const award = await this.requireAward(awardId);
 
     try {
       await this.prisma.userAward.create({
@@ -101,6 +110,14 @@ export class AwardsService {
 
       throw error;
     }
+
+    void this.activity
+      ?.recordAward(userId, {
+        id: award.id,
+        name: award.name,
+        iconUrl: award.iconUrl,
+      })
+      .catch(() => undefined);
   }
 
   async revoke(userId: string, awardId: string): Promise<void> {

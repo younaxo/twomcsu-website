@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { ActivityModule } from '../activity/activity.module';
 import { CommentsModule } from '../comments/comments.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UploadsModule } from '../uploads/uploads.module';
@@ -9,7 +10,12 @@ import { NewsModerationController } from './news-moderation.controller';
 import { NewsService } from './news.service';
 
 @Module({
-  imports: [CommentsModule, UploadsModule, NotificationsModule],
+  imports: [
+    CommentsModule,
+    UploadsModule,
+    NotificationsModule,
+    forwardRef(() => ActivityModule),
+  ],
   controllers: [NewsController, NewsAdminController, NewsModerationController],
   providers: [NewsService, NewsCommentsService],
   exports: [NewsService, NewsCommentsService],

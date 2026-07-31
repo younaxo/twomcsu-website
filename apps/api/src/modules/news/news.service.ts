@@ -1,9 +1,12 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
+  forwardRef,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { NewsCategory, NewsStatus, NotificationType, Prisma } from '@prisma/client';
@@ -28,6 +31,7 @@ import {
   PaginatedResult,
 } from '../../common/pagination';
 import { selectMinimalUser } from '../../common/prisma/user-selects';
+import { ActivityService } from '../activity/activity.service';
 import { MarkdownService } from '../comments/markdown.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -60,6 +64,9 @@ export class NewsService {
     private readonly markdown: MarkdownService,
     private readonly uploads: UploadsService,
     private readonly notifications: NotificationsService,
+    @Optional()
+    @Inject(forwardRef(() => ActivityService))
+    private readonly activity?: ActivityService,
   ) {}
 
   async listPublic(query: ListNewsQueryDto, viewerId?: string | null): Promise<PaginatedResult<NewsSummary>> {
@@ -351,6 +358,14 @@ export class NewsService {
 
       if (status === NewsStatus.PUBLISHED) {
         await this.notifyPublished(row.id, row.title, row.slug, authorId);
+        void this.activity
+          ?.recordNewsPost(authorId, {
+            id: row.id,
+            title: row.title,
+            slug: row.slug,
+            coverImage: row.coverImage,
+          })
+          .catch(() => undefined);
       }
 
       return toNewsAdminItem(row);
@@ -438,6 +453,14 @@ export class NewsService {
 
       if (becomingPublished) {
         await this.notifyPublished(row.id, row.title, row.slug, actorId);
+        void this.activity
+          ?.recordNewsPost(actorId, {
+            id: row.id,
+            title: row.title,
+            slug: row.slug,
+            coverImage: row.coverImage,
+          })
+          .catch(() => undefined);
       }
 
       return toNewsAdminItem(row);

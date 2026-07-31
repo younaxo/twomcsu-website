@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { ActivityModule } from '../activity/activity.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AdminBundlesController, BundlesController } from './bundles.controller';
 import { BundlesService } from './bundles.service';
@@ -43,7 +44,7 @@ import { WishlistController } from './wishlist.controller';
 import { WishlistService } from './wishlist.service';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [NotificationsModule, forwardRef(() => ActivityModule)],
   controllers: [
     CategoriesController,
     AdminCategoriesController,

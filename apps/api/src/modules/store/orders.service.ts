@@ -1,8 +1,11 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
+  forwardRef,
 } from '@nestjs/common';
 import { NotificationType, OrderStatus, Prisma, ProductType } from '@prisma/client';
 import {
@@ -12,6 +15,7 @@ import {
   RecentPurchaseItem,
   StoreOrder,
 } from '@twomc/shared';
+import { ActivityService } from '../activity/activity.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -51,6 +55,9 @@ export class OrdersService {
     private readonly pricing: PricingService,
     private readonly notifications: NotificationsService,
     private readonly cache: CacheService,
+    @Optional()
+    @Inject(forwardRef(() => ActivityService))
+    private readonly activity?: ActivityService,
   ) {}
 
   async createFromCart(
@@ -373,6 +380,44 @@ export class OrdersService {
     });
 
     await this.emitOrderNotifications(updated, OrderStatus.COMPLETED);
+
+    if (updated.userId) {
+      const purchaseItems = updated.items
+        .filter((item) => item.product)
+        .map((item) => ({
+          productId: item.productId!,
+          product: {
+            name: item.product!.name,
+            slug: item.product!.slug,
+            image: item.product!.image,
+          },
+        }));
+
+      if (purchaseItems.length > 0) {
+        void this.activity
+          ?.recordPurchase(updated.userId, {
+            id: updated.id,
+            total: updated.total,
+            items: purchaseItems,
+          })
+          .catch(() => undefined);
+      }
+
+      for (const item of updated.items.filter((i) => i.giftToUserId && i.product)) {
+        void this.activity
+          ?.recordGift({
+            fromUserId: updated.userId,
+            toUserId: item.giftToUserId!,
+            productName: item.product!.name,
+            productSlug: item.product!.slug,
+            imageUrl: item.product!.image,
+            senderUsername: undefined,
+            recipientUsername: undefined,
+          })
+          .catch(() => undefined);
+      }
+    }
+
     return toStoreOrder(updated);
   }
 

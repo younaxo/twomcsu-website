@@ -2,8 +2,11 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
+  forwardRef,
 } from '@nestjs/common';
 import { FriendshipStatus, NotificationType, Prisma } from '@prisma/client';
 import {
@@ -25,6 +28,7 @@ import {
   selectMinimalUser,
 } from '../../common/prisma/user-selects';
 import { findUserByIdentifier } from '../../common/user-identifier';
+import { ActivityService } from '../activity/activity.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -40,6 +44,9 @@ export class FriendsService {
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
     private readonly notifications: NotificationsService,
+    @Optional()
+    @Inject(forwardRef(() => ActivityService))
+    private readonly activity?: ActivityService,
   ) {}
 
   async sendRequest(requesterId: string, addresseeUsername: string): Promise<FriendRequestItem> {
@@ -159,6 +166,10 @@ export class FriendsService {
         metadata: { friendshipId: updated.id },
       });
     }
+
+    void this.activity
+      ?.recordFriendship(userId, updated.requesterId)
+      .catch(() => undefined);
 
     return {
       id: updated.id,
@@ -573,6 +584,10 @@ export class FriendsService {
     });
 
     return rows.map((row) => (row.requesterId === userId ? row.addresseeId : row.requesterId));
+  }
+
+  async getFriendIds(userId: string): Promise<string[]> {
+    return this.listAcceptedFriendIds(userId);
   }
 
   private async invalidateUserCaches(...userIds: string[]): Promise<void> {

@@ -2,11 +2,15 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
+  forwardRef,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PositionDetails, PositionSummary, RoleGroup, UserBadgeType, hasRoleGroup } from '@twomc/shared';
+import { ActivityService } from '../activity/activity.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -55,6 +59,9 @@ export class PositionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
+    @Optional()
+    @Inject(forwardRef(() => ActivityService))
+    private readonly activity?: ActivityService,
   ) {}
 
   async findAll(group?: RoleGroup, includeHidden = false): Promise<PositionSummary[]> {
@@ -206,7 +213,7 @@ export class PositionsService {
   async assign(positionId: string, userId: string, actorRole: RoleGroup): Promise<void> {
     const position = await this.prisma.position.findUnique({
       where: { id: positionId },
-      select: { id: true, group: true },
+      select: { id: true, name: true, slug: true, group: true },
     });
 
     if (!position) {
@@ -247,6 +254,14 @@ export class PositionsService {
 
     await this.invalidatePositionsCache();
     await this.cache.del(cacheKeys.authMe(userId));
+
+    void this.activity
+      ?.recordRank(userId, {
+        id: position.id,
+        name: position.name,
+        slug: position.slug,
+      })
+      .catch(() => undefined);
   }
 
   /** Position every new account starts with */
