@@ -12,7 +12,6 @@ import {
   MaxLength,
   Min,
   MinLength,
-  ValidateNested,
 } from 'class-validator';
 import {
   DigestMode,
