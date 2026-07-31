@@ -1082,6 +1082,52 @@ async function main() {
   await seedTestReports(userIds, punishmentIds);
   await seedChat(prisma);
   await upsertNews(userIds);
+  await seedNotificationDefaults([...userIds.values()], ownerId);
+}
+
+async function seedNotificationDefaults(userIds: string[], ownerId: string) {
+  for (const userId of userIds) {
+    await prisma.notificationSettings.upsert({
+      where: { userId },
+      create: { userId },
+      update: {},
+    });
+  }
+
+  const webhooks = [
+    {
+      name: 'Обращения',
+      url: 'https://discord.com/api/webhooks/example/reports',
+      eventTypes: ['REPORT_ASSIGNED', 'REPORT_VERDICT'],
+    },
+    {
+      name: 'Новости',
+      url: 'https://discord.com/api/webhooks/example/news',
+      eventTypes: ['NEWS_PUBLISHED'],
+    },
+    {
+      name: 'Тех работы',
+      url: 'https://discord.com/api/webhooks/example/maintenance',
+      eventTypes: ['MAINTENANCE', 'ANNOUNCEMENT'],
+    },
+  ];
+
+  for (const webhook of webhooks) {
+    const existing = await prisma.discordWebhook.findFirst({
+      where: { name: webhook.name },
+      select: { id: true },
+    });
+    if (existing) continue;
+    await prisma.discordWebhook.create({
+      data: {
+        ...webhook,
+        createdBy: ownerId,
+        isActive: false,
+      },
+    });
+  }
+
+  console.log(`notifications: settings for ${userIds.length} users, sample webhooks ready`);
 }
 
 /** Idempotent demo punishments for appeal testing */
