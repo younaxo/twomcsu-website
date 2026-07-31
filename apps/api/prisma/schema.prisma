@@ -162,6 +162,8 @@ model User {
   newsLikes             NewsLike[]
   newsViews             NewsView[]
 
+  adminBookmarks AdminBookmark[]
+
   @@index([email])
   @@index([username])
   @@index([tag])
@@ -1104,6 +1106,20 @@ model SiteSetting {
   updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model AdminBookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url       String
+  title     String
+  icon      String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("admin_bookmarks")
 }
 
 enum ChatChannelType {
