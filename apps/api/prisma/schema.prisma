@@ -163,6 +163,7 @@ model User {
   newsViews             NewsView[]
 
   adminBookmarks AdminBookmark[]
+  savedFilters   SavedFilter[]
 
   @@index([email])
   @@index([username])
@@ -1120,6 +1121,21 @@ model AdminBookmark {
 
   @@index([userId])
   @@map("admin_bookmarks")
+}
+
+model SavedFilter {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  page      String
+  filters   Json
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, page])
+  @@map("saved_filters")
 }
 
 enum ChatChannelType {
