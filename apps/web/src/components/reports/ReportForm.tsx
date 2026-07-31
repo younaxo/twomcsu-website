@@ -1,6 +1,6 @@
 'use client';
 
-import { ReportType } from '@twomc/shared';
+import { RoleGroup, ReportType, hasRoleGroup } from '@twomc/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
@@ -71,6 +71,13 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
 
   const validLinks = useMemo(() => getValidEvidenceLinks(evidenceLinks), [evidenceLinks]);
 
+  const staffTargetsInPlayerComplaint = useMemo(() => {
+    if (type !== ReportType.PLAYER_COMPLAINT) return [];
+    return targets.filter(
+      (target) => target.user?.roleGroup && hasRoleGroup(target.user.roleGroup, RoleGroup.HELPER),
+    );
+  }, [targets, type]);
+
   const submit = form.handleSubmit(async ({ captchaToken }) => {
     if (description.trim().length < 20) {
       toast.error('Описание должно содержать минимум 20 символов');
@@ -78,6 +85,10 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
     }
     if (needsTarget && targets.length < 1) {
       toast.error('Укажите хотя бы одного игрока');
+      return;
+    }
+    if (staffTargetsInPlayerComplaint.length > 0) {
+      toast.error('Для жалобы на модератора используйте тип «Жалоба на администрацию»');
       return;
     }
     if (isAppeal && !appealedPunishmentId) {
@@ -209,15 +220,28 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
             ) : null}
 
             {needsTarget ? (
-              <TargetsInput
-                value={targets}
-                onChange={setTargets}
-                label={
-                  type === ReportType.ADMIN_COMPLAINT
-                    ? 'Ник администратора / хелпера *'
-                    : 'Ник нарушителя *'
-                }
-              />
+              <div className="space-y-2">
+                <TargetsInput
+                  value={targets}
+                  onChange={setTargets}
+                  label={
+                    type === ReportType.ADMIN_COMPLAINT
+                      ? 'Ник администратора / хелпера *'
+                      : 'Ник нарушителя *'
+                  }
+                />
+                {staffTargetsInPlayerComplaint.length > 0 ? (
+                  <div className="space-y-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
+                    <p>
+                      Этот пользователь входит в команду проекта. Для жалобы на него используйте
+                      тип «Жалоба на администрацию»
+                    </p>
+                    <Button asChild size="sm" variant="secondary">
+                      <Link href="/report/new/admin">Перейти к жалобе на администрацию</Link>
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
             ) : null}
 
             {(needsServer ||
@@ -318,7 +342,7 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
               </Button>
               <Button
                 type="submit"
-                disabled={createReport.isPending}
+                disabled={createReport.isPending || staffTargetsInPlayerComplaint.length > 0}
                 className="bg-[#F57C00] text-black hover:bg-[#F57C00]/90"
               >
                 Отправить обращение
