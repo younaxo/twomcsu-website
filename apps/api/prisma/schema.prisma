@@ -1493,9 +1493,25 @@ model ReportMessage {
   pinnedAt    DateTime?
   pinnedBy    String?
   createdAt   DateTime  @default(now())
+  attachments ReportMessageAttachment[]
 
   @@index([reportId, createdAt])
   @@map("report_messages")
+}
+
+model ReportMessageAttachment {
+  id         String        @id @default(cuid())
+  messageId  String
+  message    ReportMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  fileName   String
+  fileUrl    String
+  fileSize   Int
+  mimeType   String
+  uploadedBy String
+  createdAt  DateTime      @default(now())
+
+  @@index([messageId])
+  @@map("report_message_attachments")
 }
 
 /// Staff-only notes on a report, separate from the public message thread
