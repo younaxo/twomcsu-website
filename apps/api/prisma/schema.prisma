@@ -1895,3 +1895,50 @@ enum ActivityVisibility {
   FRIENDS
   PRIVATE
 }
+
+model Activity {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type        ActivityType
+  visibility  ActivityVisibility @default(PUBLIC)
+
+  title       String
+  description String?
+  imageUrl    String?
+  actionUrl   String?
+
+  metadata    Json?
+
+  isPinned     Boolean @default(false)
+  isHidden     Boolean @default(false)
+  hiddenReason String?
+  hiddenBy     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reactions ActivityReaction[]
+  comments  ActivityComment[]
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@index([visibility, createdAt])
+  @@index([isPinned, createdAt])
+  @@map("activities")
+}
+
+model ActivityReaction {
+  id         String   @id @default(cuid())
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  emoji      String
+  createdAt  DateTime @default(now())
+
+  @@unique([activityId, userId])
+  @@index([activityId])
+  @@map("activity_reactions")
+}
