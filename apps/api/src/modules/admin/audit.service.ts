@@ -11,6 +11,8 @@ export type AuditLogInput = {
   changes?: Prisma.InputJsonValue | null;
   ipAddress?: string | null;
   userAgent?: string | null;
+  severity?: 'info' | 'warning' | 'critical';
+  duration?: number | null;
 };
 
 @Injectable()
@@ -30,6 +32,8 @@ export class AuditService {
           changes: input.changes ?? undefined,
           ipAddress: input.ipAddress ?? null,
           userAgent: input.userAgent ?? null,
+          severity: input.severity ?? 'info',
+          duration: input.duration ?? null,
         },
       });
     } catch (error) {
@@ -45,6 +49,8 @@ export class AuditService {
     limit?: number;
     action?: string;
     actorId?: string;
+    severity?: string;
+    targetType?: string;
     q?: string;
     from?: Date;
     to?: Date;
@@ -54,6 +60,8 @@ export class AuditService {
     const where: Prisma.AuditLogWhereInput = {
       ...(opts.action ? { action: { contains: opts.action, mode: 'insensitive' } } : {}),
       ...(opts.actorId ? { actorId: opts.actorId } : {}),
+      ...(opts.severity ? { severity: opts.severity } : {}),
+      ...(opts.targetType ? { targetType: opts.targetType } : {}),
       ...(opts.q
         ? {
             OR: [
@@ -96,6 +104,8 @@ export class AuditService {
         changes: row.changes,
         ipAddress: row.ipAddress,
         userAgent: row.userAgent,
+        severity: row.severity,
+        duration: row.duration,
         createdAt: row.createdAt.toISOString(),
         actor: row.actor,
       })),

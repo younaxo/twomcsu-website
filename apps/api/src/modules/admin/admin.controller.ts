@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AdminDashboardService } from './admin-dashboard.service';
 import { AuditService } from './audit.service';
+import { StatisticsService } from '../statistics/statistics.service';
 
 class BroadcastDto {
   @IsString()
@@ -84,6 +85,7 @@ export class AdminController {
   constructor(
     private readonly dashboard: AdminDashboardService,
     private readonly audit: AuditService,
+    private readonly statistics: StatisticsService,
   ) {}
 
   @Get('dashboard')
@@ -97,6 +99,8 @@ export class AdminController {
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
     @Query('action') action?: string,
     @Query('actorId') actorId?: string,
+    @Query('severity') severity?: string,
+    @Query('targetType') targetType?: string,
     @Query('q') q?: string,
     @Query('from') from?: string,
     @Query('to') to?: string,
@@ -106,10 +110,19 @@ export class AdminController {
       limit,
       action,
       actorId,
+      severity,
+      targetType,
       q,
       from: from ? new Date(from) : undefined,
       to: to ? new Date(to) : undefined,
     });
+  }
+
+  @Get('audit-log/stats')
+  auditStats(
+    @Query('days', new DefaultValuePipe(30), ParseIntPipe) days: number,
+  ) {
+    return this.statistics.getAuditLogStats(days);
   }
 
   @Post('broadcast')
