@@ -166,6 +166,11 @@ model User {
   savedFilters     SavedFilter[]
   scheduledExports ScheduledExport[]
 
+  activities           Activity[]
+  activityReactions    ActivityReaction[]
+  activityComments     ActivityComment[]
+  activityFeedSettings ActivityFeedSettings?
+
   @@index([email])
   @@index([username])
   @@index([tag])
