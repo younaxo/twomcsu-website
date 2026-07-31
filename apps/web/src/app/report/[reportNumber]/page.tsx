@@ -13,6 +13,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { HtmlWithImagePreview } from '@/components/shared/HtmlWithImagePreview';
+import { ImageWithPreview } from '@/components/shared/ImageWithPreview';
 import { EvidenceLinks } from '@/components/reports/EvidenceLinks';
 import { ReportMessageInput } from '@/components/reports/ReportMessageInput';
 import { ReportMessagesList } from '@/components/reports/ReportMessagesList';
@@ -214,10 +216,7 @@ export default function ReportDetailsPage() {
               Описание
             </h2>
             {data.descriptionHtml ? (
-              <div
-                className="prose prose-invert max-w-none text-sm"
-                dangerouslySetInnerHTML={{ __html: data.descriptionHtml }}
-              />
+              <HtmlWithImagePreview html={data.descriptionHtml} />
             ) : (
               <p className="whitespace-pre-wrap text-sm text-neutral-100">{data.description}</p>
             )}
@@ -244,20 +243,15 @@ export default function ReportDetailsPage() {
                 <div className="flex flex-wrap gap-3">
                   {data.attachments.map((file) =>
                     isImageAttachment(file.mimeType) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <a
+                      <ImageWithPreview
                         key={file.id}
-                        href={file.fileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="block overflow-hidden rounded-xl glass-light"
-                      >
-                        <img
-                          src={file.fileUrl}
-                          alt={file.fileName}
-                          className="h-28 w-28 object-cover"
-                        />
-                      </a>
+                        src={file.fileUrl}
+                        alt={file.fileName}
+                        className="h-28 w-28 overflow-hidden rounded-xl glass-light"
+                        gallery={data.attachments
+                          .filter((item) => isImageAttachment(item.mimeType))
+                          .map((item) => item.fileUrl)}
+                      />
                     ) : (
                       <a
                         key={file.id}

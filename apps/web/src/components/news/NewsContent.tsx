@@ -3,6 +3,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
+import { ImageWithPreview } from '@/components/shared/ImageWithPreview';
 import { cn } from '@/lib/utils';
 
 interface NewsContentProps {
@@ -52,8 +53,12 @@ export function NewsContent({ content, className }: NewsContentProps) {
           ),
           img: ({ src, alt }) =>
             src ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={src} alt={alt ?? ''} className="h-auto max-w-full rounded-xl" />
+              <ImageWithPreview
+                src={src}
+                alt={alt ?? ''}
+                className="my-4 w-full overflow-hidden rounded-xl"
+                imgClassName="h-auto max-w-full rounded-xl object-contain"
+              />
             ) : null,
         }}
       >

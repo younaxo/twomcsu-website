@@ -10,6 +10,7 @@ import { CommentEditor } from '@/components/comments/CommentEditor';
 import { CommentReactions } from '@/components/comments/CommentReactions';
 import { CommentReportDialog } from '@/components/comments/CommentReportDialog';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { HtmlWithImagePreview } from '@/components/shared/HtmlWithImagePreview';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { Button } from '@/components/ui/button';
@@ -135,13 +136,13 @@ export function CommentCard({ comment, profileUsername, isReply }: CommentCardPr
               }}
             />
           ) : (
-            <div
+            <HtmlWithImagePreview
+              html={comment.contentHtml}
               className={cn(
                 'comment-markdown text-sm leading-relaxed',
                 comment.isDeleted && 'italic text-muted-foreground',
               )}
-              dangerouslySetInnerHTML={{ __html: comment.contentHtml }}
-              onClick={(event) => {
+              onContentClick={(event) => {
                 const target = event.target as HTMLElement;
                 if (target.classList.contains('spoiler')) {
                   target.classList.toggle('revealed');
