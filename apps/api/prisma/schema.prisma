@@ -123,6 +123,8 @@ model User {
   authoredComments       ProfileComment[]     @relation("AuthoredComments")
   notifications          Notification[]       @relation("NotificationsReceived")
   sentNotifications      Notification[]       @relation("NotificationsFrom")
+  notificationSettings   NotificationSettings?
+  pushSubscriptions      PushSubscription[]
   auditLogs              AuditLog[]           @relation("AuditLogActor")
 
   /// Referral code shown to friends; generated on registration
@@ -927,28 +929,117 @@ enum NotificationType {
   CHAT_MENTION
   NEWS_PUBLISHED
   NEWS_COMMENT_REPLY
+  NEWS_LIKED
+  ANNOUNCEMENT
+  MAINTENANCE
+  ACHIEVEMENT_UNLOCKED
+  REPORT_ASSIGNED
+  REPORT_VERDICT
+  REPORT_TARGET
+  MESSAGE_RECEIVED
+  RANK_GRANTED
+  BADGE_GRANTED
+  AWARD_GRANTED
+  PAYMENT_RECEIVED
+  DAILY_REWARD_AVAILABLE
   SYSTEM
 }
 
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum DigestMode {
+  INSTANT
+  HOURLY
+  DAILY
+  WEEKLY
+}
+
 model Notification {
-  id         String           @id @default(cuid())
-  userId     String
-  user       User             @relation("NotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
-  type       NotificationType
-  title      String
-  message    String?
-  link       String?
-  imageUrl   String?
-  fromUserId String?
-  fromUser   User?            @relation("NotificationsFrom", fields: [fromUserId], references: [id])
-  metadata   Json?
-  isRead     Boolean          @default(false)
-  readAt     DateTime?
-  createdAt  DateTime         @default(now())
+  id               String               @id @default(cuid())
+  userId           String
+  user             User                 @relation("NotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
+  type             NotificationType
+  title            String
+  message          String?
+  link             String?
+  imageUrl         String?
+  fromUserId       String?
+  fromUser         User?                @relation("NotificationsFrom", fields: [fromUserId], references: [id])
+  metadata         Json?
+  groupKey         String?
+  priority         NotificationPriority @default(NORMAL)
+  actionUrl        String?
+  actionLabel      String?
+  isRead           Boolean              @default(false)
+  readAt           DateTime?
+  sentViaEmail     Boolean              @default(false)
+  sentViaEmailAt   DateTime?
+  sentViaPush      Boolean              @default(false)
+  sentViaPushAt    DateTime?
+  sentViaDiscord   Boolean              @default(false)
+  sentViaDiscordAt DateTime?
+  createdAt        DateTime             @default(now())
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
+  @@index([userId, isRead, createdAt])
+  @@index([groupKey])
   @@map("notifications")
+}
+
+model NotificationSettings {
+  id                String     @id @default(cuid())
+  userId            String     @unique
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailEnabled      Boolean    @default(true)
+  pushEnabled       Boolean    @default(true)
+  discordEnabled    Boolean    @default(false)
+  discordWebhookUrl String?    @db.Text
+  soundEnabled      Boolean    @default(true)
+  digestMode        DigestMode @default(INSTANT)
+  digestTime        String?    @default("09:00")
+  quietHoursEnabled Boolean    @default(false)
+  quietHoursStart   String?    @default("22:00")
+  quietHoursEnd     String?    @default("08:00")
+  typeSettings      Json       @default("{}")
+  updatedAt         DateTime   @updatedAt
+
+  @@map("notification_settings")
+}
+
+model PushSubscription {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint   String   @db.Text
+  p256dh     String   @db.Text
+  auth       String   @db.Text
+  userAgent  String?
+  deviceName String?
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@unique([endpoint])
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model DiscordWebhook {
+  id         String   @id @default(cuid())
+  name       String
+  url        String   @db.Text
+  eventTypes String[]
+  isActive   Boolean  @default(true)
+  createdBy  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("discord_webhooks")
 }
 
 model CurrencyRate {
