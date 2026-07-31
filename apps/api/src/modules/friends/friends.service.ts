@@ -102,7 +102,8 @@ export class FriendsService {
         message: `${requester.username} хочет добавить вас в друзья`,
         link: `/users/${requester.username}`,
         fromUserId: requesterId,
-        metadata: { friendshipId: friendship.id },
+        groupKey: `friend_requests_${addressee.id}`,
+        metadata: { friendshipId: friendship.id, actors: [requester.username], count: 1 },
       });
     }
 

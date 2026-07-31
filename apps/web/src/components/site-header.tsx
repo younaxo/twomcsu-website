@@ -4,11 +4,13 @@ import { Construction } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { SoundToggle } from '@/components/notifications/SoundToggle';
 import { ProfileMiniPreview } from '@/components/profile/ProfileMiniPreview';
 import { CartDrawer } from '@/components/store/CartDrawer';
 import { Logo } from '@/components/shared/Logo';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotificationSocket } from '@/hooks/useNotificationSocket';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -22,6 +24,7 @@ const navItems = [
 export function SiteHeader() {
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  useNotificationSocket(isAuthenticated);
 
   const handleLogout = async () => {
     await logout();
@@ -62,7 +65,12 @@ export function SiteHeader() {
           </nav>
 
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            {isAuthenticated ? <NotificationBell /> : null}
+            {isAuthenticated ? (
+              <>
+                <SoundToggle />
+                <NotificationBell />
+              </>
+            ) : null}
 
             {isLoading ? (
               <div className="h-9 w-20 animate-pulse rounded-md bg-white/10" />

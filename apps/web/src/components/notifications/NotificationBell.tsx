@@ -1,8 +1,8 @@
 'use client';
 
-import { Bell } from 'lucide-react';
+import { Bell, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { SwipeableNotificationItem } from '@/components/notifications/SwipeableNotificationItem';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   useDeleteNotification,
@@ -26,7 +27,10 @@ import {
 } from '@/hooks/useNotifications';
 import { extractErrorMessage } from '@/lib/api';
 
+type BellTab = 'all' | 'unread' | 'priority';
+
 export function NotificationBell() {
+  const [tab, setTab] = useState<BellTab>('all');
   const unread = useUnreadNotificationsCount(true);
   const list = useNotifications({ page: 1, limit: 15, enabled: true });
   const markRead = useMarkNotificationRead();
@@ -35,11 +39,18 @@ export function NotificationBell() {
 
   const count = unread.data?.count ?? 0;
   const items = list.data?.items ?? [];
+  const visible = useMemo(() => {
+    if (tab === 'unread') return items.filter((n) => !n.isRead);
+    if (tab === 'priority') {
+      return items.filter((n) => n.priority === 'HIGH' || n.priority === 'URGENT');
+    }
+    return items;
+  }, [items, tab]);
   const { fresh, read } = useMemo(() => {
-    const freshItems = items.filter((n) => !n.isRead);
-    const readItems = items.filter((n) => n.isRead);
+    const freshItems = visible.filter((n) => !n.isRead);
+    const readItems = visible.filter((n) => n.isRead);
     return { fresh: freshItems, read: readItems };
-  }, [items]);
+  }, [visible]);
 
   return (
     <DropdownMenu>
@@ -72,25 +83,47 @@ export function NotificationBell() {
       >
         <div className="flex items-center justify-between px-3 py-2.5">
           <DropdownMenuLabel className="p-0 text-base">Уведомления</DropdownMenuLabel>
-          {count > 0 ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs"
-              disabled={markAll.isPending}
-              onClick={() => {
-                void markAll
-                  .mutateAsync()
-                  .then(() => toast.success('Все уведомления прочитаны'))
-                  .catch((error: unknown) => {
-                    toast.error(extractErrorMessage(error, 'Не удалось отметить уведомления'));
-                  });
-              }}
-            >
-              Прочитать все
+          <div className="flex items-center gap-1">
+            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" asChild>
+              <Link href="/profile/settings?tab=notifications" aria-label="Настройки">
+                <Settings className="h-3.5 w-3.5" />
+              </Link>
             </Button>
-          ) : null}
+            {count > 0 ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                disabled={markAll.isPending}
+                onClick={() => {
+                  void markAll
+                    .mutateAsync()
+                    .then(() => toast.success('Все уведомления прочитаны'))
+                    .catch((error: unknown) => {
+                      toast.error(extractErrorMessage(error, 'Не удалось отметить уведомления'));
+                    });
+                }}
+              >
+                Прочитать все
+              </Button>
+            ) : null}
+          </div>
+        </div>
+        <div className="px-2 pb-2">
+          <Tabs value={tab} onValueChange={(value) => setTab(value as BellTab)}>
+            <TabsList className="grid h-8 w-full grid-cols-3">
+              <TabsTrigger value="all" className="text-xs">
+                Все
+              </TabsTrigger>
+              <TabsTrigger value="unread" className="text-xs">
+                Новые
+              </TabsTrigger>
+              <TabsTrigger value="priority" className="text-xs">
+                Важные
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
         <DropdownMenuSeparator className="m-0 bg-white/10" />
 
@@ -100,7 +133,7 @@ export function NotificationBell() {
               <Skeleton className="h-14 w-full" />
               <Skeleton className="h-14 w-full" />
             </div>
-          ) : items.length === 0 ? (
+          ) : visible.length === 0 ? (
             <EmptyState
               icon={Bell}
               title="Нет уведомлений"

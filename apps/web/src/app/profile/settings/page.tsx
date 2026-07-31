@@ -23,6 +23,7 @@ import { CountrySelect } from '@/components/profile/CountrySelect';
 import { DateBirthPicker } from '@/components/profile/DateBirthPicker';
 import { GenderSelect } from '@/components/profile/GenderSelect';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
+import { NotificationsSettingsTab } from '@/components/notifications/NotificationsSettingsTab';
 import { CaptchaField, CaptchaFieldHandle } from '@/components/shared/CaptchaField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -214,6 +215,7 @@ export default function ProfileSettingsPage() {
           <TabsTrigger value="socials">Соц сети</TabsTrigger>
           <TabsTrigger value="media">Медиа</TabsTrigger>
           <TabsTrigger value="chat">Чат</TabsTrigger>
+          <TabsTrigger value="notifications">Уведомления</TabsTrigger>
           <TabsTrigger value="security">Безопасность</TabsTrigger>
         </TabsList>
 
@@ -683,6 +685,10 @@ export default function ProfileSettingsPage() {
 
         <TabsContent value="chat">
           <ChatSettingsTab />
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6">
+          <NotificationsSettingsTab />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">

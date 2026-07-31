@@ -418,14 +418,25 @@ Cron каждую минуту публикует `SCHEDULED` с `scheduledFor <
 
 ## Уведомления
 
+Расширенная система: in-app, Socket.IO (`/notifications`), push (Web Push / VAPID), email (SMTP), Discord webhooks, дайджесты, тихие часы, группировка и приоритеты.
+
 | Метод и путь | Доступ | Что делает |
 | --- | --- | --- |
 | `GET /notifications` | авторизованный | Список (`page`, `limit`, `unreadOnly`) |
-| `GET /notifications/unread-count` | авторизованный | Счётчик непрочитанных (poll 30 с в шапке) |
+| `GET /notifications/unread-count` | авторизованный | Счётчик непрочитанных |
 | `PATCH /notifications/:id/read` | авторизованный | Прочитать одно |
 | `PATCH /notifications/read-all` | авторизованный | Прочитать все → `{ count }` |
+| `GET/PATCH /notifications/settings` | авторизованный | Настройки каналов и тихих часов |
+| `POST /notifications/push/subscribe` | авторизованный | Подписка на push |
+| `GET /notifications/push/vapid-key` | авторизованный | Публичный VAPID ключ |
+| `POST /notifications/discord/webhook` | авторизованный | Личный Discord webhook |
+| `GET/POST/PATCH/DELETE /admin/notifications/webhooks` | ADMIN+ | Глобальные Discord webhooks |
+| `POST /admin/notifications/broadcast` | ADMIN+ | Массовая рассылка |
+| `GET /admin/notifications/stats` | ADMIN+ | Статистика |
 
-Страницы: `/profile/notifications`. В шапке — колокольчик и пункт «Уведомления» в меню.
+Страницы: `/profile/notifications`, `/profile/settings` → таб «Уведомления», `/admin/notifications/*`.
+
+Env (опционально): `SMTP_*`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`.
 
 Промокоды магазина из сида:
 

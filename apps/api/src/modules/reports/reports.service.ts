@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   Prisma,
+  NotificationPriority,
   NotificationType,
   ReportStatus as PrismaReportStatus,
   ReportType as PrismaReportType,
@@ -908,11 +909,14 @@ export class ReportsService {
 
     await this.notifications.createNotification({
       userId: row.authorId,
-      type: NotificationType.SYSTEM,
+      type: NotificationType.REPORT_VERDICT,
       title: `Вердикт по обращению ${row.reportNumber}`,
       message: dto.verdict.slice(0, 200),
       link: `/report/${row.reportNumber}`,
       fromUserId: actorId,
+      priority: NotificationPriority.HIGH,
+      actionUrl: `/report/${row.reportNumber}`,
+      actionLabel: 'Открыть обращение',
     });
 
     return this.getByNumber(reportNumber, actorId, roleGroup);

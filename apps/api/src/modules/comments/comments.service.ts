@@ -901,7 +901,8 @@ export class CommentsService {
         message: `${authorName} оставил(а) комментарий на вашем профиле`,
         link: profileLink,
         fromUserId: authorId,
-        metadata: { commentId, profileId: profile.id },
+        groupKey: `profile_${profile.id}_comments`,
+        metadata: { commentId, profileId: profile.id, actors: [authorName], count: 1 },
       });
     }
 
