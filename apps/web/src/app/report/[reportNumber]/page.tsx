@@ -51,7 +51,9 @@ export default function ReportDetailsPage() {
   }
 
   const data = report.data;
-  const isModerator = canReviewReportType(user.roleGroup, data.type);
+  const isTarget = data.targets.some((target) => target.userId === user.id);
+  const canModerateType = canReviewReportType(user.roleGroup, data.type);
+  const isModerator = canModerateType && !isTarget;
   const targets =
     data.targets.length > 0
       ? data.targets
@@ -68,7 +70,7 @@ export default function ReportDetailsPage() {
           ]
         : [];
 
-  const backHref = isModerator ? '/moderation/reports' : '/report';
+  const backHref = canModerateType ? '/moderation/reports' : '/report';
   const isRejected = data.status === 'REJECTED';
   const hasVerdict = Boolean(data.verdict);
 
@@ -116,6 +118,12 @@ export default function ReportDetailsPage() {
         )}
       >
         <div className="min-w-0 space-y-5">
+          {canModerateType && isTarget ? (
+            <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+              Это обращение на вас. Рассматривать будет другой администратор
+            </div>
+          ) : null}
+
           <section className="rounded-2xl glass-medium p-5">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <ReportTypeIcon type={data.type} size="xl" />
