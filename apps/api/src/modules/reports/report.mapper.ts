@@ -215,6 +215,7 @@ export function toReportSummary(
     assignedTo: row.assignedTo ? toReportUser(row.assignedTo) : null,
     isLocked: row.isLocked,
     isOverdue: isReportOverdue(row),
+    hasVerdict: Boolean(row.verdict),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     resolvedAt: row.resolvedAt?.toISOString() ?? null,
