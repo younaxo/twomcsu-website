@@ -274,8 +274,8 @@ export class ExportService {
 
     const rows = orders.map((order) => ({
       ID: order.id,
-      Пользователь: order.user.username,
-      Email: order.user.email,
+      Пользователь: order.user?.username ?? order.guestMinecraftNick ?? '',
+      Email: order.user?.email ?? '',
       Статус: order.status,
       Сумма: Number(order.total),
       Дата: order.createdAt.toISOString(),

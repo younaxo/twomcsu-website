@@ -140,7 +140,6 @@ export class AdminUsersService {
         statistics: true,
         badges: true,
         awards: { include: { award: true } },
-        notificationSettings: true,
       },
     });
     if (!user) throw new NotFoundException('Пользователь не найден');

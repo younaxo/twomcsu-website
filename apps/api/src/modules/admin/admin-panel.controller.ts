@@ -9,9 +9,10 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
-import { Prisma, RoleGroup as PrismaRoleGroup } from '@prisma/client';
+import { OrderStatus, Prisma, RoleGroup as PrismaRoleGroup } from '@prisma/client';
 import { RoleGroup } from '@twomc/shared';
 import {
   IsArray,
@@ -24,10 +25,13 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Response } from 'express';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { ExportFormat, ExportService } from '../export/export.service';
+import { AdminFinanceService } from './admin-finance.service';
 import { AdminToolsService } from './admin-tools.service';
 import { AdminUsersService, BulkUserAction } from './admin-users.service';
 
@@ -127,6 +131,8 @@ export class AdminPanelController {
   constructor(
     private readonly users: AdminUsersService,
     private readonly tools: AdminToolsService,
+    private readonly finance: AdminFinanceService,
+    private readonly exportService: ExportService,
   ) {}
 
   // Users
@@ -319,5 +325,65 @@ export class AdminPanelController {
   @Post('security/ip-whitelist')
   ipWhitelist(@CurrentUser('id') userId: string, @Body() dto: IpWhitelistDto) {
     return this.tools.updateIpWhitelist(dto.ips, userId);
+  }
+
+  // Content
+  @Get('content/dashboard')
+  contentDashboard() {
+    return this.finance.getContentDashboard();
+  }
+
+  // Finance
+  @Get('finance/overview')
+  financeOverview() {
+    return this.finance.getFinanceOverview();
+  }
+
+  @Get('finance/transactions')
+  financeTransactions(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(25), ParseIntPipe) limit: number,
+    @Query('status') status?: OrderStatus,
+    @Query('search') search?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
+  ) {
+    return this.finance.listTransactions({
+      page,
+      limit,
+      status,
+      search,
+      dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+      dateTo: dateTo ? new Date(dateTo) : undefined,
+    });
+  }
+
+  @Get('finance/refunds')
+  financeRefunds(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(25), ParseIntPipe) limit: number,
+  ) {
+    return this.finance.listRefunds({ page, limit });
+  }
+
+  @Post('finance/export')
+  async financeExport(
+    @Body() body: { format: ExportFormat; status?: OrderStatus; dateFrom?: string; dateTo?: string },
+    @Res() res: Response,
+  ) {
+    const result = await this.exportService.exportOrders(
+      {
+        status: body.status,
+        dateFrom: body.dateFrom ? new Date(body.dateFrom) : undefined,
+        dateTo: body.dateTo ? new Date(body.dateTo) : undefined,
+      },
+      body.format,
+    );
+    res.setHeader('Content-Type', result.contentType);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${encodeURIComponent(result.filename)}"`,
+    );
+    return res.send(result.buffer);
   }
 }
