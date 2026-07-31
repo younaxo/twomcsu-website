@@ -1110,6 +1110,52 @@ model SiteSetting {
   @@map("site_settings")
 }
 
+/// Structured global site configuration (singleton row)
+model SiteSettings {
+  id String @id @default(cuid())
+
+  siteName        String  @default("TWOMC")
+  siteDescription String?
+  siteLogo        String?
+  siteFavicon     String?
+
+  contactEmail     String?
+  discordInvite    String?
+  vkGroup          String?
+  telegramChannel  String?
+  youtubeChannel   String?
+
+  registrationEnabled          Boolean @default(true)
+  registrationRequiresApproval Boolean @default(false)
+  maxUsersLimit                Int?
+
+  autoModeration  Boolean @default(true)
+  profanityFilter Boolean @default(true)
+
+  metaTitle         String?
+  metaDescription   String?
+  metaKeywords      String[] @default([])
+  googleAnalyticsId String?
+  yandexMetrikaId   String?
+
+  chatEnabled     Boolean @default(true)
+  friendsEnabled  Boolean @default(true)
+  storeEnabled    Boolean @default(true)
+  commentsEnabled Boolean @default(true)
+  newsEnabled     Boolean @default(true)
+  reportsEnabled  Boolean @default(true)
+
+  defaultNotificationsEnabled Boolean @default(true)
+
+  requireAdmin2fa Boolean  @default(false)
+  ipWhitelist     String[] @default([])
+
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings_config")
+}
+
 model AdminBookmark {
   id        String   @id @default(cuid())
   userId    String
