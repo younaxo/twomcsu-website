@@ -5,10 +5,11 @@ import { extname, join } from 'node:path';
 import { UPLOADS_ROUTE } from '../uploads/upload.constants';
 import { UploadsService } from '../uploads/uploads.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { ReportAttachment } from '@twomc/shared';
-import { toReportAttachment } from './report.mapper';
+import { ReportAttachment, ReportMessageAttachment } from '@twomc/shared';
+import { toReportAttachment, toReportMessageAttachment } from './report.mapper';
 
 const MAX_ATTACHMENTS = 10;
+const MAX_MESSAGE_ATTACHMENTS = 5;
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_OTHER_BYTES = 20 * 1024 * 1024;
@@ -86,5 +87,43 @@ export class ReportsAttachmentsService {
     });
 
     return toReportAttachment(row);
+  }
+
+  async saveMessageAttachment(
+    reportId: string,
+    messageId: string,
+    file: Express.Multer.File,
+    uploadedBy: string,
+  ): Promise<ReportMessageAttachment> {
+    this.assertAllowedFile(file);
+
+    const count = await this.prisma.reportMessageAttachment.count({
+      where: { messageId },
+    });
+    if (count >= MAX_MESSAGE_ATTACHMENTS) {
+      throw new BadRequestException(
+        `К сообщению можно прикрепить не более ${MAX_MESSAGE_ATTACHMENTS} файлов`,
+      );
+    }
+
+    const directory = join(this.uploads.rootDir, 'reports', reportId, 'messages', messageId);
+    await mkdir(directory, { recursive: true });
+
+    const ext = extname(file.originalname) || '';
+    const storedName = `${randomBytes(8).toString('hex')}${ext}`;
+    await writeFile(join(directory, storedName), file.buffer);
+
+    const row = await this.prisma.reportMessageAttachment.create({
+      data: {
+        messageId,
+        fileName: file.originalname,
+        fileUrl: `${UPLOADS_ROUTE}/reports/${reportId}/messages/${messageId}/${storedName}`,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        uploadedBy,
+      },
+    });
+
+    return toReportMessageAttachment(row);
   }
 }

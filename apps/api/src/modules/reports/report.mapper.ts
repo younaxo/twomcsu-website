@@ -4,6 +4,7 @@ import {
   ReportAttachment as ReportAttachmentRow,
   ReportEvidenceLink as ReportEvidenceLinkRow,
   ReportMessage as ReportMessageRow,
+  ReportMessageAttachment as ReportMessageAttachmentRow,
   ReportModeratorNote as ReportModeratorNoteRow,
   ReportStatus,
   ReportTarget as ReportTargetRow,
@@ -17,6 +18,7 @@ import {
   ReportDetails,
   ReportEvidenceLink,
   ReportMessage,
+  ReportMessageAttachment,
   ReportModeratorNote,
   ReportParticipationRole,
   ReportSummary,
@@ -90,8 +92,25 @@ export function toReportAttachment(row: ReportAttachmentRow): ReportAttachment {
   };
 }
 
+export function toReportMessageAttachment(
+  row: ReportMessageAttachmentRow,
+): ReportMessageAttachment {
+  return {
+    id: row.id,
+    fileName: row.fileName,
+    fileUrl: row.fileUrl,
+    fileSize: row.fileSize,
+    mimeType: row.mimeType,
+    uploadedBy: row.uploadedBy,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
 export function toReportMessage(
-  row: ReportMessageRow & { author: ReportUserRow },
+  row: ReportMessageRow & {
+    author: ReportUserRow;
+    attachments?: ReportMessageAttachmentRow[];
+  },
   options?: { revealDeletedContent?: boolean },
 ): ReportMessage {
   const revealDeleted = options?.revealDeletedContent ?? false;
@@ -115,6 +134,7 @@ export function toReportMessage(
     pinnedAt: row.pinnedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     author: toReportUser(row.author),
+    attachments: (row.attachments ?? []).map(toReportMessageAttachment),
   };
 }
 
@@ -224,7 +244,10 @@ export function toReportSummary(
 }
 
 type ReportDetailRow = ReportListRow & {
-  messages: (ReportMessageRow & { author: ReportUserRow })[];
+  messages: (ReportMessageRow & {
+    author: ReportUserRow;
+    attachments?: ReportMessageAttachmentRow[];
+  })[];
   attachments: ReportAttachmentRow[];
   evidenceLinks: ReportEvidenceLinkRow[];
   moderatorNotes?: (ReportModeratorNoteRow & { author: ReportUserRow })[];

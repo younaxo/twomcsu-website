@@ -82,7 +82,10 @@ const reportDetailInclude = {
   evidenceLinks: { orderBy: { order: 'asc' as const } },
   messages: {
     orderBy: { createdAt: 'asc' as const },
-    include: { author: { select: reportUserSelect } },
+    include: {
+      author: { select: reportUserSelect },
+      attachments: { orderBy: { createdAt: 'asc' as const } },
+    },
   },
   moderatorNotes: {
     orderBy: [{ isPinned: 'desc' as const }, { createdAt: 'asc' as const }],
@@ -749,6 +752,34 @@ export class ReportsService {
     }
 
     return this.attachments.saveAttachment(row.id, file, userId, { pdfOnly });
+  }
+
+  async uploadMessageAttachment(
+    reportNumber: string,
+    messageId: string,
+    userId: string,
+    roleGroup: RoleGroup,
+    file: Express.Multer.File,
+  ) {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanView(row, userId, roleGroup);
+
+    if (row.isLocked) {
+      throw new BadRequestException('Обращение заблокировано');
+    }
+
+    const message = row.messages.find((item) => item.id === messageId);
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
+    if (message.authorId !== userId) {
+      throw new ForbiddenException('Прикреплять файлы можно только к своему сообщению');
+    }
+    if (message.isSystem || message.isDeleted) {
+      throw new BadRequestException('Нельзя прикрепить файл к этому сообщению');
+    }
+
+    return this.attachments.saveMessageAttachment(row.id, messageId, file, userId);
   }
 
   async getRules(type: ReportType): Promise<TopicDetails | null> {

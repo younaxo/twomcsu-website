@@ -24,6 +24,7 @@ import {
   ReportBanInfo,
   ReportDetails,
   ReportListResponse,
+  ReportMessageAttachment,
   ReportStats,
   RoleGroup,
   TopicDetails,
@@ -143,6 +144,34 @@ export class ReportsController {
     file: Express.Multer.File,
   ): Promise<ReportAttachment> {
     return this.reports.uploadAttachment(reportNumber, user.id, user.roleGroup, file);
+  }
+
+  @Post('reports/:reportNumber/messages/:messageId/attachments')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 20 * 1024 * 1024, files: 1 },
+    }),
+  )
+  uploadMessageAttachment(
+    @Param('reportNumber') reportNumber: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addMaxSizeValidator({ maxSize: 20 * 1024 * 1024 })
+        .build({ fileIsRequired: true }),
+    )
+    file: Express.Multer.File,
+  ): Promise<ReportMessageAttachment> {
+    return this.reports.uploadMessageAttachment(
+      reportNumber,
+      messageId,
+      user.id,
+      user.roleGroup,
+      file,
+    );
   }
 
   @Get('game-reports')
