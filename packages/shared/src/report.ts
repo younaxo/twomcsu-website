@@ -210,6 +210,7 @@ export interface ReportSummary {
   assignedTo: ReportUserSummary | null;
   isLocked: boolean;
   isOverdue: boolean;
+  hasVerdict: boolean;
   createdAt: string;
   updatedAt: string;
   resolvedAt: string | null;

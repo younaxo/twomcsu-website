@@ -6,11 +6,12 @@ import {
 } from '@twomc/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { ChevronRight, Clock } from 'lucide-react';
+import { Check, ChevronRight, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { ReportNumberBadge } from '@/components/reports/ReportNumberBadge';
 import { ReportStatusBadge } from '@/components/reports/ReportStatusBadge';
 import { ReportTypeIcon } from '@/components/reports/ReportTypeIcon';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 function formatTargetUsernames(report: ReportSummary): string | null {
@@ -72,6 +73,15 @@ export function ReportCard({
             </span>
           </div>
           <ReportStatusBadge status={report.status} />
+          {report.hasVerdict ? (
+            <Badge
+              variant="outline"
+              className="inline-flex items-center gap-1 border-emerald-500/30 bg-emerald-500/10 text-xs font-medium text-emerald-300"
+            >
+              <Check className="h-3 w-3" />
+              Вердикт
+            </Badge>
+          ) : null}
           {roleLabel ? (
             <span className="rounded-md bg-white/10 px-2 py-0.5 text-xs text-muted-foreground">
               {roleLabel}
