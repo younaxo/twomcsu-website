@@ -1039,10 +1039,15 @@ model AuditLog {
   changes    Json?
   ipAddress  String?
   userAgent  String?
+  /// info | warning | critical
+  severity   String   @default("info")
+  /// Request duration in ms when applicable
+  duration   Int?
   createdAt  DateTime @default(now())
 
   @@index([actorId])
   @@index([action])
+  @@index([severity])
   @@index([createdAt])
   @@map("audit_logs")
 }
