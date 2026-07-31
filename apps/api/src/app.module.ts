@@ -23,6 +23,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
+import { ExportModule } from './modules/export/export.module';
 import { StoreModule } from './modules/store/store.module';
 import { SystemModule } from './modules/system/system.module';
 import { TopicsModule } from './modules/topics/topics.module';
@@ -61,6 +62,7 @@ import { UsersModule } from './modules/users/users.module';
     MinecraftModule,
     AdminModule,
     StatisticsModule,
+    ExportModule,
     ChatModule,
     SystemModule,
     TopicsModule,
