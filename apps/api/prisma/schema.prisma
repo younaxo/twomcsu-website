@@ -1960,3 +1960,33 @@ model ActivityComment {
   @@index([activityId, createdAt])
   @@map("activity_comments")
 }
+
+model ActivityFeedSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  showPurchases      Boolean @default(true)
+  showAchievements   Boolean @default(true)
+  showBadges         Boolean @default(true)
+  showAwards         Boolean @default(true)
+  showGifts          Boolean @default(true)
+  showFriendships    Boolean @default(true)
+  showProfileUpdates Boolean @default(false)
+  showMilestones     Boolean @default(true)
+  showServerActivity Boolean @default(true)
+
+  purchasesVisibility      ActivityVisibility @default(FRIENDS)
+  achievementsVisibility   ActivityVisibility @default(PUBLIC)
+  badgesVisibility         ActivityVisibility @default(PUBLIC)
+  giftsVisibility          ActivityVisibility @default(FRIENDS)
+  friendshipsVisibility    ActivityVisibility @default(FRIENDS)
+  profileUpdatesVisibility ActivityVisibility @default(FRIENDS)
+
+  notifyOnComment  Boolean @default(true)
+  notifyOnReaction Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+
+  @@map("activity_feed_settings")
+}
