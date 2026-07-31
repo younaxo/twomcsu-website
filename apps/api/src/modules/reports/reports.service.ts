@@ -124,17 +124,28 @@ export class ReportsService {
     const targetsInput = dto.targets ?? [];
     const resolvedTargets = await Promise.all(
       targetsInput.map(async (target, index) => {
-        const user = await this.prisma.user.findUnique({
-          where: { username: target.username },
-          select: { id: true, username: true },
+        const user = await this.prisma.user.findFirst({
+          where: { username: { equals: target.username, mode: 'insensitive' } },
+          select: { id: true, username: true, roleGroup: true },
         });
         return {
           username: user?.username ?? target.username,
           userId: user?.id ?? null,
+          roleGroup: user?.roleGroup ?? null,
           order: target.order ?? index,
         };
       }),
     );
+
+    if (dto.type === ReportType.PLAYER_COMPLAINT) {
+      for (const target of resolvedTargets) {
+        if (target.roleGroup && isStaffRole(target.roleGroup)) {
+          throw new BadRequestException(
+            `Пользователь ${target.username} — модератор. Используйте тип «Жалоба на администрацию»`,
+          );
+        }
+      }
+    }
 
     if (
       dto.type === ReportType.PLAYER_COMPLAINT ||
