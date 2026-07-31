@@ -35,6 +35,8 @@ export { PieChartCard } from './PieChartCard';
 export type { PieChartDataPoint } from './PieChartCard';
 export { QuickActionsMenu } from './QuickActionsMenu';
 export type { QuickAction } from './QuickActionsMenu';
+export { RolePanelLayout } from './RolePanelLayout';
+export type { PanelNavLink } from './RolePanelLayout';
 export { SavedFiltersMenu } from './SavedFiltersMenu';
 export type { SavedFilter } from './SavedFiltersMenu';
 export { TopList } from './TopList';

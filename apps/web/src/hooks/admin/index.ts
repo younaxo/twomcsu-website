@@ -33,8 +33,13 @@ export type {
   ExportUsersPayload,
 } from './useAdminUsers';
 
-export { useAuditLog } from './useAuditLog';
-export type { AuditLogItem, AuditLogFilters, AuditLogResponse } from './useAuditLog';
+export { useAuditLog, useAuditLogStats, useExportAuditLog } from './useAuditLog';
+export type {
+  AuditLogItem,
+  AuditLogFilters,
+  AuditLogResponse,
+  AuditLogStats,
+} from './useAuditLog';
 
 export {
   useSavedFilters,

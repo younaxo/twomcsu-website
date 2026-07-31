@@ -3,27 +3,46 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 
+export type AdminUserPosition = {
+  id: string;
+  displayName: string;
+  color: string;
+  slug: string;
+};
+
 export type AdminUserListItem = {
   id: string;
   username: string;
   email: string;
   roleGroup: string;
   isBanned: boolean;
+  banReason?: string | null;
   createdAt: string;
+  lastLoginAt: string | null;
   lastActivityAt: string | null;
   avatar: string | null;
-  shortId: string;
+  shortId: number;
   tag: string;
+  position?: AdminUserPosition | null;
+  departments?: Array<{ id: string; name: string }>;
+  isOnline?: boolean;
+  isOnlineInGame?: boolean;
+  ordersCount: number;
+  reportsCount: number;
 };
 
 export type AdminUsersFilters = {
   page?: number;
   limit?: number;
   search?: string;
-  roleGroup?: string;
+  role?: string;
   isBanned?: boolean;
-  sortBy?: string;
-  sortDir?: 'asc' | 'desc';
+  positionId?: string;
+  departmentId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sort?: string;
+  order?: 'asc' | 'desc';
 };
 
 export type AdminUsersListResponse = {
@@ -34,28 +53,60 @@ export type AdminUsersListResponse = {
   limit: number;
 };
 
-export type AdminUserFullData = AdminUserListItem & {
-  profile?: Record<string, unknown>;
-  statistics?: Record<string, unknown>;
-  badges?: unknown[];
-  awards?: unknown[];
-  departments?: unknown[];
-  punishments?: unknown[];
+export type AdminUserFullData = {
+  user: Record<string, unknown> & {
+    id: string;
+    username: string;
+    email: string;
+    roleGroup: string;
+    isBanned: boolean;
+    avatar: string | null;
+    shortId: number;
+    tag: string;
+    createdAt: string;
+    lastLoginAt: string | null;
+    banReason?: string | null;
+  };
+  stats: {
+    orders: number;
+    reportsAuthored: number;
+    reportsAgainst: number;
+    comments: number;
+    friends: number;
+    punishments: number;
+  };
+  orders: Array<Record<string, unknown>>;
+  reports: {
+    authored: Array<Record<string, unknown>>;
+    against: Array<Record<string, unknown>>;
+  };
+  comments: Array<Record<string, unknown>>;
+  friends: Array<{ id: string; username: string; avatar: string | null }>;
+  punishments: Array<Record<string, unknown>>;
+  activity: Array<Record<string, unknown>>;
+  sessions: Array<Record<string, unknown>>;
 };
 
 export type BulkUpdateUsersPayload = {
   userIds: string[];
-  updates: {
+  action: 'ban' | 'unban' | 'change_role' | 'send_notification';
+  data?: {
     roleGroup?: string;
-    isBanned?: boolean;
     banReason?: string;
+    bannedUntil?: string | null;
+    notificationTitle?: string;
+    notificationMessage?: string;
   };
 };
 
 export type ExportUsersPayload = {
   format: 'csv' | 'excel' | 'pdf';
-  columns: string[];
-  filters?: AdminUsersFilters;
+  search?: string;
+  roleGroup?: string;
+  isBanned?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
+  userIds?: string[];
 };
 
 const adminUsersKeys = {
@@ -72,10 +123,14 @@ export function useAdminUsers(filters: AdminUsersFilters, enabled = true) {
           page: filters.page,
           limit: filters.limit,
           search: filters.search || undefined,
-          roleGroup: filters.roleGroup || undefined,
+          role: filters.role || undefined,
           isBanned: filters.isBanned,
-          sortBy: filters.sortBy || undefined,
-          sortDir: filters.sortDir || undefined,
+          positionId: filters.positionId || undefined,
+          departmentId: filters.departmentId || undefined,
+          dateFrom: filters.dateFrom || undefined,
+          dateTo: filters.dateTo || undefined,
+          sort: filters.sort || undefined,
+          order: filters.order || undefined,
         },
       });
       return data;
@@ -100,7 +155,7 @@ export function useBulkUpdateUsers() {
 
   return useMutation({
     mutationFn: async (payload: BulkUpdateUsersPayload) => {
-      const { data } = await api.patch<{ updated: number }>('/admin/users/bulk', payload);
+      const { data } = await api.patch<{ affected: number }>('/admin/users/bulk', payload);
       return data;
     },
     onSuccess: () => {

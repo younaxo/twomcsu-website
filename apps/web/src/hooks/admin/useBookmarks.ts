@@ -85,8 +85,10 @@ export function useReorderBookmarks() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: ReorderBookmarksPayload) => {
-      const { data } = await api.patch<AdminBookmark[]>('/admin/bookmarks/reorder', payload);
+    mutationFn: async (orderedIds: string[]) => {
+      const { data } = await api.post<AdminBookmark[]>('/admin/bookmarks/reorder', {
+        orderedIds,
+      });
       return data;
     },
     onSuccess: () => {

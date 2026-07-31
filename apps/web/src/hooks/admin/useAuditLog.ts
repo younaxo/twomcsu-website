@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 
 export type AuditLogItem = {
@@ -9,6 +9,10 @@ export type AuditLogItem = {
   targetType: string | null;
   targetId: string | null;
   severity?: string;
+  changes?: unknown;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  duration?: number | null;
   createdAt: string;
   actor: { id: string; username: string; avatar?: string | null };
 };
@@ -22,6 +26,7 @@ export type AuditLogFilters = {
   from?: string;
   to?: string;
   severity?: string;
+  targetType?: string;
 };
 
 export type AuditLogResponse = {
@@ -30,6 +35,16 @@ export type AuditLogResponse = {
   totalPages: number;
   page: number;
   limit: number;
+};
+
+export type AuditLogStats = {
+  total: number;
+  byAction: Array<{ action: string; count: number }>;
+  bySeverity: Array<{ severity: string; count: number }>;
+  topActors: Array<{
+    actor: { id: string; username: string; avatar: string | null } | null;
+    count: number;
+  }>;
 };
 
 export function useAuditLog(filters: AuditLogFilters, enabled = true) {
@@ -46,10 +61,44 @@ export function useAuditLog(filters: AuditLogFilters, enabled = true) {
           from: filters.from || undefined,
           to: filters.to || undefined,
           severity: filters.severity || undefined,
+          targetType: filters.targetType || undefined,
         },
       });
       return data;
     },
     enabled,
+  });
+}
+
+export function useAuditLogStats(days = 30, enabled = true) {
+  return useQuery({
+    queryKey: ['admin', 'audit-log', 'stats', days],
+    queryFn: async () => {
+      const { data } = await api.get<AuditLogStats>('/admin/audit-log/stats', {
+        params: { days },
+      });
+      return data;
+    },
+    enabled,
+    staleTime: 60_000,
+  });
+}
+
+export function useExportAuditLog() {
+  return useMutation({
+    mutationFn: async (payload: {
+      format: 'csv' | 'excel' | 'pdf';
+      actorId?: string;
+      action?: string;
+      severity?: string;
+      search?: string;
+      dateFrom?: string;
+      dateTo?: string;
+    }) => {
+      const response = await api.post<Blob>('/admin/audit-log/export', payload, {
+        responseType: 'blob',
+      });
+      return response.data;
+    },
   });
 }

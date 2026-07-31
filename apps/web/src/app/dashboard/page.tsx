@@ -1,142 +1,381 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import { useQuery } from '@tanstack/react-query';
-import { AdminPageHeader } from '@/components/admin';
+  AlertTriangle,
+  Ban,
+  Command,
+  DollarSign,
+  Megaphone,
+  Server,
+  Settings,
+  Shield,
+  Users,
+  Wifi,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import {
+  AreaChartCard,
+  BarChartCard,
+  BookmarksGrid,
+  DashboardCard,
+  LineChartCard,
+  PieChartCard,
+  QuickActionsMenu,
+  TopList,
+} from '@/components/admin';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { api } from '@/lib/api';
+import {
+  useBookmarks,
+  useCreateBookmark,
+  useDeleteBookmark,
+  useDashboardOverview,
+  useModeratorActivity,
+  useReorderBookmarks,
+  useReportsChartData,
+  useRevenueChartData,
+  useServersChartData,
+  useTopBuyers,
+  useTopProducts,
+  useUsersChartData,
+} from '@/hooks/admin';
+import { useAuth } from '@/hooks/useAuth';
 
-type DashboardData = {
-  totalUsers: number;
-  users24h: number;
-  onlineInGame: number;
-  siteOnline: number;
-  ordersToday: number;
-  revenueToday: number;
-  openReports: number;
-  commentReports: number;
-  mediaPending: number;
-  registrations: Array<{ date: string; count: number }>;
-  revenue: Array<{ date: string; total: number }>;
-};
-
-function MetricCard({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string | number;
-  hint?: string;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card/50 p-4">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-white">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
-  );
+function formatCurrency(value: number): string {
+  return `${value.toLocaleString('ru-RU')} ₽`;
 }
 
-export default function AdminDashboardPage() {
-  const dash = useQuery({
-    queryKey: ['admin', 'dashboard'],
-    queryFn: async () => {
-      const { data } = await api.get<DashboardData>('/admin/dashboard');
-      return data;
-    },
-    refetchInterval: 60_000,
-  });
+export default function OwnerDashboardPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [bookmarkOpen, setBookmarkOpen] = useState(false);
+  const [bookmarkForm, setBookmarkForm] = useState({ title: '', url: '' });
 
-  const d = dash.data;
+  const overview = useDashboardOverview();
+  const usersChart = useUsersChartData(30);
+  const revenueChart = useRevenueChartData(30);
+  const reportsChart = useReportsChartData(30);
+  const serversChart = useServersChartData(24);
+  const topProducts = useTopProducts(10);
+  const topBuyers = useTopBuyers(10);
+  const moderatorActivity = useModeratorActivity(30);
+  const bookmarks = useBookmarks();
+  const createBookmark = useCreateBookmark();
+  const deleteBookmark = useDeleteBookmark();
+  const reorderBookmarks = useReorderBookmarks();
+
+  const today = format(new Date(), 'd MMMM yyyy, EEEE', { locale: ru });
+
+  const quickActions = useMemo(
+    () => [
+      {
+        id: 'users',
+        label: 'Пользователи',
+        group: 'Навигация',
+        keywords: ['users'],
+        onSelect: () => router.push('/admin/users'),
+      },
+      {
+        id: 'audit',
+        label: 'Audit log',
+        group: 'Навигация',
+        onSelect: () => router.push('/admin/audit-log'),
+      },
+      {
+        id: 'settings',
+        label: 'Настройки сайта',
+        group: 'Навигация',
+        onSelect: () => router.push('/admin/settings/site'),
+      },
+      {
+        id: 'broadcast',
+        label: 'Рассылка',
+        group: 'Действия',
+        onSelect: () => router.push('/admin/broadcast'),
+      },
+      {
+        id: 'exports',
+        label: 'Запланированный экспорт',
+        group: 'Действия',
+        onSelect: () => router.push('/admin/exports/scheduled'),
+      },
+      {
+        id: 'admin',
+        label: 'Админ-панель',
+        group: 'Навигация',
+        onSelect: () => router.push('/admin/users'),
+      },
+    ],
+    [router],
+  );
+
+  const serversAreaData = useMemo(() => {
+    return (serversChart.data ?? []).map((row) => {
+      const { hour, ...servers } = row;
+      const total = Object.values(servers).reduce<number>(
+        (sum, value) => (typeof value === 'number' ? sum + value : sum),
+        0,
+      );
+      return {
+        hour: String(hour).slice(11, 16),
+        total,
+      };
+    });
+  }, [serversChart.data]);
+
+  const moderatorBarData = useMemo(
+    () =>
+      (moderatorActivity.data ?? []).map((item) => ({
+        name: item.username,
+        resolved: item.resolvedCount,
+      })),
+    [moderatorActivity.data],
+  );
+
+  const handleReorder = (id: string, direction: 'up' | 'down') => {
+    const sorted = [...(bookmarks.data ?? [])].sort((a, b) => a.order - b.order);
+    const index = sorted.findIndex((b) => b.id === id);
+    if (index < 0) return;
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= sorted.length) return;
+    const next = [...sorted];
+    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+    reorderBookmarks.mutate(next.map((b) => b.id));
+  };
+
+  const handleAddBookmark = async () => {
+    const title = bookmarkForm.title.trim();
+    const url = bookmarkForm.url.trim();
+    if (!title || !url) return;
+    try {
+      await createBookmark.mutateAsync({ title, url });
+      setBookmarkForm({ title: '', url: '' });
+      setBookmarkOpen(false);
+      toast.success('Закладка добавлена');
+    } catch {
+      toast.error('Не удалось добавить закладку');
+    }
+  };
+
+  const o = overview.data;
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
-        title="Дашборд"
-        description="Ключевые метрики проекта"
-        actions={
+      <div className="glass-panel rounded-2xl p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-white">
+              Добро пожаловать, {user?.username ?? 'администратор'}!
+            </h1>
+            <p className="mt-1 text-sm capitalize text-muted-foreground">{today}</p>
+          </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/admin/broadcast">Рассылка</Link>
+            <Button type="button" variant="secondary" size="sm" onClick={() => setQuickOpen(true)}>
+              <Command className="mr-1.5 h-4 w-4" />
+              Ctrl+K
             </Button>
             <Button asChild variant="secondary" size="sm">
-              <Link href="/admin/servers">Серверы</Link>
+              <Link href="/admin/broadcast">
+                <Megaphone className="mr-1.5 h-4 w-4" />
+                Рассылка
+              </Link>
             </Button>
             <Button asChild variant="secondary" size="sm">
-              <Link href="/dashboard/audit-log">Audit log</Link>
+              <Link href="/admin/settings/site">
+                <Settings className="mr-1.5 h-4 w-4" />
+                Настройки
+              </Link>
+            </Button>
+            <Button asChild variant="secondary" size="sm">
+              <Link href="/admin/audit-log">
+                <Shield className="mr-1.5 h-4 w-4" />
+                Audit log
+              </Link>
             </Button>
           </div>
-        }
-      />
+        </div>
+      </div>
 
-      {dash.isLoading || !d ? (
-        <Skeleton className="h-40 w-full" />
+      {overview.isLoading || !o ? (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 rounded-2xl" />
+          ))}
+        </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard label="Пользователи" value={d.totalUsers} hint={`+${d.users24h} за 24ч`} />
-          <MetricCard label="Онлайн в игре" value={d.onlineInGame} />
-          <MetricCard
-            label="Заказы сегодня"
-            value={d.ordersToday}
-            hint={`Выручка: ${d.revenueToday.toLocaleString('ru-RU')} ₽`}
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+          <DashboardCard
+            title="Пользователи"
+            value={o.users.total.toLocaleString('ru-RU')}
+            icon={Users}
+            changePercent={o.users.change24hPct}
           />
-          <MetricCard
-            label="Открытые жалобы"
-            value={d.openReports + d.commentReports}
-            hint={`Медиа заявок: ${d.mediaPending}`}
+          <DashboardCard
+            title="Онлайн сейчас"
+            value={o.users.onlineNow.toLocaleString('ru-RU')}
+            icon={Wifi}
+          />
+          <DashboardCard
+            title="В игре"
+            value={o.users.onlineInGame.toLocaleString('ru-RU')}
+            icon={Server}
+          />
+          <DashboardCard
+            title="Выручка сегодня"
+            value={formatCurrency(o.orders.revenueToday)}
+            icon={DollarSign}
+            changePercent={o.orders.revenueChangePct}
+          />
+          <DashboardCard
+            title="Открытые обращения"
+            value={o.reports.pending + o.reports.inReview}
+            icon={AlertTriangle}
+            changePercent={o.reports.pendingChangePct}
+          />
+          <DashboardCard
+            title="Активные баны"
+            value={o.users.activeBans.toLocaleString('ru-RU')}
+            icon={Ban}
           />
         </div>
       )}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card/40 p-4">
-          <h2 className="mb-3 text-sm font-medium text-white">Регистрации за 30 дней</h2>
-          <div className="h-56">
-            {d ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={d.registrations}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="date" hide />
-                  <YAxis allowDecimals={false} width={28} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <Skeleton className="h-full w-full" />
-            )}
-          </div>
-        </div>
-        <div className="rounded-xl border border-border bg-card/40 p-4">
-          <h2 className="mb-3 text-sm font-medium text-white">Выручка за 30 дней</h2>
-          <div className="h-56">
-            {d ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={d.revenue}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="date" hide />
-                  <YAxis width={40} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="total" stroke="#22c55e" fill="rgba(34,197,94,0.2)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <Skeleton className="h-full w-full" />
-            )}
-          </div>
-        </div>
+        <LineChartCard
+          title="Регистрации"
+          description="За последние 30 дней"
+          data={usersChart.data ?? []}
+          dataKey="count"
+        />
+        <BarChartCard
+          title="Выручка"
+          description="За последние 30 дней"
+          data={revenueChart.data ?? []}
+          dataKey="total"
+          formatTooltip={formatCurrency}
+        />
+        <PieChartCard
+          title="Обращения по типам"
+          description="За последние 30 дней"
+          data={(reportsChart.data ?? []).map((row) => ({
+            name: row.type,
+            value: row.count,
+          }))}
+        />
+        <AreaChartCard
+          title="Онлайн на серверах"
+          description="За последние 24 часа"
+          data={serversAreaData}
+          dataKey="total"
+          xKey="hour"
+        />
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <TopList
+          title="Топ товаров"
+          valueLabel="Продажи"
+          items={(topProducts.data ?? []).map((p) => ({
+            id: p.productId ?? p.name,
+            rank: p.rank,
+            title: p.name,
+            subtitle: formatCurrency(p.revenue),
+            value: p.sold,
+            imageUrl: p.image,
+            href: p.slug ? `/store/${p.slug}` : undefined,
+          }))}
+        />
+        <TopList
+          title="Топ покупателей"
+          valueLabel="Потрачено"
+          items={(topBuyers.data ?? []).map((b) => ({
+            id: b.user?.id ?? String(b.rank),
+            rank: b.rank,
+            title: b.user?.username ?? 'Неизвестно',
+            subtitle: `${b.ordersCount} заказов`,
+            value: formatCurrency(b.totalSpent),
+            imageUrl: b.user?.avatar,
+            href: b.user ? `/admin/users/${b.user.id}` : undefined,
+          }))}
+        />
+      </div>
+
+      <BarChartCard
+        title="Активность модераторов"
+        description="Решённые обращения за 30 дней"
+        data={moderatorBarData}
+        dataKey="resolved"
+        xKey="name"
+        height={280}
+      />
+
+      <BookmarksGrid
+        bookmarks={bookmarks.data ?? []}
+        onAdd={() => setBookmarkOpen(true)}
+        onDelete={(id) => {
+          deleteBookmark.mutate(id, {
+            onSuccess: () => toast.success('Закладка удалена'),
+            onError: () => toast.error('Не удалось удалить'),
+          });
+        }}
+        onReorder={handleReorder}
+      />
+
+      <QuickActionsMenu actions={quickActions} open={quickOpen} onOpenChange={setQuickOpen} />
+
+      <Dialog open={bookmarkOpen} onOpenChange={setBookmarkOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Новая закладка</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="bm-title">Название</Label>
+              <Input
+                id="bm-title"
+                value={bookmarkForm.title}
+                onChange={(e) => setBookmarkForm((f) => ({ ...f, title: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="bm-url">URL</Label>
+              <Input
+                id="bm-url"
+                value={bookmarkForm.url}
+                placeholder="/admin/users или https://…"
+                onChange={(e) => setBookmarkForm((f) => ({ ...f, url: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setBookmarkOpen(false)}>
+              Отмена
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddBookmark}
+              disabled={createBookmark.isPending}
+            >
+              Добавить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
