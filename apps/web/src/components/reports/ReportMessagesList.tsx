@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
+import { ImageWithPreview } from '@/components/shared/ImageWithPreview';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -177,16 +178,15 @@ function MessageCard({
         <div className="mt-3 flex flex-wrap gap-2 border-t border-white/5 pt-3">
           {message.attachments.map((file) =>
             file.mimeType.startsWith('image/') ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <a
+              <ImageWithPreview
                 key={file.id}
-                href={file.fileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="block overflow-hidden rounded-lg glass-light"
-              >
-                <img src={file.fileUrl} alt={file.fileName} className="h-24 w-24 object-cover" />
-              </a>
+                src={file.fileUrl}
+                alt={file.fileName}
+                className="h-24 w-24 overflow-hidden rounded-lg glass-light"
+                gallery={message.attachments
+                  .filter((item) => item.mimeType.startsWith('image/'))
+                  .map((item) => item.fileUrl)}
+              />
             ) : (
               <a
                 key={file.id}
