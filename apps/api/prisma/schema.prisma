@@ -162,8 +162,9 @@ model User {
   newsLikes             NewsLike[]
   newsViews             NewsView[]
 
-  adminBookmarks AdminBookmark[]
-  savedFilters   SavedFilter[]
+  adminBookmarks   AdminBookmark[]
+  savedFilters     SavedFilter[]
+  scheduledExports ScheduledExport[]
 
   @@index([email])
   @@index([username])
@@ -1136,6 +1137,27 @@ model SavedFilter {
 
   @@index([userId, page])
   @@map("saved_filters")
+}
+
+model ScheduledExport {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  name      String
+  page      String
+  format    String
+  filters   Json?
+  schedule  String
+  email     String?
+  isActive  Boolean   @default(true)
+  lastRunAt DateTime?
+  nextRunAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([nextRunAt, isActive])
+  @@map("scheduled_exports")
 }
 
 enum ChatChannelType {
