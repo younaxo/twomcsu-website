@@ -14,6 +14,7 @@ import { DepartmentsModule } from './modules/departments/departments.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommentsModule } from './modules/comments/comments.module';
+import { EmojisModule } from './modules/emojis/emojis.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
 import { MinecraftModule } from './modules/minecraft/minecraft.module';
@@ -59,6 +60,7 @@ import { UsersModule } from './modules/users/users.module';
     DepartmentsModule,
     FriendsModule,
     CommentsModule,
+    EmojisModule,
     NotificationsModule,
     StoreModule,
     MinecraftModule,
