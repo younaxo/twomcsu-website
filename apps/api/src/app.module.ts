@@ -8,6 +8,7 @@ import { PerformanceMiddleware } from './common/middleware/performance.middlewar
 import { configuration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { AuthModule } from './modules/auth/auth.module';
+import { AchievementsModule } from './modules/achievements/achievements.module';
 import { AwardsModule } from './modules/awards/awards.module';
 import { CustomPositionsModule } from './modules/custom-positions/custom-positions.module';
 import { DepartmentsModule } from './modules/departments/departments.module';
@@ -58,6 +59,7 @@ import { UsersModule } from './modules/users/users.module';
     PositionsModule,
     UsersModule,
     AwardsModule,
+    AchievementsModule,
     CustomPositionsModule,
     DepartmentsModule,
     FriendsModule,

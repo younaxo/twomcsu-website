@@ -33,6 +33,7 @@ import { buildPaginatedResult } from '../../common/pagination';
 import { selectMinimalUser } from '../../common/prisma/user-selects';
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { ActivityService } from '../activity/activity.service';
+import { AchievementsService } from '../achievements/achievements.service';
 import { toUserBadge } from '../users/profile.mapper';
 import { toPublicPosition } from '../positions/position.mapper';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
@@ -82,6 +83,9 @@ export class CommentsService {
     @Optional()
     @Inject(forwardRef(() => ActivityService))
     private readonly activity?: ActivityService,
+    @Optional()
+    @Inject(forwardRef(() => AchievementsService))
+    private readonly achievements?: AchievementsService,
   ) {}
 
   async getComments(
@@ -218,6 +222,12 @@ export class CommentsService {
     await this.notifyCommentCreated(profile, authorId, created.id, dto.parentId, mentionIds);
     await this.invalidateCommentsCache(profile.username);
     void this.activity?.checkMilestones(authorId).catch(() => undefined);
+    void this.prisma.profileComment
+      .count({ where: { authorId, isDeleted: false } })
+      .then((count) =>
+        this.achievements?.checkAndGrantAchievement(authorId, 'COMMENTS_COUNT', count),
+      )
+      .catch(() => undefined);
 
     const mentionUsers = await this.loadMentionUsers(mentionIds);
     return this.mapComment(created, {

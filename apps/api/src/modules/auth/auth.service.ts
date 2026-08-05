@@ -4,10 +4,13 @@ import {
   ForbiddenException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -26,6 +29,7 @@ import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { durationToSeconds } from '../../common/duration.util';
 import { AuthUserRow, selectAuthUser } from '../../common/prisma/user-selects';
 import { generateUserTag } from '../../common/user-identifier';
+import { AchievementsService } from '../achievements/achievements.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { toPublicPosition } from '../positions/position.mapper';
@@ -72,6 +76,9 @@ export class AuthService {
     private readonly bruteForce: BruteForceService,
     private readonly positions: PositionsService,
     private readonly cache: CacheService,
+    @Optional()
+    @Inject(forwardRef(() => AchievementsService))
+    private readonly achievements?: AchievementsService,
   ) {}
 
   async register(dto: RegisterDto, context: RequestContext): Promise<RegisterSession> {
@@ -163,6 +170,9 @@ export class AuthService {
       data: { lastLoginAt: new Date(), lastLoginIp: context.ip },
       include: { position: true },
     });
+
+    void this.achievements?.grantFirstLogin(user.id).catch(() => undefined);
+    void this.achievements?.checkUserAchievements(user.id).catch(() => undefined);
 
     return this.issueSession(loggedIn, context);
   }

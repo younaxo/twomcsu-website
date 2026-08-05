@@ -120,4 +120,12 @@ export const queryKeys = {
     ['admin', 'forms', 'response', id, responseId] as const,
   adminFormStats: (id: string) => ['admin', 'forms', 'stats', id] as const,
   adminFormInvites: (id: string) => ['admin', 'forms', 'invites', id] as const,
+  achievements: (filters?: Record<string, unknown>) =>
+    ['achievements', 'list', filters ?? {}] as const,
+  achievementBySlug: (slug: string) => ['achievements', 'detail', slug] as const,
+  achievementsStats: ['achievements', 'stats'] as const,
+  userAchievements: (username: string) => ['achievements', 'user', username] as const,
+  myAchievements: ['achievements', 'me'] as const,
+  adminAchievements: (filters?: Record<string, unknown>) =>
+    ['admin', 'achievements', filters ?? {}] as const,
 };

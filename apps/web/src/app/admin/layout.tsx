@@ -15,6 +15,7 @@ const adminLinks = [
   { href: '/admin/positions', label: 'Префиксы' },
   { href: '/admin/badges', label: 'Бейджи' },
   { href: '/admin/awards', label: 'Награды' },
+  { href: '/admin/achievements', label: 'Достижения' },
   { href: '/admin/departments', label: 'Отделы' },
   { href: '/admin/custom-positions', label: 'Кастомные должности' },
   { href: '/admin/servers', label: 'Серверы' },

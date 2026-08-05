@@ -1,3 +1,4 @@
+export * from './achievements';
 export * from './activity';
 export * from './api';
 export * from './auth';

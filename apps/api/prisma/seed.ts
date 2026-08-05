@@ -10,6 +10,7 @@ import {
 import { hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { seedDepartments } from './departments.data';
+import { seedAchievements } from './achievements.data';
 import { seedAwards } from './awards.data';
 import { seedBannerPresets } from './banner-presets.data';
 import { seedChat } from './chat.data';
@@ -536,6 +537,50 @@ async function upsertCustomEmojis(createdBy: string): Promise<void> {
   console.log(`custom emojis: ${seedCustomEmojis.length}`);
 }
 
+async function upsertAchievements(): Promise<void> {
+  for (const item of seedAchievements) {
+    await prisma.achievement.upsert({
+      where: { slug: item.slug },
+      update: {
+        name: item.name,
+        description: item.description,
+        iconUrl: item.iconUrl,
+        category: item.category,
+        rarity: item.rarity,
+        isSecret: item.isSecret ?? false,
+        isActive: true,
+        order: item.order,
+        conditionType: item.conditionType,
+        conditionValue: item.conditionValue ?? null,
+        conditionParams: (item.conditionParams as object) ?? undefined,
+        rewardRubies: item.rewardRubies ?? 0,
+        rewardBadgeType: item.rewardBadgeType ?? null,
+        rewardTitle: item.rewardTitle ?? null,
+        rewardMessage: item.rewardMessage ?? null,
+      },
+      create: {
+        slug: item.slug,
+        name: item.name,
+        description: item.description,
+        iconUrl: item.iconUrl,
+        category: item.category,
+        rarity: item.rarity,
+        isSecret: item.isSecret ?? false,
+        order: item.order,
+        conditionType: item.conditionType,
+        conditionValue: item.conditionValue ?? null,
+        conditionParams: (item.conditionParams as object) ?? undefined,
+        rewardRubies: item.rewardRubies ?? 0,
+        rewardBadgeType: item.rewardBadgeType ?? null,
+        rewardTitle: item.rewardTitle ?? null,
+        rewardMessage: item.rewardMessage ?? null,
+      },
+    });
+  }
+
+  console.log(`achievements: ${seedAchievements.length}`);
+}
+
 async function upsertTopics(createdBy: string): Promise<void> {
   for (const topic of seedTopics) {
     await prisma.topic.upsert({
@@ -1050,6 +1095,7 @@ async function main() {
   await upsertServers(serverCategoryIds);
 
   const awardIds = await upsertAwards();
+  await upsertAchievements();
 
   const email = process.env.SEED_OWNER_EMAIL;
   const username = process.env.SEED_OWNER_USERNAME;

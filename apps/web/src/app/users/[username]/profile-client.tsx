@@ -34,6 +34,7 @@ import { CopyableId } from '@/components/shared/CopyableId';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { DepartmentBadgesList } from '@/components/shared/DepartmentBadgesList';
+import { AchievementShowcase } from '@/components/achievements/AchievementShowcase';
 import { ActivityCard } from '@/components/activity/ActivityCard';
 import { CommentsList } from '@/components/comments/CommentsList';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
@@ -49,6 +50,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useAuth } from '@/hooks/useAuth';
 import { useUserActivity } from '@/hooks/activity';
 import { useGiftFromWishlist, useUserWishlist } from '@/hooks/store';
+import { useUserAchievements } from '@/hooks/achievements';
 import { api, extractErrorMessage } from '@/lib/api';
 import {
   formatNumber,
@@ -104,6 +106,7 @@ export function ProfileClient({
     initialRestricted,
   );
   const [friendsCount, setFriendsCount] = useState<number | null>(null);
+  const userAchievements = useUserAchievements(username);
 
   useEffect(() => {
     void api
@@ -527,6 +530,17 @@ export function ProfileClient({
                   <AwardsList awards={profile.awards} />
                 </CardContent>
               </Card>
+
+              {userAchievements.data && userAchievements.data.showcase.length > 0 ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Витрина достижений</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <AchievementShowcase achievements={userAchievements.data.showcase} />
+                  </CardContent>
+                </Card>
+              ) : null}
 
               <div className="flex flex-wrap items-center gap-4">
                 <ReactionButtons

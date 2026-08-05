@@ -41,6 +41,7 @@ import { buildMentionSearchWhere, buildUserSearchWhere } from '../../common/user
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { AuthenticatedUser } from '../auth/authenticated-user';
 import { ActivityService } from '../activity/activity.service';
+import { AchievementsService } from '../achievements/achievements.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { FriendsService } from '../friends/friends.service';
@@ -78,6 +79,9 @@ export class UsersService {
     @Optional()
     @Inject(forwardRef(() => ActivityService))
     private readonly activity?: ActivityService,
+    @Optional()
+    @Inject(forwardRef(() => AchievementsService))
+    private readonly achievements?: AchievementsService,
   ) {}
 
   async getMyProfile(userId: string): Promise<MyProfile> {
@@ -436,6 +440,12 @@ export class UsersService {
     });
 
     void this.activity?.recordBadge(userId, { type: row.type }).catch(() => undefined);
+    void this.prisma.userBadge
+      .count({ where: { userId, isActive: true } })
+      .then((count) =>
+        this.achievements?.checkAndGrantAchievement(userId, 'BADGES_COUNT', count),
+      )
+      .catch(() => undefined);
 
     return toUserBadge(row);
   }
@@ -624,6 +634,13 @@ export class UsersService {
       update: { viewedAt: new Date() },
     });
 
+    void this.prisma.profileView
+      .count({ where: { viewerId } })
+      .then((count) =>
+        this.achievements?.checkAndGrantAchievement(viewerId, 'PROFILE_VIEWS', count),
+      )
+      .catch(() => undefined);
+
     return { success: true };
   }
 
@@ -654,6 +671,15 @@ export class UsersService {
         create: { profileId: profile.id, userId: viewerId, type },
         update: { type },
       });
+    }
+
+    if (type === ReactionType.LIKE) {
+      void this.prisma.profileReaction
+        .count({ where: { profileId: profile.id, type: ReactionType.LIKE } })
+        .then((count) =>
+          this.achievements?.checkAndGrantAchievement(profile.id, 'LIKES_RECEIVED', count),
+        )
+        .catch(() => undefined);
     }
 
     return this.reactionSummary(profile.id, viewerId);
@@ -841,6 +867,16 @@ export class UsersService {
         killDeathRatio,
       },
     });
+
+    void this.achievements
+      ?.checkAndGrantAchievement(userId, 'PLAYTIME_MINUTES', row.playTime)
+      .catch(() => undefined);
+    void this.achievements
+      ?.checkAndGrantAchievement(userId, 'KILLS_COUNT', row.kills)
+      .catch(() => undefined);
+    void this.achievements
+      ?.checkAndGrantAchievement(userId, 'DEATHS_COUNT', row.deaths)
+      .catch(() => undefined);
 
     return toStatistics(row);
   }

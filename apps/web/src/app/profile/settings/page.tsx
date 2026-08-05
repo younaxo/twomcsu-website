@@ -28,6 +28,7 @@ import { GenderSelect } from '@/components/profile/GenderSelect';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
 import { ActivitySettingsTab } from '@/components/activity/ActivitySettingsTab';
 import { NotificationsSettingsTab } from '@/components/notifications/NotificationsSettingsTab';
+import { AchievementShowcaseSettings } from '@/components/achievements/AchievementShowcaseSettings';
 import { CaptchaField, CaptchaFieldHandle } from '@/components/shared/CaptchaField';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
@@ -114,6 +115,7 @@ export default function ProfileSettingsPage() {
       'chat',
       'activity',
       'notifications',
+      'achievements',
       'security',
     ]);
     if (hash && allowed.has(hash)) {
@@ -248,6 +250,7 @@ export default function ProfileSettingsPage() {
           <TabsTrigger value="chat">Чат</TabsTrigger>
           <TabsTrigger value="activity">Активность</TabsTrigger>
           <TabsTrigger value="notifications">Уведомления</TabsTrigger>
+          <TabsTrigger value="achievements">Достижения</TabsTrigger>
           <TabsTrigger value="security">Безопасность</TabsTrigger>
         </TabsList>
 
@@ -809,6 +812,20 @@ export default function ProfileSettingsPage() {
 
         <TabsContent value="notifications" className="space-y-6">
           <NotificationsSettingsTab />
+        </TabsContent>
+
+        <TabsContent value="achievements">
+          <Card>
+            <CardHeader>
+              <CardTitle>Витрина достижений</CardTitle>
+              <CardDescription>
+                Выберите до 6 достижений для отображения на вашем профиле
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AchievementShowcaseSettings />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">

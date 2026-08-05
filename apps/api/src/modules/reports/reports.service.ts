@@ -1,8 +1,11 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
+  forwardRef,
 } from '@nestjs/common';
 import {
   Prisma,
@@ -29,6 +32,7 @@ import {
   detectEvidenceLinkType,
   hasRoleGroup,
 } from '@twomc/shared';
+import { AchievementsService } from '../achievements/achievements.service';
 import { AuditService } from '../admin/audit.service';
 import { CaptchaService } from '../auth/captcha.service';
 import { MarkdownService } from '../comments/markdown.service';
@@ -112,6 +116,9 @@ export class ReportsService {
     private readonly attachments: ReportsAttachmentsService,
     private readonly punishments: ReportsPunishmentsService,
     private readonly audit: AuditService,
+    @Optional()
+    @Inject(forwardRef(() => AchievementsService))
+    private readonly achievements?: AchievementsService,
   ) {}
 
   async createReport(
@@ -897,6 +904,24 @@ export class ReportsService {
 
     await this.addSystemMessage(row.id, actorId, systemMessage);
     await this.notifyStatusChange(row.reportNumber, row.authorId, dto.status);
+
+    if (
+      dto.status === ReportStatus.RESOLVED &&
+      row.type === PrismaReportType.TECHNICAL_ISSUE
+    ) {
+      void this.prisma.report
+        .count({
+          where: {
+            authorId: row.authorId,
+            type: PrismaReportType.TECHNICAL_ISSUE,
+            status: PrismaReportStatus.RESOLVED,
+          },
+        })
+        .then((count) =>
+          this.achievements?.checkAndGrantAchievement(row.authorId, 'BUG_REPORTED', count),
+        )
+        .catch(() => undefined);
+    }
 
     return this.getByNumber(reportNumber, actorId, roleGroup);
   }

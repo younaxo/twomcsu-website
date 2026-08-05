@@ -17,6 +17,14 @@ const ChatWidget = dynamic(
   { ssr: false },
 );
 
+const AchievementUnlockedListener = dynamic(
+  () =>
+    import('@/components/achievements/AchievementUnlockedListener').then(
+      (mod) => mod.AchievementUnlockedListener,
+    ),
+  { ssr: false },
+);
+
 const geologica = Geologica({
   subsets: ['latin', 'cyrillic'],
   display: 'swap',
@@ -66,6 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <SiteFooter />
                 </div>
                 <ChatWidget />
+                <AchievementUnlockedListener />
                 <Toaster
                   theme="dark"
                   position="bottom-center"

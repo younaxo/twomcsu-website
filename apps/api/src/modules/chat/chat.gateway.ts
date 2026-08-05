@@ -270,6 +270,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit(event, payload);
   }
 
+  emitAchievementUnlocked(userId: string, payload: unknown) {
+    this.server.to(`user:${userId}`).emit('achievement:unlocked', payload);
+  }
+
   private requireUser(client: AuthedSocket) {
     if (!client.data.user) {
       throw new Error('Не авторизован');

@@ -93,7 +93,7 @@
 - Position (28 позиций)
 - UserBadge (5 типов: LEADERSHIP, DEVELOPERS_TEAM, PROJECT_TEAM, VERIFIED, SUBSCRIBER_PLUS)
 - Award, UserAward
-- Achievement, UserAchievement (в разработке)
+- Achievement, UserAchievement (категории, редкость, прогресс, витрина)
 - Friendship
 - ProfileComment (с реакциями)
 - Product, Order (магазин)
@@ -116,3 +116,5 @@
 - Реакции — Apple style эмодзи (thumbs-up, heart, laugh, wow, sad, angry, party, fire)
 - Уведомления через Socket.IO + push notifications
 - Glass эффекты через утилиты .glass-medium, .glass-strong, .glass-light
+
+- Ответы и вопросы на русском языке.

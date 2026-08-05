@@ -21,6 +21,7 @@ import {
   Shield,
   ShoppingBag,
   ShoppingCart,
+  Trophy,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -60,6 +61,7 @@ const mainGroups: NavGroup[] = [
       { href: '/servers', label: 'Серверы', icon: Server },
       { href: '/news', label: 'Новости', icon: Newspaper },
       { href: '/feed', label: 'Лента активности', icon: Activity },
+      { href: '/achievements', label: 'Достижения', icon: Trophy },
     ],
   },
   {

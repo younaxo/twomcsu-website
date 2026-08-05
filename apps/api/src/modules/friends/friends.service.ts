@@ -29,6 +29,7 @@ import {
 } from '../../common/prisma/user-selects';
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { ActivityService } from '../activity/activity.service';
+import { AchievementsService } from '../achievements/achievements.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -47,6 +48,9 @@ export class FriendsService {
     @Optional()
     @Inject(forwardRef(() => ActivityService))
     private readonly activity?: ActivityService,
+    @Optional()
+    @Inject(forwardRef(() => AchievementsService))
+    private readonly achievements?: AchievementsService,
   ) {}
 
   async sendRequest(requesterId: string, addresseeUsername: string): Promise<FriendRequestItem> {
@@ -171,6 +175,9 @@ export class FriendsService {
     void this.activity
       ?.recordFriendship(userId, updated.requesterId)
       .catch(() => undefined);
+
+    void this.checkFriendsAchievements(updated.requesterId);
+    void this.checkFriendsAchievements(updated.addresseeId);
 
     return {
       id: updated.id,
@@ -650,6 +657,21 @@ export class FriendsService {
         status: true,
       },
     });
+  }
+
+  private checkFriendsAchievements(userId: string): void {
+    if (!this.achievements) return;
+    void this.prisma.friendship
+      .count({
+        where: {
+          status: FriendshipStatus.ACCEPTED,
+          OR: [{ requesterId: userId }, { addresseeId: userId }],
+        },
+      })
+      .then((count) =>
+        this.achievements!.checkAndGrantAchievement(userId, 'FRIENDS_COUNT', count),
+      )
+      .catch(() => undefined);
   }
 
   private toFriendUser(user: MinimalUserRow): FriendUser {
