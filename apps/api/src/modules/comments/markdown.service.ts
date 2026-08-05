@@ -39,7 +39,7 @@ export class MarkdownService {
     const withSpoilers = markdown.replace(/\|\|(.+?)\|\|/gs, '<span class="spoiler">$1</span>');
     const withMentions = withSpoilers.replace(
       /@([A-Za-z0-9_]{3,16})\b/g,
-      '<span class="mention">@$1</span>',
+      '<a class="mention" href="/users/$1" data-username="$1">@$1</a>',
     );
 
     const rawHtml = marked.parse(withMentions, {
@@ -51,7 +51,7 @@ export class MarkdownService {
     return sanitizeHtml(rawHtml, {
       allowedTags: this.allowedTags,
       allowedAttributes: {
-        a: ['href', 'rel', 'target'],
+        a: ['href', 'rel', 'target', 'class', 'data-username'],
         span: ['class', 'data-username'],
         img: ['src', 'alt', 'title', 'width', 'height'],
         h1: ['id'],
@@ -63,13 +63,23 @@ export class MarkdownService {
       },
       allowedClasses: {
         span: ['spoiler', 'mention'],
+        a: ['mention'],
       },
-      allowedSchemes: ['http', 'https'],
+      allowedSchemes: ['http', 'https', 'mailto'],
       transformTags: {
-        a: sanitizeHtml.simpleTransform('a', {
-          rel: 'noopener noreferrer',
-          target: '_blank',
-        }),
+        a: (tagName, attribs) => {
+          const href = attribs.href ?? '';
+          const isMention = href.startsWith('/users/') || attribs.class === 'mention';
+          return {
+            tagName,
+            attribs: {
+              ...attribs,
+              ...(isMention
+                ? { rel: 'noopener noreferrer' }
+                : { rel: 'noopener noreferrer', target: '_blank' }),
+            },
+          };
+        },
       },
     });
   }

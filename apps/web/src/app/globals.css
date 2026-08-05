@@ -94,15 +94,18 @@
   .comment-markdown .spoiler {
     filter: blur(5px);
     cursor: pointer;
-    transition: filter 0.15s ease;
+    transition: filter 0.15s ease, color 0.15s ease, background 0.15s ease;
     background: hsl(var(--muted));
     border-radius: 0.25rem;
     padding: 0 0.15rem;
+    color: transparent;
   }
 
   .comment-markdown .spoiler.revealed,
   .comment-markdown .spoiler:focus {
     filter: none;
+    color: inherit;
+    background: transparent;
   }
 
   .comment-markdown .mention {
