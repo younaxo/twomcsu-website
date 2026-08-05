@@ -1,9 +1,1056 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import {
+  FriendRequestPolicy,
+  MediaGroup,
+  PrismaClient,
+  ProductDuration,
+  ProfileVisibility,
+  RoleGroup,
+  UserBadgeType,
+} from '@prisma/client';
 import { hash } from 'bcrypt';
+import { randomBytes } from 'crypto';
+import { seedDepartments } from './departments.data';
+import { seedAwards } from './awards.data';
+import { seedBannerPresets } from './banner-presets.data';
+import { seedChat } from './chat.data';
+import { seedCurrencyRates } from './currency-rates.data';
+import { seedCustomEmojis } from './emojis.data';
+import { seedPositions } from './positions.data';
+import { seedPromoCodes } from './promo-codes.data';
+import { seedPunishments, seedReports } from './reports.data';
+import { seedNews, seedNewsComments } from './news.data';
+import { seedForms, seedFormTemplates, type SeedFormItem } from './forms.data';
+import { seedActivityFeed } from './activity.data';
+import { seedTopics, TOPIC_PLACEHOLDER_CONTENT } from './topics.data';
+import { seedBundles } from './store-bundles.data';
+import { seedCategories } from './store-categories.data';
+import { seedBulkDiscounts, seedLoyaltyDiscounts } from './store-discounts.data';
+import { seedProducts } from './store-products.data';
 
 const prisma = new PrismaClient();
 
+const BCRYPT_ROUNDS = 12;
+
+interface SeedUser {
+  email: string;
+  username: string;
+  password: string;
+  roleGroup: RoleGroup;
+  positionSlug: string;
+  profileVisibility?: ProfileVisibility;
+  friendRequestPolicy?: FriendRequestPolicy;
+  shortId?: number;
+}
+
+function makeTag(username: string): string {
+  const base = username.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().slice(0, 4) || 'user';
+  return `${base}#${randomBytes(2).toString('hex')}`;
+}
+
+interface SeedStatistics {
+  coins: number;
+  playTime: number;
+  kills: number;
+  deaths: number;
+  hits: number;
+  lastServer: string;
+}
+
+interface SeedShowcase {
+  statistics: SeedStatistics;
+  badges: UserBadgeType[];
+  awardSlugs: string[];
+  mediaBadges?: { mediaGroup: MediaGroup; channelUrl: string }[];
+}
+
+const staffAndPlayers: SeedUser[] = [
+  {
+    email: 'admin@localhost',
+    username: 'admin',
+    password: 'Admin1234',
+    roleGroup: RoleGroup.ADMIN,
+    positionSlug: 'special-administrator',
+    profileVisibility: ProfileVisibility.EVERYONE,
+    friendRequestPolicy: FriendRequestPolicy.EVERYONE,
+  },
+  {
+    email: 'moderator@localhost',
+    username: 'moderator',
+    password: 'Moder1234',
+    roleGroup: RoleGroup.MODERATOR,
+    positionSlug: 'head-cheat-hunter',
+    profileVisibility: ProfileVisibility.EVERYONE,
+    friendRequestPolicy: FriendRequestPolicy.EVERYONE,
+  },
+  {
+    email: 'helper@localhost',
+    username: 'helper',
+    password: 'Helper1234',
+    roleGroup: RoleGroup.HELPER,
+    positionSlug: 'chief-helper',
+    profileVisibility: ProfileVisibility.EVERYONE,
+    friendRequestPolicy: FriendRequestPolicy.EVERYONE,
+  },
+  {
+    email: 'player1@localhost',
+    username: 'player1',
+    password: 'Player1234',
+    roleGroup: RoleGroup.PLAYER,
+    positionSlug: 'default',
+    profileVisibility: ProfileVisibility.EVERYONE,
+    friendRequestPolicy: FriendRequestPolicy.EVERYONE,
+  },
+  {
+    email: 'player2@localhost',
+    username: 'player2',
+    password: 'Player1234',
+    roleGroup: RoleGroup.PLAYER,
+    positionSlug: 'svarog',
+    profileVisibility: ProfileVisibility.FRIENDS_ONLY,
+    friendRequestPolicy: FriendRequestPolicy.FRIENDS_OF_FRIENDS,
+  },
+];
+
+/** Filled in for the accounts a developer opens first, keyed by username */
+const showcases: Record<string, SeedShowcase> = {
+  admin: {
+    statistics: {
+      coins: 100_000,
+      playTime: 10_000,
+      kills: 500,
+      deaths: 200,
+      hits: 3_000,
+      lastServer: 'Survival #2',
+    },
+    badges: [UserBadgeType.VERIFIED, UserBadgeType.PROJECT_TEAM],
+    awardSlugs: ['verification'],
+  },
+  player2: {
+    statistics: {
+      coins: 393_101,
+      playTime: 32_450,
+      kills: 14_895,
+      deaths: 18_147,
+      hits: 60_439,
+      lastServer: 'Anarchy #1',
+    },
+    badges: [UserBadgeType.SUBSCRIBER_PLUS],
+    awardSlugs: ['plus-subscription'],
+    mediaBadges: [{ mediaGroup: MediaGroup.YOUTUBE, channelUrl: 'https://youtube.com/@svarog' }],
+  },
+};
+
+const ownerShowcase: SeedShowcase = {
+  statistics: {
+    coins: 1_000_000,
+    playTime: 50_000,
+    kills: 5_000,
+    deaths: 100,
+    hits: 20_000,
+    lastServer: 'Anarchy #1',
+  },
+  badges: [UserBadgeType.VERIFIED, UserBadgeType.PROJECT_TEAM, UserBadgeType.DEVELOPERS_TEAM],
+  awardSlugs: ['project-support', 'plus-subscription', 'verification'],
+};
+
+async function upsertPositions(): Promise<Map<string, string>> {
+  const ids = new Map<string, string>();
+
+  for (const { name, slug, group, color, priority, isDefault = false } of seedPositions) {
+    const position = await prisma.position.upsert({
+      where: { slug },
+      update: { name, displayName: name, group, color, priority, isDefault },
+      create: { name, slug, displayName: name, group, color, priority, isDefault },
+    });
+
+    ids.set(position.slug, position.id);
+  }
+
+  console.log(`positions: ${ids.size}`);
+
+  return ids;
+}
+
+async function upsertDepartments(createdBy: string = 'seed'): Promise<Map<string, string>> {
+  const ids = new Map<string, string>();
+
+  for (const [index, { name, slug, color, icon }] of seedDepartments.entries()) {
+    const department = await prisma.department.upsert({
+      where: { slug },
+      update: { name, color, icon, order: index, isActive: true },
+      create: { name, slug, color, icon, order: index, createdBy },
+    });
+
+    ids.set(department.slug, department.id);
+  }
+
+  console.log(`departments: ${ids.size}`);
+
+  return ids;
+}
+
+async function upsertPromoCodes() {
+  for (const promo of seedPromoCodes) {
+    const {
+      code,
+      description,
+      discountType,
+      discountValue,
+      maxUses,
+      applicableToTypes,
+      minOrderAmount,
+      firstPurchaseOnly,
+    } = promo;
+
+    // usedCount повторным сидом не сбрасываем
+    await prisma.promoCode.upsert({
+      where: { code },
+      update: {
+        description,
+        discountType,
+        discountValue,
+        maxUses: maxUses ?? null,
+        applicableToTypes: applicableToTypes ?? [],
+        minOrderAmount: minOrderAmount ?? null,
+        firstPurchaseOnly: firstPurchaseOnly ?? false,
+      },
+      create: {
+        code,
+        description,
+        discountType,
+        discountValue,
+        maxUses: maxUses ?? null,
+        applicableToTypes: applicableToTypes ?? [],
+        minOrderAmount: minOrderAmount ?? null,
+        firstPurchaseOnly: firstPurchaseOnly ?? false,
+      },
+    });
+  }
+
+  console.log(`promo codes: ${seedPromoCodes.length}`);
+}
+
+async function upsertStoreCategories(): Promise<Map<string, string>> {
+  const ids = new Map<string, string>();
+
+  for (const category of seedCategories.filter((c) => !c.parentSlug)) {
+    const row = await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        icon: category.icon,
+        order: category.order,
+        isActive: true,
+      },
+      create: {
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        icon: category.icon,
+        order: category.order,
+      },
+    });
+    ids.set(row.slug, row.id);
+  }
+
+  for (const category of seedCategories.filter((c) => c.parentSlug)) {
+    const parentId = ids.get(category.parentSlug!);
+    if (!parentId) {
+      throw new Error(`Unknown parent category: ${category.parentSlug}`);
+    }
+
+    const row = await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        icon: category.icon,
+        order: category.order,
+        parentId,
+        isActive: true,
+      },
+      create: {
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        icon: category.icon,
+        order: category.order,
+        parentId,
+      },
+    });
+    ids.set(row.slug, row.id);
+  }
+
+  console.log(`categories: ${ids.size}`);
+  return ids;
+}
+
+async function upsertStoreProducts(
+  categoryIds: Map<string, string>,
+  positionIds: Map<string, string>,
+): Promise<Map<string, { productId: string; variants: Map<string, string> }>> {
+  const result = new Map<string, { productId: string; variants: Map<string, string> }>();
+
+  for (const product of seedProducts) {
+    const categoryId = categoryIds.get(product.categorySlug);
+    if (!categoryId) {
+      throw new Error(`Unknown category: ${product.categorySlug}`);
+    }
+
+    const positionId = product.positionSlug ? positionIds.get(product.positionSlug) : undefined;
+    if (product.positionSlug && !positionId) {
+      throw new Error(`Unknown position: ${product.positionSlug}`);
+    }
+
+    const row = await prisma.product.upsert({
+      where: { slug: product.slug },
+      update: {
+        name: product.name,
+        description: product.description,
+        fullDescription: product.fullDescription,
+        type: product.type,
+        categoryId,
+        positionId: positionId ?? null,
+        isGiftable: product.isGiftable ?? true,
+        isSelfOnly: product.isSelfOnly ?? false,
+        isUnique: product.isUnique ?? false,
+        isSeasonalOnly: product.isSeasonalOnly ?? false,
+        maxPerPurchase: product.maxPerPurchase ?? null,
+        currencyType: product.currencyType ?? null,
+        currencyAmount: product.currencyAmount ?? null,
+        isFeatured: product.isFeatured ?? false,
+        isNew: product.isNew ?? false,
+        isPopular: product.isPopular ?? false,
+        order: product.order ?? 0,
+        isActive: true,
+      },
+      create: {
+        name: product.name,
+        slug: product.slug,
+        description: product.description,
+        fullDescription: product.fullDescription,
+        type: product.type,
+        categoryId,
+        positionId: positionId ?? null,
+        isGiftable: product.isGiftable ?? true,
+        isSelfOnly: product.isSelfOnly ?? false,
+        isUnique: product.isUnique ?? false,
+        isSeasonalOnly: product.isSeasonalOnly ?? false,
+        maxPerPurchase: product.maxPerPurchase ?? null,
+        currencyType: product.currencyType ?? null,
+        currencyAmount: product.currencyAmount ?? null,
+        isFeatured: product.isFeatured ?? false,
+        isNew: product.isNew ?? false,
+        isPopular: product.isPopular ?? false,
+        order: product.order ?? 0,
+      },
+    });
+
+    const variants = new Map<string, string>();
+
+    for (const variant of product.variants) {
+      const v = await prisma.productVariant.upsert({
+        where: {
+          productId_duration: { productId: row.id, duration: variant.duration },
+        },
+        update: {
+          price: variant.price,
+          oldPrice: variant.oldPrice ?? null,
+          order: variant.order ?? 0,
+          isActive: true,
+        },
+        create: {
+          productId: row.id,
+          duration: variant.duration,
+          price: variant.price,
+          oldPrice: variant.oldPrice ?? null,
+          order: variant.order ?? 0,
+        },
+      });
+      variants.set(variant.duration, v.id);
+    }
+
+    result.set(product.slug, { productId: row.id, variants });
+  }
+
+  console.log(`products: ${result.size}`);
+  return result;
+}
+
+async function upsertStoreBundles(
+  products: Map<string, { productId: string; variants: Map<string, string> }>,
+) {
+  for (const bundle of seedBundles) {
+    const row = await prisma.bundle.upsert({
+      where: { slug: bundle.slug },
+      update: {
+        name: bundle.name,
+        description: bundle.description,
+        totalPrice: bundle.totalPrice,
+        originalPrice: bundle.originalPrice,
+        isFeatured: bundle.isFeatured ?? false,
+        isActive: true,
+      },
+      create: {
+        name: bundle.name,
+        slug: bundle.slug,
+        description: bundle.description,
+        totalPrice: bundle.totalPrice,
+        originalPrice: bundle.originalPrice,
+        isFeatured: bundle.isFeatured ?? false,
+      },
+    });
+
+    await prisma.bundleItem.deleteMany({ where: { bundleId: row.id } });
+
+    for (const item of bundle.items) {
+      const product = products.get(item.productSlug);
+      if (!product) {
+        throw new Error(`Unknown bundle product: ${item.productSlug}`);
+      }
+
+      const duration = (item.variantDuration ?? 'ONE_TIME') as ProductDuration;
+      const variantId = product.variants.get(duration) ?? null;
+
+      await prisma.bundleItem.create({
+        data: {
+          bundleId: row.id,
+          productId: product.productId,
+          variantId,
+          quantity: item.quantity,
+        },
+      });
+    }
+  }
+
+  console.log(`bundles: ${seedBundles.length}`);
+}
+
+async function upsertStoreDiscounts() {
+  const existingBulk = await prisma.bulkDiscount.count();
+  if (existingBulk === 0) {
+    await prisma.bulkDiscount.createMany({
+      data: seedBulkDiscounts.map((d) => ({
+        productType: d.productType,
+        minQuantity: d.minQuantity ?? 0,
+        minAmount: d.minAmount ?? null,
+        discountType: d.discountType,
+        discountValue: d.discountValue,
+      })),
+    });
+  }
+
+  for (const loyalty of seedLoyaltyDiscounts) {
+    const existing = await prisma.loyaltyDiscount.findFirst({
+      where: { minPurchases: loyalty.minPurchases },
+    });
+
+    if (existing) {
+      await prisma.loyaltyDiscount.update({
+        where: { id: existing.id },
+        data: {
+          discountPercent: loyalty.discountPercent,
+          name: loyalty.name,
+          description: loyalty.description,
+          isActive: true,
+        },
+      });
+    } else {
+      await prisma.loyaltyDiscount.create({
+        data: {
+          minPurchases: loyalty.minPurchases,
+          discountPercent: loyalty.discountPercent,
+          name: loyalty.name,
+          description: loyalty.description,
+        },
+      });
+    }
+  }
+
+  console.log(
+    `discounts: bulk=${seedBulkDiscounts.length}, loyalty=${seedLoyaltyDiscounts.length}`,
+  );
+}
+
+/** Пресеты не имеют бизнес-ключа, ищем по имени, чтобы повторный сид не плодил дубли */
+async function upsertBannerPresets() {
+  for (const { name, imageUrl, category } of seedBannerPresets) {
+    const existing = await prisma.bannerPreset.findFirst({ where: { name }, select: { id: true } });
+
+    if (existing) {
+      await prisma.bannerPreset.update({
+        where: { id: existing.id },
+        data: { imageUrl, category, isActive: true },
+      });
+
+      continue;
+    }
+
+    await prisma.bannerPreset.create({ data: { name, imageUrl, category } });
+  }
+
+  console.log(`banner presets: ${seedBannerPresets.length}`);
+}
+
+async function upsertAwards(): Promise<Map<string, string>> {
+  const ids = new Map<string, string>();
+
+  for (const { name, slug, description, iconUrl, color, rarity } of seedAwards) {
+    const award = await prisma.award.upsert({
+      where: { slug },
+      update: { name, description, iconUrl, color, rarity, isActive: true },
+      create: { name, slug, description, iconUrl, color, rarity },
+    });
+
+    ids.set(award.slug, award.id);
+  }
+
+  console.log(`awards: ${ids.size}`);
+
+  return ids;
+}
+
+async function upsertCustomEmojis(createdBy: string): Promise<void> {
+  for (const emoji of seedCustomEmojis) {
+    await prisma.customEmoji.upsert({
+      where: { name: emoji.name },
+      update: {
+        imageUrl: emoji.imageUrl,
+        category: emoji.category,
+        isAnimated: emoji.isAnimated ?? false,
+        isPremium: emoji.isPremium ?? false,
+        isActive: true,
+      },
+      create: {
+        name: emoji.name,
+        imageUrl: emoji.imageUrl,
+        category: emoji.category,
+        isAnimated: emoji.isAnimated ?? false,
+        isPremium: emoji.isPremium ?? false,
+        createdBy,
+      },
+    });
+  }
+
+  console.log(`custom emojis: ${seedCustomEmojis.length}`);
+}
+
+async function upsertTopics(createdBy: string): Promise<void> {
+  for (const topic of seedTopics) {
+    await prisma.topic.upsert({
+      where: { slug: topic.slug },
+      update: {
+        title: topic.title,
+        category: topic.category,
+        visibility: topic.visibility,
+        description: topic.description ?? null,
+        content: TOPIC_PLACEHOLDER_CONTENT,
+        order: topic.order,
+        isActive: true,
+      },
+      create: {
+        slug: topic.slug,
+        title: topic.title,
+        category: topic.category,
+        visibility: topic.visibility,
+        description: topic.description ?? null,
+        content: TOPIC_PLACEHOLDER_CONTENT,
+        order: topic.order,
+        createdBy,
+      },
+    });
+  }
+
+  console.log(`topics: ${seedTopics.length}`);
+}
+
+async function upsertNews(userIds: Map<string, string>): Promise<void> {
+  const ownerUsername = process.env.SEED_OWNER_USERNAME ?? 'owner';
+  const resolveAuthor = (key: string) => {
+    if (key === 'owner') {
+      return userIds.get(ownerUsername) ?? userIds.get('owner');
+    }
+    return userIds.get(key);
+  };
+
+  const newsIds = new Map<string, string>();
+
+  for (const item of seedNews) {
+    const authorId = resolveAuthor(item.authorUsername);
+    if (!authorId) {
+      throw new Error(`news seed: missing author ${item.authorUsername}`);
+    }
+
+    const publishedAt = new Date(
+      Date.now() - item.publishedDaysAgo * 24 * 60 * 60 * 1000,
+    );
+    const coverImage = `https://picsum.photos/1200/600?random=${item.coverRandom}`;
+    const contentHtml = item.content
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .split(/\n\n+/)
+      .map((block) => {
+        if (block.startsWith('<h')) return block;
+        if (block.startsWith('- ') || block.startsWith('1. ')) {
+          const items = block
+            .split('\n')
+            .map((line) => line.replace(/^[-*\d.]+\s+/, ''))
+            .map((line) => `<li>${line}</li>`)
+            .join('');
+          return `<ul>${items}</ul>`;
+        }
+        return `<p>${block.replace(/\n/g, '<br/>')}</p>`;
+      })
+      .join('');
+
+    const row = await prisma.news.upsert({
+      where: { slug: item.slug },
+      update: {
+        title: item.title,
+        excerpt: item.excerpt,
+        content: item.content,
+        contentHtml,
+        coverImage,
+        category: item.category,
+        status: item.status,
+        isPinned: item.isPinned ?? false,
+        isFeatured: item.isFeatured ?? false,
+        publishedAt,
+        metaTitle: item.metaTitle ?? item.title,
+        metaDescription: item.metaDescription ?? item.excerpt,
+        metaKeywords: item.tags,
+        authorId,
+      },
+      create: {
+        slug: item.slug,
+        title: item.title,
+        excerpt: item.excerpt,
+        content: item.content,
+        contentHtml,
+        coverImage,
+        category: item.category,
+        status: item.status,
+        isPinned: item.isPinned ?? false,
+        isFeatured: item.isFeatured ?? false,
+        publishedAt,
+        metaTitle: item.metaTitle ?? item.title,
+        metaDescription: item.metaDescription ?? item.excerpt,
+        metaKeywords: item.tags,
+        authorId,
+        viewsCount: 50 + Math.floor(Math.random() * 400),
+        likesCount: 0,
+        commentsCount: 0,
+      },
+    });
+
+    newsIds.set(item.slug, row.id);
+
+    await prisma.newsTag.deleteMany({ where: { newsId: row.id } });
+    await prisma.newsTag.createMany({
+      data: item.tags.map((tag) => ({ newsId: row.id, tag })),
+      skipDuplicates: true,
+    });
+  }
+
+  // Likes from demo users
+  const likers = ['player1', 'player2', 'helper', 'moderator', 'admin']
+    .map((u) => userIds.get(u))
+    .filter((id): id is string => Boolean(id));
+
+  for (const [, newsId] of newsIds) {
+    for (const userId of likers.slice(0, 2 + Math.floor(Math.random() * 3))) {
+      await prisma.newsLike.upsert({
+        where: { newsId_userId: { newsId, userId } },
+        update: {},
+        create: { newsId, userId },
+      });
+    }
+    const likesCount = await prisma.newsLike.count({ where: { newsId } });
+    await prisma.news.update({ where: { id: newsId }, data: { likesCount } });
+  }
+
+  // Wipe and reseed comments for demo news
+  await prisma.newsCommentReaction.deleteMany({
+    where: { comment: { newsId: { in: [...newsIds.values()] } } },
+  });
+  await prisma.newsComment.deleteMany({
+    where: { newsId: { in: [...newsIds.values()] } },
+  });
+
+  for (const entry of seedNewsComments) {
+    const newsId = newsIds.get(entry.newsSlug);
+    const authorId = resolveAuthor(entry.authorUsername) ?? userIds.get(entry.authorUsername);
+    if (!newsId || !authorId) {
+      continue;
+    }
+
+    const parent = await prisma.newsComment.create({
+      data: {
+        newsId,
+        authorId,
+        content: entry.content,
+        contentHtml: `<p>${entry.content}</p>`,
+      },
+    });
+
+    for (const reply of entry.replies ?? []) {
+      const replyAuthor =
+        resolveAuthor(reply.authorUsername) ?? userIds.get(reply.authorUsername);
+      if (!replyAuthor) {
+        continue;
+      }
+      await prisma.newsComment.create({
+        data: {
+          newsId,
+          authorId: replyAuthor,
+          parentId: parent.id,
+          content: reply.content,
+          contentHtml: `<p>${reply.content}</p>`,
+        },
+      });
+    }
+
+    // Sample reactions
+    const reactor = userIds.get('player1');
+    if (reactor && reactor !== authorId) {
+      await prisma.newsCommentReaction.create({
+        data: { commentId: parent.id, userId: reactor, emoji: 'thumbs_up' },
+      });
+    }
+  }
+
+  for (const newsId of newsIds.values()) {
+    const commentsCount = await prisma.newsComment.count({ where: { newsId } });
+    await prisma.news.update({ where: { id: newsId }, data: { commentsCount } });
+  }
+
+  console.log(`news: ${seedNews.length} posts, ${seedNewsComments.length} comment threads`);
+}
+
+
+async function upsertUser(
+  {
+    email,
+    username,
+    password,
+    roleGroup,
+    positionSlug,
+    profileVisibility = ProfileVisibility.EVERYONE,
+    friendRequestPolicy = FriendRequestPolicy.EVERYONE,
+    shortId,
+  }: SeedUser,
+  positionIds: Map<string, string>,
+): Promise<string> {
+  const positionId = positionIds.get(positionSlug);
+
+  if (!positionId) {
+    throw new Error(`Unknown position slug: ${positionSlug}`);
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+
+  const user = await prisma.user.upsert({
+    where: { email },
+    // пароль повторным сидом не перетираем, только добираем роль и позицию
+    update: {
+      username,
+      roleGroup,
+      positionId,
+      profileVisibility,
+      friendRequestPolicy,
+      ...(existing?.tag ? {} : { tag: makeTag(username) }),
+    },
+    create: {
+      email,
+      username,
+      password: await hash(password, BCRYPT_ROUNDS),
+      roleGroup,
+      positionId,
+      profileVisibility,
+      friendRequestPolicy,
+      tag: makeTag(username),
+      ...(shortId != null ? { shortId } : {}),
+    },
+    include: { position: true },
+  });
+
+  if (shortId != null && user.shortId !== shortId) {
+    // Free the target shortId if another row holds it
+    await prisma.$executeRaw`
+      UPDATE users SET "shortId" = (SELECT COALESCE(MAX("shortId"), 2) + 1 FROM users)
+      WHERE "shortId" = ${shortId} AND id <> ${user.id}
+    `;
+    await prisma.user.update({ where: { id: user.id }, data: { shortId } });
+    await prisma.$executeRaw`SELECT setval('"users_shortId_seq"', (SELECT MAX("shortId") FROM users))`;
+  }
+
+  console.log(
+    `${user.roleGroup.padEnd(9)} ${user.username} <${user.email}> — ${user.position.name}`,
+  );
+
+  return user.id;
+}
+
+/** Prefer existing username (e.g. SEED_OWNER), then create with reserved email */
+async function ensureReservedShortId(
+  user: SeedUser & { shortId: number },
+  positionIds: Map<string, string>,
+): Promise<void> {
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [{ username: { equals: user.username, mode: 'insensitive' } }, { email: user.email }],
+    },
+  });
+
+  if (existing) {
+    if (existing.shortId !== user.shortId) {
+      await prisma.$executeRaw`
+        UPDATE users SET "shortId" = (SELECT COALESCE(MAX("shortId"), 2) + 1 FROM users)
+        WHERE "shortId" = ${user.shortId} AND id <> ${existing.id}
+      `;
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          shortId: user.shortId,
+          roleGroup: user.roleGroup,
+          ...(existing.tag ? {} : { tag: makeTag(existing.username) }),
+        },
+      });
+      await prisma.$executeRaw`SELECT setval('"users_shortId_seq"', (SELECT MAX("shortId") FROM users))`;
+    }
+    console.log(`reserved #${user.shortId} → ${existing.username}`);
+    return;
+  }
+
+  await upsertUser(user, positionIds);
+}
+
+async function applyShowcase(
+  userId: string,
+  showcase: SeedShowcase,
+  awardIds: Map<string, string>,
+) {
+  const { coins, playTime, kills, deaths, hits, lastServer } = showcase.statistics;
+  const killDeathRatio = deaths === 0 ? kills : Math.round((kills / deaths) * 100) / 100;
+  const statistics = { coins, playTime, kills, deaths, hits, lastServer, killDeathRatio };
+
+  await prisma.playerStatistics.upsert({
+    where: { userId },
+    update: statistics,
+    create: { userId, ...statistics },
+  });
+
+  for (const type of showcase.badges) {
+    await prisma.userBadge.upsert({
+      where: { userId_type: { userId, type } },
+      update: { isActive: true },
+      create: { userId, type },
+    });
+  }
+
+  for (const slug of showcase.awardSlugs) {
+    const awardId = awardIds.get(slug);
+
+    if (!awardId) {
+      throw new Error(`Unknown award slug: ${slug}`);
+    }
+
+    await prisma.userAward.upsert({
+      where: { userId_awardId: { userId, awardId } },
+      update: {},
+      create: { userId, awardId },
+    });
+  }
+
+  for (const { mediaGroup, channelUrl } of showcase.mediaBadges ?? []) {
+    await prisma.userMediaBadge.upsert({
+      where: { userId_mediaGroup: { userId, mediaGroup } },
+      update: { channelUrl, isApproved: true, approvedAt: new Date() },
+      create: { userId, mediaGroup, channelUrl, isApproved: true, approvedAt: new Date() },
+    });
+  }
+}
+
+async function upsertCurrencyRates() {
+  for (const rate of seedCurrencyRates) {
+    await prisma.currencyRate.upsert({
+      where: { currency: rate.currency },
+      update: {
+        rate: rate.rate,
+        symbol: rate.symbol,
+        flag: rate.flag,
+        isActive: true,
+      },
+      create: {
+        currency: rate.currency,
+        rate: rate.rate,
+        symbol: rate.symbol,
+        flag: rate.flag,
+      },
+    });
+  }
+
+  console.log(`currency rates: ${seedCurrencyRates.length}`);
+}
+
+async function upsertServerCategories() {
+  const categories = [
+    {
+      name: 'Основные',
+      slug: 'main',
+      description: 'Основные режимы сервера',
+      icon: 'Star',
+      color: '#FFD700',
+      order: 0,
+    },
+    {
+      name: 'PvP',
+      slug: 'pvp',
+      description: 'Боевые арены и PvP',
+      icon: 'Sword',
+      color: '#FF4444',
+      order: 1,
+    },
+    {
+      name: 'Мини-игры',
+      slug: 'minigames',
+      description: 'Мини-игры и ивенты',
+      icon: 'Gamepad2',
+      color: '#FF9500',
+      order: 2,
+    },
+    {
+      name: 'Креатив',
+      slug: 'creative',
+      description: 'Строительство и креатив',
+      icon: 'Palette',
+      color: '#34C759',
+      order: 3,
+    },
+    {
+      name: 'Тестовые',
+      slug: 'test',
+      description: 'Тестовые и экспериментальные серверы',
+      icon: 'FlaskConical',
+      color: '#5AC8FA',
+      order: 4,
+    },
+  ];
+
+  const ids = new Map<string, string>();
+  for (const category of categories) {
+    const row = await prisma.serverCategory.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        icon: category.icon,
+        color: category.color,
+        order: category.order,
+        isActive: true,
+      },
+      create: category,
+    });
+    ids.set(category.slug, row.id);
+  }
+
+  console.log(`server categories: ${categories.length}`);
+  return ids;
+}
+
+async function upsertServers(categoryIds: Map<string, string>) {
+  const servers = [
+    {
+      name: 'Hypixel',
+      slug: 'hypixel',
+      address: 'mc.hypixel.net',
+      port: 25565,
+      type: 'minigames',
+      description: 'Тестовый публичный сервер для проверки мониторинга',
+      maxPlayers: 200000,
+      order: 0,
+      categorySlug: 'minigames',
+    },
+    {
+      name: 'Survival',
+      slug: 'survival',
+      address: 'play.minehut.com',
+      port: 25565,
+      type: 'survival',
+      description: 'Выживание с экономикой и квестами',
+      maxPlayers: 200,
+      order: 1,
+      categorySlug: 'main',
+    },
+    {
+      name: 'SkyBlock',
+      slug: 'skyblock',
+      address: 'play.cubecraft.net',
+      port: 25565,
+      type: 'skyblock',
+      description: 'Небесные острова и островные войны',
+      maxPlayers: 100,
+      order: 2,
+      categorySlug: 'main',
+    },
+    {
+      name: 'PvP Arena',
+      slug: 'pvp',
+      address: 'mc.hypixel.net',
+      port: 25565,
+      type: 'pvp',
+      description: 'Арены и дуэли',
+      maxPlayers: 50,
+      order: 3,
+      categorySlug: 'pvp',
+    },
+  ];
+
+  for (const server of servers) {
+    const { categorySlug, ...data } = server;
+    const categoryId = categoryIds.get(categorySlug) ?? null;
+    await prisma.server.upsert({
+      where: { slug: data.slug },
+      update: {
+        name: data.name,
+        address: data.address,
+        port: data.port,
+        type: data.type,
+        description: data.description,
+        maxPlayers: data.maxPlayers,
+        order: data.order,
+        categoryId,
+        isActive: true,
+      },
+      create: { ...data, categoryId },
+    });
+  }
+
+  console.log(`servers: ${servers.length}`);
+}
+
 async function main() {
+  const positionIds = await upsertPositions();
+  await upsertDepartments();
+
+  await upsertPromoCodes();
+  await upsertBannerPresets();
+
+  const categoryIds = await upsertStoreCategories();
+  const storeProducts = await upsertStoreProducts(categoryIds, positionIds);
+  await upsertStoreBundles(storeProducts);
+  await upsertStoreDiscounts();
+  await upsertCurrencyRates();
+
+  const serverCategoryIds = await upsertServerCategories();
+  await upsertServers(serverCategoryIds);
+
+  const awardIds = await upsertAwards();
+
   const email = process.env.SEED_OWNER_EMAIL;
   const username = process.env.SEED_OWNER_USERNAME;
   const password = process.env.SEED_OWNER_PASSWORD;
@@ -12,19 +1059,409 @@ async function main() {
     throw new Error('SEED_OWNER_EMAIL, SEED_OWNER_USERNAME and SEED_OWNER_PASSWORD are required');
   }
 
-  const owner = await prisma.user.upsert({
-    where: { email },
-    // пароль повторным сидом не перетираем, только добираем роль
-    update: { username, role: UserRole.OWNER },
-    create: {
-      email,
-      username,
-      password: await hash(password, 12),
-      role: UserRole.OWNER,
+  const ownerId = await upsertUser(
+    { email, username, password, roleGroup: RoleGroup.OWNER, positionSlug: 'owner' },
+    positionIds,
+  );
+
+  await applyShowcase(ownerId, ownerShowcase, awardIds);
+  await upsertCustomEmojis(ownerId);
+  await upsertTopics(ownerId);
+
+  // Reserved public ids: KleekYT=#1, younaxo_=#2 (create or reassign)
+  await ensureReservedShortId({
+    email: 'kleekyt@localhost',
+    username: 'KleekYT',
+    password: 'Owner1234',
+    roleGroup: RoleGroup.OWNER,
+    positionSlug: 'owner',
+    shortId: 1,
+    profileVisibility: ProfileVisibility.EVERYONE,
+  }, positionIds);
+  await ensureReservedShortId({
+    email: 'younaxo@localhost',
+    username: 'younaxo_',
+    password: 'Owner1234',
+    roleGroup: RoleGroup.OWNER,
+    positionSlug: 'chief-developer',
+    shortId: 2,
+    profileVisibility: ProfileVisibility.EVERYONE,
+  }, positionIds);
+
+  if (process.env.NODE_ENV === 'production') {
+    console.log('production run: test accounts are skipped');
+
+    return;
+  }
+
+  const userIds = new Map<string, string>([[username, ownerId]]);
+
+  for (const user of staffAndPlayers) {
+    const userId = await upsertUser(user, positionIds);
+    userIds.set(user.username, userId);
+    const showcase = showcases[user.username];
+
+    if (showcase) {
+      await applyShowcase(userId, showcase, awardIds);
+    }
+  }
+
+  await seedProfileComments(userIds);
+  const punishmentIds = await seedTestPunishments(userIds);
+  await seedTestReports(userIds, punishmentIds);
+  await seedChat(prisma);
+  await upsertNews(userIds);
+  await upsertForms(userIds);
+  await seedActivityFeed(prisma, userIds);
+}
+
+/** Idempotent demo forms + admin templates */
+async function upsertForms(userIds: Map<string, string>): Promise<void> {
+  const ownerUsername = process.env.SEED_OWNER_USERNAME ?? 'owner';
+  const creatorId =
+    userIds.get(ownerUsername) ??
+    userIds.get('owner') ??
+    userIds.get('admin');
+
+  if (!creatorId) {
+    throw new Error('forms seed: missing creator user');
+  }
+
+  const all: SeedFormItem[] = [...seedForms, ...seedFormTemplates];
+
+  for (const item of all) {
+    const form = await prisma.form.upsert({
+      where: { slug: item.slug },
+      update: {
+        title: item.title,
+        description: item.description,
+        status: item.status,
+        visibility: item.visibility,
+        onePerUser: item.onePerUser ?? true,
+        showResults: item.showResults ?? false,
+        requiresAuth: item.requiresAuth ?? false,
+        requiresCaptcha: item.requiresCaptcha ?? true,
+        thankYouMessage: item.thankYouMessage ?? null,
+      },
+      create: {
+        slug: item.slug,
+        title: item.title,
+        description: item.description,
+        status: item.status,
+        visibility: item.visibility,
+        createdById: creatorId,
+        onePerUser: item.onePerUser ?? true,
+        showResults: item.showResults ?? false,
+        requiresAuth: item.requiresAuth ?? false,
+        requiresCaptcha: item.requiresCaptcha ?? true,
+        thankYouMessage: item.thankYouMessage ?? null,
+      },
+    });
+
+    await prisma.formField.deleteMany({ where: { formId: form.id } });
+
+    for (const field of item.fields) {
+      await prisma.formField.create({
+        data: {
+          formId: form.id,
+          type: field.type,
+          label: field.label,
+          description: field.description ?? null,
+          placeholder: field.placeholder ?? null,
+          isRequired: field.isRequired ?? false,
+          order: field.order,
+          options: field.options as object | undefined,
+          validation: field.validation as object | undefined,
+          minValue: field.minValue ?? null,
+          maxValue: field.maxValue ?? null,
+          minLength: field.minLength ?? null,
+          maxLength: field.maxLength ?? null,
+          maxFiles: field.maxFiles ?? null,
+          maxFileSize: field.maxFileSize ?? null,
+          allowedMimes: field.allowedMimes ?? [],
+          metadata: field.metadata as object | undefined,
+          defaultValue: field.defaultValue ?? null,
+        },
+      });
+    }
+  }
+
+  console.log(
+    `forms: ${seedForms.length} published, ${seedFormTemplates.length} templates`,
+  );
+}
+
+/** Idempotent demo punishments for appeal testing */
+async function seedTestPunishments(userIds: Map<string, string>) {
+  const ids = new Map<string, string>();
+  let created = 0;
+
+  for (const item of seedPunishments) {
+    const userId = userIds.get(item.username);
+    const issuedBy = userIds.get(item.issuedByUsername);
+    if (!userId || !issuedBy) continue;
+
+    const existing = await prisma.userPunishment.findFirst({
+      where: {
+        userId,
+        punishmentType: item.punishmentType,
+        reason: item.reason,
+        issuedAt: item.issuedAt,
+      },
+      select: { id: true },
+    });
+
+    if (existing) {
+      ids.set(item.key, existing.id);
+      continue;
+    }
+
+    const row = await prisma.userPunishment.create({
+      data: {
+        userId,
+        punishmentType: item.punishmentType,
+        reason: item.reason,
+        duration: item.duration ?? null,
+        server: item.server ?? null,
+        issuedBy,
+        issuedAt: item.issuedAt,
+        expiresAt: item.expiresAt ?? null,
+        isActive: item.isActive,
+        isAppealable: item.isAppealable,
+      },
+    });
+    ids.set(item.key, row.id);
+    created += 1;
+  }
+
+  console.log(`punishments: ${created} created (${seedPunishments.length} defined)`);
+  return ids;
+}
+
+/** Idempotent demo support reports for local testing */
+async function seedTestReports(
+  userIds: Map<string, string>,
+  punishmentIds: Map<string, string>,
+) {
+  let created = 0;
+
+  for (const report of seedReports) {
+    const authorId = userIds.get(report.authorUsername);
+    if (!authorId) {
+      continue;
+    }
+
+    const assignedToId = report.assignedToUsername
+      ? userIds.get(report.assignedToUsername) ?? null
+      : null;
+    const appealedPunishmentId = report.appealedPunishmentKey
+      ? punishmentIds.get(report.appealedPunishmentKey) ?? null
+      : null;
+
+    const existing = await prisma.report.findUnique({
+      where: { reportNumber: report.reportNumber },
+      select: { id: true },
+    });
+
+    if (existing) {
+      continue;
+    }
+
+    await prisma.report.create({
+      data: {
+        reportNumber: report.reportNumber,
+        type: report.type,
+        status: report.status,
+        authorId,
+        server: report.server ?? null,
+        incidentDate: report.incidentDate ?? null,
+        description: report.description,
+        descriptionHtml: report.descriptionHtml,
+        additionalText: report.additionalText ?? null,
+        assignedToId,
+        appealedPunishmentId,
+        resolvedAt: report.status === 'RESOLVED' ? new Date() : null,
+        targets: report.targets?.length
+          ? {
+              create: report.targets.map((target) => ({
+                username: target.username,
+                userId: userIds.get(target.username) ?? null,
+                order: target.order ?? 0,
+              })),
+            }
+          : undefined,
+        evidenceLinks: report.evidenceLinks?.length
+          ? {
+              create: report.evidenceLinks.map((link) => ({
+                url: link.url,
+                title: link.title ?? null,
+                type: link.type ?? null,
+                order: link.order ?? 0,
+              })),
+            }
+          : undefined,
+      },
+    });
+    created += 1;
+  }
+
+  console.log(`reports: ${created} created (${seedReports.length} defined)`);
+}
+
+/** Idempotent demo comments for local profiles */
+async function seedProfileComments(userIds: Map<string, string>) {
+  const ownerId = userIds.get('owner');
+  const adminId = userIds.get('admin');
+  const moderatorId = userIds.get('moderator');
+  const player1Id = userIds.get('player1');
+  const player2Id = userIds.get('player2');
+  const helperId = userIds.get('helper');
+
+  if (!ownerId || !adminId || !moderatorId || !player1Id || !player2Id || !helperId) {
+    console.log('comments: skipped (missing seed users)');
+    return;
+  }
+
+  const existing = await prisma.profileComment.count({
+    where: { profileId: { in: [ownerId, player2Id] }, parentId: null },
+  });
+
+  if (existing > 0) {
+    console.log(`comments: skipped (${existing} already present)`);
+    return;
+  }
+
+  const before = await prisma.profileComment.count();
+
+  const ownerPinned = await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: adminId,
+      content: 'Добро пожаловать на сервер! Читайте правила и удачной игры.',
+      contentHtml: '<p>Добро пожаловать на сервер! Читайте правила и удачной игры.</p>',
+      isPinned: true,
+      pinnedAt: new Date(),
+      pinnedBy: ownerId,
+      mentions: [],
     },
   });
 
-  console.log(`owner ready: ${owner.username} <${owner.email}>`);
+  await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: player1Id,
+      content: 'Спасибо за проект! **Очень** крутой сервер.',
+      contentHtml: '<p>Спасибо за проект! <strong>Очень</strong> крутой сервер.</p>',
+      mentions: [],
+    },
+  });
+
+  const ownerThread = await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: helperId,
+      content: 'Если нужна помощь — пишите @moderator или в тикеты.',
+      contentHtml:
+        '<p>Если нужна помощь — пишите <span class="mention">@moderator</span> или в тикеты.</p>',
+      mentions: [moderatorId],
+    },
+  });
+
+  await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: moderatorId,
+      parentId: ownerThread.id,
+      content: 'Да, всегда на связи. ||секретный ответ||',
+      contentHtml: '<p>Да, всегда на связи. <span class="spoiler">секретный ответ</span></p>',
+      mentions: [],
+    },
+  });
+
+  await prisma.profileComment.create({
+    data: {
+      profileId: ownerId,
+      authorId: player2Id,
+      content: 'Залетел с Anarchy — огонь 🔥',
+      contentHtml: '<p>Залетел с Anarchy — огонь 🔥</p>',
+      mentions: [],
+    },
+  });
+
+  await prisma.commentReaction.createMany({
+    data: [
+      { commentId: ownerPinned.id, userId: player1Id, emoji: 'thumbs_up' },
+      { commentId: ownerPinned.id, userId: helperId, emoji: 'heart' },
+      { commentId: ownerPinned.id, userId: player2Id, emoji: 'fire' },
+      { commentId: ownerThread.id, userId: ownerId, emoji: 'thumbs_up' },
+    ],
+  });
+
+  await prisma.profileComment.createMany({
+    data: [
+      {
+        profileId: player2Id,
+        authorId: player1Id,
+        content: 'Крутой скин и статистика!',
+        contentHtml: '<p>Крутой скин и статистика!</p>',
+        mentions: [],
+      },
+      {
+        profileId: player2Id,
+        authorId: adminId,
+        content: 'Хороший контент на YouTube.',
+        contentHtml: '<p>Хороший контент на YouTube.</p>',
+        mentions: [],
+      },
+      {
+        profileId: player2Id,
+        authorId: ownerId,
+        content: 'Держи *лайк* за активность.',
+        contentHtml: '<p>Держи <em>лайк</em> за активность.</p>',
+        mentions: [],
+      },
+    ],
+  });
+
+  console.log('comments: seeded owner + player2 profiles');
+
+  const after = await prisma.profileComment.count();
+  const created = after - before;
+  if (created < 8) {
+    throw new Error(`comments seed incomplete: expected >= 8 new rows, got ${created}`);
+  }
+  console.log(`comments: verified ${created} rows created (total ${after})`);
+
+  await seedSystemDefaults();
+}
+
+const SYSTEM_MODULES = [
+  'store',
+  'chat',
+  'friends',
+  'comments',
+  'reports',
+  'wiki',
+  'tickets',
+  'marketplace',
+  'forum',
+  'news',
+] as const;
+
+async function seedSystemDefaults() {
+  const maintenance = await prisma.maintenanceMode.findFirst();
+  if (!maintenance) {
+    await prisma.maintenanceMode.create({ data: {} });
+  }
+
+  for (const module of SYSTEM_MODULES) {
+    await prisma.moduleStatus.upsert({
+      where: { module },
+      create: { module, isEnabled: true },
+      update: {},
+    });
+  }
+  console.log(`system: seeded ${SYSTEM_MODULES.length} modules + maintenance row`);
 }
 
 main()

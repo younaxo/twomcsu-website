@@ -5,6 +5,7 @@ dist/
 build/
 out/
 .next/
+apps/web/.next/cache/
 .turbo/
 
 coverage/
@@ -30,3 +31,5 @@ Thumbs.db
 *.tsbuildinfo
 
 docker/data/
+
+apps/api/uploads/
