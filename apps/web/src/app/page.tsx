@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ActivityWidget } from '@/components/activity/ActivityWidget';
 import { OnlineCounter } from '@/components/servers/OnlineCounter';
 import { TopServersList } from '@/components/servers/TopServersList';
 import { NewsCard } from '@/components/news/NewsCard';
@@ -70,6 +71,8 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      <ActivityWidget />
 
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-3">

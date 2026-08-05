@@ -23,6 +23,7 @@ import { CountrySelect } from '@/components/profile/CountrySelect';
 import { DateBirthPicker } from '@/components/profile/DateBirthPicker';
 import { GenderSelect } from '@/components/profile/GenderSelect';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
+import { ActivitySettingsTab } from '@/components/activity/ActivitySettingsTab';
 import { CaptchaField, CaptchaFieldHandle } from '@/components/shared/CaptchaField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

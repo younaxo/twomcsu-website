@@ -91,4 +91,14 @@ export const queryKeys = {
   adminNews: (filters: Record<string, unknown>) => ['admin', 'news', filters] as const,
   adminNewsItem: (id: string) => ['admin', 'news', id] as const,
   adminNewsStats: ['admin', 'news', 'stats'] as const,
+  activityFeed: (filters: Record<string, unknown>) =>
+    ['activity', 'feed', filters] as const,
+  activityHighlights: (period: string) => ['activity', 'highlights', period] as const,
+  activityById: (id: string) => ['activity', 'detail', id] as const,
+  userActivity: (username: string, filters?: Record<string, unknown>) =>
+    ['activity', 'user', username, filters ?? {}] as const,
+  activitySettings: ['activity', 'settings'] as const,
+  adminActivity: (filters: Record<string, unknown>) =>
+    ['admin', 'activity', filters] as const,
+  adminActivityStats: ['admin', 'activity', 'stats'] as const,
 };

@@ -12,6 +12,7 @@ import {
   Menu,
   MessageCircle,
   Newspaper,
+  Activity,
   Scale,
   Server,
   Shield,
@@ -53,6 +54,7 @@ const mainGroups: NavGroup[] = [
       { href: '/store', label: 'Магазин', icon: ShoppingBag },
       { href: '/servers', label: 'Серверы', icon: Server },
       { href: '/news', label: 'Новости', icon: Newspaper },
+      { href: '/feed', label: 'Лента активности', icon: Activity },
     ],
   },
   {

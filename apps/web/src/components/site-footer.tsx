@@ -55,6 +55,14 @@ export function SiteFooter() {
             Все права защищены!
           </p>
 
+          <div className="space-y-1 text-xs leading-relaxed text-neutral-500">
+            <strong className="mb-1 block text-[0.95rem] font-semibold text-neutral-400">
+              Юридическая информация
+            </strong>
+            <p>Баранов Кирилл Алексеевич</p>
+            <p>ИНН: 230815487140</p>
+          </div>
+
           <p className="max-w-[400px] leading-relaxed">
             twomc.su — игровой проект серверов Minecraft с уникальным геймплеем и активным
             сообществом. Мы постоянно работаем над улучшением игрового опыта для наших игроков.
