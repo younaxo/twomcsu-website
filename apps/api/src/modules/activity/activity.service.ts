@@ -3,9 +3,10 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  Optional,
+  OnModuleInit,
   forwardRef,
 } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import {
   ActivityType,
   ActivityVisibility,
@@ -75,16 +76,31 @@ type ShowKey =
   | 'showServerActivity';
 
 @Injectable()
-export class ActivityService {
+export class ActivityService implements OnModuleInit {
+  private chatGateway?: ChatGateway;
+
   constructor(
     private readonly prisma: PrismaService,
+    private readonly moduleRef: ModuleRef,
     @Inject(forwardRef(() => FriendsService))
     private readonly friends: FriendsService,
     private readonly notifications: NotificationsService,
-    @Optional()
-    @Inject(forwardRef(() => ChatGateway))
-    private readonly chatGateway?: ChatGateway,
   ) {}
+
+  onModuleInit() {
+    try {
+      this.chatGateway = this.moduleRef.get(ChatGateway, { strict: false });
+    } catch {
+      this.chatGateway = undefined;
+    }
+  }
+
+  private broadcastActivity(
+    event: 'activity:new' | 'activity:updated' | 'activity:deleted',
+    payload: unknown,
+  ) {
+    this.chatGateway?.emitActivity(event, payload);
+  }
 
   async createActivity(dto: CreateActivityInput): Promise<ActivityItem | null> {
     const settings = await this.getOrCreateSettings(dto.userId);
@@ -114,7 +130,7 @@ export class ActivityService {
     });
 
     const item = toActivityItem(row as ActivityWithRelations, null);
-    this.chatGateway?.emitActivity('activity:new', item);
+    this.broadcastActivity('activity:new', item);
     return item;
   }
 
@@ -282,7 +298,7 @@ export class ActivityService {
     }
 
     const item = await this.reloadItem(activityId, userId);
-    this.chatGateway?.emitActivity('activity:updated', item);
+    this.broadcastActivity('activity:updated', item);
     return item;
   }
 
@@ -330,7 +346,7 @@ export class ActivityService {
     }
 
     const detail = await this.getById(activityId, authorId);
-    this.chatGateway?.emitActivity('activity:updated', detail);
+    this.broadcastActivity('activity:updated', detail);
     return detail;
   }
 
@@ -362,7 +378,7 @@ export class ActivityService {
       },
     });
 
-    this.chatGateway?.emitActivity('activity:updated', {
+    this.broadcastActivity('activity:updated', {
       id: comment.activityId,
     });
   }
@@ -407,7 +423,7 @@ export class ActivityService {
       },
     });
 
-    this.chatGateway?.emitActivity('activity:deleted', { id });
+    this.broadcastActivity('activity:deleted', { id });
   }
 
   async pinActivity(id: string, pinned: boolean): Promise<ActivityItem> {
@@ -422,7 +438,7 @@ export class ActivityService {
     });
 
     const item = await this.reloadItem(id, null);
-    this.chatGateway?.emitActivity('activity:updated', item);
+    this.broadcastActivity('activity:updated', item);
     return item;
   }
 
