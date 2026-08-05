@@ -5,6 +5,7 @@ import type { ComponentType } from 'react';
 import {
   AlertTriangle,
   BookOpen,
+  ClipboardList,
   FileText,
   Home,
   LayoutDashboard,
@@ -62,6 +63,7 @@ const mainGroups: NavGroup[] = [
     items: [
       { href: '/rules', label: 'Правила', icon: Scale },
       { href: '/documents', label: 'Документы', icon: FileText },
+      { href: '/forms', label: 'Формы', icon: ClipboardList },
       { href: '/wiki', label: 'Вики', icon: BookOpen, soon: true },
       { href: '/reports', label: 'Репорты', icon: AlertTriangle, soon: true },
     ],
