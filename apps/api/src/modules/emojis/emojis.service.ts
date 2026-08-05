@@ -33,11 +33,19 @@ export class EmojisService {
 
   async listActive(): Promise<CustomEmoji[]> {
     return this.cache.wrap(cacheKeys.customEmojis(), CACHE_TTL.CUSTOM_EMOJIS, async () => {
-      const rows = await this.prisma.customEmoji.findMany({
-        where: { isActive: true },
-        orderBy: [{ category: 'asc' }, { name: 'asc' }],
-      });
-      return rows.map(toCustomEmoji);
+      try {
+        const rows = await this.prisma.customEmoji.findMany({
+          where: { isActive: true },
+          orderBy: [{ category: 'asc' }, { name: 'asc' }],
+        });
+        return rows.map(toCustomEmoji);
+      } catch (error) {
+        // Migration not applied yet — avoid breaking pages that load emojis
+        if (isMissingTableError(error)) {
+          return [];
+        }
+        throw error;
+      }
     });
   }
 
@@ -51,18 +59,25 @@ export class EmojisService {
       cacheKeys.customEmojisSearch(q),
       CACHE_TTL.MENTION_SEARCH,
       async () => {
-        const rows = await this.prisma.customEmoji.findMany({
-          where: {
-            isActive: true,
-            OR: [
-              { name: { contains: q, mode: 'insensitive' } },
-              { category: { contains: q, mode: 'insensitive' } },
-            ],
-          },
-          orderBy: { name: 'asc' },
-          take: 24,
-        });
-        return rows.map(toCustomEmoji);
+        try {
+          const rows = await this.prisma.customEmoji.findMany({
+            where: {
+              isActive: true,
+              OR: [
+                { name: { contains: q, mode: 'insensitive' } },
+                { category: { contains: q, mode: 'insensitive' } },
+              ],
+            },
+            orderBy: { name: 'asc' },
+            take: 24,
+          });
+          return rows.map(toCustomEmoji);
+        } catch (error) {
+          if (isMissingTableError(error)) {
+            return [];
+          }
+          throw error;
+        }
       },
     );
   }
@@ -242,4 +257,12 @@ function toCustomEmoji(row: PrismaCustomEmoji): CustomEmoji {
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+function isMissingTableError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const code = 'code' in error ? String((error as { code?: unknown }).code ?? '') : '';
+  const message =
+    'message' in error ? String((error as { message?: unknown }).message ?? '') : '';
+  return code === 'P2021' || message.includes('does not exist in the current database');
 }
