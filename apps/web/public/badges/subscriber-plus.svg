@@ -1,0 +1,11 @@
+<svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Subscriber Plus">
+  <defs>
+    <linearGradient id="plus-g" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD700"/>
+      <stop offset="1" stop-color="#FFA500"/>
+    </linearGradient>
+  </defs>
+  <path d="M12 2.4 14.4 8.2l6.2.5-4.7 3.9 1.5 6-5.4-3.2-5.4 3.2 1.5-6-4.7-3.9 6.2-.5L12 2.4Z" fill="url(#plus-g)"/>
+  <path d="M12 7.6v8.8M7.6 12h8.8" stroke="#5D4037" stroke-opacity="0.55" stroke-width="2.1" stroke-linecap="round"/>
+  <path d="M12 3.6 13.8 8.2l.2.1" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="1.2" stroke-linecap="round"/>
+</svg>
