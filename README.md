@@ -269,6 +269,34 @@ Cron каждую минуту публикует `SCHEDULED` с `scheduledFor <
 
 Страницы: `/news`, `/news/[slug]`, `/admin/news`, `/admin/news/new`, `/admin/news/[id]/edit`, `/admin/news/stats`, `/moderation/news-comments`.
 
+## Лента активности (Activity Feed)
+
+Социальная лента событий игроков: покупки, ранги, бейджи, награды, подарки, дружба,
+обновления профиля, новости, вехи, кастомные объявления. Видимость: `PUBLIC` / `FRIENDS` / `PRIVATE`.
+Realtime через Socket.IO (`activity:new`, `activity:updated`, `activity:deleted` на namespace `chat`).
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /activity/feed` | публичный (+optional JWT) | Лента (`page`, `limit`, `type`, `filter=all\|friends\|me`) |
+| `GET /activity/feed/user/:username` | публичный (+optional JWT) | Активность пользователя |
+| `GET /activity/feed/global-highlights` | публичный (+optional JWT) | Топ за день/неделю |
+| `GET /activity/:id` | публичный (+optional JWT) | Детали + комментарии |
+| `POST /activity/:id/reactions` | JWT | Toggle реакция (emoji) |
+| `POST /activity/:id/comments` | JWT | Комментарий |
+| `DELETE /activity/comments/:id` | JWT | Удалить свой комментарий |
+| `GET/PATCH /activity/settings` | JWT | Настройки ленты и приватности |
+| `DELETE /moderation/activity/:id` | MODERATOR+ | Скрыть |
+| `POST/DELETE /moderation/activity/:id/pin` | ADMIN+ | Закрепить / открепить |
+| `DELETE /moderation/activity/comments/:id` | MODERATOR+ | Удалить чужой комментарий |
+| `GET /admin/activity` | ADMIN+ | Список для модерации |
+| `GET /admin/activity/stats` | ADMIN+ | Статистика |
+| `POST /admin/activity/custom` | ADMIN+ | Кастомное объявление / ивент |
+
+События создаются автоматически из заказов, позиций, бейджей, наград, друзей, профиля и новостей.
+
+Страницы: `/feed`, `/feed/[id]`, виджет на главной, таб «Активность» в профиле и настройках,
+`/admin/activity/manage`, `/admin/activity/stats`, `/admin/activity/custom`.
+
 ## Бейджи
 
 До 3 активных `UserBadge` на игрока. В профиле показываются все; в хедере — один (топ).
@@ -307,8 +335,8 @@ Cron каждую минуту публикует `SCHEDULED` с `scheduledFor <
 
 Страницы:
 
-- `/profile/settings` — табы Профиль / Приватность / Соц сети / Медиа / Безопасность
-- `/users/[username]` — баннер, статистика, 3D скин, информация, реакции
+- `/profile/settings` — табы Профиль / Приватность / Соц сети / Медиа / Чат / Активность / Безопасность
+- `/users/[username]` — баннер, статистика, 3D скин, информация, активность, реакции
 - `/admin/badges`, `/admin/awards`, `/admin/media-requests`, `/admin/profile-reports`
 
 ## Друзья
@@ -637,6 +665,7 @@ apps/
       modules/
         auth/         эндпоинты, гварды, стратегии, капча, брутфорс, сессии
         awards/       каталог наград и выдача
+        activity/     лента активности, реакции, комментарии, настройки
         admin/        дашборд, audit log, broadcast, settings, announcements
         cache/        Redis CacheService (global)
         chat/         Socket.IO чат, каналы, модерация, anti-spam
@@ -644,6 +673,7 @@ apps/
         friends/      запросы, друзья, блокировки
         health/       GET /health
         minecraft/    мониторинг серверов (cron + CRUD)
+        news/         новости и блог
         positions/    титулы, их crud и назначение игрокам
         prisma/       PrismaService (глобальный модуль)
         redis/        ioredis клиент (глобальный модуль)
@@ -652,9 +682,9 @@ apps/
         uploads/      sharp + раздача /uploads
         users/        профиль, аватар/баннер, соцсети, реакции, жалобы
   web/                Next.js
-    src/app/          (auth), /servers/*, /store/*, /users/[username], /profile/*, /dashboard/*, /admin/*, /moderation/*
-    src/components/   ui kit, chat, servers, store, profile, shared, admin, system, site-header, site-sidebar
-    src/hooks/        useAuth, useSocket, useChat, friends, comments, store/*, servers/*, useSystemStatus
+    src/app/          (auth), /feed/*, /servers/*, /store/*, /users/[username], /profile/*, /dashboard/*, /admin/*, /moderation/*
+    src/components/   ui kit, activity, chat, servers, store, profile, shared, admin, system, site-header, site-sidebar
+    src/hooks/        useAuth, useSocket, useChat, activity/*, friends, comments, store/*, servers/*, useSystemStatus
     src/lib/          axios клиент, query-keys, profile helpers
     src/stores/       zustand: auth, storeUi, chat
 packages/
