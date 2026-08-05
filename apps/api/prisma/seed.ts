@@ -14,6 +14,7 @@ import { seedAwards } from './awards.data';
 import { seedBannerPresets } from './banner-presets.data';
 import { seedChat } from './chat.data';
 import { seedCurrencyRates } from './currency-rates.data';
+import { seedCustomEmojis } from './emojis.data';
 import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
 import { seedPunishments, seedReports } from './reports.data';
@@ -507,6 +508,31 @@ async function upsertAwards(): Promise<Map<string, string>> {
   console.log(`awards: ${ids.size}`);
 
   return ids;
+}
+
+async function upsertCustomEmojis(createdBy: string): Promise<void> {
+  for (const emoji of seedCustomEmojis) {
+    await prisma.customEmoji.upsert({
+      where: { name: emoji.name },
+      update: {
+        imageUrl: emoji.imageUrl,
+        category: emoji.category,
+        isAnimated: emoji.isAnimated ?? false,
+        isPremium: emoji.isPremium ?? false,
+        isActive: true,
+      },
+      create: {
+        name: emoji.name,
+        imageUrl: emoji.imageUrl,
+        category: emoji.category,
+        isAnimated: emoji.isAnimated ?? false,
+        isPremium: emoji.isPremium ?? false,
+        createdBy,
+      },
+    });
+  }
+
+  console.log(`custom emojis: ${seedCustomEmojis.length}`);
 }
 
 async function upsertTopics(createdBy: string): Promise<void> {
@@ -1038,6 +1064,7 @@ async function main() {
   );
 
   await applyShowcase(ownerId, ownerShowcase, awardIds);
+  await upsertCustomEmojis(ownerId);
   await upsertTopics(ownerId);
 
   // Reserved public ids: KleekYT=#1, younaxo_=#2 (create or reassign)
