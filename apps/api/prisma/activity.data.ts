@@ -1,6 +1,7 @@
 import {
   ActivityType,
   ActivityVisibility,
+  Prisma,
   PrismaClient,
 } from '@prisma/client';
 
@@ -14,7 +15,7 @@ type SeedActivity = {
   visibility?: ActivityVisibility;
   isPinned?: boolean;
   hoursAgo: number;
-  metadata?: Record<string, unknown>;
+  metadata?: Prisma.InputJsonValue;
   reactions?: Array<{ username: string; emoji: string }>;
   comments?: Array<{ username: string; content: string }>;
 };
