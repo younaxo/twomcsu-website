@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { CommentReactions } from '@/components/comments/CommentReactions';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { MarkdownContent } from '@/components/shared/MarkdownContent';
 import { Button } from '@/components/ui/button';
 import {
   useDeleteNewsComment,
@@ -63,9 +64,10 @@ export function NewsCommentCard({ comment, slug, depth = 0 }: NewsCommentCardPro
             }}
           />
         ) : (
-          <div
-            className="prose prose-invert prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ __html: comment.contentHtml ?? comment.content }}
+          <MarkdownContent
+            content={comment.content}
+            html={comment.contentHtml ?? undefined}
+            className="prose-sm"
           />
         )}
 

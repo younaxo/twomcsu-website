@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useCreateNewsComment } from '@/hooks/news';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -67,12 +67,14 @@ export function NewsCommentForm({
 
   return (
     <div className="space-y-3 rounded-xl glass-light p-4">
-      <Textarea
+      <MarkdownEditor
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={setContent}
         placeholder={placeholder}
-        rows={4}
+        minHeight={120}
+        maxHeight={360}
         maxLength={2000}
+        disabled={pending || create.isPending}
       />
       <div className="flex items-center justify-end gap-2">
         {onCancel ? (
