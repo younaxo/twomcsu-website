@@ -101,4 +101,7 @@ export const queryKeys = {
   adminActivity: (filters: Record<string, unknown>) =>
     ['admin', 'activity', filters] as const,
   adminActivityStats: ['admin', 'activity', 'stats'] as const,
+  mentionSearch: (query: string) => ['users', 'search-mentions', query] as const,
+  customEmojis: ['emojis', 'custom'] as const,
+  adminCustomEmojis: ['admin', 'emojis'] as const,
 };
