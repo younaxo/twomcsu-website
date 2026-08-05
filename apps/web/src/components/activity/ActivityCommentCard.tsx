@@ -6,6 +6,7 @@ import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { MarkdownContent } from '@/components/shared/MarkdownContent';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
@@ -49,9 +50,11 @@ export function ActivityCommentCard({ comment, onDelete }: ActivityCommentCardPr
             {formatActivityTime(comment.createdAt)}
           </span>
         </div>
-        <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-          {comment.content}
-        </p>
+        <MarkdownContent
+          content={comment.content}
+          html={comment.contentHtml ?? undefined}
+          className="mt-1 prose-sm text-muted-foreground"
+        />
       </div>
       {canDelete && onDelete ? (
         <Tooltip>

@@ -3,8 +3,8 @@
 import type { ActivityCommentItem } from '@twomc/shared';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 import { useAddComment, useDeleteComment } from '@/hooks/activity';
 import { ActivityCommentCard } from './ActivityCommentCard';
@@ -63,22 +63,26 @@ export function ActivityComments({
       </div>
 
       {isAuthenticated ? (
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Textarea
+        <div className="space-y-2">
+          <MarkdownEditor
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={setContent}
             placeholder="Написать комментарий…"
-            className="min-h-[72px] flex-1"
+            minHeight={72}
+            maxHeight={240}
+            showToolbar={false}
             maxLength={1000}
+            disabled={addComment.isPending}
           />
-          <Button
-            type="button"
-            onClick={() => void submit()}
-            disabled={addComment.isPending || !content.trim()}
-            className="sm:self-end"
-          >
-            Отправить
-          </Button>
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              onClick={() => void submit()}
+              disabled={addComment.isPending || !content.trim()}
+            >
+              Отправить
+            </Button>
+          </div>
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">Войдите, чтобы комментировать</p>
