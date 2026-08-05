@@ -939,6 +939,8 @@ enum NotificationType {
   CHAT_MENTION
   NEWS_PUBLISHED
   NEWS_COMMENT_REPLY
+  NEWS_COMMENT_MENTION
+  REPORT_MENTION
   SYSTEM
 }
 
@@ -1994,4 +1996,23 @@ model ActivityFeedSettings {
   updatedAt DateTime @updatedAt
 
   @@map("activity_feed_settings")
+}
+
+/// Custom shortcode emojis for markdown (:name:)
+model CustomEmoji {
+  id         String   @id @default(cuid())
+  name       String   @unique @db.VarChar(32)
+  imageUrl   String
+  category   String?
+  isAnimated Boolean  @default(false)
+  isPremium  Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  createdBy  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([name])
+  @@index([category])
+  @@index([isActive])
+  @@map("custom_emojis")
 }
