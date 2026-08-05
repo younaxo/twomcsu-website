@@ -11,7 +11,7 @@ import { ActivityService } from './activity.service';
   imports: [
     forwardRef(() => FriendsModule),
     NotificationsModule,
-    CommentsModule,
+    forwardRef(() => CommentsModule),
   ],
   controllers: [
     ActivityController,
