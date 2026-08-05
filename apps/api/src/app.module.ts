@@ -15,6 +15,7 @@ import { CacheModule } from './modules/cache/cache.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { EmojisModule } from './modules/emojis/emojis.module';
+import { FormsModule } from './modules/forms/forms.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
 import { MinecraftModule } from './modules/minecraft/minecraft.module';
@@ -73,6 +74,7 @@ import { UsersModule } from './modules/users/users.module';
     NewsModule,
     ReportsModule,
     ActivityModule,
+    FormsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
