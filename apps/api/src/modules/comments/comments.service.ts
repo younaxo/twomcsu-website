@@ -1,8 +1,11 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
+  forwardRef,
 } from '@nestjs/common';
 import {
   CommentPolicy,
@@ -29,6 +32,7 @@ import {
 import { buildPaginatedResult } from '../../common/pagination';
 import { selectMinimalUser } from '../../common/prisma/user-selects';
 import { findUserByIdentifier } from '../../common/user-identifier';
+import { ActivityService } from '../activity/activity.service';
 import { toUserBadge } from '../users/profile.mapper';
 import { toPublicPosition } from '../positions/position.mapper';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
@@ -75,6 +79,9 @@ export class CommentsService {
     private readonly markdown: MarkdownService,
     private readonly mentions: MentionsService,
     private readonly notifications: NotificationsService,
+    @Optional()
+    @Inject(forwardRef(() => ActivityService))
+    private readonly activity?: ActivityService,
   ) {}
 
   async getComments(
@@ -210,6 +217,7 @@ export class CommentsService {
 
     await this.notifyCommentCreated(profile, authorId, created.id, dto.parentId, mentionIds);
     await this.invalidateCommentsCache(profile.username);
+    void this.activity?.checkMilestones(authorId).catch(() => undefined);
 
     const mentionUsers = await this.loadMentionUsers(mentionIds);
     return this.mapComment(created, {

@@ -9,7 +9,6 @@ import {
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsEnum,
   IsIn,
   IsInt,
   IsOptional,
@@ -35,7 +34,7 @@ export class ListActivityFeedQueryDto {
   limit?: number;
 
   @IsOptional()
-  @IsEnum(ActivityType)
+  @IsIn(Object.values(ActivityType))
   type?: ActivityType;
 
   @IsOptional()
@@ -106,27 +105,27 @@ export class UpdateActivitySettingsDto {
   showServerActivity?: boolean;
 
   @IsOptional()
-  @IsEnum(ActivityVisibility)
+  @IsIn(Object.values(ActivityVisibility))
   purchasesVisibility?: ActivityVisibility;
 
   @IsOptional()
-  @IsEnum(ActivityVisibility)
+  @IsIn(Object.values(ActivityVisibility))
   achievementsVisibility?: ActivityVisibility;
 
   @IsOptional()
-  @IsEnum(ActivityVisibility)
+  @IsIn(Object.values(ActivityVisibility))
   badgesVisibility?: ActivityVisibility;
 
   @IsOptional()
-  @IsEnum(ActivityVisibility)
+  @IsIn(Object.values(ActivityVisibility))
   giftsVisibility?: ActivityVisibility;
 
   @IsOptional()
-  @IsEnum(ActivityVisibility)
+  @IsIn(Object.values(ActivityVisibility))
   friendshipsVisibility?: ActivityVisibility;
 
   @IsOptional()
-  @IsEnum(ActivityVisibility)
+  @IsIn(Object.values(ActivityVisibility))
   profileUpdatesVisibility?: ActivityVisibility;
 
   @IsOptional()
@@ -190,7 +189,7 @@ export class AdminListActivityQueryDto {
   limit?: number;
 
   @IsOptional()
-  @IsEnum(ActivityType)
+  @IsIn(Object.values(ActivityType))
   type?: ActivityType;
 
   @IsOptional()
