@@ -102,7 +102,12 @@ function MentionCardBody({
           />
           <p className="text-xs text-muted-foreground">{profile.position.displayName}</p>
           {profile.customPosition ? (
-            <p className="text-xs" style={{ color: profile.customPosition.color }}>
+            <p
+              className="text-xs"
+              style={{
+                color: profile.customPosition.color ?? undefined,
+              }}
+            >
               {profile.customPosition.name}
             </p>
           ) : null}

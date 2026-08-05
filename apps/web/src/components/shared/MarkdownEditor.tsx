@@ -274,7 +274,7 @@ export function MarkdownEditor({
     <div
       className={cn(
         'overflow-hidden rounded-xl glass-medium transition ring-offset-background',
-        'focus-within:ring-2 focus-within:ring-[#F57C00]/
+        'focus-within:ring-2 focus-within:ring-[#F57C00]',
         disabled && 'opacity-60',
         className,
       )}
