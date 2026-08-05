@@ -19,6 +19,7 @@ import { seedPositions } from './positions.data';
 import { seedPromoCodes } from './promo-codes.data';
 import { seedPunishments, seedReports } from './reports.data';
 import { seedNews, seedNewsComments } from './news.data';
+import { seedForms, seedFormTemplates, type SeedFormItem } from './forms.data';
 import { seedActivityFeed } from './activity.data';
 import { seedTopics, TOPIC_PLACEHOLDER_CONTENT } from './topics.data';
 import { seedBundles } from './store-bundles.data';
@@ -1110,7 +1111,84 @@ async function main() {
   await seedTestReports(userIds, punishmentIds);
   await seedChat(prisma);
   await upsertNews(userIds);
+  await upsertForms(userIds);
   await seedActivityFeed(prisma, userIds);
+}
+
+/** Idempotent demo forms + admin templates */
+async function upsertForms(userIds: Map<string, string>): Promise<void> {
+  const ownerUsername = process.env.SEED_OWNER_USERNAME ?? 'owner';
+  const creatorId =
+    userIds.get(ownerUsername) ??
+    userIds.get('owner') ??
+    userIds.get('admin');
+
+  if (!creatorId) {
+    throw new Error('forms seed: missing creator user');
+  }
+
+  const all: SeedFormItem[] = [...seedForms, ...seedFormTemplates];
+
+  for (const item of all) {
+    const form = await prisma.form.upsert({
+      where: { slug: item.slug },
+      update: {
+        title: item.title,
+        description: item.description,
+        status: item.status,
+        visibility: item.visibility,
+        onePerUser: item.onePerUser ?? true,
+        showResults: item.showResults ?? false,
+        requiresAuth: item.requiresAuth ?? false,
+        requiresCaptcha: item.requiresCaptcha ?? true,
+        thankYouMessage: item.thankYouMessage ?? null,
+      },
+      create: {
+        slug: item.slug,
+        title: item.title,
+        description: item.description,
+        status: item.status,
+        visibility: item.visibility,
+        createdById: creatorId,
+        onePerUser: item.onePerUser ?? true,
+        showResults: item.showResults ?? false,
+        requiresAuth: item.requiresAuth ?? false,
+        requiresCaptcha: item.requiresCaptcha ?? true,
+        thankYouMessage: item.thankYouMessage ?? null,
+      },
+    });
+
+    await prisma.formField.deleteMany({ where: { formId: form.id } });
+
+    for (const field of item.fields) {
+      await prisma.formField.create({
+        data: {
+          formId: form.id,
+          type: field.type,
+          label: field.label,
+          description: field.description ?? null,
+          placeholder: field.placeholder ?? null,
+          isRequired: field.isRequired ?? false,
+          order: field.order,
+          options: field.options as object | undefined,
+          validation: field.validation as object | undefined,
+          minValue: field.minValue ?? null,
+          maxValue: field.maxValue ?? null,
+          minLength: field.minLength ?? null,
+          maxLength: field.maxLength ?? null,
+          maxFiles: field.maxFiles ?? null,
+          maxFileSize: field.maxFileSize ?? null,
+          allowedMimes: field.allowedMimes ?? [],
+          metadata: field.metadata as object | undefined,
+          defaultValue: field.defaultValue ?? null,
+        },
+      });
+    }
+  }
+
+  console.log(
+    `forms: ${seedForms.length} published, ${seedFormTemplates.length} templates`,
+  );
 }
 
 /** Idempotent demo punishments for appeal testing */
