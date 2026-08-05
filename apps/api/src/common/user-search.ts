@@ -29,3 +29,30 @@ export function buildUserSearchWhere(query: string): Prisma.UserWhereInput {
     ],
   };
 }
+
+/** Mentions autocomplete: username / shortId / tag only (no email) */
+export function buildMentionSearchWhere(query: string): Prisma.UserWhereInput {
+  const raw = query.trim();
+
+  if (raw.startsWith('#')) {
+    const digits = raw.slice(1);
+    if (/^\d+$/.test(digits)) {
+      return { shortId: Number.parseInt(digits, 10), isBanned: false };
+    }
+  }
+
+  if (raw.includes('#') && !raw.startsWith('#')) {
+    return { tag: { contains: raw.toLowerCase(), mode: 'insensitive' }, isBanned: false };
+  }
+
+  return {
+    isBanned: false,
+    OR: [
+      { username: { contains: raw, mode: 'insensitive' } },
+      { tag: { contains: raw, mode: 'insensitive' } },
+      ...(/^\d+$/.test(raw)
+        ? [{ shortId: Number.parseInt(raw, 10) }]
+        : []),
+    ],
+  };
+}

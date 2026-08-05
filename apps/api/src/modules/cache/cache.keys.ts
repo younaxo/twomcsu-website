@@ -17,6 +17,10 @@ export const CACHE_TTL = {
   NOTIFICATIONS_UNREAD: 30,
   /** User autocomplete search */
   USER_SEARCH: 30,
+  /** @mention autocomplete search */
+  MENTION_SEARCH: 30,
+  /** Custom emoji list */
+  CUSTOM_EMOJIS: 1800,
   /** Live server status snapshot */
   SERVER_STATUS: 60,
   /** Servers list with status */
@@ -57,6 +61,10 @@ export const cacheKeys = {
   authMe: (userId: string) => `auth:me:${userId}`,
   userSearch: (query: string, limit: number) =>
     `users:search:${query.trim().toLowerCase()}:${limit}`,
+  mentionSearch: (query: string, limit: number) =>
+    `users:mentions:${query.trim().toLowerCase()}:${limit}`,
+  customEmojis: () => 'emojis:custom:list',
+  customEmojisSearch: (query: string) => `emojis:custom:search:${query.trim().toLowerCase()}`,
   notificationsUnread: (userId: string) => `notifications:unread:${userId}`,
   serverStatus: (serverId: string) => `server:${serverId}:status`,
   serversList: () => 'servers:list',

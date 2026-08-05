@@ -29,13 +29,14 @@ import {
   SuccessResponse,
   UserBadge,
   UserProfile,
+  MentionSearchResult,
   UserSearchHint,
   UserSearchResult,
   hasRoleGroup,
 } from '@twomc/shared';
 import { assertSearchLength } from '../../common/pagination';
 import { selectFullProfile, selectMinimalUser } from '../../common/prisma/user-selects';
-import { buildUserSearchWhere } from '../../common/user-search';
+import { buildMentionSearchWhere, buildUserSearchWhere } from '../../common/user-search';
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { AuthenticatedUser } from '../auth/authenticated-user';
 import { ActivityService } from '../activity/activity.service';
@@ -852,6 +853,52 @@ export class UsersService {
     return this.cache.wrap(cacheKey, CACHE_TTL.USER_SEARCH, async () =>
       this.findUsersBySearch(q, take),
     );
+  }
+
+  /** Fast @mention autocomplete (username / shortId / tag) */
+  async searchMentions(query: string, limit = 8): Promise<MentionSearchResult[]> {
+    const q = assertSearchLength(query);
+
+    if (!q) {
+      return [];
+    }
+
+    const take = Math.min(Math.max(limit, 1), 8);
+    const cacheKey = cacheKeys.mentionSearch(q, take);
+
+    return this.cache.wrap(cacheKey, CACHE_TTL.MENTION_SEARCH, async () => {
+      const users = await this.prisma.user.findMany({
+        where: buildMentionSearchWhere(q),
+        orderBy: [{ username: 'asc' }],
+        take,
+        select: {
+          id: true,
+          username: true,
+          shortId: true,
+          avatar: true,
+          position: {
+            select: { displayName: true, color: true },
+          },
+          badges: {
+            where: { isActive: true },
+            select: { type: true },
+            take: 5,
+          },
+        },
+      });
+
+      return users.map((user) => ({
+        id: user.id,
+        username: user.username,
+        shortId: user.shortId,
+        avatar: user.avatar,
+        position: {
+          displayName: user.position.displayName,
+          color: user.position.color,
+        },
+        badges: user.badges.map((badge) => ({ type: badge.type })),
+      }));
+    });
   }
 
   async searchHint(username: string): Promise<UserSearchHint> {

@@ -54,3 +54,16 @@ export interface UserSearchResult {
   roleGroup: RoleGroup;
   position: Position;
 }
+
+/** Compact row for @mention autocomplete */
+export interface MentionSearchResult {
+  id: string;
+  username: string;
+  shortId: number;
+  avatar: string | null;
+  position: {
+    displayName: string;
+    color: string;
+  };
+  badges: Array<{ type: string }>;
+}

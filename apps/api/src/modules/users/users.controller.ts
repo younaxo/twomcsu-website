@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  MentionSearchResult,
   PlayerStatistics,
   ProfileReactionSummary,
   RoleGroup,
@@ -33,6 +34,7 @@ import { CreateProfileReportDto } from './dto/create-profile-report.dto';
 import { GrantBadgeDto } from './dto/grant-badge.dto';
 import { ReviewMediaRequestDto } from './dto/review-media-request.dto';
 import { ReviewProfileReportDto } from './dto/review-profile-report.dto';
+import { SearchMentionsDto } from './dto/search-mentions.dto';
 import { SearchUsersDto } from './dto/search-users.dto';
 import { SetReactionDto } from './dto/set-reaction.dto';
 import { UpdateStatisticsDto } from './dto/update-statistics.dto';
@@ -46,6 +48,12 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   search(@Query() query: SearchUsersDto): Promise<UserSearchResult[]> {
     return this.users.search(query.q, query.limit ?? 10);
+  }
+
+  @Get('search-mentions')
+  @UseGuards(JwtAuthGuard)
+  searchMentions(@Query() query: SearchMentionsDto): Promise<MentionSearchResult[]> {
+    return this.users.searchMentions(query.q, query.limit ?? 8);
   }
 
   @Get(':username/search-hint')
