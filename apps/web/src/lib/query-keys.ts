@@ -104,4 +104,20 @@ export const queryKeys = {
   mentionSearch: (query: string) => ['users', 'search-mentions', query] as const,
   customEmojis: ['emojis', 'custom'] as const,
   adminCustomEmojis: ['admin', 'emojis'] as const,
+  forms: ['forms', 'list'] as const,
+  form: (slug: string) => ['forms', 'detail', slug] as const,
+  formInvite: (code: string) => ['forms', 'invite', code] as const,
+  myForms: ['forms', 'my'] as const,
+  myFormResponses: ['forms', 'my-responses'] as const,
+  formAutofill: ['forms', 'autofill'] as const,
+  adminForms: (filters: Record<string, unknown>) =>
+    ['admin', 'forms', 'list', filters] as const,
+  adminForm: (id: string) => ['admin', 'forms', 'detail', id] as const,
+  adminFormTemplates: ['admin', 'forms', 'templates'] as const,
+  adminFormResponses: (id: string, filters?: Record<string, unknown>) =>
+    ['admin', 'forms', 'responses', id, filters ?? {}] as const,
+  adminFormResponse: (id: string, responseId: string) =>
+    ['admin', 'forms', 'response', id, responseId] as const,
+  adminFormStats: (id: string) => ['admin', 'forms', 'stats', id] as const,
+  adminFormInvites: (id: string) => ['admin', 'forms', 'invites', id] as const,
 };
