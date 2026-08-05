@@ -8,14 +8,12 @@ import {
   TopicVisibility,
   hasRoleGroup,
 } from '@twomc/shared';
-import { Eye, EyeOff, Trash2, Upload } from 'lucide-react';
+import { Trash2, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
-import remarkGfm from 'remark-gfm';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -76,7 +74,6 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
   const uploadAttachment = useUploadTopicAttachment();
   const deleteAttachment = useDeleteTopicAttachment();
   const [form, setForm] = useState<FormState>(defaultForm);
-  const [preview, setPreview] = useState(false);
   const [attachments, setAttachments] = useState(initial?.attachments ?? []);
 
   useEffect(() => {
@@ -97,22 +94,6 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
     });
     setAttachments(initial.attachments);
   }, [initial]);
-
-  const headingComponents = useMemo(
-    () => ({
-      h2: ({ children }: { children?: React.ReactNode }) => {
-        const text = String(children ?? '');
-        const id = slugifyTopicTitle(text);
-        return <h2 id={id}>{children}</h2>;
-      },
-      h3: ({ children }: { children?: React.ReactNode }) => {
-        const text = String(children ?? '');
-        const id = slugifyTopicTitle(text);
-        return <h3 id={id}>{children}</h3>;
-      },
-    }),
-    [],
-  );
 
   const syncTitle = (title: string) => {
     setForm((prev) => ({
@@ -291,39 +272,15 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
         </div>
 
         <div className="space-y-3 rounded-2xl glass-medium p-5">
-          <div className="flex items-center justify-between">
-            <Label>Содержимое</Label>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setPreview((p) => !p)}>
-              {preview ? (
-                <>
-                  <EyeOff className="mr-2 h-4 w-4" />
-                  Редактор
-                </>
-              ) : (
-                <>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Превью
-                </>
-              )}
-            </Button>
-          </div>
-          {preview ? (
-            <div className="prose prose-invert max-w-none min-h-[320px] rounded-lg border border-white/10 p-4">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeSanitize]}
-                components={headingComponents}
-              >
-                {form.content}
-              </ReactMarkdown>
-            </div>
-          ) : (
-            <Textarea
-              value={form.content}
-              onChange={(e) => setForm((p) => ({ ...p, content: e.target.value }))}
-              className="min-h-[320px] font-mono text-sm"
-            />
-          )}
+          <Label>Содержимое</Label>
+          <MarkdownEditor
+            value={form.content}
+            onChange={(content) => setForm((p) => ({ ...p, content }))}
+            minHeight={320}
+            maxHeight={800}
+            showPreview
+            placeholder="Markdown содержимое темы..."
+          />
         </div>
       </div>
 

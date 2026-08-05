@@ -5,9 +5,7 @@ import { RoleGroup, TopicVisibility, hasRoleGroup } from '@twomc/shared';
 import { Download, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
-import ReactMarkdown from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
-import remarkGfm from 'remark-gfm';
+import { MarkdownContent } from '@/components/shared/MarkdownContent';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,30 +25,6 @@ export function TopicViewer({ topic }: TopicViewerProps) {
   const { user } = useAuth();
   const isOwner = user ? hasRoleGroup(user.roleGroup, RoleGroup.OWNER) : false;
   const headings = useMemo(() => extractMarkdownHeadings(topic.content), [topic.content]);
-
-  const headingComponents = useMemo(
-    () => ({
-      h2: ({ children }: { children?: React.ReactNode }) => {
-        const text = String(children ?? '');
-        const id = text
-          .toLowerCase()
-          .replace(/[^a-z0-9а-яё\s-]/gi, '')
-          .trim()
-          .replace(/\s+/g, '-');
-        return <h2 id={id}>{children}</h2>;
-      },
-      h3: ({ children }: { children?: React.ReactNode }) => {
-        const text = String(children ?? '');
-        const id = text
-          .toLowerCase()
-          .replace(/[^a-z0-9а-яё\s-]/gi, '')
-          .trim()
-          .replace(/\s+/g, '-');
-        return <h3 id={id}>{children}</h3>;
-      },
-    }),
-    [],
-  );
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_220px]">
@@ -78,20 +52,13 @@ export function TopicViewer({ topic }: TopicViewerProps) {
           ) : null}
         </header>
 
-        <div
+        <MarkdownContent
+          content={topic.content}
           className={cn(
-            'prose prose-invert max-w-none rounded-2xl glass-medium p-6',
+            'rounded-2xl glass-medium p-6',
             'prose-headings:scroll-mt-24 prose-a:text-primary',
           )}
-        >
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeSanitize]}
-            components={headingComponents}
-          >
-            {topic.content}
-          </ReactMarkdown>
-        </div>
+        />
 
         {topic.attachments.length > 0 ? (
           <section className="space-y-3">

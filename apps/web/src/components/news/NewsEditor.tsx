@@ -11,6 +11,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { MarkdownContent } from '@/components/shared/MarkdownContent';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -20,7 +22,6 @@ import {
   useUpdateNews,
   useUploadNewsImage,
 } from '@/hooks/news';
-import { NewsContent } from './NewsContent';
 
 function slugifyClient(title: string): string {
   const map: Record<string, string> = {
@@ -234,7 +235,6 @@ export function NewsEditor({ initial }: NewsEditorProps) {
         />
 
         <div
-          className="grid gap-3 md:grid-cols-2"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -244,19 +244,20 @@ export function NewsEditor({ initial }: NewsEditorProps) {
             }
           }}
         >
-          <Textarea
+          <MarkdownEditor
             value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
+            onChange={(next) => {
+              setContent(next);
               markDirty();
             }}
             placeholder="Markdown контент..."
-            rows={22}
-            className="font-mono text-sm"
+            minHeight={320}
+            maxHeight={720}
+            showPreview
           />
-          <div className="max-h-[560px] overflow-auto rounded-xl glass-medium p-4">
+          <div className="mt-3 max-h-[360px] overflow-auto rounded-xl glass-medium p-4 md:hidden">
             <p className="mb-2 text-xs text-muted-foreground">Превью</p>
-            <NewsContent content={content || '_Пусто_'} />
+            <MarkdownContent content={content || '_Пусто_'} />
           </div>
         </div>
 
