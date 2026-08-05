@@ -1,3 +1,5 @@
+import type { Position } from './position';
+
 export const ActivityType = {
   PURCHASE_MADE: 'PURCHASE_MADE',
   RANK_ACHIEVED: 'RANK_ACHIEVED',
@@ -101,12 +103,7 @@ export interface ActivityAuthor {
   avatar: string | null;
   shortId: number;
   roleGroup: string;
-  position?: {
-    id: string;
-    name: string;
-    slug: string;
-    color: string | null;
-  } | null;
+  position?: Position | null;
   badges?: Array<{
     id: string;
     type: string;
