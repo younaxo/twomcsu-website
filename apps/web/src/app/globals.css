@@ -3,15 +3,58 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Neutral dark palette — no blue/indigo cast */
+    --background: 240 7% 5%; /* ~#0c0c0f */
+    --foreground: 0 0% 98%;
+    --card: 240 10% 9%; /* ~#14141c */
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 30 100% 48%; /* #F57C00 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 8% 14%; /* ~#1e1e28 */
+    --secondary-foreground: 0 0% 96%;
+    --muted: 240 6% 18%; /* ~#282832 */
+    --muted-foreground: 0 0% 65%;
+    /* Neutral hover surface — never orange (primary is for CTAs) */
+    --accent: 240 6% 16%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --warning: 45 93% 47%;
+    --border: 0 0% 18%;
+    --input: 240 8% 14%;
+    --ring: 30 100% 48%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
   html {
     color-scheme: dark;
   }
 
+  ::selection {
+    background: rgba(245, 124, 0, 0.35);
+    color: #ffffff;
+  }
+
+  ::-moz-selection {
+    background: rgba(245, 124, 0, 0.35);
+    color: #ffffff;
+  }
+
   body {
-    @apply bg-base text-white/90;
+    @apply bg-background text-foreground;
+    background-image: linear-gradient(135deg, #0c0c0f 0%, #16161c 100%);
+    background-attachment: fixed;
     font-family: var(--font-onest), system-ui, sans-serif;
     font-weight: 400;
-    line-height: 1.6;
+    line-height: 1.45;
   }
 
   h1,
@@ -28,5 +71,141 @@
     font-weight: 600;
     letter-spacing: -0.015em;
     line-height: 1.2;
+  }
+
+  img,
+  svg,
+  .logo,
+  .avatar,
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  h1 {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+@layer components {
+  .comment-markdown .spoiler {
+    filter: blur(5px);
+    cursor: pointer;
+    transition: filter 0.15s ease, color 0.15s ease, background 0.15s ease;
+    background: hsl(var(--muted));
+    border-radius: 0.25rem;
+    padding: 0 0.15rem;
+    color: transparent;
+  }
+
+  .comment-markdown .spoiler.revealed,
+  .comment-markdown .spoiler:focus {
+    filter: none;
+    color: inherit;
+    background: transparent;
+  }
+
+  .comment-markdown .mention {
+    color: hsl(var(--primary));
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .comment-markdown a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+  }
+
+  .comment-markdown p {
+    margin: 0.35rem 0;
+  }
+
+  .comment-markdown ul,
+  .comment-markdown ol {
+    margin: 0.35rem 0;
+    padding-left: 1.25rem;
+  }
+
+  .comment-markdown blockquote {
+    border-left: 3px solid hsl(var(--border));
+    padding-left: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .comment-markdown code {
+    border-radius: 0.25rem;
+    background: hsl(var(--secondary));
+    padding: 0.1rem 0.3rem;
+    font-size: 0.85em;
+  }
+
+  .comment-markdown pre {
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    background: hsl(var(--secondary));
+    padding: 0.75rem;
+  }
+}
+
+@layer utilities {
+  button:disabled,
+  [role='button'][aria-disabled='true'],
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
+
+  .glass-heavy {
+    background: rgba(15, 15, 20, 0.5);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-medium {
+    background: rgba(20, 20, 28, 0.55);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-light {
+    background: rgba(30, 30, 40, 0.4);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-strong {
+    background: rgba(15, 15, 20, 0.7);
+    backdrop-filter: blur(50px) saturate(200%);
+    -webkit-backdrop-filter: blur(50px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-hover {
+    transition: background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
+  }
+
+  .glass-hover:hover {
+    background: rgba(30, 30, 40, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .bg-gradient-primary {
+    background-image: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
+  }
+
+  .shadow-glow-primary {
+    box-shadow: 0 8px 24px rgba(245, 124, 0, 0.25);
+  }
+
+  .transition-ui {
+    transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease,
+      opacity 200ms ease, box-shadow 250ms ease, transform 200ms ease;
   }
 }

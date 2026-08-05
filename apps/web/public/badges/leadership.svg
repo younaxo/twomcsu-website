@@ -1,0 +1,17 @@
+<svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Leadership">
+  <defs>
+    <linearGradient id="lead-g" x1="3" y1="4" x2="21" y2="20" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD54F"/>
+      <stop offset="0.45" stop-color="#F57C00"/>
+      <stop offset="1" stop-color="#E65100"/>
+    </linearGradient>
+    <radialGradient id="lead-glow" cx="12" cy="10" r="10" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD700" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#FFD700" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="12" cy="12" r="11" fill="url(#lead-glow)"/>
+  <path d="M4.5 9.2 7.2 16h9.6l2.7-6.8-3.4 1.6L12 5.5 7.9 10.8 4.5 9.2Z" fill="url(#lead-g)"/>
+  <path d="M7.2 16h9.6l.6 1.6H6.6L7.2 16Z" fill="#E65100"/>
+  <path d="M8.2 10.5 12 7.2l3.8 3.3" stroke="#FFF8E1" stroke-opacity="0.55" stroke-width="1.2" stroke-linecap="round"/>
+</svg>
