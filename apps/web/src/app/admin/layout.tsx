@@ -28,6 +28,7 @@ const adminLinks = [
   { href: '/admin/activity/stats', label: 'Лента · статистика' },
   { href: '/admin/activity/custom', label: 'Лента · объявление' },
   { href: '/admin/topics', label: 'Темы' },
+  { href: '/admin/emojis', label: 'Эмодзи' },
   { href: '/admin/media-requests', label: 'Медиа заявки' },
   { href: '/admin/broadcast', label: 'Рассылка' },
   { href: '/admin/exports/scheduled', label: 'Экспорт' },
