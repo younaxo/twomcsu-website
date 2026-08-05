@@ -28,7 +28,7 @@ export function ActivityHeader({ user, type, createdAt, isPinned }: ActivityHead
         <div className="flex flex-wrap items-center gap-2">
           {user.position ? (
             <ColoredUsername
-              user={{ username: user.username, position: user.position as never }}
+              user={{ username: user.username, position: user.position }}
               badges={user.badges}
               size="sm"
             />

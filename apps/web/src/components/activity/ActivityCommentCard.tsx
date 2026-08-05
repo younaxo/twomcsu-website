@@ -37,7 +37,7 @@ export function ActivityCommentCard({ comment, onDelete }: ActivityCommentCardPr
             <ColoredUsername
               user={{
                 username: comment.author.username,
-                position: comment.author.position as never,
+                position: comment.author.position,
               }}
               badges={comment.author.badges}
               size="sm"

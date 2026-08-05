@@ -95,7 +95,24 @@ export default function ProfileSettingsPage() {
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
   const [isLoading, setLoading] = useState(true);
   const [isSaving, setSaving] = useState(false);
+  const [settingsTab, setSettingsTab] = useState('profile');
   const captcha = useRef<CaptchaFieldHandle>(null);
+
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    const allowed = new Set([
+      'profile',
+      'privacy',
+      'socials',
+      'media',
+      'chat',
+      'activity',
+      'security',
+    ]);
+    if (hash && allowed.has(hash)) {
+      setSettingsTab(hash);
+    }
+  }, []);
 
   const passwordForm = useForm<PasswordValues>({
     resolver: zodResolver(passwordSchema),
@@ -208,13 +225,20 @@ export default function ProfileSettingsPage() {
         <p className="text-sm text-muted-foreground">Управляйте внешним видом и приватностью аккаунта</p>
       </div>
 
-      <Tabs defaultValue="profile">
+      <Tabs
+        value={settingsTab}
+        onValueChange={(value) => {
+          setSettingsTab(value);
+          window.history.replaceState(null, '', `#${value}`);
+        }}
+      >
         <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="profile">Профиль</TabsTrigger>
           <TabsTrigger value="privacy">Приватность</TabsTrigger>
           <TabsTrigger value="socials">Соц сети</TabsTrigger>
           <TabsTrigger value="media">Медиа</TabsTrigger>
           <TabsTrigger value="chat">Чат</TabsTrigger>
+          <TabsTrigger value="activity">Активность</TabsTrigger>
           <TabsTrigger value="security">Безопасность</TabsTrigger>
         </TabsList>
 
@@ -684,6 +708,10 @@ export default function ProfileSettingsPage() {
 
         <TabsContent value="chat">
           <ChatSettingsTab />
+        </TabsContent>
+
+        <TabsContent value="activity">
+          <ActivitySettingsTab />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">

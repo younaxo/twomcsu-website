@@ -32,6 +32,7 @@ import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { DepartmentBadgesList } from '@/components/shared/DepartmentBadgesList';
+import { ActivityCard } from '@/components/activity/ActivityCard';
 import { CommentsList } from '@/components/comments/CommentsList';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
@@ -43,6 +44,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserActivity } from '@/hooks/activity';
 import { useGiftFromWishlist, useUserWishlist } from '@/hooks/store';
 import { api, extractErrorMessage } from '@/lib/api';
 import {
@@ -328,6 +330,7 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
       <Tabs defaultValue="info">
         <TabsList>
           <TabsTrigger value="info">Информация</TabsTrigger>
+          <TabsTrigger value="activity">Активность</TabsTrigger>
           <TabsTrigger value="wants">Вишлист</TabsTrigger>
           <TabsTrigger value="inventory">Инвентарь</TabsTrigger>
         </TabsList>
@@ -501,6 +504,10 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
           </div>
         </TabsContent>
 
+        <TabsContent value="activity" className="mt-4">
+          <ProfileActivitySection username={profile.username} />
+        </TabsContent>
+
         <TabsContent value="wants" className="mt-4">
           <ProfileWishlistSection
             username={profile.username}
@@ -556,6 +563,49 @@ function StatCard({
       </TooltipTrigger>
       <TooltipContent>{tip}</TooltipContent>
     </Tooltip>
+  );
+}
+
+function ProfileActivitySection({ username }: { username: string }) {
+  const query = useUserActivity(username, { limit: 10 });
+  const items = query.data?.pages.flatMap((page) => page.data) ?? [];
+
+  if (query.isLoading) {
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-28 w-full rounded-2xl" />
+        <Skeleton className="h-28 w-full rounded-2xl" />
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        title="Пока нет активности"
+        description="События этого игрока появятся здесь"
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {items.map((item) => (
+        <ActivityCard key={item.id} activity={item} showComments={false} />
+      ))}
+      {query.hasNextPage ? (
+        <div className="flex justify-center">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => void query.fetchNextPage()}
+            disabled={query.isFetchingNextPage}
+          >
+            {query.isFetchingNextPage ? 'Загрузка…' : 'Показать ещё'}
+          </Button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
