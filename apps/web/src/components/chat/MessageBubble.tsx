@@ -6,9 +6,10 @@ import { ru } from 'date-fns/locale';
 import { Copy, Pin, Reply, Trash2 } from 'lucide-react';
 import { memo } from 'react';
 import { toast } from 'sonner';
-import { ColoredUsername } from '@/components/shared/ColoredUsername';
-import { PositionBadge } from '@/components/shared/PositionBadge';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
+import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { MarkdownContent } from '@/components/shared/MarkdownContent';
+import { PositionBadge } from '@/components/shared/PositionBadge';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -145,9 +146,10 @@ export const MessageBubble = memo(function MessageBubble({
           {message.isDeleted ? (
             <p className="text-sm italic text-muted-foreground">Сообщение удалено</p>
           ) : (
-            <div
-              className="prose prose-invert prose-sm max-w-none break-words [&_.mention]:text-primary [&_.spoiler]:cursor-pointer [&_.spoiler]:rounded [&_.spoiler]:bg-muted [&_.spoiler]:text-transparent hover:[&_.spoiler]:bg-transparent hover:[&_.spoiler]:text-foreground"
-              dangerouslySetInnerHTML={{ __html: message.contentHtml }}
+            <MarkdownContent
+              content={message.content}
+              html={message.contentHtml}
+              className="prose-sm break-words"
             />
           )}
 

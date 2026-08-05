@@ -3,6 +3,7 @@
 import type { ChatMessage } from '@twomc/shared';
 import { Info, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,7 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
   TooltipContent,
@@ -39,6 +39,7 @@ const MARKDOWN_HELP = [
   { code: '||спойлер||', desc: 'спойлер' },
   { code: '[ссылка](https://...)', desc: 'ссылка' },
   { code: '@ник', desc: 'упоминание пользователя' },
+  { code: ':smile:', desc: 'эмодзи по shortcode' },
 ] as const;
 
 export function MessageInput({
@@ -53,10 +54,10 @@ export function MessageInput({
   const [value, setValue] = useState('');
   const typingRef = useRef(false);
   const stopTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const taRef = useRef<HTMLTextAreaElement>(null);
+  const focusKey = useRef(0);
 
   useEffect(() => {
-    if (replyTo) taRef.current?.focus();
+    if (replyTo) focusKey.current += 1;
   }, [replyTo]);
 
   const submit = () => {
@@ -103,20 +104,31 @@ export function MessageInput({
       ) : null}
 
       <div className="flex gap-2">
-        <Textarea
-          ref={taRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Написать сообщение… (@ник для упоминания)"
-          className="min-h-[44px] max-h-32 resize-none"
-          disabled={disabled}
+        <div
+          className="min-w-0 flex-1"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              submit();
+              const target = e.target as HTMLElement;
+              if (target.tagName === 'TEXTAREA') {
+                e.preventDefault();
+                submit();
+              }
             }
           }}
-        />
+        >
+          <MarkdownEditor
+            value={value}
+            onChange={onChange}
+            placeholder="Написать сообщение… (@ник, :emoji:)"
+            minHeight={44}
+            maxHeight={128}
+            showToolbar={false}
+            mentionsEnabled
+            emojiEnabled
+            disabled={disabled}
+            className="rounded-lg"
+          />
+        </div>
         <div className="flex shrink-0 flex-col gap-1">
           <Dialog>
             <Tooltip>
@@ -141,7 +153,10 @@ export function MessageInput({
               </DialogHeader>
               <ul className="space-y-2 text-sm">
                 {MARKDOWN_HELP.map((row) => (
-                  <li key={row.code} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
+                  <li
+                    key={row.code}
+                    className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3"
+                  >
                     <code className="shrink-0 rounded bg-secondary px-1.5 py-0.5 font-mono text-xs text-primary">
                       {row.code}
                     </code>
@@ -149,10 +164,6 @@ export function MessageInput({
                   </li>
                 ))}
               </ul>
-              <p className="text-sm text-muted-foreground">
-                Также поддерживаются списки (<code className="text-xs">- пункт</code>) и
-                многострочный код (<code className="text-xs">```code```</code>).
-              </p>
             </DialogContent>
           </Dialog>
           <Button
