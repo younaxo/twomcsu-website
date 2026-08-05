@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { EvidenceLinks } from '@/components/reports/EvidenceLinks';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { MarkdownContent } from '@/components/shared/MarkdownContent';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -181,13 +182,12 @@ function MessageCard({
 
       {message.isDeleted ? (
         <p className="text-sm italic text-muted-foreground">[Сообщение удалено модератором]</p>
-      ) : message.contentHtml ? (
-        <div
-          className="prose prose-invert max-w-none text-sm"
-          dangerouslySetInnerHTML={{ __html: message.contentHtml }}
-        />
       ) : (
-        <p className="whitespace-pre-wrap text-sm text-neutral-200">{message.content}</p>
+        <MarkdownContent
+          content={message.content}
+          html={message.contentHtml ?? undefined}
+          className="prose-sm text-neutral-200"
+        />
       )}
 
       {isFirstAuthor && !message.isDeleted ? (

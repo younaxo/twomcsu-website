@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { CaptchaField, type CaptchaFieldHandle } from '@/components/shared/CaptchaField';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import {
   EvidenceLinksInput,
   getValidEvidenceLinks,
@@ -265,10 +266,11 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
 
             <div className="space-y-2">
               <Label>Описание проблемы *</Label>
-              <Textarea
+              <MarkdownEditor
                 value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                rows={6}
+                onChange={setDescription}
+                minHeight={160}
+                maxHeight={480}
                 placeholder="Опишите ситуацию подробно (поддерживается markdown)"
               />
               <p className="text-xs text-muted-foreground">{description.length} / мин. 20</p>

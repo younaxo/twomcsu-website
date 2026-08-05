@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useAddReportMessage } from '@/hooks/reports/useReports';
 import { extractErrorMessage } from '@/lib/api';
 
@@ -38,12 +38,13 @@ export function ReportMessageInput({
 
   return (
     <div className="space-y-3 rounded-xl glass-medium p-4">
-      <Textarea
+      <MarkdownEditor
         value={content}
-        onChange={(event) => setContent(event.target.value)}
+        onChange={setContent}
         placeholder="Напишите ответ (поддерживается markdown)..."
-        rows={3}
-        className="min-h-[80px] resize-y bg-transparent"
+        minHeight={100}
+        maxHeight={360}
+        disabled={addMessage.isPending}
       />
       <div className="flex justify-end">
         <Button
