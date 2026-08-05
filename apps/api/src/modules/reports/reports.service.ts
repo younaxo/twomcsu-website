@@ -31,6 +31,7 @@ import {
 import { AuditService } from '../admin/audit.service';
 import { CaptchaService } from '../auth/captcha.service';
 import { MarkdownService } from '../comments/markdown.service';
+import { MentionsService } from '../comments/mentions.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { toTopicDetails } from '../topics/topic.mapper';
@@ -101,6 +102,7 @@ export class ReportsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly markdown: MarkdownService,
+    private readonly mentions: MentionsService,
     private readonly notifications: NotificationsService,
     private readonly captcha: CaptchaService,
     private readonly attachments: ReportsAttachmentsService,
@@ -427,6 +429,22 @@ export class ReportsService {
         fromUserId: authorId,
       });
     }
+
+    const author = await this.prisma.user.findUnique({
+      where: { id: authorId },
+      select: { username: true },
+    });
+
+    await this.mentions.notifyMentions({
+      content: dto.content,
+      authorId,
+      type: NotificationType.REPORT_MENTION,
+      title: 'Вас упомянули',
+      message: `${author?.username ?? 'Игрок'} упомянул(а) вас в обращении ${row.reportNumber}`,
+      link: `/report/${row.reportNumber}`,
+      metadata: { reportId: row.id, reportNumber: row.reportNumber },
+      excludeUserIds: [row.authorId],
+    });
 
     return this.getByNumber(reportNumber, authorId, roleGroup);
   }

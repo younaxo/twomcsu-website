@@ -29,6 +29,8 @@ import {
 import { selectMinimalUser } from '../../common/prisma/user-selects';
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { ChatGateway } from '../chat/chat.gateway';
+import { MarkdownService } from '../comments/markdown.service';
+import { MentionsService } from '../comments/mentions.service';
 import { FriendsService } from '../friends/friends.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -85,6 +87,8 @@ export class ActivityService implements OnModuleInit {
     @Inject(forwardRef(() => FriendsService))
     private readonly friends: FriendsService,
     private readonly notifications: NotificationsService,
+    private readonly markdown: MarkdownService,
+    private readonly mentions: MentionsService,
   ) {}
 
   onModuleInit() {
@@ -319,21 +323,25 @@ export class ActivityService implements OnModuleInit {
       select: { userId: true },
     });
 
+    const contentHtml = this.markdown.render(trimmed);
+
     await this.prisma.activityComment.create({
       data: {
         activityId,
         authorId,
         content: trimmed,
+        contentHtml,
       },
+    });
+
+    const author = await this.prisma.user.findUnique({
+      where: { id: authorId },
+      select: { username: true },
     });
 
     if (activity && activity.userId !== authorId) {
       const settings = await this.getOrCreateSettings(activity.userId);
       if (settings.notifyOnComment) {
-        const author = await this.prisma.user.findUnique({
-          where: { id: authorId },
-          select: { username: true },
-        });
         await this.notifications.createNotification({
           userId: activity.userId,
           type: NotificationType.SYSTEM,
@@ -344,6 +352,17 @@ export class ActivityService implements OnModuleInit {
         });
       }
     }
+
+    await this.mentions.notifyMentions({
+      content: trimmed,
+      authorId,
+      type: NotificationType.COMMENT_MENTION,
+      title: 'Вас упомянули',
+      message: `${author?.username ?? 'Игрок'} упомянул(а) вас в комментарии к активности`,
+      link: `/feed/${activityId}`,
+      metadata: { activityId },
+      excludeUserIds: activity ? [activity.userId] : [],
+    });
 
     const detail = await this.getById(activityId, authorId);
     this.broadcastActivity('activity:updated', detail);

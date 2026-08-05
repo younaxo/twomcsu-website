@@ -21,6 +21,7 @@ import {
 } from '../../common/pagination';
 import { selectMinimalUser } from '../../common/prisma/user-selects';
 import { MarkdownService } from '../comments/markdown.service';
+import { MentionsService } from '../comments/mentions.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -42,6 +43,7 @@ export class NewsCommentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly markdown: MarkdownService,
+    private readonly mentions: MentionsService,
     private readonly notifications: NotificationsService,
   ) {}
 
@@ -160,6 +162,22 @@ export class NewsCommentsService {
         metadata: { newsId: news.id, commentId: row.id },
       });
     }
+
+    const author = await this.prisma.user.findUnique({
+      where: { id: authorId },
+      select: { username: true },
+    });
+
+    await this.mentions.notifyMentions({
+      content: dto.content,
+      authorId,
+      type: NotificationType.NEWS_COMMENT_MENTION,
+      title: 'Вас упомянули',
+      message: `${author?.username ?? 'Игрок'} упомянул(а) вас в комментарии к новости`,
+      link: `/news/${slug}#comment-${row.id}`,
+      metadata: { newsId: news.id, commentId: row.id },
+      excludeUserIds: parentAuthorId ? [parentAuthorId] : [],
+    });
 
     return toNewsComment(row, authorId, false);
   }

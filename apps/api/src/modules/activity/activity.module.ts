@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { CommentsModule } from '../comments/comments.module';
 import { FriendsModule } from '../friends/friends.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ActivityAdminController } from './activity-admin.controller';
@@ -10,6 +11,7 @@ import { ActivityService } from './activity.service';
   imports: [
     forwardRef(() => FriendsModule),
     NotificationsModule,
+    CommentsModule,
   ],
   controllers: [
     ActivityController,
