@@ -708,3 +708,42 @@ packages/
 
 Уведомления при `@username`: `COMMENT_MENTION`, `CHAT_MENTION`, `NEWS_COMMENT_MENTION`, `REPORT_MENTION`.
 Админка: `/admin/emojis`.
+
+## Формы (Forms System)
+
+Конструктор форм для заявок, опросов и голосований сообщества (этап 17). 35 типов полей
+разбитых по категориям: Стандартные, Расширенные, TWOMC, Мультимедиа, Специальные.
+Поддержка drag-and-drop, условной логики, многошаговых форм, лимитов времени и приглашений.
+
+Статусы: DRAFT, PUBLISHED, CLOSED, ARCHIVED. Видимость: PUBLIC, AUTHENTICATED,
+HELPER/MODERATOR/ADMIN/OWNER_ONLY, INVITE_ONLY. Ответы: черновики + отправка.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /forms` | публичный (+optional JWT) | Опубликованные формы для текущей роли |
+| `GET /forms/:slug` | публичный (+optional JWT) | Детали формы + fields |
+| `GET /forms/invite/:code` | публичный (+optional JWT) | Форма по инвайт-коду |
+| `POST /forms/:slug/responses` | публичный (+optional JWT) | Отправить ответ (`answers`, `captchaToken?`, `inviteCode?`) |
+| `POST /forms/:slug/responses/save-draft` | JWT | Сохранить черновик |
+| `POST /forms/:slug/responses/upload` | публичный (+optional JWT) | Загрузка файла (multipart) |
+| `GET /forms/my` | JWT | Мои формы |
+| `GET /forms/my/responses` | JWT | Мои ответы |
+| `GET /forms/autofill` | JWT | Данные для STATS_DISPLAY / autofill |
+| `GET/POST/PATCH/DELETE /admin/forms` | ADMIN+ | CRUD форм |
+| `POST /admin/forms/:id/publish\|close\|duplicate` | ADMIN+ | Смена статуса и дубликат |
+| `POST /admin/forms/from-template/:slug` | ADMIN+ | Создать из шаблона |
+| `GET /admin/forms/templates` | ADMIN+ | Список шаблонов |
+| `GET /admin/forms/:id/responses` (+ `:responseId`) | ADMIN+ | Список / детали ответа |
+| `DELETE /admin/forms/:id/responses/:responseId` | ADMIN+ | Удалить ответ |
+| `POST /admin/forms/:id/export` | ADMIN+ | Экспорт CSV / Excel / PDF |
+| `GET /admin/forms/:id/stats` | ADMIN+ | Статистика с распределениями |
+| `GET/POST/DELETE /admin/forms/:id/invites...` | ADMIN+ | Инвайт-коды |
+
+Страницы: `/forms`, `/forms/[slug]`, `/forms/invite/[code]`, `/admin/forms`,
+`/admin/forms/new`, `/admin/forms/[id]/edit`, `/admin/forms/[id]/responses`,
+`/admin/forms/[id]/responses/[responseId]`, `/admin/forms/[id]/stats`.
+
+UI-компоненты: `FormBuilder`, `FieldPalette`, `FieldSettings`, `FieldPreview`,
+`ConditionalLogicBuilder`, `StepConfig`, `FormSettingsDialog`, `FormRenderer`,
+`FieldRenderer`, `MultiStepForm`, `FormTimer`, `ResponsesTable`, `ResponseDetail`,
+`FormStats`, `ExportDialog`. Хуки в `hooks/forms/useForms.ts`.
