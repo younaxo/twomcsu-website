@@ -669,7 +669,8 @@ apps/
         admin/        дашборд, audit log, broadcast, settings, announcements
         cache/        Redis CacheService (global)
         chat/         Socket.IO чат, каналы, модерация, anti-spam
-        comments/     комментарии профиля
+        comments/     комментарии профиля, markdown, mentions
+        emojis/       кастомные эмодзи (CRUD + публичный список)
         friends/      запросы, друзья, блокировки
         health/       GET /health
         minecraft/    мониторинг серверов (cron + CRUD)
@@ -680,13 +681,30 @@ apps/
         store/        магазин: каталог, корзина, wishlist, заказы
         system/       maintenance, modules, announcements, public status
         uploads/      sharp + раздача /uploads
-        users/        профиль, аватар/баннер, соцсети, реакции, жалобы
+        users/        профиль, аватар/баннер, соцсети, реакции, жалобы, search-mentions
   web/                Next.js
     src/app/          (auth), /feed/*, /servers/*, /store/*, /users/[username], /profile/*, /dashboard/*, /admin/*, /moderation/*
-    src/components/   ui kit, activity, chat, servers, store, profile, shared, admin, system, site-header, site-sidebar
-    src/hooks/        useAuth, useSocket, useChat, activity/*, friends, comments, store/*, servers/*, useSystemStatus
-    src/lib/          axios клиент, query-keys, profile helpers
+    src/components/   ui kit, activity, chat, servers, store, profile, shared (MarkdownEditor), admin, system
+    src/hooks/        useAuth, useSocket, useChat, activity/*, markdown/*, friends, comments, store/*, servers/*
+    src/lib/          axios клиент, query-keys, profile helpers, markdown-utils
     src/stores/       zustand: auth, storeUi, chat
 packages/
-  shared/             RoleGroup, Position, Profile (badges), Friends, Store, Servers, Chat, Auth типы
+  shared/             RoleGroup, Position, Profile, Friends, Store, Servers, Chat, Emoji, Auth типы
 ```
+
+## Markdown Editor + Mentions + Emoji
+
+Единый markdown-редактор (`MarkdownEditor`) с toolbar, `@mentions`, `:emoji:` и emoji picker используется в комментариях, чате, обращениях, новостях и темах.
+
+| Метод и путь | Что делает |
+| ------------ | ---------- |
+| `GET /users/search-mentions?q=&limit=` | Автокомплит упоминаний (JWT, Redis 30с) |
+| `GET /emojis/custom` | Список активных кастомных эмодзи |
+| `GET /emojis/custom/search?q=` | Поиск кастомных эмодзи |
+| `GET /admin/emojis` | Все эмодзи (ADMIN+) |
+| `POST /admin/emojis` | Создать (multipart: name, file, category…) |
+| `PATCH /admin/emojis/:id` | Обновить |
+| `DELETE /admin/emojis/:id` | Удалить |
+
+Уведомления при `@username`: `COMMENT_MENTION`, `CHAT_MENTION`, `NEWS_COMMENT_MENTION`, `REPORT_MENTION`.
+Админка: `/admin/emojis`.

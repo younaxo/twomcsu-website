@@ -59,7 +59,7 @@ export class MentionsService {
     title: string;
     message: string;
     link: string;
-    metadata?: Record<string, unknown>;
+    metadata?: Record<string, string | number | boolean | null>;
     excludeUserIds?: string[];
   }): Promise<string[]> {
     const mentionIds = await this.parseMentions(options.content);
