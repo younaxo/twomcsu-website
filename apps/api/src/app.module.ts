@@ -13,10 +13,12 @@ import { AwardsModule } from './modules/awards/awards.module';
 import { CustomPositionsModule } from './modules/custom-positions/custom-positions.module';
 import { DepartmentsModule } from './modules/departments/departments.module';
 import { DirectMessagesModule } from './modules/direct-messages/direct-messages.module';
+import { DecorationsModule } from './modules/decorations/decorations.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { EmojisModule } from './modules/emojis/emojis.module';
+import { EventsModule } from './modules/events/events.module';
 import { FormsModule } from './modules/forms/forms.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
@@ -64,9 +66,11 @@ import { UsersModule } from './modules/users/users.module';
     CustomPositionsModule,
     DepartmentsModule,
     DirectMessagesModule,
+    DecorationsModule,
     FriendsModule,
     CommentsModule,
     EmojisModule,
+    EventsModule,
     NotificationsModule,
     StoreModule,
     MinecraftModule,

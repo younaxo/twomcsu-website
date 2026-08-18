@@ -21,6 +21,7 @@ import {
   UserCustomPositionView,
   UserDepartmentView,
   UserProfile,
+  ProfileDecoration,
 } from '@twomc/shared';
 import { FullProfileRow } from '../../common/prisma/user-selects';
 import { toUserDepartmentView } from '../departments/department.mapper';
@@ -94,6 +95,21 @@ export function toStatistics(row: StatsRow): PlayerStatistics {
     hits: row.hits,
     killDeathRatio: row.killDeathRatio,
     lastServer: row.lastServer,
+  };
+}
+
+export function toProfileDecoration(
+  row: ProfileUser['selectedDecoration'],
+): ProfileDecoration | null {
+  if (!row) return null;
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    imageUrl: row.imageUrl,
+    availability: row.availability,
+    isActive: row.isActive,
+    order: row.order,
   };
 }
 
@@ -174,6 +190,7 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     customPosition: toCustomPositionView(user.customPosition),
     departments: toUserDepartments(user.departments),
     avatar: user.avatar,
+    avatarDecoration: toProfileDecoration(user.selectedDecoration),
     banner: user.banner,
     bannerPreset: user.bannerPreset,
     bannerUrl,
@@ -240,6 +257,7 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     tag: user.tag,
     username: user.username,
     avatar: user.avatar,
+    avatarDecoration: toProfileDecoration(user.selectedDecoration),
     bannerUrl: options.bannerUrl,
     position: toPublicPosition(user.position),
     customPosition: toCustomPositionView(user.customPosition),

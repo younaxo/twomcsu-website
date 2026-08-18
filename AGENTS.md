@@ -76,9 +76,9 @@
 16. Markdown Editor + Mentions + Emoji Picker
 17. Forms System
 18. Direct Messages
+19. Calendar & Events + Profile Decorations
 
 ## Планируемые этапы
-19. Calendar & Events
 20. Leaderboards
 ... и т.д.
 
@@ -104,6 +104,8 @@
 - Activity, ActivityReaction, ActivityComment
 - Form, FormField, FormResponse, FormFieldAnswer, FormInvite
 - Conversation, ConversationMember, DirectMessage, DirectMessageReaction, MessageAttachment, GroupInvite
+- CalendarEvent, EventParticipant
+- ProfileDecoration, UserDecoration
 
 ## API структура
 - Публичные endpoints (без auth)

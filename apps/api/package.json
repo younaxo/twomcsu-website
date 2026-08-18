@@ -41,6 +41,7 @@
     "ioredis": "^5.11.1",
     "marked": "^18.0.7",
     "minecraft-server-util": "^5.4.4",
+    "multer": "^2.0.2",
     "nodemailer": "^9.0.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

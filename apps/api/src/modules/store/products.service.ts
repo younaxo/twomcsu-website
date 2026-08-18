@@ -243,6 +243,9 @@ export class ProductsService {
     if (dto.positionId) {
       await this.requirePosition(dto.positionId);
     }
+    if (dto.decorationId) {
+      await this.requireDecoration(dto.decorationId);
+    }
 
     try {
       const product = await this.prisma.product.create({
@@ -256,6 +259,7 @@ export class ProductsService {
           images: dto.images ?? [],
           categoryId: dto.categoryId,
           positionId: dto.positionId,
+          decorationId: dto.decorationId,
           isGiftable: dto.isGiftable ?? true,
           isSelfOnly: dto.isSelfOnly ?? false,
           isUnique: dto.isUnique ?? false,
@@ -290,6 +294,9 @@ export class ProductsService {
     if (dto.positionId) {
       await this.requirePosition(dto.positionId);
     }
+    if (dto.decorationId) {
+      await this.requireDecoration(dto.decorationId);
+    }
 
     try {
       const product = await this.prisma.product.update({
@@ -304,6 +311,7 @@ export class ProductsService {
           images: dto.images,
           categoryId: dto.categoryId,
           positionId: dto.positionId,
+          decorationId: dto.decorationId,
           isGiftable: dto.isGiftable,
           isSelfOnly: dto.isSelfOnly,
           isUnique: dto.isUnique,
@@ -569,6 +577,13 @@ export class ProductsService {
     }
   }
 
+  private async requireDecoration(id: string) {
+    const decoration = await this.prisma.profileDecoration.findUnique({ where: { id } });
+    if (!decoration) {
+      throw new NotFoundException('Украшение не найдено');
+    }
+  }
+
   private async invalidateProductCache(productId: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
@@ -587,7 +602,7 @@ export class ProductsService {
 
   private handleUnique(error: unknown): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      throw new ConflictException('Товар с таким slug уже существует');
+      throw new ConflictException('Товар с таким slug или украшением уже существует');
     }
     throw error;
   }

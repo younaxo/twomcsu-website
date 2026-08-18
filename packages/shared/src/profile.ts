@@ -1,6 +1,7 @@
 import type { Position } from './position';
 import type { UserCustomPositionView } from './custom-position';
 import type { UserDepartmentView } from './department';
+import type { ProfileDecoration } from './decorations';
 
 export const Gender = {
   MALE: 'MALE',
@@ -242,6 +243,7 @@ export interface MyProfile extends PrivacySettings {
   customPosition: UserCustomPositionView | null;
   departments: UserDepartmentView[];
   avatar: string | null;
+  avatarDecoration: ProfileDecoration | null;
   banner: string | null;
   bannerPreset: string | null;
   /** Ready to render, resolved from banner or bannerPreset */
@@ -274,6 +276,7 @@ export interface UserProfile {
   tag: string;
   username: string;
   avatar: string | null;
+  avatarDecoration: ProfileDecoration | null;
   bannerUrl: string | null;
   position: Position;
   customPosition: UserCustomPositionView | null;
@@ -316,6 +319,7 @@ export interface RestrictedProfileResponse {
   user: {
     username: string;
     avatar: string | null;
+    avatarDecoration: ProfileDecoration | null;
     position: Position;
     bannerUrl?: string | null;
     statusText?: string | null;

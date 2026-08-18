@@ -33,7 +33,11 @@ import { AchievementsService } from '../achievements/achievements.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { toPublicPosition } from '../positions/position.mapper';
-import { toCustomPositionView, toUserDepartments } from '../users/profile.mapper';
+import {
+  toCustomPositionView,
+  toProfileDecoration,
+  toUserDepartments,
+} from '../users/profile.mapper';
 import { PositionsService } from '../positions/positions.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -426,6 +430,10 @@ export class AuthService {
         'customPosition' in user ? toCustomPositionView(user.customPosition) : null,
       departments: 'departments' in user ? toUserDepartments(user.departments) : undefined,
       avatar: user.avatar,
+      avatarDecoration:
+        'selectedDecoration' in user
+          ? toProfileDecoration(user.selectedDecoration)
+          : null,
       isVerified: user.isVerified,
       isBanned: user.isBanned,
       createdAt: user.createdAt.toISOString(),

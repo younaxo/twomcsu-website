@@ -16,7 +16,11 @@ const sizes = {
 } as const;
 
 interface AvatarWithSkinProps {
-  user: { username: string; avatar?: string | null };
+  user: {
+    username: string;
+    avatar?: string | null;
+    avatarDecoration?: { imageUrl: string } | null;
+  };
   size?: keyof typeof sizes;
   className?: string;
 }
@@ -54,13 +58,22 @@ export function AvatarWithSkin({ user, size = 'md', className }: AvatarWithSkinP
             )}
           </AvatarFallback>
         </Avatar>
+        {user.avatarDecoration ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={user.avatarDecoration.imageUrl}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-[136%] w-[136%] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
+          />
+        ) : null}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={headUrl}
           alt=""
           width={dim.head}
           height={dim.head}
-          className="pointer-events-none absolute -bottom-0.5 -right-0.5 rounded-full"
+          className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-20 rounded-full"
           style={{ width: dim.head, height: dim.head }}
         />
       </button>

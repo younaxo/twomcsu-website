@@ -100,6 +100,7 @@ export interface StoreProduct {
   categoryId: string;
   category?: Pick<StoreCategory, 'id' | 'name' | 'slug'>;
   position: StorePositionRef | null;
+  decorationId: string | null;
   isGiftable: boolean;
   isSelfOnly: boolean;
   isUnique: boolean;
