@@ -40,6 +40,7 @@ import { ActivityCard } from '@/components/activity/ActivityCard';
 import { CommentsList } from '@/components/comments/CommentsList';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
+import { ProfileStatus } from '@/components/profile/ProfileStatus';
 import { ReportProfileDialog } from '@/components/profile/ReportProfileDialog';
 import { RestrictedProfileView } from '@/components/profile/RestrictedProfileView';
 import { UserContextMenu } from '@/components/moderation/UserContextMenu';
@@ -200,36 +201,6 @@ export function ProfileClient({
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
               <div className="relative shrink-0">
                 <AvatarWithSkin user={profile} size="lg" />
-
-                {profile.statusText ? (
-                  <div className="absolute left-[calc(100%+0.75rem)] top-2 hidden max-w-[14rem] sm:block">
-                    <div
-                      className="relative px-3.5 py-2.5 text-sm text-foreground"
-                      style={{
-                        background:
-                          'linear-gradient(135deg, rgba(245, 124, 0, 0.2), rgba(255, 152, 0, 0.1))',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(245, 124, 0, 0.2)',
-                        borderRadius: 18,
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                      }}
-                    >
-                      {profile.statusText}
-                      <svg
-                        className="absolute -left-2 bottom-3"
-                        width="14"
-                        height="16"
-                        viewBox="0 0 14 16"
-                        aria-hidden
-                      >
-                        <path
-                          d="M14 0 C8 2 2 6 0 14 C4 10 10 8 14 8 Z"
-                          fill="rgba(245, 124, 0, 0.25)"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                ) : null}
               </div>
 
               <div className="space-y-1.5 pb-1">
@@ -282,11 +253,7 @@ export function ProfileClient({
                     ))}
                   </div>
                 ) : null}
-                {profile.statusText ? (
-                  <p className="max-w-xl text-sm italic text-muted-foreground">
-                    {profile.statusText}
-                  </p>
-                ) : null}
+                <ProfileStatus status={profile.statusText} className="mt-2 max-w-xl" />
                 <p className="text-sm text-muted-foreground">
                   {profile.isOnlineInGame && profile.currentServer ? (
                     <>

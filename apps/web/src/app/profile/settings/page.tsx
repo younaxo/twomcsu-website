@@ -315,15 +315,19 @@ export default function ProfileSettingsPage() {
                 </p>
               </div>
               <div className="space-y-2">
-                <Label>Статус</Label>
+                <Label>Статус профиля</Label>
                 <Input
                   value={profile.statusText ?? ''}
                   maxLength={128}
-                  placeholder="Что нового?"
+                  placeholder="Например: Работаю над новым проектом"
                   onChange={(event) =>
                     setProfile({ ...profile, statusText: event.target.value || null })
                   }
                 />
+                <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                  <span>Короткая фраза, которая отображается рядом с данными профиля.</span>
+                  <span className="shrink-0">{profile.statusText?.length ?? 0}/128</span>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>О себе</Label>

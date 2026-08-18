@@ -49,6 +49,8 @@ export function AvatarWithSkin({
   const decoration = user.avatarDecoration === undefined
     ? decorationQuery.data
     : user.avatarDecoration;
+  const headOverlap = Math.round(dim.head * 0.25);
+  const canvasSize = dim.avatar + (showMinecraftHead ? dim.head - headOverlap : 0);
 
   return (
     <>
@@ -67,10 +69,13 @@ export function AvatarWithSkin({
           }
         }}
         className={cn('relative isolate inline-block shrink-0 cursor-pointer overflow-visible rounded-full', className)}
-        style={{ width: dim.avatar, height: dim.avatar }}
+        style={{ width: canvasSize, height: canvasSize }}
         aria-label={`Аватар ${user.username}`}
       >
-        <Avatar className="h-full w-full" style={{ width: dim.avatar, height: dim.avatar }}>
+        <Avatar
+          className="absolute left-0 top-0"
+          style={{ width: dim.avatar, height: dim.avatar }}
+        >
           <AvatarImage src={avatarUrl} alt={user.username} />
           <AvatarFallback className="p-0">
             {user.username ? (
@@ -91,7 +96,8 @@ export function AvatarWithSkin({
             src={decoration.imageUrl}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 z-20 h-[144%] w-[144%] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
+            className="pointer-events-none absolute left-0 top-0 z-20 max-w-none object-contain"
+            style={{ width: dim.avatar, height: dim.avatar }}
           />
         ) : null}
         {showMinecraftHead ? (
@@ -101,8 +107,13 @@ export function AvatarWithSkin({
             alt=""
             width={dim.head}
             height={dim.head}
-            className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-10 rounded-full border border-black/60 bg-black/70"
-            style={{ width: dim.head, height: dim.head }}
+            className="pointer-events-none absolute z-30 rounded-full border border-black/60 bg-black/70 shadow-md"
+            style={{
+              left: dim.avatar - headOverlap,
+              top: dim.avatar - headOverlap,
+              width: dim.head,
+              height: dim.head,
+            }}
           />
         ) : null}
       </span>
