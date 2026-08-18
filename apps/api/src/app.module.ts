@@ -22,6 +22,7 @@ import { EventsModule } from './modules/events/events.module';
 import { FormsModule } from './modules/forms/forms.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
+import { LeaderboardsModule } from './modules/leaderboards/leaderboards.module';
 import { MinecraftModule } from './modules/minecraft/minecraft.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -58,6 +59,7 @@ import { UsersModule } from './modules/users/users.module';
     CacheModule,
     UploadsModule,
     HealthModule,
+    LeaderboardsModule,
     AuthModule,
     PositionsModule,
     UsersModule,
