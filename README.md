@@ -779,5 +779,6 @@ UI-компоненты: `FormBuilder`, `FieldPalette`, `FieldSettings`, `FieldP
 | --- | --- | --- |
 | `GET /leaderboards?metric=&limit=` | публичный | Получить рейтинг по выбранному показателю |
 
-Будущий этап 21 — уровни игроков после интеграции аккаунта с игровым сервером.
+Ближайшие этапы: Streaming Integration, Voting System, Daily Rewards + Wheel,
+Casino и Referral System. Уровни игроков запланированы после Minecraft Sync.
 Изображения уровней 1–70: `https://cdn-files.twomc.su/assets/images/level/{1-70}.png`.

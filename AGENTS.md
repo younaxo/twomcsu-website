@@ -80,7 +80,13 @@
 20. Leaderboards
 
 ## Планируемые этапы
-21. Player Levels — после интеграции аккаунта с игровым сервером; 70 изображений уровней: `https://cdn-files.twomc.su/assets/images/level/{1-70}.png`
+21. Streaming Integration
+22. Voting System
+23. Daily Rewards + Wheel
+24. Casino (отложенный этап)
+25. Referral System
+
+После Minecraft Sync: Player Levels — 70 изображений уровней: `https://cdn-files.twomc.su/assets/images/level/{1-70}.png`
 ... и т.д.
 
 ## Git workflow
