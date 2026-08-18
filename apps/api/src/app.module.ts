@@ -43,6 +43,8 @@ import { MaintenanceMiddleware } from './modules/system/maintenance.middleware';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
 import { VotingModule } from './modules/voting/voting.module';
+import { RewardsModule } from './modules/rewards/rewards.module';
+import { ReferralsModule } from './modules/referrals/referrals.module';
 
 @Module({
   imports: [
@@ -66,6 +68,8 @@ import { VotingModule } from './modules/voting/voting.module';
     PositionsModule,
     UsersModule,
     VotingModule,
+    RewardsModule,
+    ReferralsModule,
     AwardsModule,
     AchievementsModule,
     CustomPositionsModule,

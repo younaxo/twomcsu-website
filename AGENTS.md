@@ -89,12 +89,15 @@
 20. Leaderboards
 21. Streaming Integration
 22. Voting System
+23. Daily Rewards + Weekly Wheel
+24. Mini Games (Roulette, Crash, Upgrader)
+25. Referral System + Media Partners
 
 ## Планируемые этапы
 
-23. Daily Rewards + Wheel
-24. Casino (отложенный этап)
-25. Referral System
+26. Multilanguage (RU/EN/UA, next-intl)
+27. Cookie Consent + Privacy
+28. Developer API
 
 После Minecraft Sync: Player Levels — 70 изображений уровней: `https://cdn-files.twomc.su/assets/images/level/{1-70}.png`
 ... и т.д.

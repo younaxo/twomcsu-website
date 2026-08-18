@@ -135,6 +135,8 @@ model User {
   referralCode String? @unique
   /// User id of whoever invited this account
   referredBy   String?
+  referrer     User?   @relation("UserReferrals", fields: [referredBy], references: [id], onDelete: SetNull)
+  referrals    User[]  @relation("UserReferrals")
 
   /// Slug of the game server where the player was last seen
   currentServer      String?
@@ -198,6 +200,11 @@ model User {
   eventParticipations   EventParticipant[]
   streamChannels        StreamChannel[]
   playerVotes           PlayerVote[]
+  dailyRewardClaims     DailyRewardClaim[]
+  wheelSpins            WheelSpin[]
+  gameRounds            GameRound[]
+  referralRewards       ReferralReward[]   @relation("ReferralRewardRecipient")
+  referralInvites       ReferralReward[]   @relation("ReferralRewardInvited")
 
   @@index([email])
   @@index([username])
@@ -211,6 +218,7 @@ model User {
   @@index([isOnlineInGame])
   @@index([displayBadgeId])
   @@index([selectedDecorationId])
+  @@index([referredBy])
   @@map("users")
 }
 
@@ -369,9 +377,10 @@ model PromoCode {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
-  usages PromoCodeUsage[]
-  orders Order[]
-  carts  Cart[]
+  usages     PromoCodeUsage[]
+  orders     Order[]
+  carts      Cart[]
+  mediaBadge UserMediaBadge?
 
   @@index([code])
   @@index([isActive])
@@ -432,20 +441,106 @@ model SocialLink {
 
 /// Creator badge, appears on the profile once the staff approves the channel
 model UserMediaBadge {
-  id         String     @id @default(cuid())
-  userId     String
-  mediaGroup MediaGroup
-  channelUrl String
-  isApproved Boolean    @default(false)
-  approvedBy String?
-  approvedAt DateTime?
-  createdAt  DateTime   @default(now())
+  id          String     @id @default(cuid())
+  userId      String
+  mediaGroup  MediaGroup
+  channelUrl  String
+  rank        Int        @default(1)
+  promoCodeId String?    @unique
+  isApproved  Boolean    @default(false)
+  approvedBy  String?
+  approvedAt  DateTime?
+  createdAt   DateTime   @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promoCode PromoCode? @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
 
   @@unique([userId, mediaGroup])
   @@index([userId])
   @@map("user_media_badges")
+}
+
+model DailyRewardClaim {
+  id        String       @id @default(cuid())
+  userId    String
+  claimDay  String
+  streak    Int
+  reward    Int
+  cardIndex Int
+  rarity    RewardRarity
+  createdAt DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, claimDay])
+  @@index([userId, createdAt])
+  @@map("daily_reward_claims")
+}
+
+model WheelSpin {
+  id        String       @id @default(cuid())
+  userId    String
+  reward    Int
+  segment   Int
+  weekKey   String
+  rarity    RewardRarity
+  createdAt DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekKey])
+  @@index([userId, createdAt])
+  @@map("wheel_spins")
+}
+
+enum RewardRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum MiniGameType {
+  ROULETTE
+  CRASH
+  UPGRADER
+}
+
+model GameRound {
+  id             String       @id @default(cuid())
+  userId         String
+  game           MiniGameType
+  betAmount      Int
+  payoutAmount   Int
+  multiplier     Float
+  won            Boolean
+  result         Json
+  serverSeed     String
+  serverSeedHash String
+  createdAt      DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([game, createdAt])
+  @@map("game_rounds")
+}
+
+model ReferralReward {
+  id            String   @id @default(cuid())
+  inviterId     String
+  invitedUserId String
+  level         Int
+  reward        Int
+  createdAt     DateTime @default(now())
+
+  inviter     User @relation("ReferralRewardRecipient", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitedUser User @relation("ReferralRewardInvited", fields: [invitedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([inviterId, invitedUserId])
+  @@index([inviterId, createdAt])
+  @@index([invitedUserId])
+  @@map("referral_rewards")
 }
 
 model MediaBadgeRequest {
