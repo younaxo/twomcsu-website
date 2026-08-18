@@ -20,5 +20,7 @@ export * from './profile';
 export * from './report';
 export * from './servers';
 export * from './store';
+export * from './streaming';
+export * from './voting';
 export * from './topic';
 export * from './user';

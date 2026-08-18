@@ -36,6 +36,11 @@ export const configuration = () => ({
     maxAvatarSize: toInt(process.env.UPLOAD_MAX_AVATAR_SIZE, 5 * 1024 * 1024),
     maxBannerSize: toInt(process.env.UPLOAD_MAX_BANNER_SIZE, 10 * 1024 * 1024),
   },
+  streaming: {
+    twitchClientId: process.env.TWITCH_CLIENT_ID ?? '',
+    twitchClientSecret: process.env.TWITCH_CLIENT_SECRET ?? '',
+    youtubeApiKey: process.env.YOUTUBE_API_KEY ?? '',
+  },
 });
 
 export type AppConfig = ReturnType<typeof configuration>;

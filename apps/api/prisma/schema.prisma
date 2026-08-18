@@ -196,6 +196,8 @@ model User {
 
   createdCalendarEvents CalendarEvent[]    @relation("CalendarEventCreator")
   eventParticipations   EventParticipant[]
+  streamChannels        StreamChannel[]
+  playerVotes           PlayerVote[]
 
   @@index([email])
   @@index([username])
@@ -2731,4 +2733,75 @@ model FormInvite {
   @@index([code])
   @@index([formId])
   @@map("form_invites")
+}
+
+enum StreamPlatform {
+  TWITCH
+  YOUTUBE
+}
+
+model StreamChannel {
+  id            String         @id @default(cuid())
+  platform      StreamPlatform
+  channelKey    String
+  channelUrl    String
+  displayName   String
+  avatarUrl     String?
+  userId        String?
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  isPartner     Boolean        @default(false)
+  isActive      Boolean        @default(true)
+  isLive        Boolean        @default(false)
+  title         String?
+  thumbnailUrl  String?
+  liveUrl       String?
+  viewerCount   Int            @default(0)
+  startedAt     DateTime?
+  lastCheckedAt DateTime?
+  checkError    String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([platform, channelKey])
+  @@index([isActive, isLive])
+  @@index([isPartner])
+  @@index([userId])
+  @@map("stream_channels")
+}
+
+model VoteSite {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  name              String
+  description       String?
+  url               String
+  logoUrl           String?
+  rewardCoins       Int      @default(10)
+  cooldownHours     Int      @default(24)
+  sortOrder         Int      @default(0)
+  isActive          Boolean  @default(true)
+  webhookSecretHash String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  votes PlayerVote[]
+
+  @@index([isActive, sortOrder])
+  @@map("vote_sites")
+}
+
+model PlayerVote {
+  id          String   @id @default(cuid())
+  siteId      String
+  site        VoteSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  externalId  String?
+  rewardCoins Int
+  votedAt     DateTime @default(now())
+
+  @@unique([siteId, externalId])
+  @@index([userId, votedAt])
+  @@index([siteId, votedAt])
+  @@map("player_votes")
 }
