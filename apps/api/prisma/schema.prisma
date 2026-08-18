@@ -43,21 +43,21 @@ model Position {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id             String    @id @default(cuid())
   /// Public numeric id shown as #1, #2, ...
-  shortId       Int       @unique @default(autoincrement())
+  shortId        Int       @unique @default(autoincrement())
   /// Public tag like youn#4a2b
-  tag           String    @unique @db.VarChar(32)
-  email         String    @unique
-  username      String    @unique @db.VarChar(16)
-  password      String
-  roleGroup     RoleGroup @default(PLAYER)
-  positionId    String
-  avatar        String?
-  isVerified    Boolean   @default(false)
-  isBanned      Boolean   @default(false)
-  banReason     String?
-  bannedUntil   DateTime?
+  tag            String    @unique @db.VarChar(32)
+  email          String    @unique
+  username       String    @unique @db.VarChar(16)
+  password       String
+  roleGroup      RoleGroup @default(PLAYER)
+  positionId     String
+  avatar         String?
+  isVerified     Boolean   @default(false)
+  isBanned       Boolean   @default(false)
+  banReason      String?
+  bannedUntil    DateTime?
   lastLoginAt    DateTime?
   lastLoginIp    String?
   /// Updated on authenticated API activity
@@ -103,7 +103,7 @@ model User {
   notifyOnGift             Boolean       @default(true)
   notifyOnOrder            Boolean       @default(true)
 
-  position               Position             @relation(fields: [positionId], references: [id])
+  position               Position              @relation(fields: [positionId], references: [id])
   customPosition         UserCustomPosition?
   departments            UserDepartment[]
   refreshTokens          RefreshToken[]
@@ -115,21 +115,21 @@ model User {
   mediaBadgeRequests     MediaBadgeRequest[]
   statistics             PlayerStatistics?
   awards                 UserAward[]
-  profileViews           ProfileView[]        @relation("ProfileViewsReceived")
-  viewedProfiles         ProfileView[]        @relation("ProfileViewsSent")
-  profileReactions       ProfileReaction[]    @relation("ProfileReactionsReceived")
-  givenReactions         ProfileReaction[]    @relation("ProfileReactionsSent")
-  profileReports         ProfileReport[]      @relation("ProfileReportsReceived")
-  sentReports            ProfileReport[]      @relation("ProfileReportsSent")
-  sentFriendRequests     Friendship[]         @relation("FriendshipRequester")
-  receivedFriendRequests Friendship[]         @relation("FriendshipAddressee")
-  profileComments        ProfileComment[]     @relation("ProfileComments")
-  authoredComments       ProfileComment[]     @relation("AuthoredComments")
-  notifications          Notification[]       @relation("NotificationsReceived")
-  sentNotifications      Notification[]       @relation("NotificationsFrom")
+  profileViews           ProfileView[]         @relation("ProfileViewsReceived")
+  viewedProfiles         ProfileView[]         @relation("ProfileViewsSent")
+  profileReactions       ProfileReaction[]     @relation("ProfileReactionsReceived")
+  givenReactions         ProfileReaction[]     @relation("ProfileReactionsSent")
+  profileReports         ProfileReport[]       @relation("ProfileReportsReceived")
+  sentReports            ProfileReport[]       @relation("ProfileReportsSent")
+  sentFriendRequests     Friendship[]          @relation("FriendshipRequester")
+  receivedFriendRequests Friendship[]          @relation("FriendshipAddressee")
+  profileComments        ProfileComment[]      @relation("ProfileComments")
+  authoredComments       ProfileComment[]      @relation("AuthoredComments")
+  notifications          Notification[]        @relation("NotificationsReceived")
+  sentNotifications      Notification[]        @relation("NotificationsFrom")
   notificationSettings   NotificationSettings?
   pushSubscriptions      PushSubscription[]
-  auditLogs              AuditLog[]           @relation("AuditLogActor")
+  auditLogs              AuditLog[]            @relation("AuditLogActor")
 
   /// Referral code shown to friends; generated on registration
   referralCode String? @unique
@@ -161,20 +161,20 @@ model User {
   directMessageReactions  DirectMessageReaction[]
   createdGroupInvites     GroupInvite[]           @relation("GroupInviteCreator")
 
-  authoredReports   Report[]       @relation("ReportAuthor")
-  assignedReports   Report[]       @relation("ReportAssignee")
-  reportedIn        ReportTarget[] @relation("ReportedUser")
+  authoredReports      Report[]              @relation("ReportAuthor")
+  assignedReports      Report[]              @relation("ReportAssignee")
+  reportedIn           ReportTarget[]        @relation("ReportedUser")
   reportMessages       ReportMessage[]
   reportModeratorNotes ReportModeratorNote[]
   reportBans           ReportBan[]
-  punishments       UserPunishment[] @relation("PunishedUser")
-  issuedPunishments UserPunishment[] @relation("Punisher")
+  punishments          UserPunishment[]      @relation("PunishedUser")
+  issuedPunishments    UserPunishment[]      @relation("Punisher")
 
-  authoredNews          News[]
-  newsComments          NewsComment[]
-  newsCommentReactions  NewsCommentReaction[]
-  newsLikes             NewsLike[]
-  newsViews             NewsView[]
+  authoredNews         News[]
+  newsComments         NewsComment[]
+  newsCommentReactions NewsCommentReaction[]
+  newsLikes            NewsLike[]
+  newsViews            NewsView[]
 
   adminBookmarks   AdminBookmark[]
   savedFilters     SavedFilter[]
@@ -189,6 +189,14 @@ model User {
   createdForms  Form[]         @relation("FormCreator")
   formResponses FormResponse[] @relation("FormResponder")
 
+  selectedDecorationId String?
+  selectedDecoration   ProfileDecoration? @relation("SelectedProfileDecoration", fields: [selectedDecorationId], references: [id], onDelete: SetNull)
+  ownedDecorations     UserDecoration[]   @relation("DecorationOwner")
+  grantedDecorations   UserDecoration[]   @relation("DecorationGranter")
+
+  createdCalendarEvents CalendarEvent[]    @relation("CalendarEventCreator")
+  eventParticipations   EventParticipant[]
+
   @@index([email])
   @@index([username])
   @@index([tag])
@@ -200,6 +208,7 @@ model User {
   @@index([currentServerId])
   @@index([isOnlineInGame])
   @@index([displayBadgeId])
+  @@index([selectedDecorationId])
   @@map("users")
 }
 
@@ -394,8 +403,8 @@ model UserBadge {
   /// Manual display order on the profile (lower = first)
   order     Int           @default(0)
 
-  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  displayedBy    User[] @relation("UserDisplayBadge")
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayedBy User[] @relation("UserDisplayBadge")
 
   @@unique([userId, type])
   @@index([userId])
@@ -617,26 +626,26 @@ enum AchievementConditionType {
 }
 
 model Achievement {
-  id               String                    @id @default(cuid())
-  slug             String                    @unique
-  name             String
-  description      String                    @db.Text
-  iconUrl          String
-  category         AchievementCategory
-  rarity           AchievementRarity
-  isSecret         Boolean                   @default(false)
-  isActive         Boolean                   @default(true)
-  order            Int                       @default(0)
-  conditionType    AchievementConditionType
-  conditionValue   Int?
-  conditionParams  Json?
-  rewardRubies     Int                       @default(0)
-  rewardBadgeType  String?
-  rewardTitle      String?
-  rewardMessage    String?
-  unlockedCount    Int                       @default(0)
-  createdAt        DateTime                  @default(now())
-  updatedAt        DateTime                  @updatedAt
+  id              String                   @id @default(cuid())
+  slug            String                   @unique
+  name            String
+  description     String                   @db.Text
+  iconUrl         String
+  category        AchievementCategory
+  rarity          AchievementRarity
+  isSecret        Boolean                  @default(false)
+  isActive        Boolean                  @default(true)
+  order           Int                      @default(0)
+  conditionType   AchievementConditionType
+  conditionValue  Int?
+  conditionParams Json?
+  rewardRubies    Int                      @default(0)
+  rewardBadgeType String?
+  rewardTitle     String?
+  rewardMessage   String?
+  unlockedCount   Int                      @default(0)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
 
   userAchievements UserAchievement[]
 
@@ -818,40 +827,42 @@ model Category {
 }
 
 model Product {
-  id              String           @id @default(cuid())
+  id              String             @id @default(cuid())
   name            String
-  slug            String           @unique
+  slug            String             @unique
   description     String?
   fullDescription String?
   type            ProductType
   image           String?
   images          String[]
   categoryId      String
-  category        Category         @relation(fields: [categoryId], references: [id])
+  category        Category           @relation(fields: [categoryId], references: [id])
   positionId      String?
-  position        Position?        @relation(fields: [positionId], references: [id])
-  isGiftable      Boolean          @default(true)
-  isSelfOnly      Boolean          @default(false)
-  isUnique        Boolean          @default(false)
-  isSeasonalOnly  Boolean          @default(false)
+  position        Position?          @relation(fields: [positionId], references: [id])
+  isGiftable      Boolean            @default(true)
+  isSelfOnly      Boolean            @default(false)
+  isUnique        Boolean            @default(false)
+  isSeasonalOnly  Boolean            @default(false)
   maxPerPurchase  Int?
   currencyType    CurrencyType?
   currencyAmount  Int?
-  isActive        Boolean          @default(true)
-  isFeatured      Boolean          @default(false)
-  isNew           Boolean          @default(false)
-  isPopular       Boolean          @default(false)
-  order           Int              @default(0)
+  isActive        Boolean            @default(true)
+  isFeatured      Boolean            @default(false)
+  isNew           Boolean            @default(false)
+  isPopular       Boolean            @default(false)
+  order           Int                @default(0)
   gameCommands    String[]
   server          String?
+  decorationId    String?            @unique
+  decoration      ProfileDecoration? @relation(fields: [decorationId], references: [id], onDelete: SetNull)
   variants        ProductVariant[]
-  bundleItems     BundleItem[]     @relation("BundleProduct")
+  bundleItems     BundleItem[]       @relation("BundleProduct")
   wishlistItems   WishlistItem[]
   cartItems       CartItem[]
   orderItems      OrderItem[]
   bulkDiscounts   BulkDiscount[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@index([slug])
   @@index([categoryId])
@@ -1077,6 +1088,9 @@ enum NotificationType {
   AWARD_GRANTED
   PAYMENT_RECEIVED
   DAILY_REWARD_AVAILABLE
+  EVENT_REMINDER
+  EVENT_UPDATED
+  DECORATION_GRANTED
   SYSTEM
 }
 
@@ -1209,23 +1223,23 @@ model ServerCategory {
 }
 
 model Server {
-  id          String   @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String          @unique
   address     String
-  port        Int      @default(25565)
+  port        Int             @default(25565)
   type        String
   description String?
   iconUrl     String?
-  maxPlayers  Int      @default(100)
+  maxPlayers  Int             @default(100)
   version     String?
   motd        String?
-  isActive    Boolean  @default(true)
-  order       Int      @default(0)
+  isActive    Boolean         @default(true)
+  order       Int             @default(0)
   categoryId  String?
   category    ServerCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   statusLogs ServerStatusLog[]
 
@@ -1338,11 +1352,11 @@ model SiteSettings {
   siteLogo        String?
   siteFavicon     String?
 
-  contactEmail     String?
-  discordInvite    String?
-  vkGroup          String?
-  telegramChannel  String?
-  youtubeChannel   String?
+  contactEmail    String?
+  discordInvite   String?
+  vkGroup         String?
+  telegramChannel String?
+  youtubeChannel  String?
 
   registrationEnabled          Boolean @default(true)
   registrationRequiresApproval Boolean @default(false)
@@ -1717,17 +1731,17 @@ model UserCustomPosition {
 }
 
 model Department {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String           @unique
   description String?
   color       String?
   icon        String?
-  isActive    Boolean  @default(true)
-  order       Int      @default(0)
+  isActive    Boolean          @default(true)
+  order       Int              @default(0)
   createdBy   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   members     UserDepartment[]
 
   @@index([slug])
@@ -1796,25 +1810,25 @@ enum TopicVisibility {
 }
 
 model Topic {
-  id            String          @id @default(cuid())
-  slug          String          @unique
-  title         String
-  category      TopicCategory
-  visibility    TopicVisibility @default(PUBLIC)
-  icon          String?
-  color         String?
-  description   String?
-  content       String          @db.Text
-  contentHtml   String?         @db.Text
-  order         Int             @default(0)
-  isActive      Boolean         @default(true)
-  isPinned      Boolean         @default(false)
-  views         Int             @default(0)
-  createdBy     String
-  updatedBy     String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  attachments   TopicAttachment[]
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  title       String
+  category    TopicCategory
+  visibility  TopicVisibility   @default(PUBLIC)
+  icon        String?
+  color       String?
+  description String?
+  content     String            @db.Text
+  contentHtml String?           @db.Text
+  order       Int               @default(0)
+  isActive    Boolean           @default(true)
+  isPinned    Boolean           @default(false)
+  views       Int               @default(0)
+  createdBy   String
+  updatedBy   String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  attachments TopicAttachment[]
 
   @@index([slug])
   @@index([category, visibility])
@@ -1823,47 +1837,47 @@ model Topic {
 }
 
 model TopicAttachment {
-  id          String   @id @default(cuid())
-  topicId     String
-  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  fileName    String
-  fileUrl     String
-  fileSize    Int
-  mimeType    String
-  uploadedBy  String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  topicId    String
+  topic      Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  fileName   String
+  fileUrl    String
+  fileSize   Int
+  mimeType   String
+  uploadedBy String
+  createdAt  DateTime @default(now())
 
   @@index([topicId])
   @@map("topic_attachments")
 }
 
 model Report {
-  id              String       @id @default(cuid())
-  reportNumber    String       @unique
-  type            ReportType
-  status          ReportStatus @default(PENDING)
+  id           String       @id @default(cuid())
+  reportNumber String       @unique
+  type         ReportType
+  status       ReportStatus @default(PENDING)
 
-  authorId        String
-  author          User         @relation("ReportAuthor", fields: [authorId], references: [id])
+  authorId String
+  author   User   @relation("ReportAuthor", fields: [authorId], references: [id])
 
   server          String?
   incidentDate    DateTime?
-  description     String       @db.Text
-  descriptionHtml String?      @db.Text
-  additionalText  String?      @db.Text
+  description     String    @db.Text
+  descriptionHtml String?   @db.Text
+  additionalText  String?   @db.Text
 
-  contactEmail    String?
-  contactPhone    String?
-  paymentDate     DateTime?
+  contactEmail String?
+  contactPhone String?
+  paymentDate  DateTime?
 
   appealedPunishmentId String?
   appealedPunishment   UserPunishment? @relation("AppealedPunishment", fields: [appealedPunishmentId], references: [id])
 
-  assignedToId    String?
-  assignedTo      User?        @relation("ReportAssignee", fields: [assignedToId], references: [id])
-  verdict         String?      @db.Text
-  verdictHtml     String?      @db.Text
-  internalNote    String?      @db.Text
+  assignedToId String?
+  assignedTo   User?   @relation("ReportAssignee", fields: [assignedToId], references: [id])
+  verdict      String? @db.Text
+  verdictHtml  String? @db.Text
+  internalNote String? @db.Text
 
   /// @deprecated Use separate punishment tools; kept for legacy data
   punishmentType     PunishmentType?
@@ -1877,19 +1891,19 @@ model Report {
   archivedBy    String?
   archiveReason String?
 
-  isLocked        Boolean      @default(false)
-  lockedBy        String?
-  lockedReason    String?
+  isLocked     Boolean @default(false)
+  lockedBy     String?
+  lockedReason String?
 
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  resolvedAt      DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime?
 
-  targets         ReportTarget[]
-  evidenceLinks   ReportEvidenceLink[]
-  messages        ReportMessage[]
-  moderatorNotes  ReportModeratorNote[]
-  attachments     ReportAttachment[]
+  targets        ReportTarget[]
+  evidenceLinks  ReportEvidenceLink[]
+  messages       ReportMessage[]
+  moderatorNotes ReportModeratorNote[]
+  attachments    ReportAttachment[]
 
   @@index([authorId])
   @@index([type, status])
@@ -1933,24 +1947,24 @@ model ReportEvidenceLink {
 }
 
 model ReportMessage {
-  id          String    @id @default(cuid())
-  reportId    String
-  report      Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  authorId    String
-  author      User      @relation(fields: [authorId], references: [id])
-  content     String    @db.Text
-  contentHtml String?   @db.Text
-  isStaff     Boolean   @default(false)
-  isSystem    Boolean   @default(false)
-  isDeleted   Boolean   @default(false)
-  deletedAt   DateTime?
-  deletedBy   String?
+  id           String                    @id @default(cuid())
+  reportId     String
+  report       Report                    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User                      @relation(fields: [authorId], references: [id])
+  content      String                    @db.Text
+  contentHtml  String?                   @db.Text
+  isStaff      Boolean                   @default(false)
+  isSystem     Boolean                   @default(false)
+  isDeleted    Boolean                   @default(false)
+  deletedAt    DateTime?
+  deletedBy    String?
   deleteReason String?
-  isPinned    Boolean   @default(false)
-  pinnedAt    DateTime?
-  pinnedBy    String?
-  createdAt   DateTime  @default(now())
-  attachments ReportMessageAttachment[]
+  isPinned     Boolean                   @default(false)
+  pinnedAt     DateTime?
+  pinnedBy     String?
+  createdAt    DateTime                  @default(now())
+  attachments  ReportMessageAttachment[]
 
   @@index([reportId, createdAt])
   @@map("report_messages")
@@ -1989,15 +2003,15 @@ model ReportModeratorNote {
 }
 
 model ReportAttachment {
-  id          String   @id @default(cuid())
-  reportId    String
-  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  fileName    String
-  fileUrl     String
-  fileSize    Int
-  mimeType    String
-  uploadedBy  String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  reportId   String
+  report     Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  fileName   String
+  fileUrl    String
+  fileSize   Int
+  mimeType   String
+  uploadedBy String
+  createdAt  DateTime @default(now())
 
   @@index([reportId])
   @@map("report_attachments")
@@ -2106,42 +2120,42 @@ enum NewsStatus {
 }
 
 model News {
-  id              String       @id @default(cuid())
-  slug            String       @unique
-  title           String
-  excerpt         String?      @db.Text
-  content         String       @db.Text
-  contentHtml     String?      @db.Text
-  coverImage      String?
-  category        NewsCategory
-  status          NewsStatus   @default(DRAFT)
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  title       String
+  excerpt     String?      @db.Text
+  content     String       @db.Text
+  contentHtml String?      @db.Text
+  coverImage  String?
+  category    NewsCategory
+  status      NewsStatus   @default(DRAFT)
 
-  authorId        String
-  author          User         @relation(fields: [authorId], references: [id])
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 
   metaTitle       String?
-  metaDescription String?      @db.Text
+  metaDescription String?  @db.Text
   metaKeywords    String[]
   ogImage         String?
 
-  publishedAt     DateTime?
-  scheduledFor    DateTime?
+  publishedAt  DateTime?
+  scheduledFor DateTime?
 
-  viewsCount      Int          @default(0)
-  likesCount      Int          @default(0)
-  commentsCount   Int          @default(0)
+  viewsCount    Int @default(0)
+  likesCount    Int @default(0)
+  commentsCount Int @default(0)
 
-  allowComments   Boolean      @default(true)
-  isPinned        Boolean      @default(false)
-  isFeatured      Boolean      @default(false)
+  allowComments Boolean @default(true)
+  isPinned      Boolean @default(false)
+  isFeatured    Boolean @default(false)
 
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  comments        NewsComment[]
-  likes           NewsLike[]
-  views           NewsView[]
-  tags            NewsTag[]
+  comments NewsComment[]
+  likes    NewsLike[]
+  views    NewsView[]
+  tags     NewsTag[]
 
   @@index([slug])
   @@index([status, publishedAt])
@@ -2162,13 +2176,13 @@ model NewsTag {
 }
 
 model NewsComment {
-  id          String       @id @default(cuid())
+  id          String  @id @default(cuid())
   newsId      String
-  news        News         @relation(fields: [newsId], references: [id], onDelete: Cascade)
+  news        News    @relation(fields: [newsId], references: [id], onDelete: Cascade)
   authorId    String
-  author      User         @relation(fields: [authorId], references: [id])
-  content     String       @db.Text
-  contentHtml String?      @db.Text
+  author      User    @relation(fields: [authorId], references: [id])
+  content     String  @db.Text
+  contentHtml String? @db.Text
 
   parentId String?
   parent   NewsComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
@@ -2262,19 +2276,19 @@ enum ActivityVisibility {
 }
 
 model Activity {
-  id          String             @id @default(cuid())
-  userId      String
-  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type        ActivityType
-  visibility  ActivityVisibility @default(PUBLIC)
+  type       ActivityType
+  visibility ActivityVisibility @default(PUBLIC)
 
   title       String
   description String?
   imageUrl    String?
   actionUrl   String?
 
-  metadata    Json?
+  metadata Json?
 
   isPinned     Boolean @default(false)
   isHidden     Boolean @default(false)
@@ -2375,6 +2389,137 @@ model CustomEmoji {
   @@map("custom_emojis")
 }
 
+// ─── Calendar & Profile Decorations ────────────────────────
+
+enum DecorationAvailability {
+  STORE
+  ADMIN_ONLY
+  UNAVAILABLE
+}
+
+enum DecorationGrantSource {
+  PURCHASE
+  ADMIN
+  LEGACY
+}
+
+model ProfileDecoration {
+  id           String                 @id @default(cuid())
+  slug         String                 @unique @db.VarChar(64)
+  name         String                 @db.VarChar(100)
+  imageUrl     String
+  availability DecorationAvailability @default(UNAVAILABLE)
+  isActive     Boolean                @default(true)
+  order        Int                    @default(0)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  owners     UserDecoration[]
+  selectedBy User[]           @relation("SelectedProfileDecoration")
+  product    Product?
+
+  @@index([availability, isActive])
+  @@index([order])
+  @@map("profile_decorations")
+}
+
+model UserDecoration {
+  id           String                @id @default(cuid())
+  userId       String
+  user         User                  @relation("DecorationOwner", fields: [userId], references: [id], onDelete: Cascade)
+  decorationId String
+  decoration   ProfileDecoration     @relation(fields: [decorationId], references: [id], onDelete: Cascade)
+  source       DecorationGrantSource
+  grantedById  String?
+  grantedBy    User?                 @relation("DecorationGranter", fields: [grantedById], references: [id], onDelete: SetNull)
+  orderId      String?
+  acquiredAt   DateTime              @default(now())
+
+  @@unique([userId, decorationId])
+  @@index([userId, acquiredAt])
+  @@index([decorationId])
+  @@index([grantedById])
+  @@map("user_decorations")
+}
+
+enum CalendarEventCategory {
+  COMMUNITY
+  TOURNAMENT
+  UPDATE
+  MAINTENANCE
+  HOLIDAY
+  OTHER
+}
+
+enum CalendarEventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum CalendarEventVisibility {
+  PUBLIC
+  AUTHENTICATED
+  STAFF
+}
+
+enum EventAttendanceStatus {
+  GOING
+  INTERESTED
+  DECLINED
+}
+
+model CalendarEvent {
+  id                   String                  @id @default(cuid())
+  slug                 String                  @unique @db.VarChar(100)
+  title                String                  @db.VarChar(160)
+  description          String                  @db.Text
+  descriptionHtml      String                  @db.Text
+  coverImage           String?
+  category             CalendarEventCategory
+  status               CalendarEventStatus     @default(DRAFT)
+  visibility           CalendarEventVisibility @default(PUBLIC)
+  startsAt             DateTime
+  endsAt               DateTime?
+  isAllDay             Boolean                 @default(false)
+  timezone             String                  @default("Europe/Moscow") @db.VarChar(64)
+  location             String?                 @db.VarChar(160)
+  server               String?                 @db.VarChar(100)
+  maxParticipants      Int?
+  registrationDeadline DateTime?
+  isFeatured           Boolean                 @default(false)
+  createdById          String
+  createdBy            User                    @relation("CalendarEventCreator", fields: [createdById], references: [id])
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  participants EventParticipant[]
+
+  @@index([status, startsAt])
+  @@index([visibility, startsAt])
+  @@index([category, startsAt])
+  @@index([createdById])
+  @@map("calendar_events")
+}
+
+model EventParticipant {
+  id         String                @id @default(cuid())
+  eventId    String
+  event      CalendarEvent         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status     EventAttendanceStatus @default(GOING)
+  remindedAt DateTime?
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  @@unique([eventId, userId])
+  @@index([eventId, status])
+  @@index([userId, status])
+  @@map("event_participants")
+}
+
 // ─── Forms System ───────────────────────────────────────────
 
 enum FormFieldType {
@@ -2433,11 +2578,11 @@ enum FormStatus {
 }
 
 model Form {
-  id              String         @id @default(cuid())
-  slug            String         @unique
+  id              String  @id @default(cuid())
+  slug            String  @unique
   title           String
-  description     String?        @db.Text
-  descriptionHtml String?        @db.Text
+  description     String? @db.Text
+  descriptionHtml String? @db.Text
   coverImage      String?
 
   status     FormStatus     @default(DRAFT)
@@ -2446,11 +2591,11 @@ model Form {
   createdById String
   createdBy   User   @relation("FormCreator", fields: [createdById], references: [id])
 
-  maxResponses  Int?
+  maxResponses   Int?
   responsesCount Int     @default(0)
-  onePerUser    Boolean  @default(true)
-  isAnonymous   Boolean  @default(false)
-  showResults   Boolean  @default(false)
+  onePerUser     Boolean @default(true)
+  isAnonymous    Boolean @default(false)
+  showResults    Boolean @default(false)
 
   requiresAuth    Boolean @default(false)
   requiresCaptcha Boolean @default(true)
@@ -2501,12 +2646,12 @@ model FormField {
   conditionalLogic Json?
   defaultValue     String?
 
-  minValue    Int?
-  maxValue    Int?
-  minLength   Int?
-  maxLength   Int?
-  maxFiles    Int?
-  maxFileSize Int?
+  minValue     Int?
+  maxValue     Int?
+  minLength    Int?
+  maxLength    Int?
+  maxFiles     Int?
+  maxFileSize  Int?
   allowedMimes String[]
 
   metadata Json?

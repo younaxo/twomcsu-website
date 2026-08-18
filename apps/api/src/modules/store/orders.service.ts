@@ -7,7 +7,13 @@ import {
   Optional,
   forwardRef,
 } from '@nestjs/common';
-import { NotificationType, OrderStatus, Prisma, ProductType } from '@prisma/client';
+import {
+  DecorationGrantSource,
+  NotificationType,
+  OrderStatus,
+  Prisma,
+  ProductType,
+} from '@prisma/client';
 import {
   CreateOrderResponse,
   OrdersResponse,
@@ -39,7 +45,14 @@ const orderInclude = {
   items: {
     include: {
       product: {
-        select: { id: true, name: true, slug: true, image: true, type: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          image: true,
+          type: true,
+          decorationId: true,
+        },
       },
       variant: true,
       bundle: {
@@ -378,6 +391,26 @@ export class OrdersService {
             data: { usedCount: { increment: 1 } },
           });
         }
+      }
+
+      for (const item of result.items) {
+        const recipientId = item.giftToUserId ?? result.userId;
+        if (!recipientId || !item.product?.decorationId) continue;
+        await tx.userDecoration.upsert({
+          where: {
+            userId_decorationId: {
+              userId: recipientId,
+              decorationId: item.product.decorationId,
+            },
+          },
+          create: {
+            userId: recipientId,
+            decorationId: item.product.decorationId,
+            source: DecorationGrantSource.PURCHASE,
+            orderId: result.id,
+          },
+          update: {},
+        });
       }
 
       return result;

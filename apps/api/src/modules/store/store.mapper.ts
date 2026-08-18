@@ -93,6 +93,7 @@ export function toStoreProduct(product: ProductLike, inWishlist?: boolean): Stor
       ? { id: product.category.id, name: product.category.name, slug: product.category.slug }
       : undefined,
     position: toStorePositionRef(product.position),
+    decorationId: product.decorationId,
     isGiftable: product.isGiftable,
     isSelfOnly: product.isSelfOnly,
     isUnique: product.isUnique,

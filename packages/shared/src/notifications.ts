@@ -24,6 +24,9 @@ export const NotificationType = {
   AWARD_GRANTED: 'AWARD_GRANTED',
   PAYMENT_RECEIVED: 'PAYMENT_RECEIVED',
   DAILY_REWARD_AVAILABLE: 'DAILY_REWARD_AVAILABLE',
+  EVENT_REMINDER: 'EVENT_REMINDER',
+  EVENT_UPDATED: 'EVENT_UPDATED',
+  DECORATION_GRANTED: 'DECORATION_GRANTED',
   SYSTEM: 'SYSTEM',
 } as const;
 
@@ -74,6 +77,9 @@ export const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
   AWARD_GRANTED: 'Выдача награды',
   PAYMENT_RECEIVED: 'Платежи',
   DAILY_REWARD_AVAILABLE: 'Ежедневная награда',
+  EVENT_REMINDER: 'Напоминания о событиях',
+  EVENT_UPDATED: 'Изменения событий',
+  DECORATION_GRANTED: 'Украшения профиля',
   SYSTEM: 'Системные',
 };
 

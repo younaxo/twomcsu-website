@@ -62,6 +62,7 @@ import {
   parseBirthDate,
   toMyProfile,
   toPublicProfile,
+  toProfileDecoration,
   toSocialLink,
   toStatistics,
   toUserAward,
@@ -902,6 +903,7 @@ export class UsersService {
           user: {
             username: user.username,
             avatar: user.avatar,
+            avatarDecoration: toProfileDecoration(user.selectedDecoration),
             position: toPublicPosition(user.position),
             bannerUrl,
             statusText: user.statusText,
@@ -921,6 +923,7 @@ export class UsersService {
             user: {
               username: user.username,
               avatar: user.avatar,
+              avatarDecoration: toProfileDecoration(user.selectedDecoration),
               position: toPublicPosition(user.position),
               bannerUrl,
               statusText: user.statusText,

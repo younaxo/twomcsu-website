@@ -148,6 +148,10 @@ export class CreateProductDto {
   positionId?: string;
 
   @IsOptional()
+  @IsString()
+  decorationId?: string;
+
+  @IsOptional()
   @IsBoolean()
   isGiftable?: boolean;
 
@@ -254,6 +258,10 @@ export class UpdateProductDto {
   @IsOptional()
   @IsString()
   positionId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  decorationId?: string | null;
 
   @IsOptional()
   @IsBoolean()

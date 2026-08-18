@@ -104,6 +104,9 @@ importers:
       minecraft-server-util:
         specifier: ^5.4.4
         version: 5.4.4
+      multer:
+        specifier: ^2.0.2
+        version: 2.0.2
       nodemailer:
         specifier: ^9.0.3
         version: 9.0.5
