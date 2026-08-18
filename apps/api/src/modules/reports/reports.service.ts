@@ -1,11 +1,15 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
+  forwardRef,
 } from '@nestjs/common';
 import {
   Prisma,
+  NotificationPriority,
   NotificationType,
   ReportStatus as PrismaReportStatus,
   ReportType as PrismaReportType,
@@ -28,6 +32,7 @@ import {
   detectEvidenceLinkType,
   hasRoleGroup,
 } from '@twomc/shared';
+import { AchievementsService } from '../achievements/achievements.service';
 import { AuditService } from '../admin/audit.service';
 import { CaptchaService } from '../auth/captcha.service';
 import { MarkdownService } from '../comments/markdown.service';
@@ -83,7 +88,10 @@ const reportDetailInclude = {
   evidenceLinks: { orderBy: { order: 'asc' as const } },
   messages: {
     orderBy: { createdAt: 'asc' as const },
-    include: { author: { select: reportUserSelect } },
+    include: {
+      author: { select: reportUserSelect },
+      attachments: { orderBy: { createdAt: 'asc' as const } },
+    },
   },
   moderatorNotes: {
     orderBy: [{ isPinned: 'desc' as const }, { createdAt: 'asc' as const }],
@@ -108,6 +116,9 @@ export class ReportsService {
     private readonly attachments: ReportsAttachmentsService,
     private readonly punishments: ReportsPunishmentsService,
     private readonly audit: AuditService,
+    @Optional()
+    @Inject(forwardRef(() => AchievementsService))
+    private readonly achievements?: AchievementsService,
   ) {}
 
   async createReport(
@@ -126,17 +137,28 @@ export class ReportsService {
     const targetsInput = dto.targets ?? [];
     const resolvedTargets = await Promise.all(
       targetsInput.map(async (target, index) => {
-        const user = await this.prisma.user.findUnique({
-          where: { username: target.username },
-          select: { id: true, username: true },
+        const user = await this.prisma.user.findFirst({
+          where: { username: { equals: target.username, mode: 'insensitive' } },
+          select: { id: true, username: true, roleGroup: true },
         });
         return {
           username: user?.username ?? target.username,
           userId: user?.id ?? null,
+          roleGroup: user?.roleGroup ?? null,
           order: target.order ?? index,
         };
       }),
     );
+
+    if (dto.type === ReportType.PLAYER_COMPLAINT) {
+      for (const target of resolvedTargets) {
+        if (target.roleGroup && isStaffRole(target.roleGroup)) {
+          throw new BadRequestException(
+            `Пользователь ${target.username} — модератор. Используйте тип «Жалоба на администрацию»`,
+          );
+        }
+      }
+    }
 
     if (
       dto.type === ReportType.PLAYER_COMPLAINT ||
@@ -389,6 +411,7 @@ export class ReportsService {
     authorId: string,
     roleGroup: RoleGroup,
     dto: AddReportMessageDto,
+    options?: { asModerator?: boolean },
   ): Promise<ReportDetails> {
     const row = await this.requireReport(reportNumber);
     this.assertCanView(row, authorId, roleGroup);
@@ -397,11 +420,18 @@ export class ReportsService {
       throw new BadRequestException('Обращение заблокировано');
     }
 
-    const isStaff = canReviewReportType(roleGroup, row.type as ReportType);
+    if (options?.asModerator) {
+      this.assertCanModerate(row, roleGroup);
+      this.assertNotSelfTarget(row, authorId);
+    }
+
     const isAuthor = row.authorId === authorId;
     const isTarget = isReportTarget(row, authorId);
+    // Staff named as targets may reply as participants, not as reviewers
+    const asStaff =
+      canReviewReportType(roleGroup, row.type as ReportType) && !isTarget;
 
-    if (!isAuthor && !isStaff && !isTarget) {
+    if (!isAuthor && !asStaff && !isTarget) {
       throw new ForbiddenException();
     }
 
@@ -413,16 +443,16 @@ export class ReportsService {
         authorId,
         content: dto.content,
         contentHtml,
-        isStaff,
+        isStaff: asStaff,
       },
     });
 
-    if ((isStaff || isTarget) && row.authorId !== authorId) {
+    if ((asStaff || isTarget) && row.authorId !== authorId) {
       await this.notifications.createNotification({
         userId: row.authorId,
         type: NotificationType.SYSTEM,
         title: `Новый ответ по обращению ${row.reportNumber}`,
-        message: isStaff
+        message: asStaff
           ? 'Модератор ответил на ваше обращение'
           : 'Участник обращения оставил сообщение',
         link: `/report/${row.reportNumber}`,
@@ -750,6 +780,34 @@ export class ReportsService {
     return this.attachments.saveAttachment(row.id, file, userId, { pdfOnly });
   }
 
+  async uploadMessageAttachment(
+    reportNumber: string,
+    messageId: string,
+    userId: string,
+    roleGroup: RoleGroup,
+    file: Express.Multer.File,
+  ) {
+    const row = await this.requireReport(reportNumber);
+    this.assertCanView(row, userId, roleGroup);
+
+    if (row.isLocked) {
+      throw new BadRequestException('Обращение заблокировано');
+    }
+
+    const message = row.messages.find((item) => item.id === messageId);
+    if (!message) {
+      throw new NotFoundException('Сообщение не найдено');
+    }
+    if (message.authorId !== userId) {
+      throw new ForbiddenException('Прикреплять файлы можно только к своему сообщению');
+    }
+    if (message.isSystem || message.isDeleted) {
+      throw new BadRequestException('Нельзя прикрепить файл к этому сообщению');
+    }
+
+    return this.attachments.saveMessageAttachment(row.id, messageId, file, userId);
+  }
+
   async getRules(type: ReportType): Promise<TopicDetails | null> {
     if (type === ReportType.DONATION_PROBLEM) {
       return null;
@@ -776,6 +834,8 @@ export class ReportsService {
     const assigneeId = dto.userId === undefined ? actorId : dto.userId;
 
     if (assigneeId) {
+      this.assertNotSelfTarget(row, assigneeId);
+
       const assignee = await this.prisma.user.findUnique({
         where: { id: assigneeId },
         select: { id: true, roleGroup: true },
@@ -819,6 +879,7 @@ export class ReportsService {
   ): Promise<ReportDetails> {
     const row = await this.requireReport(reportNumber);
     this.assertCanModerate(row, roleGroup);
+    this.assertNotSelfTarget(row, actorId);
 
     const previousStatus = row.status as ReportStatus;
     const resolvedAt =
@@ -844,6 +905,24 @@ export class ReportsService {
     await this.addSystemMessage(row.id, actorId, systemMessage);
     await this.notifyStatusChange(row.reportNumber, row.authorId, dto.status);
 
+    if (
+      dto.status === ReportStatus.RESOLVED &&
+      row.type === PrismaReportType.TECHNICAL_ISSUE
+    ) {
+      void this.prisma.report
+        .count({
+          where: {
+            authorId: row.authorId,
+            type: PrismaReportType.TECHNICAL_ISSUE,
+            status: PrismaReportStatus.RESOLVED,
+          },
+        })
+        .then((count) =>
+          this.achievements?.checkAndGrantAchievement(row.authorId, 'BUG_REPORTED', count),
+        )
+        .catch(() => undefined);
+    }
+
     return this.getByNumber(reportNumber, actorId, roleGroup);
   }
 
@@ -855,6 +934,7 @@ export class ReportsService {
   ): Promise<ReportDetails> {
     const row = await this.requireReport(reportNumber);
     this.assertCanModerate(row, roleGroup);
+    this.assertNotSelfTarget(row, actorId);
 
     const verdictHtml = this.markdown.render(dto.verdict);
 
@@ -872,11 +952,14 @@ export class ReportsService {
 
     await this.notifications.createNotification({
       userId: row.authorId,
-      type: NotificationType.SYSTEM,
+      type: NotificationType.REPORT_VERDICT,
       title: `Вердикт по обращению ${row.reportNumber}`,
       message: dto.verdict.slice(0, 200),
       link: `/report/${row.reportNumber}`,
       fromUserId: actorId,
+      priority: NotificationPriority.HIGH,
+      actionUrl: `/report/${row.reportNumber}`,
+      actionLabel: 'Открыть обращение',
     });
 
     return this.getByNumber(reportNumber, actorId, roleGroup);
@@ -1343,6 +1426,15 @@ export class ReportsService {
   private assertCanModerate(row: { type: PrismaReportType }, roleGroup: RoleGroup): void {
     if (!canReviewReportType(roleGroup, row.type as ReportType)) {
       throw new ForbiddenException('Недостаточно прав для этого типа обращения');
+    }
+  }
+
+  private assertNotSelfTarget(
+    row: { targets?: { userId: string | null }[] },
+    userId: string,
+  ): void {
+    if (row.targets?.some((target) => target.userId === userId)) {
+      throw new ForbiddenException('Вы не можете рассматривать обращение на самого себя');
     }
   }
 

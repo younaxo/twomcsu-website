@@ -44,12 +44,15 @@ export function resolveBannerUrl(
   return null;
 }
 
-export function toUserBadge(row: UserBadgeRow): UserBadge {
+export function toUserBadge(
+  row: Pick<UserBadgeRow, 'id' | 'type' | 'grantedAt' | 'expiresAt'> & { order?: number },
+): UserBadge {
   return {
     id: row.id,
     type: row.type,
     grantedAt: row.grantedAt.toISOString(),
     expiresAt: row.expiresAt?.toISOString() ?? null,
+    order: row.order ?? 0,
   };
 }
 
@@ -64,6 +67,7 @@ export function toUserAward(row: UserAwardRow & { award: AwardRow }): UserAward 
     rarity: row.award.rarity,
     isActive: row.award.isActive,
     grantedAt: row.grantedAt.toISOString(),
+    order: row.order,
   };
 }
 
@@ -203,6 +207,11 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     mediaBadges: user.mediaBadges.filter((b) => b.isApproved).map(toMediaBadge),
     socials: user.socialLinks.map(toSocialLink),
     statistics: user.statistics ? toStatistics(user.statistics) : null,
+    displayBadgeId: user.displayBadgeId,
+    displayBadge:
+      user.displayBadge && user.displayBadge.isActive
+        ? toUserBadge(user.displayBadge)
+        : null,
   };
 }
 
@@ -265,6 +274,7 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     isOnlineInGame: user.isOnlineInGame,
     currentServer: user.currentServer,
     lastServerActivity: user.lastServerActivity?.toISOString() ?? null,
+    ...(options.isOwner ? { profileVisibility: user.profileVisibility } : {}),
     ...(options.visibility ? { visibility: options.visibility } : {}),
   };
 }

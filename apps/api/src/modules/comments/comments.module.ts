@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { AchievementsModule } from '../achievements/achievements.module';
 import { ActivityModule } from '../activity/activity.module';
 import { FriendsModule } from '../friends/friends.module';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -12,6 +13,7 @@ import { MentionsService } from './mentions.service';
     forwardRef(() => FriendsModule),
     NotificationsModule,
     forwardRef(() => ActivityModule),
+    forwardRef(() => AchievementsModule),
   ],
   controllers: [CommentsController, AdminCommentsController],
   providers: [CommentsService, MarkdownService, MentionsService],

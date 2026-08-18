@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import { Geologica, Onest } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
@@ -17,24 +16,16 @@ const ChatWidget = dynamic(
   { ssr: false },
 );
 
-const geologica = Geologica({
-  subsets: ['latin', 'cyrillic'],
-  display: 'swap',
-  variable: '--font-geologica',
-  // next/font has no override metrics for Geologica
-  adjustFontFallback: false,
-  fallback: ['system-ui', 'Arial', 'sans-serif'],
-});
-
-const onest = Onest({
-  subsets: ['latin', 'cyrillic'],
-  display: 'swap',
-  variable: '--font-onest',
-  adjustFontFallback: false,
-  fallback: ['system-ui', 'Arial', 'sans-serif'],
-});
+const AchievementUnlockedListener = dynamic(
+  () =>
+    import('@/components/achievements/AchievementUnlockedListener').then(
+      (mod) => mod.AchievementUnlockedListener,
+    ),
+  { ssr: false },
+);
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://twomc.su'),
   title: 'twomc.su — Minecraft сервер',
   description: 'Игровой Minecraft сервер twomc.su',
   icons: {
@@ -50,14 +41,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" className={`dark ${onest.variable} ${geologica.variable}`}>
+    <html lang="ru" className="dark">
       <body className="flex min-h-screen antialiased">
         <QueryProvider>
           <AuthProvider>
             <TooltipProvider delayDuration={300}>
               <MaintenanceGate>
                 <SiteSidebar />
-                <div className="flex min-h-screen flex-1 flex-col lg:pl-[72px] xl:pl-[260px]">
+                <div className="flex min-h-screen flex-1 flex-col transition-[padding-left] duration-200 lg:pl-[var(--sidebar-rail-width,72px)]">
                   <SiteHeader />
                   <AnnouncementsBanner />
                   <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 pb-12 pt-16 sm:px-6 sm:pb-16">
@@ -66,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <SiteFooter />
                 </div>
                 <ChatWidget />
+                <AchievementUnlockedListener />
                 <Toaster
                   theme="dark"
                   position="bottom-center"

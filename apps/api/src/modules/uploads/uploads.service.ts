@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'node:crypto';
-import { mkdir, unlink } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { basename, join, resolve } from 'node:path';
 import sharp, { type Sharp } from 'sharp';
 import {
   ALLOWED_IMAGE_MIME_TYPES,
@@ -13,6 +13,15 @@ import {
 } from './upload.constants';
 
 type UploadKind = 'avatars' | 'banners';
+
+const MESSAGE_FILE_EXTENSIONS: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+  'application/pdf': '.pdf',
+  'text/plain': '.txt',
+};
 
 @Injectable()
 export class UploadsService {
@@ -46,6 +55,44 @@ export class UploadsService {
     return this.store('banners', userId, (image) =>
       image.resize(BANNER_WIDTH, BANNER_HEIGHT, { fit: 'cover', position: 'centre' }),
     )(file);
+  }
+
+  async saveMessageAttachment(userId: string, file: Express.Multer.File) {
+    const maxSize = 10 * 1024 * 1024;
+    const extension = MESSAGE_FILE_EXTENSIONS[file?.mimetype];
+    if (!file || !extension) {
+      throw new BadRequestException('Поддерживаются изображения, PDF и TXT');
+    }
+    if (file.size > maxSize) {
+      throw new BadRequestException('Файл больше 10 МБ');
+    }
+
+    if (file.mimetype.startsWith('image/')) {
+      try {
+        await sharp(file.buffer).metadata();
+      } catch {
+        throw new BadRequestException('Некорректное изображение');
+      }
+    }
+    if (file.mimetype === 'application/pdf' && file.buffer.subarray(0, 5).toString() !== '%PDF-') {
+      throw new BadRequestException('Некорректный PDF-файл');
+    }
+
+    const directory = join(this.rootDir, 'messages');
+    await mkdir(directory, { recursive: true });
+    const storedName = `${userId}-${randomBytes(12).toString('hex')}${extension}`;
+    await writeFile(join(directory, storedName), file.buffer);
+    const safeOriginalName = [...basename(file.originalname)]
+      .filter((character) => character.charCodeAt(0) >= 32)
+      .join('')
+      .slice(0, 255);
+
+    return {
+      fileUrl: `${UPLOADS_ROUTE}/messages/${storedName}`,
+      fileName: safeOriginalName || `file${extension}`,
+      mimeType: file.mimetype,
+      size: file.size,
+    };
   }
 
   /** Silent on a missing file: the row is what matters, a leftover blob is not worth a 500 */

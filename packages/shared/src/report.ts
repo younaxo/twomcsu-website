@@ -149,6 +149,16 @@ export interface ReportAttachment {
   createdAt: string;
 }
 
+export interface ReportMessageAttachment {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedBy: string;
+  createdAt: string;
+}
+
 export interface ReportMessage {
   id: string;
   content: string;
@@ -160,6 +170,7 @@ export interface ReportMessage {
   pinnedAt: string | null;
   createdAt: string;
   author: ReportUserSummary;
+  attachments: ReportMessageAttachment[];
 }
 
 export interface ReportModeratorNote {
@@ -210,6 +221,7 @@ export interface ReportSummary {
   assignedTo: ReportUserSummary | null;
   isLocked: boolean;
   isOverdue: boolean;
+  hasVerdict: boolean;
   createdAt: string;
   updatedAt: string;
   resolvedAt: string | null;

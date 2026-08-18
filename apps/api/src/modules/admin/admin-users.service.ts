@@ -215,7 +215,8 @@ export class AdminUsersService {
       }),
     ]);
 
-    const { password: _password, ...safeUser } = user;
+    const { password, ...safeUser } = user;
+    void password;
 
     return {
       user: {

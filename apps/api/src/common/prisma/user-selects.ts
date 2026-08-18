@@ -43,7 +43,7 @@ export const selectMinimalUser = {
   departments: selectUserDepartments,
   badges: {
     where: { isActive: true },
-    orderBy: { grantedAt: 'asc' as const },
+    orderBy: [{ order: 'asc' as const }, { grantedAt: 'asc' as const }],
     select: {
       id: true,
       type: true,
@@ -52,6 +52,7 @@ export const selectMinimalUser = {
       isActive: true,
       userId: true,
       grantedBy: true,
+      order: true,
     },
   },
 } satisfies Prisma.UserSelect;
@@ -68,12 +69,11 @@ export const selectAuthUser = {
   isVerified: true,
   isBanned: true,
   createdAt: true,
+  displayBadgeId: true,
   position: { select: selectPublicPosition },
   customPosition: selectUserCustomPosition,
   departments: selectUserDepartments,
-  badges: {
-    where: { isActive: true },
-    orderBy: { grantedAt: 'asc' as const },
+  displayBadge: {
     select: {
       id: true,
       type: true,
@@ -82,6 +82,21 @@ export const selectAuthUser = {
       isActive: true,
       userId: true,
       grantedBy: true,
+      order: true,
+    },
+  },
+  badges: {
+    where: { isActive: true },
+    orderBy: [{ order: 'asc' as const }, { grantedAt: 'asc' as const }],
+    select: {
+      id: true,
+      type: true,
+      grantedAt: true,
+      expiresAt: true,
+      isActive: true,
+      userId: true,
+      grantedBy: true,
+      order: true,
     },
   },
 } satisfies Prisma.UserSelect;
@@ -132,16 +147,18 @@ export const selectFullProfile = {
   lastServerActivity: true,
   isOnlineInGame: true,
   positionId: true,
+  displayBadgeId: true,
   position: { select: selectPublicPosition },
   customPosition: selectUserCustomPosition,
   departments: selectUserDepartments,
+  displayBadge: true,
   badges: {
     where: { isActive: true },
-    orderBy: { grantedAt: 'asc' as const },
+    orderBy: [{ order: 'asc' as const }, { grantedAt: 'asc' as const }],
   },
   awards: {
     include: { award: true },
-    orderBy: { grantedAt: 'desc' as const },
+    orderBy: [{ order: 'asc' as const }, { grantedAt: 'desc' as const }],
   },
   mediaBadges: { where: { isApproved: true } },
   socialLinks: { orderBy: { platform: 'asc' as const } },

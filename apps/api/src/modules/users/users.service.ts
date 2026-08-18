@@ -28,6 +28,7 @@ import {
   SocialLink,
   SuccessResponse,
   UserBadge,
+  UserAward,
   UserProfile,
   MentionSearchResult,
   UserSearchHint,
@@ -40,6 +41,7 @@ import { buildMentionSearchWhere, buildUserSearchWhere } from '../../common/user
 import { findUserByIdentifier } from '../../common/user-identifier';
 import { AuthenticatedUser } from '../auth/authenticated-user';
 import { ActivityService } from '../activity/activity.service';
+import { AchievementsService } from '../achievements/achievements.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { FriendsService } from '../friends/friends.service';
@@ -62,6 +64,7 @@ import {
   toPublicProfile,
   toSocialLink,
   toStatistics,
+  toUserAward,
   toUserBadge,
 } from './profile.mapper';
 
@@ -76,6 +79,9 @@ export class UsersService {
     @Optional()
     @Inject(forwardRef(() => ActivityService))
     private readonly activity?: ActivityService,
+    @Optional()
+    @Inject(forwardRef(() => AchievementsService))
+    private readonly achievements?: AchievementsService,
   ) {}
 
   async getMyProfile(userId: string): Promise<MyProfile> {
@@ -318,10 +324,87 @@ export class UsersService {
 
     const rows = await this.prisma.userBadge.findMany({
       where: { userId },
-      orderBy: { grantedAt: 'asc' },
+      orderBy: [{ order: 'asc' }, { grantedAt: 'asc' }],
     });
 
     return rows.map(toUserBadge);
+  }
+
+  async updateBadgesOrder(
+    userId: string,
+    orders: Array<{ badgeId: string; order: number }>,
+  ): Promise<UserBadge[]> {
+    const owned = await this.prisma.userBadge.findMany({
+      where: { userId, id: { in: orders.map((item) => item.badgeId) } },
+      select: { id: true },
+    });
+
+    if (owned.length !== orders.length) {
+      throw new BadRequestException('Некоторые бейджи не принадлежат вам');
+    }
+
+    await this.prisma.$transaction(
+      orders.map((item) =>
+        this.prisma.userBadge.update({
+          where: { id: item.badgeId },
+          data: { order: item.order },
+        }),
+      ),
+    );
+
+    return this.listUserBadges(userId);
+  }
+
+  async updateAwardsOrder(
+    userId: string,
+    orders: Array<{ awardId: string; order: number }>,
+  ): Promise<UserAward[]> {
+    const owned = await this.prisma.userAward.findMany({
+      where: { userId, awardId: { in: orders.map((item) => item.awardId) } },
+      include: { award: true },
+    });
+
+    if (owned.length !== orders.length) {
+      throw new BadRequestException('Некоторые награды не принадлежат вам');
+    }
+
+    await this.prisma.$transaction(
+      orders.map((item) =>
+        this.prisma.userAward.update({
+          where: { userId_awardId: { userId, awardId: item.awardId } },
+          data: { order: item.order },
+        }),
+      ),
+    );
+
+    const rows = await this.prisma.userAward.findMany({
+      where: { userId },
+      include: { award: true },
+      orderBy: [{ order: 'asc' }, { grantedAt: 'desc' }],
+    });
+
+    return rows.map(toUserAward);
+  }
+
+  async setDisplayBadge(userId: string, badgeId: string | null): Promise<MyProfile> {
+    if (badgeId) {
+      const badge = await this.prisma.userBadge.findFirst({
+        where: { id: badgeId, userId, isActive: true },
+      });
+
+      if (!badge) {
+        throw new BadRequestException('Бейдж не найден или неактивен');
+      }
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { displayBadgeId: badgeId },
+    });
+
+    await this.cache.del(cacheKeys.authMe(userId));
+
+    return this.getMyProfile(userId);
   }
 
   async grantBadge(userId: string, dto: GrantBadgeDto, grantedBy: string): Promise<UserBadge> {
@@ -357,6 +440,12 @@ export class UsersService {
     });
 
     void this.activity?.recordBadge(userId, { type: row.type }).catch(() => undefined);
+    void this.prisma.userBadge
+      .count({ where: { userId, isActive: true } })
+      .then((count) =>
+        this.achievements?.checkAndGrantAchievement(userId, 'BADGES_COUNT', count),
+      )
+      .catch(() => undefined);
 
     return toUserBadge(row);
   }
@@ -545,6 +634,13 @@ export class UsersService {
       update: { viewedAt: new Date() },
     });
 
+    void this.prisma.profileView
+      .count({ where: { viewerId } })
+      .then((count) =>
+        this.achievements?.checkAndGrantAchievement(viewerId, 'PROFILE_VIEWS', count),
+      )
+      .catch(() => undefined);
+
     return { success: true };
   }
 
@@ -575,6 +671,15 @@ export class UsersService {
         create: { profileId: profile.id, userId: viewerId, type },
         update: { type },
       });
+    }
+
+    if (type === ReactionType.LIKE) {
+      void this.prisma.profileReaction
+        .count({ where: { profileId: profile.id, type: ReactionType.LIKE } })
+        .then((count) =>
+          this.achievements?.checkAndGrantAchievement(profile.id, 'LIKES_RECEIVED', count),
+        )
+        .catch(() => undefined);
     }
 
     return this.reactionSummary(profile.id, viewerId);
@@ -763,6 +868,16 @@ export class UsersService {
       },
     });
 
+    void this.achievements
+      ?.checkAndGrantAchievement(userId, 'PLAYTIME_MINUTES', row.playTime)
+      .catch(() => undefined);
+    void this.achievements
+      ?.checkAndGrantAchievement(userId, 'KILLS_COUNT', row.kills)
+      .catch(() => undefined);
+    void this.achievements
+      ?.checkAndGrantAchievement(userId, 'DEATHS_COUNT', row.deaths)
+      .catch(() => undefined);
+
     return toStatistics(row);
   }
 
@@ -776,31 +891,14 @@ export class UsersService {
       ? hasRoleGroup(viewer.roleGroup, RoleGroup.MODERATOR)
       : false;
 
-    if (user.profileVisibility === 'NOBODY' && !isOwner && !canBypassPrivate) {
-      const bannerUrl = await this.resolveBanner(user);
-
-      throw new ForbiddenException({
-        restricted: true,
-        reason: 'private',
-        user: {
-          username: user.username,
-          avatar: user.avatar,
-          position: toPublicPosition(user.position),
-          bannerUrl,
-          statusText: user.statusText,
-        },
-      });
-    }
-
-    if (user.profileVisibility === 'FRIENDS_ONLY' && !isOwner && !canBypassPrivate) {
-      const isFriend = viewer ? await this.friends.areFriends(viewer.id, user.id) : false;
-
-      if (!isFriend) {
+    // Owner always sees their own profile; privacy checks apply to others only
+    if (!isOwner) {
+      if (user.profileVisibility === 'NOBODY' && !canBypassPrivate) {
         const bannerUrl = await this.resolveBanner(user);
 
         throw new ForbiddenException({
           restricted: true,
-          reason: 'friends_only',
+          reason: 'private',
           user: {
             username: user.username,
             avatar: user.avatar,
@@ -809,6 +907,26 @@ export class UsersService {
             statusText: user.statusText,
           },
         });
+      }
+
+      if (user.profileVisibility === 'FRIENDS_ONLY' && !canBypassPrivate) {
+        const isFriend = viewer ? await this.friends.areFriends(viewer.id, user.id) : false;
+
+        if (!isFriend) {
+          const bannerUrl = await this.resolveBanner(user);
+
+          throw new ForbiddenException({
+            restricted: true,
+            reason: 'friends_only',
+            user: {
+              username: user.username,
+              avatar: user.avatar,
+              position: toPublicPosition(user.position),
+              bannerUrl,
+              statusText: user.statusText,
+            },
+          });
+        }
       }
     }
 

@@ -10,6 +10,7 @@ import {
 import { hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { seedDepartments } from './departments.data';
+import { seedAchievements } from './achievements.data';
 import { seedAwards } from './awards.data';
 import { seedBannerPresets } from './banner-presets.data';
 import { seedChat } from './chat.data';
@@ -536,6 +537,50 @@ async function upsertCustomEmojis(createdBy: string): Promise<void> {
   console.log(`custom emojis: ${seedCustomEmojis.length}`);
 }
 
+async function upsertAchievements(): Promise<void> {
+  for (const item of seedAchievements) {
+    await prisma.achievement.upsert({
+      where: { slug: item.slug },
+      update: {
+        name: item.name,
+        description: item.description,
+        iconUrl: item.iconUrl,
+        category: item.category,
+        rarity: item.rarity,
+        isSecret: item.isSecret ?? false,
+        isActive: true,
+        order: item.order,
+        conditionType: item.conditionType,
+        conditionValue: item.conditionValue ?? null,
+        conditionParams: (item.conditionParams as object) ?? undefined,
+        rewardRubies: item.rewardRubies ?? 0,
+        rewardBadgeType: item.rewardBadgeType ?? null,
+        rewardTitle: item.rewardTitle ?? null,
+        rewardMessage: item.rewardMessage ?? null,
+      },
+      create: {
+        slug: item.slug,
+        name: item.name,
+        description: item.description,
+        iconUrl: item.iconUrl,
+        category: item.category,
+        rarity: item.rarity,
+        isSecret: item.isSecret ?? false,
+        order: item.order,
+        conditionType: item.conditionType,
+        conditionValue: item.conditionValue ?? null,
+        conditionParams: (item.conditionParams as object) ?? undefined,
+        rewardRubies: item.rewardRubies ?? 0,
+        rewardBadgeType: item.rewardBadgeType ?? null,
+        rewardTitle: item.rewardTitle ?? null,
+        rewardMessage: item.rewardMessage ?? null,
+      },
+    });
+  }
+
+  console.log(`achievements: ${seedAchievements.length}`);
+}
+
 async function upsertTopics(createdBy: string): Promise<void> {
   for (const topic of seedTopics) {
     await prisma.topic.upsert({
@@ -1050,6 +1095,7 @@ async function main() {
   await upsertServers(serverCategoryIds);
 
   const awardIds = await upsertAwards();
+  await upsertAchievements();
 
   const email = process.env.SEED_OWNER_EMAIL;
   const username = process.env.SEED_OWNER_USERNAME;
@@ -1113,6 +1159,7 @@ async function main() {
   await upsertNews(userIds);
   await upsertForms(userIds);
   await seedActivityFeed(prisma, userIds);
+  await seedNotificationDefaults([...userIds.values()], ownerId);
 }
 
 /** Idempotent demo forms + admin templates */
@@ -1189,6 +1236,51 @@ async function upsertForms(userIds: Map<string, string>): Promise<void> {
   console.log(
     `forms: ${seedForms.length} published, ${seedFormTemplates.length} templates`,
   );
+}
+
+async function seedNotificationDefaults(userIds: string[], ownerId: string) {
+  for (const userId of userIds) {
+    await prisma.notificationSettings.upsert({
+      where: { userId },
+      create: { userId },
+      update: {},
+    });
+  }
+
+  const webhooks = [
+    {
+      name: 'Обращения',
+      url: 'https://discord.com/api/webhooks/example/reports',
+      eventTypes: ['REPORT_ASSIGNED', 'REPORT_VERDICT'],
+    },
+    {
+      name: 'Новости',
+      url: 'https://discord.com/api/webhooks/example/news',
+      eventTypes: ['NEWS_PUBLISHED'],
+    },
+    {
+      name: 'Тех работы',
+      url: 'https://discord.com/api/webhooks/example/maintenance',
+      eventTypes: ['MAINTENANCE', 'ANNOUNCEMENT'],
+    },
+  ];
+
+  for (const webhook of webhooks) {
+    const existing = await prisma.discordWebhook.findFirst({
+      where: { name: webhook.name },
+      select: { id: true },
+    });
+    if (existing) continue;
+    await prisma.discordWebhook.create({
+      data: {
+        ...webhook,
+        createdBy: ownerId,
+        isActive: false,
+      },
+    });
+  }
+
+  console.log(`notifications: settings for ${userIds.length} users, sample webhooks ready`);
 }
 
 /** Idempotent demo punishments for appeal testing */

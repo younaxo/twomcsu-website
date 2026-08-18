@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { CommentEditor } from '@/components/comments/CommentEditor';
 import { CommentReactions } from '@/components/comments/CommentReactions';
 import { CommentReportDialog } from '@/components/comments/CommentReportDialog';
+import { UserContextMenu } from '@/components/moderation/UserContextMenu';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
@@ -69,17 +70,42 @@ export function CommentCard({ comment, profileUsername, isReply }: CommentCardPr
   return (
     <div className={cn('space-y-3', isReply && 'ml-10 border-l border-border pl-4')}>
       <div className="flex gap-3">
-        <AvatarWithSkin
+        <UserContextMenu
           user={{
+            id: comment.author.id,
             username: comment.author.username,
             avatar: resolveMediaUrl(comment.author.avatar) ?? null,
           }}
-          size={isReply ? 'sm' : 'md'}
-        />
+          commentId={comment.id}
+        >
+          <AvatarWithSkin
+            user={{
+              username: comment.author.username,
+              avatar: resolveMediaUrl(comment.author.avatar) ?? null,
+            }}
+            size={isReply ? 'sm' : 'md'}
+          />
+        </UserContextMenu>
 
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <ColoredUsername user={comment.author} size="sm" badges={comment.author.badges} maxBadges={2} />
+            <UserContextMenu
+              user={{
+                id: comment.author.id,
+                username: comment.author.username,
+                avatar: resolveMediaUrl(comment.author.avatar) ?? null,
+              }}
+              commentId={comment.id}
+              triggerClassName="inline-flex"
+            >
+              <ColoredUsername
+                user={comment.author}
+                size="sm"
+                badges={comment.author.badges}
+                maxBadges={2}
+                linkToProfile={false}
+              />
+            </UserContextMenu>
             <PositionBadge position={comment.author.position} size="sm" />
             <Tooltip>
               <TooltipTrigger asChild>

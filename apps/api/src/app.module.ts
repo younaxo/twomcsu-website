@@ -8,9 +8,11 @@ import { PerformanceMiddleware } from './common/middleware/performance.middlewar
 import { configuration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { AuthModule } from './modules/auth/auth.module';
+import { AchievementsModule } from './modules/achievements/achievements.module';
 import { AwardsModule } from './modules/awards/awards.module';
 import { CustomPositionsModule } from './modules/custom-positions/custom-positions.module';
 import { DepartmentsModule } from './modules/departments/departments.module';
+import { DirectMessagesModule } from './modules/direct-messages/direct-messages.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommentsModule } from './modules/comments/comments.module';
@@ -19,6 +21,7 @@ import { FormsModule } from './modules/forms/forms.module';
 import { FriendsModule } from './modules/friends/friends.module';
 import { HealthModule } from './modules/health/health.module';
 import { MinecraftModule } from './modules/minecraft/minecraft.module';
+import { ModerationModule } from './modules/moderation/moderation.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { PositionsModule } from './modules/positions/positions.module';
@@ -57,8 +60,10 @@ import { UsersModule } from './modules/users/users.module';
     PositionsModule,
     UsersModule,
     AwardsModule,
+    AchievementsModule,
     CustomPositionsModule,
     DepartmentsModule,
+    DirectMessagesModule,
     FriendsModule,
     CommentsModule,
     EmojisModule,
@@ -68,6 +73,7 @@ import { UsersModule } from './modules/users/users.module';
     AdminModule,
     StatisticsModule,
     ExportModule,
+    ModerationModule,
     ChatModule,
     SystemModule,
     TopicsModule,

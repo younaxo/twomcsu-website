@@ -7,12 +7,15 @@ import {
 } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { ArrowLeft, CheckCircle2, Gavel, Users, XCircle } from 'lucide-react';
+import { ArrowLeft, FileText, Gavel, Link2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
+import { HtmlWithImagePreview } from '@/components/shared/HtmlWithImagePreview';
+import { ImageWithPreview } from '@/components/shared/ImageWithPreview';
+import { EvidenceLinks } from '@/components/reports/EvidenceLinks';
 import { ReportMessageInput } from '@/components/reports/ReportMessageInput';
 import { ReportMessagesList } from '@/components/reports/ReportMessagesList';
 import { ReportModeratorNotes } from '@/components/reports/ReportModeratorNotes';
@@ -20,12 +23,17 @@ import { ReportModerationActions } from '@/components/reports/ReportModerationAc
 import { ReportNumberBadge } from '@/components/reports/ReportNumberBadge';
 import { ReportStatusBadge } from '@/components/reports/ReportStatusBadge';
 import { ReportTypeIcon } from '@/components/reports/ReportTypeIcon';
+import { ReportVerdictCard } from '@/components/reports/ReportVerdictCard';
 import { TargetChip } from '@/components/reports/TargetChip';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useReport } from '@/hooks/reports/useReports';
 import { cn } from '@/lib/utils';
+
+function isImageAttachment(mimeType: string) {
+  return mimeType.startsWith('image/');
+}
 
 export default function ReportDetailsPage() {
   const params = useParams<{ reportNumber: string }>();
@@ -51,7 +59,9 @@ export default function ReportDetailsPage() {
   }
 
   const data = report.data;
-  const isModerator = canReviewReportType(user.roleGroup, data.type);
+  const isTarget = data.targets.some((target) => target.userId === user.id);
+  const canModerateType = canReviewReportType(user.roleGroup, data.type);
+  const isModerator = canModerateType && !isTarget;
   const targets =
     data.targets.length > 0
       ? data.targets
@@ -68,26 +78,8 @@ export default function ReportDetailsPage() {
           ]
         : [];
 
-  const backHref = isModerator ? '/moderation/reports' : '/report';
-  const isRejected = data.status === 'REJECTED';
-  const hasVerdict = Boolean(data.verdict);
-
-  // Original description as first timeline entry, then thread replies
-  const threadMessages = [
-    {
-      id: `desc-${data.id}`,
-      content: data.description,
-      contentHtml: data.descriptionHtml,
-      isStaff: false,
-      isSystem: false,
-      isDeleted: false,
-      isPinned: false,
-      pinnedAt: null,
-      createdAt: data.createdAt,
-      author: data.author,
-    },
-    ...data.messages,
-  ];
+  const backHref = canModerateType ? '/moderation/reports' : '/report';
+  const hasEvidence = data.evidenceLinks.length > 0 || data.attachments.length > 0;
 
   return (
     <div className="mx-auto max-w-6xl space-y-5 px-4 pb-10 pt-4">
@@ -109,8 +101,19 @@ export default function ReportDetailsPage() {
         </div>
       </header>
 
-      <div className={cn('grid gap-5', isModerator && 'lg:grid-cols-[1fr_260px]')}>
-        <div className="space-y-5">
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-6',
+          isModerator && 'lg:grid-cols-[minmax(0,1fr)_320px]',
+        )}
+      >
+        <div className="min-w-0 space-y-5">
+          {canModerateType && isTarget ? (
+            <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+              Это обращение на вас. Рассматривать будет другой администратор
+            </div>
+          ) : null}
+
           <section className="rounded-2xl glass-medium p-5">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <ReportTypeIcon type={data.type} size="xl" />
@@ -207,53 +210,66 @@ export default function ReportDetailsPage() {
             </section>
           ) : null}
 
-          <section className="space-y-4 rounded-2xl glass-medium p-5">
-            <h2 className="text-lg font-medium text-white">Переписка</h2>
-            <ReportMessagesList
-              messages={threadMessages}
-              reportNumber={data.reportNumber}
-              currentUserId={user.id}
-              roleGroup={user.roleGroup}
-              authorId={data.author.id}
-              evidenceLinks={data.evidenceLinks}
-              attachments={data.attachments}
-            />
-
-            {hasVerdict ? (
-              <article
-                className={cn(
-                  'rounded-2xl glass-strong p-5 animate-in fade-in duration-500',
-                  isRejected
-                    ? 'border border-red-500/40'
-                    : 'border border-emerald-500/40',
-                )}
-              >
-                <div className="mb-3 flex items-center gap-2">
-                  {isRejected ? (
-                    <XCircle className="h-6 w-6 text-red-400" />
-                  ) : (
-                    <CheckCircle2 className="h-6 w-6 text-emerald-400" />
-                  )}
-                  <h3 className="text-lg font-semibold text-white">Вердикт по обращению</h3>
-                </div>
-                {data.verdictHtml ? (
-                  <div
-                    className="prose prose-invert max-w-none text-sm"
-                    dangerouslySetInnerHTML={{ __html: data.verdictHtml }}
-                  />
-                ) : (
-                  <p className="whitespace-pre-wrap text-sm text-neutral-100">{data.verdict}</p>
-                )}
-                {data.resolvedAt ? (
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {format(new Date(data.resolvedAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
-                  </p>
-                ) : null}
-              </article>
+          <section className="rounded-2xl glass-medium p-5">
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-medium text-white">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              Описание
+            </h2>
+            {data.descriptionHtml ? (
+              <HtmlWithImagePreview html={data.descriptionHtml} />
+            ) : (
+              <p className="whitespace-pre-wrap text-sm text-neutral-100">{data.description}</p>
+            )}
+            {data.additionalText ? (
+              <div className="mt-4 border-t border-white/10 pt-4">
+                <h3 className="mb-2 text-sm font-medium text-muted-foreground">
+                  Дополнительная информация
+                </h3>
+                <p className="whitespace-pre-wrap text-sm text-neutral-200">{data.additionalText}</p>
+              </div>
             ) : null}
-
-            <ReportMessageInput reportNumber={data.reportNumber} isLocked={data.isLocked} />
           </section>
+
+          {hasEvidence ? (
+            <section className="rounded-2xl glass-medium p-5">
+              <h2 className="mb-3 flex items-center gap-2 text-lg font-medium text-white">
+                <Link2 className="h-5 w-5 text-muted-foreground" />
+                Доказательства
+              </h2>
+              {data.evidenceLinks.length > 0 ? (
+                <EvidenceLinks links={data.evidenceLinks} className="mb-4" />
+              ) : null}
+              {data.attachments.length > 0 ? (
+                <div className="flex flex-wrap gap-3">
+                  {data.attachments.map((file) =>
+                    isImageAttachment(file.mimeType) ? (
+                      <ImageWithPreview
+                        key={file.id}
+                        src={file.fileUrl}
+                        alt={file.fileName}
+                        className="h-28 w-28 overflow-hidden rounded-xl glass-light"
+                        gallery={data.attachments
+                          .filter((item) => isImageAttachment(item.mimeType))
+                          .map((item) => item.fileUrl)}
+                      />
+                    ) : (
+                      <a
+                        key={file.id}
+                        href={file.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-xl glass-light px-3 py-2 text-xs text-neutral-200 transition hover:opacity-80"
+                      >
+                        {file.fileName}
+                      </a>
+                    ),
+                  )}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          <ReportVerdictCard report={data} />
 
           {isModerator ? (
             <ReportModeratorNotes
@@ -263,10 +279,22 @@ export default function ReportDetailsPage() {
               roleGroup={user.roleGroup}
             />
           ) : null}
+
+          <section className="space-y-4 rounded-2xl glass-medium p-5">
+            <h2 className="text-lg font-medium text-white">Переписка</h2>
+            <ReportMessagesList
+              messages={data.messages}
+              reportNumber={data.reportNumber}
+              currentUserId={user.id}
+              roleGroup={user.roleGroup}
+              authorId={data.author.id}
+            />
+            <ReportMessageInput reportNumber={data.reportNumber} isLocked={data.isLocked} />
+          </section>
         </div>
 
         {isModerator ? (
-          <aside className="h-fit space-y-3 lg:sticky lg:top-36">
+          <aside className="w-full min-w-0 lg:sticky lg:top-20 lg:h-fit">
             <div className="rounded-2xl glass-medium p-4">
               <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Действия

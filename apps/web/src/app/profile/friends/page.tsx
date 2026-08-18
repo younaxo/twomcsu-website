@@ -1,12 +1,15 @@
 'use client';
 
-import { Search, Users } from 'lucide-react';
+import type { UserSearchResult } from '@twomc/shared';
+import { Search, UserPlus, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { useDebounce } from 'use-debounce';
 import { BlockedUserCard } from '@/components/shared/BlockedUserCard';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendCard } from '@/components/shared/FriendCard';
 import { FriendRequestCard } from '@/components/shared/FriendRequestCard';
+import { UserSearchInput } from '@/components/shared/UserSearchInput';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +21,9 @@ import {
   useIncomingRequests,
   useIncomingRequestsCount,
   useOutgoingRequests,
+  useSendFriendRequest,
 } from '@/hooks/useFriendsQueries';
+import { extractErrorMessage } from '@/lib/api';
 
 const PAGE_SIZE = 12;
 
@@ -32,6 +37,8 @@ export default function FriendsPage() {
   const outgoingQuery = useOutgoingRequests();
   const blockedQuery = useBlockedUsers();
   const incomingCountQuery = useIncomingRequestsCount(true);
+  const sendRequest = useSendFriendRequest();
+  const [addKey, setAddKey] = useState(0);
 
   const friends = friendsQuery.data?.data ?? [];
   const friendsTotal = friendsQuery.data?.pagination.total ?? 0;
@@ -59,6 +66,17 @@ export default function FriendsPage() {
     void incomingCountQuery.refetch();
   };
 
+  const handleAddFriend = async (user: UserSearchResult) => {
+    try {
+      await sendRequest.mutateAsync(user.username);
+      toast.success(`Запрос отправлен: ${user.username}`);
+      setAddKey((k) => k + 1);
+      refreshLists();
+    } catch (error) {
+      toast.error(extractErrorMessage(error, 'Не удалось отправить запрос'));
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -78,6 +96,19 @@ export default function FriendsPage() {
       <div>
         <h1 className="text-2xl font-semibold text-white">Друзья</h1>
         <p className="text-sm text-muted-foreground">Управляйте друзьями и запросами</p>
+      </div>
+
+      <div className="glass-card max-w-lg space-y-2 rounded-xl p-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-white">
+          <UserPlus className="h-4 w-4 text-primary" />
+          Добавить в друзья
+        </div>
+        <UserSearchInput
+          key={addKey}
+          onSelect={(user) => void handleAddFriend(user)}
+          placeholder="Найти игрока…"
+          disabled={sendRequest.isPending}
+        />
       </div>
 
       <Tabs defaultValue="friends">

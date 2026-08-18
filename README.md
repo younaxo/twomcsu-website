@@ -180,6 +180,16 @@ curl -i -X POST http://localhost:4000/auth/logout \
 Что стоит проверить руками: занятый email и никнейм дают 409, три неверных пароля включают капчу,
 десятый подряд — 429, `/auth/me` без токена — 401, а старый refresh после логаута — 401.
 
+## Личные сообщения
+
+Страница `/messages` поддерживает диалоги один на один и группы до 10 участников. Доступны
+Markdown, ответы, реакции, изображения и файлы, индикатор набора текста и отметки прочтения.
+Настройка приватности определяет, кто может начать новый диалог: все, друзья друзей, друзья
+или никто. В группу друзей можно добавить напрямую, остальных — по ограниченной ссылке `/g/:code`.
+
+Realtime работает через Socket.IO namespace `/messages`. REST API находится под `/messages/*`;
+все маршруты, кроме просмотра группового приглашения, требуют JWT.
+
 ## Префиксы (Position)
 
 В UI — «Префикс». В БД и коде модель остаётся `Position`: титул внутри группы (цвет ника,
@@ -446,14 +456,25 @@ Realtime через Socket.IO (`activity:new`, `activity:updated`, `activity:del
 
 ## Уведомления
 
+Расширенная система: in-app, Socket.IO (`/notifications`), push (Web Push / VAPID), email (SMTP), Discord webhooks, дайджесты, тихие часы, группировка и приоритеты.
+
 | Метод и путь | Доступ | Что делает |
 | --- | --- | --- |
 | `GET /notifications` | авторизованный | Список (`page`, `limit`, `unreadOnly`) |
-| `GET /notifications/unread-count` | авторизованный | Счётчик непрочитанных (poll 30 с в шапке) |
+| `GET /notifications/unread-count` | авторизованный | Счётчик непрочитанных |
 | `PATCH /notifications/:id/read` | авторизованный | Прочитать одно |
 | `PATCH /notifications/read-all` | авторизованный | Прочитать все → `{ count }` |
+| `GET/PATCH /notifications/settings` | авторизованный | Настройки каналов и тихих часов |
+| `POST /notifications/push/subscribe` | авторизованный | Подписка на push |
+| `GET /notifications/push/vapid-key` | авторизованный | Публичный VAPID ключ |
+| `POST /notifications/discord/webhook` | авторизованный | Личный Discord webhook |
+| `GET/POST/PATCH/DELETE /admin/notifications/webhooks` | ADMIN+ | Глобальные Discord webhooks |
+| `POST /admin/notifications/broadcast` | ADMIN+ | Массовая рассылка |
+| `GET /admin/notifications/stats` | ADMIN+ | Статистика |
 
-Страницы: `/profile/notifications`. В шапке — колокольчик и пункт «Уведомления» в меню.
+Страницы: `/profile/notifications`, `/profile/settings` → таб «Уведомления», `/admin/notifications/*`.
+
+Env (опционально): `SMTP_*`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`.
 
 Промокоды магазина из сида:
 

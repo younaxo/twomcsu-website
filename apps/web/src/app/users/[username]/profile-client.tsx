@@ -1,6 +1,7 @@
 'use client';
 
 import type { FriendsCountResponse, RestrictedProfileResponse, UserProfile } from '@twomc/shared';
+import { RoleGroup, hasRoleGroup } from '@twomc/shared';
 import {
   Cake,
   Eye,
@@ -8,7 +9,9 @@ import {
   Gift,
   Heart,
   MapPin,
+  MessageCircle,
   Package,
+  Shield,
   Skull,
   Sword,
   TrendingUp,
@@ -25,19 +28,21 @@ import { ru } from 'date-fns/locale';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { AwardsList } from '@/components/shared/AwardsList';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { CopyableId } from '@/components/shared/CopyableId';
-import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FriendButton } from '@/components/shared/FriendButton';
 import { DepartmentBadgesList } from '@/components/shared/DepartmentBadgesList';
+import { AchievementShowcase } from '@/components/achievements/AchievementShowcase';
 import { ActivityCard } from '@/components/activity/ActivityCard';
 import { CommentsList } from '@/components/comments/CommentsList';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { ReactionButtons } from '@/components/profile/ReactionButtons';
 import { ReportProfileDialog } from '@/components/profile/ReportProfileDialog';
 import { RestrictedProfileView } from '@/components/profile/RestrictedProfileView';
+import { UserContextMenu } from '@/components/moderation/UserContextMenu';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -46,6 +51,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useAuth } from '@/hooks/useAuth';
 import { useUserActivity } from '@/hooks/activity';
 import { useGiftFromWishlist, useUserWishlist } from '@/hooks/store';
+import { useUserAchievements } from '@/hooks/achievements';
+import { useCreateDirectConversation } from '@/hooks/useDirectMessages';
 import { api, extractErrorMessage } from '@/lib/api';
 import {
   formatNumber,
@@ -54,7 +61,6 @@ import {
   resolveMediaUrl,
   socialPlatformLabels,
 } from '@/lib/profile';
-import { getMinecraftUsername } from '@/lib/username-aliases';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 
 const SkinViewer3D = dynamic(
@@ -67,7 +73,8 @@ const SkinViewer3D = dynamic(
 
 interface ProfileClientProps {
   username: string;
-  initial: UserProfile;
+  initial: UserProfile | null;
+  initialRestricted?: RestrictedProfileResponse | null;
 }
 
 function parseRestricted(error: unknown): RestrictedProfileResponse | null {
@@ -90,11 +97,19 @@ function parseRestricted(error: unknown): RestrictedProfileResponse | null {
   return null;
 }
 
-export function ProfileClient({ username, initial }: ProfileClientProps) {
-  const { isAuthenticated } = useAuth();
+export function ProfileClient({
+  username,
+  initial,
+  initialRestricted = null,
+}: ProfileClientProps) {
+  const { user: me, isAuthenticated } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(initial);
-  const [restricted, setRestricted] = useState<RestrictedProfileResponse | null>(null);
+  const [restricted, setRestricted] = useState<RestrictedProfileResponse | null>(
+    initialRestricted,
+  );
   const [friendsCount, setFriendsCount] = useState<number | null>(null);
+  const userAchievements = useUserAchievements(username);
+  const createConversation = useCreateDirectConversation();
 
   useEffect(() => {
     void api
@@ -148,9 +163,20 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
 
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const statsHidden = profile.statistics === null && !profile.isOwner;
+  const ownerPrivacyNote =
+    profile.isOwner && profile.profileVisibility === 'NOBODY'
+      ? 'Ваш профиль (виден только вам)'
+      : profile.isOwner && profile.profileVisibility === 'FRIENDS_ONLY'
+        ? 'Ваш профиль (виден только друзьям)'
+        : null;
 
   return (
     <div className="space-y-6">
+      {ownerPrivacyNote ? (
+        <div className="glass-medium rounded-xl border border-orange-500/30 px-4 py-3 text-sm text-orange-200">
+          {ownerPrivacyNote}
+        </div>
+      ) : null}
       <div className="glass-medium overflow-hidden rounded-2xl">
         <div className="relative h-[200px] w-full bg-secondary sm:h-[320px]">
           {bannerUrl ? (
@@ -172,27 +198,38 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
         <div className="relative px-4 pb-6 pt-4 sm:px-6 sm:pt-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="relative -mt-16 shrink-0 sm:-mt-20">
-                <div className="relative h-32 w-32 no-select">
-                  {resolveMediaUrl(profile.avatar) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={resolveMediaUrl(profile.avatar)!}
-                      alt={profile.username}
-                      className="h-32 w-32 rounded-full object-cover ring-4 ring-[rgba(15,15,20,0.9)]"
-                    />
-                  ) : (
-                    <div className="h-32 w-32 overflow-hidden rounded-full ring-4 ring-[rgba(15,15,20,0.9)]">
-                      <DefaultAvatar username={profile.username} letterClassName="text-4xl" />
+              <div className="relative shrink-0">
+                <AvatarWithSkin user={profile} size="lg" />
+
+                {profile.statusText ? (
+                  <div className="absolute left-[calc(100%+0.75rem)] top-2 hidden max-w-[14rem] sm:block">
+                    <div
+                      className="relative px-3.5 py-2.5 text-sm text-foreground"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, rgba(245, 124, 0, 0.2), rgba(255, 152, 0, 0.1))',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(245, 124, 0, 0.2)',
+                        borderRadius: 18,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      }}
+                    >
+                      {profile.statusText}
+                      <svg
+                        className="absolute -left-2 bottom-3"
+                        width="14"
+                        height="16"
+                        viewBox="0 0 14 16"
+                        aria-hidden
+                      >
+                        <path
+                          d="M14 0 C8 2 2 6 0 14 C4 10 10 8 14 8 Z"
+                          fill="rgba(245, 124, 0, 0.25)"
+                        />
+                      </svg>
                     </div>
-                  )}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`https://mc-heads.net/head/${encodeURIComponent(getMinecraftUsername(profile.username))}/48`}
-                    alt=""
-                    className="absolute -bottom-1 -right-1 h-12 w-12 rounded-full"
-                  />
-                </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="space-y-1.5 pb-1">
@@ -278,12 +315,47 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
 
             <div className="flex flex-col items-start gap-3 sm:items-end">
               <AwardsList awards={profile.awards} size={28} />
-              {isAuthenticated && !profile.isOwner ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  <FriendButton username={profile.username} />
-                  <ReportProfileDialog username={profile.username} />
-                </div>
-              ) : null}
+              <div className="flex flex-wrap items-center gap-2">
+                {isAuthenticated && !profile.isOwner ? (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="gap-2"
+                      disabled={createConversation.isPending}
+                      onClick={async () => {
+                        try {
+                          const conversation = await createConversation.mutateAsync(profile.username);
+                          window.location.assign(`/messages?conversation=${conversation.id}`);
+                        } catch (error) {
+                          toast.error(extractErrorMessage(error, 'Не удалось открыть диалог'));
+                        }
+                      }}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Написать
+                    </Button>
+                    <FriendButton username={profile.username} />
+                    <ReportProfileDialog username={profile.username} />
+                  </>
+                ) : null}
+                {me &&
+                !profile.isOwner &&
+                hasRoleGroup(me.roleGroup, RoleGroup.HELPER) ? (
+                  <UserContextMenu
+                    user={{
+                      id: profile.id,
+                      username: profile.username,
+                      avatar: profile.avatar,
+                    }}
+                  >
+                    <Button variant="secondary" size="sm" className="glass-hover-orange gap-2">
+                      <Shield className="h-4 w-4" />
+                      Модерация
+                    </Button>
+                  </UserContextMenu>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
@@ -478,6 +550,17 @@ export function ProfileClient({ username, initial }: ProfileClientProps) {
                   <AwardsList awards={profile.awards} />
                 </CardContent>
               </Card>
+
+              {userAchievements.data && userAchievements.data.showcase.length > 0 ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Витрина достижений</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <AchievementShowcase achievements={userAchievements.data.showcase} />
+                  </CardContent>
+                </Card>
+              ) : null}
 
               <div className="flex flex-wrap items-center gap-4">
                 <ReactionButtons

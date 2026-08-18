@@ -24,6 +24,7 @@ import {
   ReportBanInfo,
   ReportDetails,
   ReportListResponse,
+  ReportMessageAttachment,
   ReportStats,
   RoleGroup,
   TopicDetails,
@@ -145,6 +146,34 @@ export class ReportsController {
     return this.reports.uploadAttachment(reportNumber, user.id, user.roleGroup, file);
   }
 
+  @Post('reports/:reportNumber/messages/:messageId/attachments')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 20 * 1024 * 1024, files: 1 },
+    }),
+  )
+  uploadMessageAttachment(
+    @Param('reportNumber') reportNumber: string,
+    @Param('messageId') messageId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addMaxSizeValidator({ maxSize: 20 * 1024 * 1024 })
+        .build({ fileIsRequired: true }),
+    )
+    file: Express.Multer.File,
+  ): Promise<ReportMessageAttachment> {
+    return this.reports.uploadMessageAttachment(
+      reportNumber,
+      messageId,
+      user.id,
+      user.roleGroup,
+      file,
+    );
+  }
+
   @Get('game-reports')
   listGameReports(): Promise<GameReportSummary[]> {
     return this.reports.listGameReports();
@@ -233,7 +262,9 @@ export class ReportsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: AddReportMessageDto,
   ): Promise<ReportDetails> {
-    return this.reports.addMessage(reportNumber, user.id, user.roleGroup, dto);
+    return this.reports.addMessage(reportNumber, user.id, user.roleGroup, dto, {
+      asModerator: true,
+    });
   }
 
   @Delete('moderation/reports/:reportNumber/messages/:messageId')

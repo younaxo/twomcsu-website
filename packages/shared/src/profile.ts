@@ -139,6 +139,7 @@ export interface UserBadge {
   type: UserBadgeType;
   grantedAt: string;
   expiresAt: string | null;
+  order?: number;
 }
 
 export interface SocialLink {
@@ -164,6 +165,7 @@ export interface Award {
 
 export interface UserAward extends Award {
   grantedAt: string;
+  order?: number;
 }
 
 export interface PlayerStatistics {
@@ -258,6 +260,9 @@ export interface MyProfile extends PrivacySettings {
   mediaBadges: MediaBadge[];
   socials: SocialLink[];
   statistics: PlayerStatistics | null;
+  /** Selected header badge; null means auto (top by priority) */
+  displayBadgeId?: string | null;
+  displayBadge?: UserBadge | null;
 }
 
 /** Anyone can read this one, hidden fields are stripped before it leaves the api */
@@ -296,16 +301,18 @@ export interface UserProfile {
   commentPolicy: import('./comments').CommentPolicy;
   /** Present while FRIENDS_ONLY still behaves like EVERYONE for non-friends */
   visibility?: 'friends_only';
+  /** Only for the owner — used to show a privacy notice on their own page */
+  profileVisibility?: ProfileVisibility;
   /** Online on game server; may be absent until backend wires it */
   isOnlineInGame?: boolean;
   currentServer?: string | null;
   lastServerActivity?: string | null;
 }
 
-/** 403 body when profileVisibility is NOBODY and the viewer is not the owner */
+/** 403 body when profileVisibility blocks the viewer */
 export interface RestrictedProfileResponse {
   restricted: true;
-  reason: 'private';
+  reason: 'private' | 'friends_only';
   user: {
     username: string;
     avatar: string | null;

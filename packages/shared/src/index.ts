@@ -1,3 +1,4 @@
+export * from './achievements';
 export * from './activity';
 export * from './api';
 export * from './auth';
@@ -5,6 +6,7 @@ export * from './chat';
 export * from './comments';
 export * from './custom-position';
 export * from './department';
+export * from './direct-messages';
 export * from './emoji';
 export * from './forms';
 export * from './friends';

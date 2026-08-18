@@ -7,6 +7,7 @@ import { Copy, Pin, Reply, Trash2 } from 'lucide-react';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
+import { UserContextMenu } from '@/components/moderation/UserContextMenu';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
 import { PositionBadge } from '@/components/shared/PositionBadge';
@@ -102,25 +103,55 @@ export const MessageBubble = memo(function MessageBubble({
       ) : null}
 
       <div className="flex gap-2">
-        <AvatarWithSkin
-          user={{
-            username: message.author?.username ?? 'Steve',
-            avatar: message.author?.avatar,
-          }}
-          size="sm"
-        />
+        {message.author ? (
+          <UserContextMenu
+            user={{
+              id: message.author.id,
+              username: message.author.username,
+              avatar: message.author.avatar,
+            }}
+            messageId={message.id}
+          >
+            <AvatarWithSkin
+              user={{
+                username: message.author.username,
+                avatar: message.author.avatar,
+              }}
+              size="sm"
+            />
+          </UserContextMenu>
+        ) : (
+          <AvatarWithSkin
+            user={{
+              username: 'Steve',
+              avatar: null,
+            }}
+            size="sm"
+          />
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
             {message.author?.position ? (
-              <ColoredUsername
+              <UserContextMenu
                 user={{
+                  id: message.author.id,
                   username: message.author.username,
-                  position: message.author.position,
+                  avatar: message.author.avatar,
                 }}
-                badges={message.author.badges}
-                maxBadges={2}
-                size="sm"
-              />
+                messageId={message.id}
+                triggerClassName="inline-flex"
+              >
+                <ColoredUsername
+                  user={{
+                    username: message.author.username,
+                    position: message.author.position,
+                  }}
+                  badges={message.author.badges}
+                  maxBadges={2}
+                  size="sm"
+                  linkToProfile={false}
+                />
+              </UserContextMenu>
             ) : (
               <span className="text-sm font-semibold text-white">
                 {message.author?.username ?? 'Система'}

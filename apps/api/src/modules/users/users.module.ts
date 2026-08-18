@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { AchievementsModule } from '../achievements/achievements.module';
 import { ActivityModule } from '../activity/activity.module';
 import { FriendsModule } from '../friends/friends.module';
 import { UploadsModule } from '../uploads/uploads.module';
@@ -11,6 +12,7 @@ import { UsersService } from './users.service';
     UploadsModule,
     forwardRef(() => FriendsModule),
     forwardRef(() => ActivityModule),
+    forwardRef(() => AchievementsModule),
   ],
   controllers: [MeController, BannersController, UsersController, AdminUsersController],
   providers: [UsersService],

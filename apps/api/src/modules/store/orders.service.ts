@@ -16,6 +16,7 @@ import {
   StoreOrder,
 } from '@twomc/shared';
 import { ActivityService } from '../activity/activity.service';
+import { AchievementsService } from '../achievements/achievements.service';
 import { CACHE_TTL, cacheKeys } from '../cache/cache.keys';
 import { CacheService } from '../cache/cache.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -58,6 +59,9 @@ export class OrdersService {
     @Optional()
     @Inject(forwardRef(() => ActivityService))
     private readonly activity?: ActivityService,
+    @Optional()
+    @Inject(forwardRef(() => AchievementsService))
+    private readonly achievements?: AchievementsService,
   ) {}
 
   async createFromCart(
@@ -416,6 +420,11 @@ export class OrdersService {
           })
           .catch(() => undefined);
       }
+
+      void this.checkPurchaseAchievements(updated.userId);
+      for (const item of updated.items.filter((i) => i.giftToUserId)) {
+        void this.checkGiftAchievements(updated.userId, item.giftToUserId!);
+      }
     }
 
     return toStoreOrder(updated);
@@ -610,6 +619,52 @@ export class OrdersService {
       throw new NotFoundException('Заказ не найден');
     }
     return order;
+  }
+
+  private checkPurchaseAchievements(userId: string): void {
+    if (!this.achievements) return;
+    void this.prisma.order
+      .findMany({
+        where: { userId, status: OrderStatus.COMPLETED },
+        select: { total: true },
+      })
+      .then(async (orders) => {
+        const totalSpent = Math.floor(orders.reduce((sum, o) => sum + Number(o.total), 0));
+        await this.achievements!.checkAndGrantAchievement(
+          userId,
+          'PURCHASES_COUNT',
+          orders.length,
+        );
+        await this.achievements!.checkAndGrantAchievement(userId, 'TOTAL_SPENT', totalSpent);
+      })
+      .catch(() => undefined);
+  }
+
+  private checkGiftAchievements(fromUserId: string, toUserId: string): void {
+    if (!this.achievements) return;
+    void this.prisma.orderItem
+      .count({
+        where: {
+          order: { userId: fromUserId, status: OrderStatus.COMPLETED },
+          giftToUserId: { not: null },
+        },
+      })
+      .then((count) =>
+        this.achievements!.checkAndGrantAchievement(fromUserId, 'GIFTS_SENT', count),
+      )
+      .catch(() => undefined);
+
+    void this.prisma.orderItem
+      .count({
+        where: {
+          giftToUserId: toUserId,
+          order: { status: OrderStatus.COMPLETED },
+        },
+      })
+      .then((count) =>
+        this.achievements!.checkAndGrantAchievement(toUserId, 'GIFTS_RECEIVED', count),
+      )
+      .catch(() => undefined);
   }
 
   private async nextOrderNumber(): Promise<string> {

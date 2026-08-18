@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { CommentsModule } from '../comments/comments.module';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -12,7 +12,11 @@ import { MessagesService } from './messages.service';
 import { ModerationService } from './moderation.service';
 
 @Module({
-  imports: [AuthModule, CommentsModule, NotificationsModule],
+  imports: [
+    forwardRef(() => AuthModule),
+    forwardRef(() => CommentsModule),
+    NotificationsModule,
+  ],
   controllers: [ChatController, AdminChatController],
   providers: [
     ChatGateway,

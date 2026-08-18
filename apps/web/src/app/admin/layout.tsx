@@ -12,11 +12,16 @@ import { useDashboardOverview } from '@/hooks/admin';
 
 const adminLinks = [
   { href: '/admin/users', label: 'Пользователи' },
-  { href: '/admin/positions', label: 'Позиции' },
+  { href: '/admin/positions', label: 'Префиксы' },
   { href: '/admin/badges', label: 'Бейджи' },
   { href: '/admin/awards', label: 'Награды' },
+  { href: '/admin/achievements', label: 'Достижения' },
   { href: '/admin/departments', label: 'Отделы' },
   { href: '/admin/custom-positions', label: 'Кастомные должности' },
+  { href: '/admin/servers', label: 'Серверы' },
+  { href: '/admin/notifications/webhooks', label: 'Увед. webhooks' },
+  { href: '/admin/notifications/broadcast', label: 'Увед. рассылка' },
+  { href: '/admin/notifications/stats', label: 'Увед. статистика' },
   { href: '/admin/store/products', label: 'Товары' },
   { href: '/admin/store/categories', label: 'Категории' },
   { href: '/admin/store/bundles', label: 'Бандлы' },

@@ -1,20 +1,15 @@
 'use client';
 
-import type {
-  ReportAttachment,
-  ReportEvidenceLink,
-  ReportMessage as ReportMessageType,
-  RoleGroup,
-} from '@twomc/shared';
+import type { ReportMessage as ReportMessageType, RoleGroup } from '@twomc/shared';
 import { RoleGroup as RG, hasRoleGroup } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Pin, Trash2 } from 'lucide-react';
+import { FileText, Pin, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { EvidenceLinks } from '@/components/reports/EvidenceLinks';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
+import { ImageWithPreview } from '@/components/shared/ImageWithPreview';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,18 +28,12 @@ function MessageCard({
   reportNumber,
   currentUserId,
   roleGroup,
-  isFirstAuthor,
-  evidenceLinks,
-  attachments,
   showPin,
 }: {
   message: ReportMessageType;
   reportNumber: string;
   currentUserId?: string;
   roleGroup?: RoleGroup;
-  isFirstAuthor?: boolean;
-  evidenceLinks?: ReportEvidenceLink[];
-  attachments?: ReportAttachment[];
   showPin?: boolean;
 }) {
   const softDelete = useSoftDeleteReportMessage();
@@ -52,12 +41,10 @@ function MessageCard({
   const ownDelete = useDeleteOwnReportMessage(reportNumber);
   const pin = usePinReportMessage();
 
-  const isSynthetic = message.id.startsWith('desc-');
   const isStaffViewer = roleGroup ? hasRoleGroup(roleGroup, RG.HELPER) : false;
   const isAdmin = roleGroup ? hasRoleGroup(roleGroup, RG.ADMIN) : false;
   const isAuthor = currentUserId === message.author.id;
   const canOwnDelete =
-    !isSynthetic &&
     isAuthor &&
     !message.isSystem &&
     !message.isDeleted &&
@@ -86,9 +73,6 @@ function MessageCard({
                 Модератор
               </Badge>
             ) : null}
-            {isFirstAuthor ? (
-              <Badge className="bg-white/10 text-[10px] text-neutral-200">Обращение</Badge>
-            ) : null}
             {message.isPinned ? (
               <Badge className="bg-white/10 text-[10px] text-neutral-200">
                 <Pin className="mr-1 h-3 w-3" />
@@ -101,7 +85,7 @@ function MessageCard({
           </div>
         </div>
 
-        {!isSynthetic && !message.isDeleted && (isStaffViewer || canOwnDelete) ? (
+        {!message.isDeleted && (isStaffViewer || canOwnDelete) ? (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             {isStaffViewer && showPin !== false ? (
               <Button
@@ -190,26 +174,32 @@ function MessageCard({
         />
       )}
 
-      {isFirstAuthor && !message.isDeleted ? (
-        <div className="mt-4 space-y-3 border-t border-white/5 pt-4">
-          {evidenceLinks && evidenceLinks.length > 0 ? (
-            <EvidenceLinks links={evidenceLinks} />
-          ) : null}
-          {attachments && attachments.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {attachments.map((file) => (
-                <a
-                  key={file.id}
-                  href={file.fileUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-lg glass-light px-3 py-2 text-xs text-neutral-200 transition hover:opacity-80"
-                >
-                  {file.fileName}
-                </a>
-              ))}
-            </div>
-          ) : null}
+      {!message.isDeleted && message.attachments?.length ? (
+        <div className="mt-3 flex flex-wrap gap-2 border-t border-white/5 pt-3">
+          {message.attachments.map((file) =>
+            file.mimeType.startsWith('image/') ? (
+              <ImageWithPreview
+                key={file.id}
+                src={file.fileUrl}
+                alt={file.fileName}
+                className="h-24 w-24 overflow-hidden rounded-lg glass-light"
+                gallery={message.attachments
+                  .filter((item) => item.mimeType.startsWith('image/'))
+                  .map((item) => item.fileUrl)}
+              />
+            ) : (
+              <a
+                key={file.id}
+                href={file.fileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg glass-light px-3 py-2 text-xs text-neutral-200 transition hover:opacity-80"
+              >
+                <FileText className="h-4 w-4 shrink-0" />
+                {file.fileName}
+              </a>
+            ),
+          )}
         </div>
       ) : null}
     </article>
@@ -221,9 +211,6 @@ export function ReportMessagesList({
   reportNumber,
   currentUserId,
   roleGroup,
-  authorId,
-  evidenceLinks,
-  attachments,
   className,
 }: {
   messages: ReportMessageType[];
@@ -231,8 +218,6 @@ export function ReportMessagesList({
   currentUserId?: string;
   roleGroup?: RoleGroup;
   authorId?: string;
-  evidenceLinks?: ReportEvidenceLink[];
-  attachments?: ReportAttachment[];
   className?: string;
 }) {
   if (messages.length === 0) {
@@ -241,31 +226,18 @@ export function ReportMessagesList({
 
   const pinned = messages.filter((m) => m.isPinned && !m.isSystem);
   const rest = messages.filter((m) => !m.isPinned || m.isSystem);
-  const firstAuthorId = authorId ?? messages.find((m) => !m.isStaff && !m.isSystem)?.author.id;
 
-  const render = (list: ReportMessageType[], withEvidence: boolean) =>
-    list.map((message, index) => {
-      const isFirstAuthor =
-        withEvidence &&
-        !message.isSystem &&
-        message.author.id === firstAuthorId &&
-        list === rest &&
-        index === rest.findIndex((m) => !m.isSystem && m.author.id === firstAuthorId);
-
-      return (
-        <MessageCard
-          key={message.id}
-          message={message}
-          reportNumber={reportNumber}
-          currentUserId={currentUserId}
-          roleGroup={roleGroup}
-          isFirstAuthor={isFirstAuthor}
-          evidenceLinks={isFirstAuthor ? evidenceLinks : undefined}
-          attachments={isFirstAuthor ? attachments : undefined}
-          showPin={!message.isSystem}
-        />
-      );
-    });
+  const render = (list: ReportMessageType[]) =>
+    list.map((message) => (
+      <MessageCard
+        key={message.id}
+        message={message}
+        reportNumber={reportNumber}
+        currentUserId={currentUserId}
+        roleGroup={roleGroup}
+        showPin={!message.isSystem}
+      />
+    ));
 
   return (
     <div className={cn('space-y-3', className)}>
@@ -275,11 +247,11 @@ export function ReportMessagesList({
             <Pin className="h-3.5 w-3.5" />
             Закреплённые
           </p>
-          {render(pinned, false)}
+          {render(pinned)}
           <div className="border-b border-white/10" />
         </div>
       ) : null}
-      {render(rest, true)}
+      {render(rest)}
     </div>
   );
 }

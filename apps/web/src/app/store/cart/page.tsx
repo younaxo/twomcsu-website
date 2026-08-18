@@ -13,13 +13,13 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import {
+  DisplayPrice,
   useCart,
   useClearCart,
   useRemoveFromCart,
   useUpdateCartItem,
 } from '@/hooks/store';
 import { extractErrorMessage } from '@/lib/api';
-import { formatPrice } from '@/lib/store';
 import { resolveMediaUrl } from '@/lib/profile';
 
 function title(item: CartItem) {
@@ -146,17 +146,24 @@ export default function CartPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Подытог</span>
-                  <span>{formatPrice(totals.subtotal)}</span>
+                  <span>
+                    <DisplayPrice amount={totals.subtotal} />
+                  </span>
                 </div>
                 {totals.discounts.map((d) => (
                   <div key={d.label} className="flex justify-between text-primary">
                     <span>{d.label}</span>
-                    <span>−{formatPrice(d.amount)}</span>
+                    <span>
+                      −
+                      <DisplayPrice amount={d.amount} />
+                    </span>
                   </div>
                 ))}
                 <div className="flex justify-between border-t border-border pt-2 text-base font-semibold text-white">
                   <span>Итого</span>
-                  <span>{formatPrice(totals.total)}</span>
+                  <span>
+                    <DisplayPrice amount={totals.total} />
+                  </span>
                 </div>
               </div>
             ) : null}

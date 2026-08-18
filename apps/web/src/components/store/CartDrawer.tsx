@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
+  DisplayPrice,
   useAddToCart,
   useCart,
   useClearCart,
@@ -28,7 +29,6 @@ import {
   useUpdateCartItem,
 } from '@/hooks/store';
 import { extractErrorMessage } from '@/lib/api';
-import { formatPrice } from '@/lib/store';
 import { resolveMediaUrl } from '@/lib/profile';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 
@@ -202,17 +202,24 @@ export function CartDrawer() {
                 <div className="w-full space-y-1 text-sm">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Подытог</span>
-                    <span>{formatPrice(totals.subtotal)}</span>
+                    <span>
+                      <DisplayPrice amount={totals.subtotal} />
+                    </span>
                   </div>
                   {totals.discounts.map((d) => (
                     <div key={d.label} className="flex justify-between text-primary">
                       <span>{d.label}</span>
-                      <span>−{formatPrice(d.amount)}</span>
+                      <span>
+                        −
+                        <DisplayPrice amount={d.amount} />
+                      </span>
                     </div>
                   ))}
                   <div className="flex justify-between text-base font-semibold text-white">
                     <span>Итого</span>
-                    <span>{formatPrice(totals.total)}</span>
+                    <span>
+                      <DisplayPrice amount={totals.total} />
+                    </span>
                   </div>
                 </div>
               ) : null}

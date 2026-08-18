@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProfileClient } from '@/app/users/[username]/profile-client';
-import { RestrictedProfileView } from '@/components/profile/RestrictedProfileView';
 import { fetchPublicProfile } from '@/lib/server-api';
 
 interface PageProps {
@@ -35,8 +34,15 @@ export default async function UserProfilePage({ params }: PageProps) {
     notFound();
   }
 
+  // Restricted SSR responses still mount the client so an authenticated owner can load their profile
   if (result.kind === 'restricted') {
-    return <RestrictedProfileView data={result.data} />;
+    return (
+      <ProfileClient
+        username={params.username}
+        initial={null}
+        initialRestricted={result.data}
+      />
+    );
   }
 
   return <ProfileClient username={params.username} initial={result.profile} />;

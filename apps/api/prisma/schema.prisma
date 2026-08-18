@@ -80,6 +80,8 @@ model User {
   profileVisibility   ProfileVisibility   @default(EVERYONE)
   /// Who is allowed to send friend requests
   friendRequestPolicy FriendRequestPolicy @default(EVERYONE)
+  /// Who is allowed to start a direct conversation
+  directMessagePolicy DirectMessagePolicy @default(EVERYONE)
   hideEmail           Boolean             @default(true)
   hideCountry         Boolean             @default(false)
   hideCity            Boolean             @default(false)
@@ -125,6 +127,8 @@ model User {
   authoredComments       ProfileComment[]     @relation("AuthoredComments")
   notifications          Notification[]       @relation("NotificationsReceived")
   sentNotifications      Notification[]       @relation("NotificationsFrom")
+  notificationSettings   NotificationSettings?
+  pushSubscriptions      PushSubscription[]
   auditLogs              AuditLog[]           @relation("AuditLogActor")
 
   /// Referral code shown to friends; generated on registration
@@ -138,6 +142,10 @@ model User {
   lastServerActivity DateTime?
   isOnlineInGame     Boolean   @default(false)
 
+  /// Badge shown next to the nickname in the header; null = auto (top badge)
+  displayBadgeId String?
+  displayBadge   UserBadge? @relation("UserDisplayBadge", fields: [displayBadgeId], references: [id], onDelete: SetNull)
+
   cart        Cart?
   wishlist    Wishlist?
   orders      Order[]
@@ -146,6 +154,12 @@ model User {
   authoredMessages ChatMessage[] @relation("AuthoredMessages")
   chatMutes        ChatMute[]
   chatBans         ChatBan[]
+
+  conversationMemberships ConversationMember[]
+  createdConversations    Conversation[]          @relation("ConversationCreator")
+  sentDirectMessages      DirectMessage[]         @relation("DirectMessageSender")
+  directMessageReactions  DirectMessageReaction[]
+  createdGroupInvites     GroupInvite[]           @relation("GroupInviteCreator")
 
   authoredReports   Report[]       @relation("ReportAuthor")
   assignedReports   Report[]       @relation("ReportAssignee")
@@ -170,6 +184,7 @@ model User {
   activityReactions    ActivityReaction[]
   activityComments     ActivityComment[]
   activityFeedSettings ActivityFeedSettings?
+  achievements         UserAchievement[]
 
   createdForms  Form[]         @relation("FormCreator")
   formResponses FormResponse[] @relation("FormResponder")
@@ -184,6 +199,7 @@ model User {
   @@index([lastActivityAt])
   @@index([currentServerId])
   @@index([isOnlineInGame])
+  @@index([displayBadgeId])
   @@map("users")
 }
 
@@ -243,6 +259,13 @@ enum CommentPolicy {
   EVERYONE
   FRIENDS
   FRIENDS_OF_FRIENDS
+  NOBODY
+}
+
+enum DirectMessagePolicy {
+  EVERYONE
+  FRIENDS_OF_FRIENDS
+  FRIENDS
   NOBODY
 }
 
@@ -368,11 +391,15 @@ model UserBadge {
   grantedAt DateTime      @default(now())
   expiresAt DateTime?
   isActive  Boolean       @default(true)
+  /// Manual display order on the profile (lower = first)
+  order     Int           @default(0)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayedBy    User[] @relation("UserDisplayBadge")
 
   @@unique([userId, type])
   @@index([userId])
+  @@index([userId, order])
   @@map("user_badges")
 }
 
@@ -538,13 +565,106 @@ model UserAward {
   awardId   String
   grantedBy String?
   grantedAt DateTime @default(now())
+  /// Manual display order on the profile (lower = first)
+  order     Int      @default(0)
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   award Award @relation(fields: [awardId], references: [id], onDelete: Cascade)
 
   @@unique([userId, awardId])
   @@index([userId])
+  @@index([userId, order])
   @@map("user_awards")
+}
+
+enum AchievementCategory {
+  GAME
+  SOCIAL
+  DONATION
+  SPECIAL
+  DAILY
+  SECRET
+}
+
+enum AchievementRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+  MYTHIC
+}
+
+enum AchievementConditionType {
+  PLAYTIME_MINUTES
+  KILLS_COUNT
+  DEATHS_COUNT
+  FRIENDS_COUNT
+  COMMENTS_COUNT
+  LIKES_RECEIVED
+  PURCHASES_COUNT
+  TOTAL_SPENT
+  GIFTS_SENT
+  GIFTS_RECEIVED
+  DAYS_STREAK
+  ACCOUNT_AGE_DAYS
+  PROFILE_VIEWS
+  BADGES_COUNT
+  REGISTRATION_ORDER
+  BUG_REPORTED
+  REPORTS_RESOLVED
+  MANUAL
+  CUSTOM
+}
+
+model Achievement {
+  id               String                    @id @default(cuid())
+  slug             String                    @unique
+  name             String
+  description      String                    @db.Text
+  iconUrl          String
+  category         AchievementCategory
+  rarity           AchievementRarity
+  isSecret         Boolean                   @default(false)
+  isActive         Boolean                   @default(true)
+  order            Int                       @default(0)
+  conditionType    AchievementConditionType
+  conditionValue   Int?
+  conditionParams  Json?
+  rewardRubies     Int                       @default(0)
+  rewardBadgeType  String?
+  rewardTitle      String?
+  rewardMessage    String?
+  unlockedCount    Int                       @default(0)
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+
+  userAchievements UserAchievement[]
+
+  @@index([slug])
+  @@index([category, rarity])
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id              String    @id @default(cuid())
+  userId          String
+  achievementId   String
+  currentProgress Int       @default(0)
+  isCompleted     Boolean   @default(false)
+  completedAt     DateTime?
+  isShowcased     Boolean   @default(false)
+  showcaseOrder   Int       @default(0)
+  rewardsGranted  Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId, isCompleted])
+  @@index([userId, isShowcased])
+  @@map("user_achievements")
 }
 
 enum FriendshipStatus {
@@ -944,28 +1064,117 @@ enum NotificationType {
   NEWS_COMMENT_REPLY
   NEWS_COMMENT_MENTION
   REPORT_MENTION
+  NEWS_LIKED
+  ANNOUNCEMENT
+  MAINTENANCE
+  ACHIEVEMENT_UNLOCKED
+  REPORT_ASSIGNED
+  REPORT_VERDICT
+  REPORT_TARGET
+  MESSAGE_RECEIVED
+  RANK_GRANTED
+  BADGE_GRANTED
+  AWARD_GRANTED
+  PAYMENT_RECEIVED
+  DAILY_REWARD_AVAILABLE
   SYSTEM
 }
 
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum DigestMode {
+  INSTANT
+  HOURLY
+  DAILY
+  WEEKLY
+}
+
 model Notification {
-  id         String           @id @default(cuid())
-  userId     String
-  user       User             @relation("NotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
-  type       NotificationType
-  title      String
-  message    String?
-  link       String?
-  imageUrl   String?
-  fromUserId String?
-  fromUser   User?            @relation("NotificationsFrom", fields: [fromUserId], references: [id])
-  metadata   Json?
-  isRead     Boolean          @default(false)
-  readAt     DateTime?
-  createdAt  DateTime         @default(now())
+  id               String               @id @default(cuid())
+  userId           String
+  user             User                 @relation("NotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
+  type             NotificationType
+  title            String
+  message          String?
+  link             String?
+  imageUrl         String?
+  fromUserId       String?
+  fromUser         User?                @relation("NotificationsFrom", fields: [fromUserId], references: [id])
+  metadata         Json?
+  groupKey         String?
+  priority         NotificationPriority @default(NORMAL)
+  actionUrl        String?
+  actionLabel      String?
+  isRead           Boolean              @default(false)
+  readAt           DateTime?
+  sentViaEmail     Boolean              @default(false)
+  sentViaEmailAt   DateTime?
+  sentViaPush      Boolean              @default(false)
+  sentViaPushAt    DateTime?
+  sentViaDiscord   Boolean              @default(false)
+  sentViaDiscordAt DateTime?
+  createdAt        DateTime             @default(now())
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
+  @@index([userId, isRead, createdAt])
+  @@index([groupKey])
   @@map("notifications")
+}
+
+model NotificationSettings {
+  id                String     @id @default(cuid())
+  userId            String     @unique
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailEnabled      Boolean    @default(true)
+  pushEnabled       Boolean    @default(true)
+  discordEnabled    Boolean    @default(false)
+  discordWebhookUrl String?    @db.Text
+  soundEnabled      Boolean    @default(true)
+  digestMode        DigestMode @default(INSTANT)
+  digestTime        String?    @default("09:00")
+  quietHoursEnabled Boolean    @default(false)
+  quietHoursStart   String?    @default("22:00")
+  quietHoursEnd     String?    @default("08:00")
+  typeSettings      Json       @default("{}")
+  updatedAt         DateTime   @updatedAt
+
+  @@map("notification_settings")
+}
+
+model PushSubscription {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint   String   @db.Text
+  p256dh     String   @db.Text
+  auth       String   @db.Text
+  userAgent  String?
+  deviceName String?
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@unique([endpoint])
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model DiscordWebhook {
+  id         String   @id @default(cuid())
+  name       String
+  url        String   @db.Text
+  eventTypes String[]
+  isActive   Boolean  @default(true)
+  createdBy  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("discord_webhooks")
 }
 
 model CurrencyRate {
@@ -1312,6 +1521,136 @@ model ChatMessageReaction {
   @@map("chat_message_reactions")
 }
 
+enum ConversationType {
+  DIRECT
+  GROUP
+}
+
+enum ConversationRole {
+  OWNER
+  MODERATOR
+  MEMBER
+}
+
+model Conversation {
+  id            String           @id @default(cuid())
+  type          ConversationType
+  title         String?          @db.VarChar(80)
+  avatar        String?
+  directKey     String?          @unique
+  createdById   String?
+  lastMessageAt DateTime         @default(now())
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  createdBy User?                @relation("ConversationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  members   ConversationMember[]
+  messages  DirectMessage[]
+  invites   GroupInvite[]
+
+  @@index([lastMessageAt])
+  @@index([createdById])
+  @@map("conversations")
+}
+
+model ConversationMember {
+  id                String           @id @default(cuid())
+  conversationId    String
+  userId            String
+  role              ConversationRole @default(MEMBER)
+  lastReadAt        DateTime         @default(now())
+  lastReadMessageId String?
+  isMuted           Boolean          @default(false)
+  isArchived        Boolean          @default(false)
+  joinedAt          DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId, isArchived])
+  @@index([conversationId, role])
+  @@map("conversation_members")
+}
+
+model DirectMessage {
+  id             String    @id @default(cuid())
+  conversationId String
+  senderId       String?
+  content        String    @default("") @db.VarChar(4000)
+  contentHtml    String    @default("")
+  parentId       String?
+  isEdited       Boolean   @default(false)
+  editedAt       DateTime?
+  isDeleted      Boolean   @default(false)
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  conversation Conversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User?                   @relation("DirectMessageSender", fields: [senderId], references: [id], onDelete: SetNull)
+  parent       DirectMessage?          @relation("DirectMessageReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies      DirectMessage[]         @relation("DirectMessageReplies")
+  reactions    DirectMessageReaction[]
+  attachments  MessageAttachment[]
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@index([parentId])
+  @@map("direct_messages")
+}
+
+model DirectMessageReaction {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  emoji     String   @db.VarChar(32)
+  createdAt DateTime @default(now())
+
+  message DirectMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+  @@index([userId])
+  @@map("direct_message_reactions")
+}
+
+model MessageAttachment {
+  id        String   @id @default(cuid())
+  messageId String
+  fileUrl   String
+  fileName  String   @db.VarChar(255)
+  mimeType  String   @db.VarChar(120)
+  size      Int
+  createdAt DateTime @default(now())
+
+  message DirectMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@map("message_attachments")
+}
+
+model GroupInvite {
+  id             String    @id @default(cuid())
+  conversationId String
+  code           String    @unique @db.VarChar(32)
+  createdById    String
+  maxUses        Int?
+  usedCount      Int       @default(0)
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation("GroupInviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, revokedAt])
+  @@index([expiresAt])
+  @@map("group_invites")
+}
+
 model ChatMute {
   id         String         @id @default(cuid())
   userId     String
@@ -1611,9 +1950,25 @@ model ReportMessage {
   pinnedAt    DateTime?
   pinnedBy    String?
   createdAt   DateTime  @default(now())
+  attachments ReportMessageAttachment[]
 
   @@index([reportId, createdAt])
   @@map("report_messages")
+}
+
+model ReportMessageAttachment {
+  id         String        @id @default(cuid())
+  messageId  String
+  message    ReportMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  fileName   String
+  fileUrl    String
+  fileSize   Int
+  mimeType   String
+  uploadedBy String
+  createdAt  DateTime      @default(now())
+
+  @@index([messageId])
+  @@map("report_message_attachments")
 }
 
 /// Staff-only notes on a report, separate from the public message thread
