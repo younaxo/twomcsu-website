@@ -22,5 +22,7 @@ export * from './servers';
 export * from './store';
 export * from './streaming';
 export * from './voting';
+export * from './rewards';
+export * from './referrals';
 export * from './topic';
 export * from './user';
