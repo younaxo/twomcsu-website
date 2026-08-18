@@ -80,6 +80,8 @@ model User {
   profileVisibility   ProfileVisibility   @default(EVERYONE)
   /// Who is allowed to send friend requests
   friendRequestPolicy FriendRequestPolicy @default(EVERYONE)
+  /// Who is allowed to start a direct conversation
+  directMessagePolicy DirectMessagePolicy @default(EVERYONE)
   hideEmail           Boolean             @default(true)
   hideCountry         Boolean             @default(false)
   hideCity            Boolean             @default(false)
@@ -152,6 +154,12 @@ model User {
   authoredMessages ChatMessage[] @relation("AuthoredMessages")
   chatMutes        ChatMute[]
   chatBans         ChatBan[]
+
+  conversationMemberships ConversationMember[]
+  createdConversations    Conversation[]          @relation("ConversationCreator")
+  sentDirectMessages      DirectMessage[]         @relation("DirectMessageSender")
+  directMessageReactions  DirectMessageReaction[]
+  createdGroupInvites     GroupInvite[]           @relation("GroupInviteCreator")
 
   authoredReports   Report[]       @relation("ReportAuthor")
   assignedReports   Report[]       @relation("ReportAssignee")
@@ -251,6 +259,13 @@ enum CommentPolicy {
   EVERYONE
   FRIENDS
   FRIENDS_OF_FRIENDS
+  NOBODY
+}
+
+enum DirectMessagePolicy {
+  EVERYONE
+  FRIENDS_OF_FRIENDS
+  FRIENDS
   NOBODY
 }
 
@@ -1504,6 +1519,136 @@ model ChatMessageReaction {
   @@unique([messageId, userId])
   @@index([messageId])
   @@map("chat_message_reactions")
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP
+}
+
+enum ConversationRole {
+  OWNER
+  MODERATOR
+  MEMBER
+}
+
+model Conversation {
+  id            String           @id @default(cuid())
+  type          ConversationType
+  title         String?          @db.VarChar(80)
+  avatar        String?
+  directKey     String?          @unique
+  createdById   String?
+  lastMessageAt DateTime         @default(now())
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  createdBy User?                @relation("ConversationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  members   ConversationMember[]
+  messages  DirectMessage[]
+  invites   GroupInvite[]
+
+  @@index([lastMessageAt])
+  @@index([createdById])
+  @@map("conversations")
+}
+
+model ConversationMember {
+  id                String           @id @default(cuid())
+  conversationId    String
+  userId            String
+  role              ConversationRole @default(MEMBER)
+  lastReadAt        DateTime         @default(now())
+  lastReadMessageId String?
+  isMuted           Boolean          @default(false)
+  isArchived        Boolean          @default(false)
+  joinedAt          DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId, isArchived])
+  @@index([conversationId, role])
+  @@map("conversation_members")
+}
+
+model DirectMessage {
+  id             String    @id @default(cuid())
+  conversationId String
+  senderId       String?
+  content        String    @default("") @db.VarChar(4000)
+  contentHtml    String    @default("")
+  parentId       String?
+  isEdited       Boolean   @default(false)
+  editedAt       DateTime?
+  isDeleted      Boolean   @default(false)
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  conversation Conversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User?                   @relation("DirectMessageSender", fields: [senderId], references: [id], onDelete: SetNull)
+  parent       DirectMessage?          @relation("DirectMessageReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies      DirectMessage[]         @relation("DirectMessageReplies")
+  reactions    DirectMessageReaction[]
+  attachments  MessageAttachment[]
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@index([parentId])
+  @@map("direct_messages")
+}
+
+model DirectMessageReaction {
+  id        String   @id @default(cuid())
+  messageId String
+  userId    String
+  emoji     String   @db.VarChar(32)
+  createdAt DateTime @default(now())
+
+  message DirectMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+  @@index([userId])
+  @@map("direct_message_reactions")
+}
+
+model MessageAttachment {
+  id        String   @id @default(cuid())
+  messageId String
+  fileUrl   String
+  fileName  String   @db.VarChar(255)
+  mimeType  String   @db.VarChar(120)
+  size      Int
+  createdAt DateTime @default(now())
+
+  message DirectMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@map("message_attachments")
+}
+
+model GroupInvite {
+  id             String    @id @default(cuid())
+  conversationId String
+  code           String    @unique @db.VarChar(32)
+  createdById    String
+  maxUses        Int?
+  usedCount      Int       @default(0)
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation("GroupInviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, revokedAt])
+  @@index([expiresAt])
+  @@map("group_invites")
 }
 
 model ChatMute {

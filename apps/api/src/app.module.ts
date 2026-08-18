@@ -12,6 +12,7 @@ import { AchievementsModule } from './modules/achievements/achievements.module';
 import { AwardsModule } from './modules/awards/awards.module';
 import { CustomPositionsModule } from './modules/custom-positions/custom-positions.module';
 import { DepartmentsModule } from './modules/departments/departments.module';
+import { DirectMessagesModule } from './modules/direct-messages/direct-messages.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommentsModule } from './modules/comments/comments.module';
@@ -62,6 +63,7 @@ import { UsersModule } from './modules/users/users.module';
     AchievementsModule,
     CustomPositionsModule,
     DepartmentsModule,
+    DirectMessagesModule,
     FriendsModule,
     CommentsModule,
     EmojisModule,

@@ -6,6 +6,7 @@ export * from './chat';
 export * from './comments';
 export * from './custom-position';
 export * from './department';
+export * from './direct-messages';
 export * from './emoji';
 export * from './forms';
 export * from './friends';
