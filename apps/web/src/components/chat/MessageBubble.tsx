@@ -106,7 +106,7 @@ export const MessageBubble = memo(function MessageBubble({
         {message.author ? (
           <UserContextMenu
             user={{
-              id: message.authorId,
+              id: message.author.id,
               username: message.author.username,
               avatar: message.author.avatar,
             }}
@@ -134,7 +134,7 @@ export const MessageBubble = memo(function MessageBubble({
             {message.author?.position ? (
               <UserContextMenu
                 user={{
-                  id: message.authorId,
+                  id: message.author.id,
                   username: message.author.username,
                   avatar: message.author.avatar,
                 }}

@@ -27,9 +27,6 @@ CREATE TYPE "AchievementConditionType" AS ENUM (
   'CUSTOM'
 );
 
--- AlterEnum
-ALTER TYPE "NotificationType" ADD VALUE 'ACHIEVEMENT_UNLOCKED';
-
 -- CreateTable
 CREATE TABLE "achievements" (
     "id" TEXT NOT NULL,

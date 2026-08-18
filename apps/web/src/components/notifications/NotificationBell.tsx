@@ -38,7 +38,7 @@ export function NotificationBell() {
   const remove = useDeleteNotification();
 
   const count = unread.data?.count ?? 0;
-  const items = list.data?.items ?? [];
+  const items = useMemo(() => list.data?.items ?? [], [list.data?.items]);
   const visible = useMemo(() => {
     if (tab === 'unread') return items.filter((n) => !n.isRead);
     if (tab === 'priority') {

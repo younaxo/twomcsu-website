@@ -3,7 +3,7 @@
 import type { FormFieldDto } from '@twomc/shared';
 import { X } from 'lucide-react';
 import Image from 'next/image';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ interface Props {
 
 export function ImageGalleryField({ field, slug, value, onChange, disabled }: Props) {
   const upload = useUploadFormFile(slug);
-  const urls = value?.fileUrls ?? [];
+  const urls = useMemo(() => value?.fileUrls ?? [], [value?.fileUrls]);
   const maxFiles = field.maxFiles ?? 10;
 
   const onDrop = useCallback(

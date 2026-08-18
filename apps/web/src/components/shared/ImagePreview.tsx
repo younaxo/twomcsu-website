@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Download, ExternalLink, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 export type ImagePreviewProps = {
   open: boolean;
@@ -21,7 +21,10 @@ export function ImagePreview({
   alt = 'Изображение',
   gallery,
 }: ImagePreviewProps) {
-  const images = gallery && gallery.length > 0 ? gallery : [src];
+  const images = useMemo(
+    () => (gallery && gallery.length > 0 ? gallery : [src]),
+    [gallery, src],
+  );
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -29,7 +32,7 @@ export function ImagePreview({
       const nextIndex = images.indexOf(src);
       setIndex(nextIndex >= 0 ? nextIndex : 0);
     }
-  }, [open, src, gallery]);
+  }, [images, open, src]);
 
   useEffect(() => {
     if (!open) return;
@@ -45,7 +48,7 @@ export function ImagePreview({
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [open, images.length]);
+  }, [images, open]);
 
   const current = images[index] ?? src;
   const hasGallery = images.length > 1;

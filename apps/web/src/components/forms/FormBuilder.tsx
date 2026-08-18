@@ -128,7 +128,7 @@ export function FormBuilder({ initial }: Props) {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const fields = draft.fields ?? [];
+  const fields = useMemo(() => draft.fields ?? [], [draft.fields]);
   const selected = useMemo(
     () => fields.find((field) => field.id === selectedId) ?? null,
     [fields, selectedId],
