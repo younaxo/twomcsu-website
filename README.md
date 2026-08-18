@@ -768,3 +768,16 @@ UI-компоненты: `FormBuilder`, `FieldPalette`, `FieldSettings`, `FieldP
 `ConditionalLogicBuilder`, `StepConfig`, `FormSettingsDialog`, `FormRenderer`,
 `FieldRenderer`, `MultiStepForm`, `FormTimer`, `ResponsesTable`, `ResponseDetail`,
 `FormStats`, `ExportDialog`. Хуки в `hooks/forms/useForms.ts`.
+
+## Таблицы лидеров (этап 20)
+
+Публичная страница `/leaderboards` показывает 50 лучших игроков по времени в игре,
+убийствам, K/D, рубинам и попаданиям. Заблокированные пользователи и игроки со
+скрытой статистикой в рейтинг не включаются. Данные API кэшируются в Redis на 60 секунд.
+
+| Метод и путь | Доступ | Что делает |
+| --- | --- | --- |
+| `GET /leaderboards?metric=&limit=` | публичный | Получить рейтинг по выбранному показателю |
+
+Будущий этап 21 — уровни игроков после интеграции аккаунта с игровым сервером.
+Изображения уровней 1–70: `https://cdn-files.twomc.su/assets/images/level/{1-70}.png`.

@@ -24,6 +24,11 @@ export class DecorationsController {
     return this.decorations.owned(userId);
   }
 
+  @Get('user/:username/selected')
+  selectedForUser(@Param('username') username: string) {
+    return this.decorations.selectedForUser(username);
+  }
+
   @Patch('selected')
   @UseGuards(JwtAuthGuard)
   select(@CurrentUser('id') userId: string, @Body() dto: SelectDecorationDto) {

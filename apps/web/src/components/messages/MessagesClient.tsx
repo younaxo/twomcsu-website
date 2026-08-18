@@ -41,9 +41,9 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ImageWithPreview } from '@/components/shared/ImageWithPreview';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
-import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -80,15 +80,19 @@ import { NewConversationDialog } from './NewConversationDialog';
 
 function ConversationAvatar({ conversation, size = 'md' }: { conversation: Conversation; size?: 'sm' | 'md' }) {
   const dimensions = size === 'sm' ? 'h-9 w-9' : 'h-11 w-11';
+  if (conversation.type === ConversationType.DIRECT) {
+    return (
+      <AvatarWithSkin
+        user={{ username: conversation.title, avatar: conversation.avatar }}
+        size={size === 'sm' ? 36 : 44}
+      />
+    );
+  }
   return (
     <Avatar className={dimensions}>
       <AvatarImage src={resolveMediaUrl(conversation.avatar)} alt={conversation.title} />
       <AvatarFallback className="p-0">
-        {conversation.type === ConversationType.GROUP ? (
-          <span className="flex h-full w-full items-center justify-center bg-primary/15 text-primary"><Users className="h-5 w-5" /></span>
-        ) : (
-          <DefaultAvatar username={conversation.title} />
-        )}
+        <span className="flex h-full w-full items-center justify-center bg-primary/15 text-primary"><Users className="h-5 w-5" /></span>
       </AvatarFallback>
     </Avatar>
   );
@@ -212,7 +216,10 @@ function MessageBubble({
   onReact: (emoji: CommentEmoji) => void;
 }) {
   return (
-    <div className={cn('group flex', own ? 'justify-end' : 'justify-start')}>
+    <div className={cn('group flex items-end gap-2', own ? 'justify-end' : 'justify-start')}>
+      {!own && message.sender ? (
+        <AvatarWithSkin user={message.sender} size="sm" className="mb-1" />
+      ) : null}
       <div className={cn('max-w-[88%] sm:max-w-[75%]', own ? 'items-end' : 'items-start')}>
         {!own ? <p className="mb-1 px-2 text-xs font-medium text-primary">{message.sender?.username ?? 'Удалённый пользователь'}</p> : null}
         <div className={cn(
@@ -279,6 +286,9 @@ function MessageBubble({
           </div>
         ) : null}
       </div>
+      {own && message.sender ? (
+        <AvatarWithSkin user={message.sender} size="sm" className="mb-1" />
+      ) : null}
     </div>
   );
 }

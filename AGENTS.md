@@ -77,9 +77,10 @@
 17. Forms System
 18. Direct Messages
 19. Calendar & Events + Profile Decorations
+20. Leaderboards
 
 ## Планируемые этапы
-20. Leaderboards
+21. Player Levels — после интеграции аккаунта с игровым сервером; 70 изображений уровней: `https://cdn-files.twomc.su/assets/images/level/{1-70}.png`
 ... и т.д.
 
 ## Git workflow

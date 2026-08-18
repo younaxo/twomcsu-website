@@ -7,6 +7,7 @@ export * from './comments';
 export * from './custom-position';
 export * from './department';
 export * from './decorations';
+export * from './leaderboards';
 export * from './direct-messages';
 export * from './emoji';
 export * from './events';

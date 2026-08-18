@@ -1,9 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DefaultAvatar } from '@/components/shared/DefaultAvatar';
-import { getMinecraftUsername } from '@/lib/username-aliases';
-import { cn } from '@/lib/utils';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 
 interface SkinHeadProps {
   avatar?: string | null;
@@ -15,20 +12,12 @@ interface SkinHeadProps {
 }
 
 export function SkinHead({ avatar, username, size = 64, className }: SkinHeadProps) {
-  const skinName = getMinecraftUsername(username);
-  const src = username
-    ? `https://mc-heads.net/avatar/${encodeURIComponent(skinName)}/${size}`
-    : (avatar ?? undefined);
-
   return (
-    <Avatar
-      className={cn('rounded-full', className)}
-      style={{ width: size, height: size }}
-    >
-      <AvatarImage src={src} alt={username} className="rounded-full" />
-      <AvatarFallback className="rounded-full p-0">
-        <DefaultAvatar username={username} letterClassName="text-lg" />
-      </AvatarFallback>
-    </Avatar>
+    <AvatarWithSkin
+      user={{ username, avatar }}
+      size={size}
+      className={className}
+      showMinecraftHead={false}
+    />
   );
 }

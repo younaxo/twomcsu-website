@@ -53,15 +53,15 @@ function PreviewBody({
   const incoming = useFriendRequestsCount();
 
   return (
-    <div className="overflow-hidden">
-      <div className="relative h-24 w-full bg-gradient-to-br from-primary/30 via-secondary to-card">
+    <div>
+      <div className="relative h-24 w-full overflow-hidden rounded-t-md bg-gradient-to-br from-primary/30 via-secondary to-card">
         {bannerUrl ? (
           <Image src={bannerUrl} alt="" fill className="object-cover" sizes="320px" unoptimized />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-[rgba(15,15,20,0.95)] to-transparent" />
       </div>
 
-      <div className="relative -mt-10 px-4 pb-3">
+      <div className="relative -mt-10 px-5 pb-3">
         <div className="mb-3">
           <AvatarWithSkin user={profile} size="xl" />
         </div>

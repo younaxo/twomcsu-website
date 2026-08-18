@@ -111,6 +111,12 @@ export function SiteFooter() {
                 ads@twomc.su
               </a>
             </p>
+            <p>
+              Для государственных органов:{' '}
+              <a href="mailto:gov@twomc.su" className="text-neutral-400 transition-colors hover:text-primary">
+                gov@twomc.su
+              </a>
+            </p>
           </div>
         </div>
 

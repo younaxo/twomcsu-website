@@ -14,6 +14,7 @@ import {
   Home,
   LayoutDashboard,
   Mail,
+  Medal,
   Menu,
   MessageCircle,
   MessagesSquare,
@@ -66,6 +67,7 @@ const mainGroups: NavGroup[] = [
       { href: '/events', label: 'Календарь', icon: CalendarDays },
       { href: '/feed', label: 'Лента активности', icon: Activity },
       { href: '/achievements', label: 'Достижения', icon: Trophy },
+      { href: '/leaderboards', label: 'Рейтинг', icon: Medal },
     ],
   },
   {
