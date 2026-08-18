@@ -29,6 +29,8 @@ const adminLinks = [
   { href: '/admin/store/bulk-discounts', label: 'Скидки' },
   { href: '/admin/orders', label: 'Заказы' },
   { href: '/admin/news', label: 'Новости' },
+  { href: '/admin/events', label: 'События' },
+  { href: '/admin/decorations', label: 'Украшения' },
   { href: '/admin/forms', label: 'Формы' },
   { href: '/admin/activity/manage', label: 'Лента' },
   { href: '/admin/activity/stats', label: 'Лента · статистика' },

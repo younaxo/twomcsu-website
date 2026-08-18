@@ -24,6 +24,7 @@ import { CountrySelect } from '@/components/profile/CountrySelect';
 import { DateBirthPicker } from '@/components/profile/DateBirthPicker';
 import { DraggableAwardsGrid } from '@/components/profile/DraggableAwardsGrid';
 import { DraggableBadgesGrid } from '@/components/profile/DraggableBadgesGrid';
+import { DecorationPicker } from '@/components/profile/DecorationPicker';
 import { GenderSelect } from '@/components/profile/GenderSelect';
 import { SocialLinksEditor } from '@/components/profile/SocialLinksEditor';
 import { ActivitySettingsTab } from '@/components/activity/ActivitySettingsTab';
@@ -382,6 +383,10 @@ export default function ProfileSettingsPage() {
         </TabsContent>
 
         <TabsContent value="display" className="space-y-6">
+          <DecorationPicker
+            profile={profile}
+            onChange={(avatarDecoration) => setProfile({ ...profile, avatarDecoration })}
+          />
           <Card className="glass-medium border-white/5">
             <CardHeader>
               <CardTitle>Мои бейджи</CardTitle>
