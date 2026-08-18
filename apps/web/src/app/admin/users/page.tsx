@@ -17,7 +17,7 @@ import {
   FilterPanel,
   SavedFiltersMenu,
 } from '@/components/admin';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -226,10 +226,7 @@ export default function AdminUsersPage() {
         id: 'avatar',
         header: '',
         cell: (row: AdminUserListItem) => (
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={row.avatar ?? undefined} alt={row.username} />
-            <AvatarFallback>{row.username.slice(0, 1).toUpperCase()}</AvatarFallback>
-          </Avatar>
+          <AvatarWithSkin user={row} size="sm" />
         ),
       },
       {

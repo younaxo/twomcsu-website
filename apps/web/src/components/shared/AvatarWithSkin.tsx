@@ -6,6 +6,7 @@ import { ImagePreview } from '@/components/shared/ImagePreview';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { resolveMediaUrl } from '@/lib/profile';
 import { getMinecraftUsername } from '@/lib/username-aliases';
+import { useSelectedDecoration } from '@/hooks/useDecorations';
 import { cn } from '@/lib/utils';
 
 const sizes = {
@@ -21,25 +22,51 @@ interface AvatarWithSkinProps {
     avatar?: string | null;
     avatarDecoration?: { imageUrl: string } | null;
   };
-  size?: keyof typeof sizes;
+  size?: keyof typeof sizes | number;
   className?: string;
+  showMinecraftHead?: boolean;
 }
 
-export function AvatarWithSkin({ user, size = 'md', className }: AvatarWithSkinProps) {
+export function AvatarWithSkin({
+  user,
+  size = 'md',
+  className,
+  showMinecraftHead = true,
+}: AvatarWithSkinProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const dim = sizes[size];
+  const dim = typeof size === 'number'
+    ? { avatar: size, head: Math.max(14, Math.round(size * 0.4)) }
+    : sizes[size];
   const avatarUrl = resolveMediaUrl(user.avatar);
   const skinName = getMinecraftUsername(user.username);
   const fallbackAvatar = `https://mc-heads.net/avatar/${encodeURIComponent(skinName)}/256`;
   const previewSrc = avatarUrl || fallbackAvatar;
   const headUrl = `https://mc-heads.net/head/${encodeURIComponent(skinName)}/${dim.head}`;
+  const decorationQuery = useSelectedDecoration(
+    user.username,
+    user.avatarDecoration === undefined && user.username !== 'Steve',
+  );
+  const decoration = user.avatarDecoration === undefined
+    ? decorationQuery.data
+    : user.avatarDecoration;
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setPreviewOpen(true)}
-        className={cn('relative shrink-0', className)}
+      <span
+        role="button"
+        tabIndex={0}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          setPreviewOpen(true);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            setPreviewOpen(true);
+          }
+        }}
+        className={cn('relative isolate inline-block shrink-0 cursor-pointer overflow-visible rounded-full', className)}
         style={{ width: dim.avatar, height: dim.avatar }}
         aria-label={`Аватар ${user.username}`}
       >
@@ -58,25 +85,27 @@ export function AvatarWithSkin({ user, size = 'md', className }: AvatarWithSkinP
             )}
           </AvatarFallback>
         </Avatar>
-        {user.avatarDecoration ? (
+        {decoration ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={user.avatarDecoration.imageUrl}
+            src={decoration.imageUrl}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-[136%] w-[136%] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-20 h-[144%] w-[144%] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
           />
         ) : null}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={headUrl}
-          alt=""
-          width={dim.head}
-          height={dim.head}
-          className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-20 rounded-full"
-          style={{ width: dim.head, height: dim.head }}
-        />
-      </button>
+        {showMinecraftHead ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={headUrl}
+            alt=""
+            width={dim.head}
+            height={dim.head}
+            className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-10 rounded-full border border-black/60 bg-black/70"
+            style={{ width: dim.head, height: dim.head }}
+          />
+        ) : null}
+      </span>
       <ImagePreview
         open={previewOpen}
         onOpenChange={setPreviewOpen}

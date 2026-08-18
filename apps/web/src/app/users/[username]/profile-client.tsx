@@ -177,8 +177,8 @@ export function ProfileClient({
           {ownerPrivacyNote}
         </div>
       ) : null}
-      <div className="glass-medium overflow-hidden rounded-2xl">
-        <div className="relative h-[200px] w-full bg-secondary sm:h-[320px]">
+      <div className="glass-medium overflow-visible rounded-2xl">
+        <div className="relative h-[200px] w-full overflow-hidden rounded-t-2xl bg-secondary sm:h-[320px]">
           {bannerUrl ? (
             <Image
               src={bannerUrl}

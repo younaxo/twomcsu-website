@@ -20,6 +20,19 @@ export function useOwnedDecorations() {
   });
 }
 
+export function useSelectedDecoration(username: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['decorations', 'selected', username.toLowerCase()],
+    queryFn: async () => (await api.get<ProfileDecoration | null>(
+      `/decorations/user/${encodeURIComponent(username)}/selected`,
+      { skipAuthRedirect: true },
+    )).data,
+    enabled: enabled && Boolean(username),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+}
+
 export function useSelectDecoration() {
   const client = useQueryClient();
   return useMutation({

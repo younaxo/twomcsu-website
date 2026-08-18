@@ -19,8 +19,8 @@ export function RestrictedProfileView({ data }: RestrictedProfileViewProps) {
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <div className="relative h-40 w-full bg-secondary sm:h-52">
+      <div className="overflow-visible rounded-xl border border-border bg-card">
+        <div className="relative h-40 w-full overflow-hidden rounded-t-xl bg-secondary sm:h-52">
           {bannerUrl ? (
             <Image src={bannerUrl} alt="" fill className="object-cover" unoptimized />
           ) : (

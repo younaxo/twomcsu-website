@@ -88,6 +88,16 @@ export class DecorationsService {
       }));
   }
 
+  async selectedForUser(username: string): Promise<ProfileDecoration | null> {
+    const user = await this.prisma.user.findFirst({
+      where: { username: { equals: username, mode: 'insensitive' } },
+      select: { selectedDecoration: true },
+    });
+
+    if (!user?.selectedDecoration?.isActive) return null;
+    return this.mapDecoration(user.selectedDecoration);
+  }
+
   async select(userId: string, decorationId?: string | null): Promise<{ selected: string | null }> {
     if (decorationId) {
       const owned = await this.prisma.userDecoration.findUnique({

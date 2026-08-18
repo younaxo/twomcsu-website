@@ -8,7 +8,7 @@ import { ru } from 'date-fns/locale';
 import { ArrowLeft, Ban, ShieldOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdminPageHeader } from '@/components/admin';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -103,10 +103,10 @@ export default function AdminUserDetailPage() {
       />
 
       <div className="glass-panel flex flex-wrap items-center gap-4 rounded-2xl p-5">
-        <Avatar className="h-16 w-16">
-          <AvatarImage src={(user.avatar as string | null) ?? undefined} alt={user.username} />
-          <AvatarFallback>{user.username.slice(0, 1).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <AvatarWithSkin
+          user={{ username: user.username, avatar: (user.avatar as string | null) ?? null }}
+          size={64}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-semibold text-white">{user.username}</h2>
@@ -291,10 +291,7 @@ export default function AdminUserDetailPage() {
                   href={`/admin/users/${friend.id}`}
                   className="flex items-center gap-3 rounded-xl glass-medium p-3 transition-colors hover:bg-white/10"
                 >
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={friend.avatar ?? undefined} />
-                    <AvatarFallback>{friend.username.slice(0, 1).toUpperCase()}</AvatarFallback>
-                  </Avatar>
+                  <AvatarWithSkin user={friend} size={36} />
                   <span className="font-medium text-white">{friend.username}</span>
                 </Link>
               ))}
