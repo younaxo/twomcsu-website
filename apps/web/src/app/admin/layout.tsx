@@ -40,6 +40,7 @@ const adminLinks = [
   { href: '/admin/topics', label: 'Темы' },
   { href: '/admin/emojis', label: 'Эмодзи' },
   { href: '/admin/media-requests', label: 'Медиа заявки' },
+  { href: '/admin/media-partners', label: 'Медиа партнёры' },
   { href: '/admin/broadcast', label: 'Рассылка' },
   { href: '/admin/exports/scheduled', label: 'Экспорт' },
   { href: '/admin/settings/site', label: 'Настройки' },

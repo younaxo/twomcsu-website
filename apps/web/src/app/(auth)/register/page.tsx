@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -64,6 +64,11 @@ export default function RegisterPage() {
   });
 
   const captchaToken = form.watch('captchaToken');
+
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('promoCode');
+    if (code) form.setValue('promoCode', code.toUpperCase(), { shouldValidate: true });
+  }, [form]);
 
   const onSubmit = async (values: RegisterValues) => {
     try {
