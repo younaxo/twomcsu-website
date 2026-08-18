@@ -30,6 +30,8 @@ const adminLinks = [
   { href: '/admin/orders', label: 'Заказы' },
   { href: '/admin/news', label: 'Новости' },
   { href: '/admin/events', label: 'События' },
+  { href: '/admin/streams', label: 'Стримы' },
+  { href: '/admin/voting', label: 'Голосование' },
   { href: '/admin/decorations', label: 'Украшения' },
   { href: '/admin/forms', label: 'Формы' },
   { href: '/admin/activity/manage', label: 'Лента' },

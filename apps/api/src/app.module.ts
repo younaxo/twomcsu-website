@@ -34,6 +34,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
 import { ExportModule } from './modules/export/export.module';
 import { StoreModule } from './modules/store/store.module';
+import { StreamingModule } from './modules/streaming/streaming.module';
 import { SystemModule } from './modules/system/system.module';
 import { TopicsModule } from './modules/topics/topics.module';
 import { NewsModule } from './modules/news/news.module';
@@ -41,6 +42,7 @@ import { ActivityModule } from './modules/activity/activity.module';
 import { MaintenanceMiddleware } from './modules/system/maintenance.middleware';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UsersModule } from './modules/users/users.module';
+import { VotingModule } from './modules/voting/voting.module';
 
 @Module({
   imports: [
@@ -63,6 +65,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     PositionsModule,
     UsersModule,
+    VotingModule,
     AwardsModule,
     AchievementsModule,
     CustomPositionsModule,
@@ -75,6 +78,7 @@ import { UsersModule } from './modules/users/users.module';
     EventsModule,
     NotificationsModule,
     StoreModule,
+    StreamingModule,
     MinecraftModule,
     AdminModule,
     StatisticsModule,

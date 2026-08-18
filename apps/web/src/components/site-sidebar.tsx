@@ -19,12 +19,14 @@ import {
   MessageCircle,
   MessagesSquare,
   Newspaper,
+  Radio,
   Scale,
   Server,
   Shield,
   ShoppingBag,
   ShoppingCart,
   Trophy,
+  Vote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -68,6 +70,8 @@ const mainGroups: NavGroup[] = [
       { href: '/feed', label: 'Лента активности', icon: Activity },
       { href: '/achievements', label: 'Достижения', icon: Trophy },
       { href: '/leaderboards', label: 'Рейтинг', icon: Medal },
+      { href: '/streams', label: 'Стримы', icon: Radio },
+      { href: '/vote', label: 'Голосование', icon: Vote },
     ],
   },
   {
@@ -143,7 +147,12 @@ function NavButton({
       {content}
     </Link>
   ) : (
-    <button type="button" className="block w-full cursor-pointer" onClick={onAction} aria-label={item.label}>
+    <button
+      type="button"
+      className="block w-full cursor-pointer"
+      onClick={onAction}
+      aria-label={item.label}
+    >
       {content}
     </button>
   );
@@ -174,20 +183,12 @@ function GroupTitle({ title, collapsed }: { title: string; collapsed?: boolean }
   );
 }
 
-function SidebarNav({
-  collapsed,
-  onNavigate,
-}: {
-  collapsed?: boolean;
-  onNavigate?: () => void;
-}) {
+function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
   const openCartDrawer = useStoreUiStore((s) => s.openCartDrawer);
   const setWidgetOpen = useChatStore((s) => s.setWidgetOpen);
-  const unreadChat = useChatStore((s) =>
-    Object.values(s.unreadCounts).reduce((a, b) => a + b, 0),
-  );
+  const unreadChat = useChatStore((s) => Object.values(s.unreadCounts).reduce((a, b) => a + b, 0));
   const cart = useCart(isAuthenticated);
   const conversations = useConversations(isAuthenticated);
   const cartCount = cart.data?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
@@ -229,20 +230,16 @@ function SidebarNav({
               : group.items;
 
           return (
-          <div key={group.title} className="mb-1">
-            <GroupTitle title={group.title} collapsed={collapsed} />
-            <div className="flex flex-col gap-0.5">
-              {items.map((item) => (
-                <div key={item.label} onClick={onNavigate}>
-                  <NavButton
-                    item={item}
-                    active={isActive(item.href)}
-                    collapsed={collapsed}
-                  />
-                </div>
-              ))}
+            <div key={group.title} className="mb-1">
+              <GroupTitle title={group.title} collapsed={collapsed} />
+              <div className="flex flex-col gap-0.5">
+                {items.map((item) => (
+                  <div key={item.label} onClick={onNavigate}>
+                    <NavButton item={item} active={isActive(item.href)} collapsed={collapsed} />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
           );
         })}
 
@@ -274,7 +271,15 @@ function SidebarNav({
             item={item}
             collapsed={collapsed}
             active={isActive(item.href)}
-            badge={item.href === '/messages' ? unreadMessages : item.action === 'chat' ? unreadChat : item.action === 'cart' ? cartCount : undefined}
+            badge={
+              item.href === '/messages'
+                ? unreadMessages
+                : item.action === 'chat'
+                  ? unreadChat
+                  : item.action === 'cart'
+                    ? cartCount
+                    : undefined
+            }
             onAction={() => handleAction(item.action)}
           />
         ))}
@@ -348,7 +353,11 @@ export function SiteSidebar() {
                 onClick={() => setExpanded((value) => !value)}
                 aria-label={expanded ? 'Свернуть панель' : 'Развернуть панель'}
               >
-                {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {expanded ? (
+                  <ChevronLeft className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right">{expanded ? 'Свернуть' : 'Развернуть'}</TooltipContent>

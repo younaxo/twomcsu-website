@@ -17,8 +17,6 @@ import Link from 'next/link';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { DepartmentIcons } from '@/components/shared/DepartmentIcons';
-import { PositionBadge } from '@/components/shared/PositionBadge';
-import { ProfileStatus } from '@/components/profile/ProfileStatus';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,13 +39,7 @@ interface ProfileMiniPreviewProps {
   onLogout: () => void;
 }
 
-function PreviewBody({
-  profile,
-  onLogout,
-}: {
-  profile: MyProfile;
-  onLogout: () => void;
-}) {
+function PreviewBody({ profile, onLogout }: { profile: MyProfile; onLogout: () => void }) {
   const friendsCount = useFriendsCount(profile.username);
   const topBadge = profile.displayBadge ?? getTopBadge(profile.badges);
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
@@ -76,21 +68,9 @@ function PreviewBody({
             linkToProfile={false}
           />
         </div>
-        <div className="mb-1">
-          <PositionBadge position={profile.position} size="sm" />
-        </div>
-        {profile.customPosition ? (
-          <p
-            className="mb-1 text-sm italic"
-            style={{ color: profile.customPosition.color ?? '#F57C00' }}
-          >
-            {profile.customPosition.name}
-          </p>
-        ) : null}
         <div className="mb-3">
           <DepartmentIcons departments={profile.departments ?? []} />
         </div>
-        <ProfileStatus status={profile.statusText} compact className="mb-3 w-full" />
 
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-lg bg-white/5 px-2 py-1.5">
@@ -106,9 +86,7 @@ function PreviewBody({
             <p className="text-[10px] text-muted-foreground">Часов</p>
           </div>
           <div className="rounded-lg bg-white/5 px-2 py-1.5">
-            <p className="text-sm font-semibold text-white">
-              {profile.statistics?.coins ?? '—'}
-            </p>
+            <p className="text-sm font-semibold text-white">{profile.statistics?.coins ?? '—'}</p>
             <p className="text-[10px] text-muted-foreground">Рубинов</p>
           </div>
         </div>
@@ -168,8 +146,7 @@ function PreviewBody({
 
 export function ProfileMiniPreview({ username, avatar, onLogout }: ProfileMiniPreviewProps) {
   const profile = useMyProfile(true);
-  const topBadge =
-    profile.data?.displayBadge ?? getTopBadge(profile.data?.badges);
+  const topBadge = profile.data?.displayBadge ?? getTopBadge(profile.data?.badges);
 
   return (
     <DropdownMenu>
