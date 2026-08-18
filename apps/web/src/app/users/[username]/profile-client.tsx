@@ -9,6 +9,7 @@ import {
   Gift,
   Heart,
   MapPin,
+  MessageCircle,
   Package,
   Shield,
   Skull,
@@ -51,6 +52,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserActivity } from '@/hooks/activity';
 import { useGiftFromWishlist, useUserWishlist } from '@/hooks/store';
 import { useUserAchievements } from '@/hooks/achievements';
+import { useCreateDirectConversation } from '@/hooks/useDirectMessages';
 import { api, extractErrorMessage } from '@/lib/api';
 import {
   formatNumber,
@@ -107,6 +109,7 @@ export function ProfileClient({
   );
   const [friendsCount, setFriendsCount] = useState<number | null>(null);
   const userAchievements = useUserAchievements(username);
+  const createConversation = useCreateDirectConversation();
 
   useEffect(() => {
     void api
@@ -315,6 +318,23 @@ export function ProfileClient({
               <div className="flex flex-wrap items-center gap-2">
                 {isAuthenticated && !profile.isOwner ? (
                   <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="gap-2"
+                      disabled={createConversation.isPending}
+                      onClick={async () => {
+                        try {
+                          const conversation = await createConversation.mutateAsync(profile.username);
+                          window.location.assign(`/messages?conversation=${conversation.id}`);
+                        } catch (error) {
+                          toast.error(extractErrorMessage(error, 'Не удалось открыть диалог'));
+                        }
+                      }}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Написать
+                    </Button>
                     <FriendButton username={profile.username} />
                     <ReportProfileDialog username={profile.username} />
                   </>

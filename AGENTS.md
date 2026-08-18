@@ -75,9 +75,9 @@
 15. Achievements Enhancement
 16. Markdown Editor + Mentions + Emoji Picker
 17. Forms System
+18. Direct Messages
 
 ## Планируемые этапы
-18. Direct Messages
 19. Calendar & Events
 20. Leaderboards
 ... и т.д.
@@ -103,6 +103,7 @@
 - News, NewsComment
 - Activity, ActivityReaction, ActivityComment
 - Form, FormField, FormResponse, FormFieldAnswer, FormInvite
+- Conversation, ConversationMember, DirectMessage, DirectMessageReaction, MessageAttachment, GroupInvite
 
 ## API структура
 - Публичные endpoints (без auth)

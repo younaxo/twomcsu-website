@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Heart,
   LogOut,
+  MessagesSquare,
   Package,
   Settings,
   User as UserIcon,
@@ -121,6 +122,12 @@ function PreviewBody({
             <Link href="/profile/settings" className="cursor-pointer gap-2">
               <Settings className="h-4 w-4" />
               Настройки
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/messages" className="cursor-pointer gap-2">
+              <MessagesSquare className="h-4 w-4" />
+              Сообщения
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

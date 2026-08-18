@@ -15,6 +15,7 @@ import {
   Mail,
   Menu,
   MessageCircle,
+  MessagesSquare,
   Newspaper,
   Scale,
   Server,
@@ -33,6 +34,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/store';
+import { useConversations } from '@/hooks/useDirectMessages';
 import { useChatStore } from '@/stores/chatStore';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 import { cn } from '@/lib/utils';
@@ -77,6 +79,7 @@ const mainGroups: NavGroup[] = [
 ];
 
 const quickAccess: NavItem[] = [
+  { href: '/messages', label: 'Сообщения', icon: MessagesSquare },
   { label: 'Чат', icon: MessageCircle, action: 'chat' },
   { label: 'Корзина', icon: ShoppingCart, action: 'cart' },
 ];
@@ -182,7 +185,9 @@ function SidebarNav({
     Object.values(s.unreadCounts).reduce((a, b) => a + b, 0),
   );
   const cart = useCart(isAuthenticated);
+  const conversations = useConversations(isAuthenticated);
   const cartCount = cart.data?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+  const unreadMessages = conversations.data?.totalUnread ?? 0;
 
   const roleItems: NavItem[] = [];
   if (user && hasRoleGroup(user.roleGroup, RoleGroup.HELPER)) {
@@ -264,7 +269,8 @@ function SidebarNav({
             key={item.label}
             item={item}
             collapsed={collapsed}
-            badge={item.action === 'chat' ? unreadChat : item.action === 'cart' ? cartCount : undefined}
+            active={isActive(item.href)}
+            badge={item.href === '/messages' ? unreadMessages : item.action === 'chat' ? unreadChat : item.action === 'cart' ? cartCount : undefined}
             onAction={() => handleAction(item.action)}
           />
         ))}

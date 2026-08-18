@@ -120,6 +120,11 @@ export const queryKeys = {
     ['admin', 'forms', 'response', id, responseId] as const,
   adminFormStats: (id: string) => ['admin', 'forms', 'stats', id] as const,
   adminFormInvites: (id: string) => ['admin', 'forms', 'invites', id] as const,
+  conversations: ['messages', 'conversations'] as const,
+  conversation: (id: string) => ['messages', 'conversation', id] as const,
+  directMessages: (conversationId: string) => ['messages', 'items', conversationId] as const,
+  directMessagePrivacy: ['messages', 'privacy'] as const,
+  groupInvite: (code: string) => ['messages', 'invite', code] as const,
   achievements: (filters?: Record<string, unknown>) =>
     ['achievements', 'list', filters ?? {}] as const,
   achievementBySlug: (slug: string) => ['achievements', 'detail', slug] as const,

@@ -53,7 +53,9 @@ export default function LoginPage() {
       }
 
       // Full reload clears React Query + Zustand leftover session state
-      window.location.assign('/');
+      const requested = new URLSearchParams(window.location.search).get('returnUrl');
+      const destination = requested?.startsWith('/') && !requested.startsWith('//') ? requested : '/';
+      window.location.assign(destination);
     } catch (error) {
       captcha.current?.reset();
       toast.error(extractErrorMessage(error, 'Не удалось войти'));
