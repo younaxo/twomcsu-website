@@ -18,6 +18,7 @@ import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { DepartmentIcons } from '@/components/shared/DepartmentIcons';
 import { PositionBadge } from '@/components/shared/PositionBadge';
+import { ProfileStatus } from '@/components/profile/ProfileStatus';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { Button } from '@/components/ui/button';
 import {
@@ -89,6 +90,7 @@ function PreviewBody({
         <div className="mb-3">
           <DepartmentIcons departments={profile.departments ?? []} />
         </div>
+        <ProfileStatus status={profile.statusText} compact className="mb-3 w-full" />
 
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">
           <div className="rounded-lg bg-white/5 px-2 py-1.5">

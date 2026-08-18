@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { PositionBadge } from '@/components/shared/PositionBadge';
 import { SkinHead } from '@/components/shared/SkinHead';
+import { ProfileStatus } from '@/components/profile/ProfileStatus';
 import { Card, CardContent } from '@/components/ui/card';
 import { resolveMediaUrl } from '@/lib/profile';
 
@@ -39,9 +40,7 @@ export function RestrictedProfileView({ data }: RestrictedProfileViewProps) {
             <div className="space-y-2 pb-1">
               <ColoredUsername user={user} size="lg" linkToProfile={false} />
               <PositionBadge position={user.position} size="md" />
-              {user.statusText ? (
-                <p className="text-sm text-muted-foreground">{user.statusText}</p>
-              ) : null}
+              <ProfileStatus status={user.statusText} compact />
             </div>
           </div>
         </div>
