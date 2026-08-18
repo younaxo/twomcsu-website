@@ -108,6 +108,7 @@ export class AuthService {
           password: await hash(dto.password, BCRYPT_ROUNDS),
           positionId: await this.positions.getDefaultId(RoleGroup.PLAYER),
           tag: generateUserTag(dto.username),
+          referralCode: `${dto.username.toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`,
         },
         include: { position: true },
       });
@@ -328,9 +329,7 @@ export class AuthService {
   }
 
   async listSessions(userId: string, currentRefreshToken?: string): Promise<SessionInfo[]> {
-    const currentHash = currentRefreshToken
-      ? this.hashRefreshToken(currentRefreshToken)
-      : null;
+    const currentHash = currentRefreshToken ? this.hashRefreshToken(currentRefreshToken) : null;
 
     const rows = await this.prisma.refreshToken.findMany({
       where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
@@ -391,8 +390,7 @@ export class AuthService {
         order: 'order' in b ? (b.order as number) : 0,
       }));
 
-    const displayBadgeId =
-      'displayBadgeId' in user ? (user.displayBadgeId as string | null) : null;
+    const displayBadgeId = 'displayBadgeId' in user ? (user.displayBadgeId as string | null) : null;
     const rawDisplay =
       'displayBadge' in user
         ? (user.displayBadge as
@@ -426,14 +424,11 @@ export class AuthService {
       username: user.username,
       roleGroup: user.roleGroup,
       position: toPublicPosition(user.position),
-      customPosition:
-        'customPosition' in user ? toCustomPositionView(user.customPosition) : null,
+      customPosition: 'customPosition' in user ? toCustomPositionView(user.customPosition) : null,
       departments: 'departments' in user ? toUserDepartments(user.departments) : undefined,
       avatar: user.avatar,
       avatarDecoration:
-        'selectedDecoration' in user
-          ? toProfileDecoration(user.selectedDecoration)
-          : null,
+        'selectedDecoration' in user ? toProfileDecoration(user.selectedDecoration) : null,
       isVerified: user.isVerified,
       isBanned: user.isBanned,
       createdAt: user.createdAt.toISOString(),
@@ -447,9 +442,18 @@ export class AuthService {
   private async applyPromoCode(userId: string, code: string): Promise<PromoCodeResult> {
     const promo = await this.prisma.promoCode.findFirst({
       where: { code: { equals: code.trim(), mode: 'insensitive' } },
+      include: { mediaBadge: { select: { userId: true } } },
     });
 
     if (!promo || !promo.isActive) {
+      const referrer = await this.prisma.user.findFirst({
+        where: { referralCode: { equals: code.trim(), mode: 'insensitive' } },
+        select: { id: true, username: true },
+      });
+      if (referrer && referrer.id !== userId) {
+        await this.applyReferralRewards(userId, referrer.id);
+        return { applied: true, message: `Приглашение от ${referrer.username} принято` };
+      }
       return { applied: false, message: 'Промокод не найден или больше не действует' };
     }
 
@@ -472,6 +476,9 @@ export class AuthService {
           data: { usedCount: { increment: 1 } },
         }),
       ]);
+      if (promo.mediaBadge?.userId && promo.mediaBadge.userId !== userId) {
+        await this.applyReferralRewards(userId, promo.mediaBadge.userId);
+      }
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         return { applied: false, message: 'Этот промокод уже использован' };
@@ -481,6 +488,45 @@ export class AuthService {
     }
 
     return { applied: true, message: `Промокод ${promo.code} активирован` };
+  }
+
+  private async applyReferralRewards(
+    invitedUserId: string,
+    directInviterId: string,
+  ): Promise<void> {
+    const chain: Array<{ id: string; level: number; reward: number }> = [];
+    let currentId: string | null = directInviterId;
+    const rewards = [100, 40, 20];
+    for (let index = 0; index < rewards.length && currentId; index += 1) {
+      if (currentId === invitedUserId || chain.some((item) => item.id === currentId)) break;
+      chain.push({ id: currentId, level: index + 1, reward: rewards[index] });
+      const current: { referredBy: string | null } | null = await this.prisma.user.findUnique({
+        where: { id: currentId },
+        select: { referredBy: true },
+      });
+      currentId = current?.referredBy ?? null;
+    }
+    if (!chain.length) return;
+    await this.prisma.$transaction(
+      async (tx) => {
+        const updated = await tx.user.updateMany({
+          where: { id: invitedUserId, referredBy: null },
+          data: { referredBy: directInviterId },
+        });
+        if (!updated.count) return;
+        for (const item of chain) {
+          await tx.referralReward.create({
+            data: { inviterId: item.id, invitedUserId, level: item.level, reward: item.reward },
+          });
+          await tx.playerStatistics.upsert({
+            where: { userId: item.id },
+            create: { userId: item.id, coins: item.reward },
+            update: { coins: { increment: item.reward } },
+          });
+        }
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
   }
 
   private async handleFailedAttempt(ip: string): Promise<void> {

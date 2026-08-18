@@ -134,7 +134,8 @@ export class UsersService {
     if (dto.notifyOnComment !== undefined) data.notifyOnComment = dto.notifyOnComment;
     if (dto.notifyOnMention !== undefined) data.notifyOnMention = dto.notifyOnMention;
     if (dto.notifyOnReply !== undefined) data.notifyOnReply = dto.notifyOnReply;
-    if (dto.notifyOnFriendRequest !== undefined) data.notifyOnFriendRequest = dto.notifyOnFriendRequest;
+    if (dto.notifyOnFriendRequest !== undefined)
+      data.notifyOnFriendRequest = dto.notifyOnFriendRequest;
     if (dto.notifyOnGift !== undefined) data.notifyOnGift = dto.notifyOnGift;
     if (dto.notifyOnOrder !== undefined) data.notifyOnOrder = dto.notifyOnOrder;
     if (dto.hideEmail !== undefined) data.hideEmail = dto.hideEmail;
@@ -443,9 +444,7 @@ export class UsersService {
     void this.activity?.recordBadge(userId, { type: row.type }).catch(() => undefined);
     void this.prisma.userBadge
       .count({ where: { userId, isActive: true } })
-      .then((count) =>
-        this.achievements?.checkAndGrantAchievement(userId, 'BADGES_COUNT', count),
-      )
+      .then((count) => this.achievements?.checkAndGrantAchievement(userId, 'BADGES_COUNT', count))
       .catch(() => undefined);
 
     return toUserBadge(row);
@@ -575,6 +574,18 @@ export class UsersService {
       });
 
       if (dto.status === MediaBadgeRequestStatus.APPROVED) {
+        const promoCode = `MEDIA_${row.user.username}_${row.mediaGroup.slice(0, 2)}`.toUpperCase();
+        const promo = await tx.promoCode.upsert({
+          where: { code: promoCode },
+          create: {
+            code: promoCode,
+            description: `Промокод медиа-партнёра ${row.user.username}`,
+            discountType: 'BONUS',
+            discountValue: 0,
+            applicableToTypes: [],
+          },
+          update: { isActive: true },
+        });
         await tx.userMediaBadge.upsert({
           where: {
             userId_mediaGroup: { userId: row.userId, mediaGroup: row.mediaGroup },
@@ -583,12 +594,16 @@ export class UsersService {
             userId: row.userId,
             mediaGroup: row.mediaGroup,
             channelUrl: row.channelUrl,
+            rank: dto.rank ?? 1,
+            promoCodeId: promo.id,
             isApproved: true,
             approvedBy: reviewerId,
             approvedAt: new Date(),
           },
           update: {
             channelUrl: row.channelUrl,
+            rank: dto.rank ?? 1,
+            promoCodeId: promo.id,
             isApproved: true,
             approvedBy: reviewerId,
             approvedAt: new Date(),
@@ -803,7 +818,10 @@ export class UsersService {
     };
   }
 
-  async getStatistics(username: string, viewer?: AuthenticatedUser | null): Promise<PlayerStatistics> {
+  async getStatistics(
+    username: string,
+    viewer?: AuthenticatedUser | null,
+  ): Promise<PlayerStatistics> {
     const user = await findUserByIdentifier(this.prisma, username, {
       select: {
         id: true,
@@ -844,7 +862,8 @@ export class UsersService {
 
     const nextKills = kills ?? existing?.kills ?? 0;
     const nextDeaths = deaths ?? existing?.deaths ?? 0;
-    const killDeathRatio = nextDeaths === 0 ? nextKills : Number((nextKills / nextDeaths).toFixed(2));
+    const killDeathRatio =
+      nextDeaths === 0 ? nextKills : Number((nextKills / nextDeaths).toFixed(2));
 
     const row = await this.prisma.playerStatistics.upsert({
       where: { userId },
@@ -888,9 +907,7 @@ export class UsersService {
   ): Promise<UserProfile> {
     const user = await this.requireProfileUser({ username });
     const isOwner = viewer?.id === user.id;
-    const canBypassPrivate = viewer
-      ? hasRoleGroup(viewer.roleGroup, RoleGroup.MODERATOR)
-      : false;
+    const canBypassPrivate = viewer ? hasRoleGroup(viewer.roleGroup, RoleGroup.MODERATOR) : false;
 
     // Owner always sees their own profile; privacy checks apply to others only
     if (!isOwner) {
@@ -1082,7 +1099,9 @@ export class UsersService {
     };
   }
 
-  private async resolveBanner(user: Pick<ProfileUser, 'banner' | 'bannerPreset'>): Promise<string | null> {
+  private async resolveBanner(
+    user: Pick<ProfileUser, 'banner' | 'bannerPreset'>,
+  ): Promise<string | null> {
     if (user.banner) {
       return user.banner;
     }
