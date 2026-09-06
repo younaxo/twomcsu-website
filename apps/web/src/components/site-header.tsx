@@ -1,6 +1,5 @@
 'use client';
 
-import { Construction } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
@@ -34,11 +33,11 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="pointer-events-auto fixed inset-x-0 top-0 z-30 h-16 border-b border-white/5 glass-strong">
-        <div className="flex h-full items-center gap-4 px-4 transition-[margin-left] duration-200 sm:px-6 lg:ml-[var(--sidebar-rail-width,72px)]">
-          <Logo size="sm" withDivider showText className="no-select shrink-0" />
+      <header className="pointer-events-auto fixed inset-x-3 top-3 z-30 h-14 rounded-2xl glass-strong lg:left-[calc(var(--sidebar-rail-width)+0.75rem)]">
+        <div className="flex h-full items-center gap-3 px-3 sm:px-4">
+          <Logo size="sm" showText className="no-select shrink-0" />
 
-          <nav className="hidden flex-1 items-center justify-center gap-6 md:flex">
+          <nav className="mx-auto hidden h-10 items-center gap-1 rounded-xl border border-white/[0.07] bg-black/20 p-1 md:flex">
             {navItems.map((item) => {
               const active =
                 item.href === '/'
@@ -49,22 +48,19 @@ export function SiteHeader() {
                   key={item.label}
                   href={item.href}
                   className={cn(
-                    'relative inline-flex items-center gap-1.5 pb-0.5 text-[15px] font-medium transition-colors duration-200',
+                    'inline-flex h-8 items-center rounded-lg px-3.5 text-sm font-medium transition-[background-color,color] duration-200',
                     active
-                      ? 'font-semibold text-primary after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:bg-primary'
-                      : 'text-[#b0b0b0] hover:text-white',
+                      ? 'bg-white/[0.09] font-semibold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]'
+                      : 'text-muted-foreground hover:bg-white/[0.045] hover:text-white',
                   )}
                 >
                   {item.label}
-                  {'soon' in item && item.soon ? (
-                    <Construction className="h-3.5 w-3.5 text-muted-foreground" aria-label="В разработке" />
-                  ) : null}
                 </Link>
               );
             })}
           </nav>
 
-          <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <div className="ml-auto flex items-center gap-1">
             {isAuthenticated ? (
               <>
                 <SoundToggle />
@@ -73,7 +69,7 @@ export function SiteHeader() {
             ) : null}
 
             {isLoading ? (
-              <div className="h-9 w-20 animate-pulse rounded-md bg-white/10" />
+              <div className="h-9 w-24 animate-pulse rounded-xl bg-white/[0.07]" />
             ) : isAuthenticated && user ? (
               <ProfileMiniPreview
                 username={user.username}
@@ -81,11 +77,15 @@ export function SiteHeader() {
                 onLogout={handleLogout}
               />
             ) : (
-              <div className="hidden items-center gap-2 sm:flex">
-                <Button variant="ghost" className="text-[#b0b0b0] hover:text-white" asChild>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="ghost"
+                  className="px-3 text-muted-foreground hover:text-white"
+                  asChild
+                >
                   <Link href="/login">Войти</Link>
                 </Button>
-                <Button asChild className="bg-gradient-primary shadow-glow-primary">
+                <Button asChild className="hidden sm:inline-flex">
                   <Link href="/register">Регистрация</Link>
                 </Button>
               </div>

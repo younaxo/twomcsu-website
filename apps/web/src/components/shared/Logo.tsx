@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 const sizes = {
-  sm: { px: 38, text: 'text-[1.45rem]' },
-  md: { px: 48, text: 'text-[1.75rem]' },
-  lg: { px: 56, text: 'text-2xl' },
+  sm: { px: 36, text: 'text-[1.2rem]' },
+  md: { px: 46, text: 'text-[1.55rem]' },
+  lg: { px: 56, text: 'text-[1.8rem]' },
 } as const;
 
 interface LogoProps {
@@ -30,7 +30,7 @@ export function Logo({
   return (
     <Link
       href="/"
-      className={cn('inline-flex cursor-pointer items-center gap-4', className)}
+      className={cn('inline-flex cursor-pointer items-center gap-3', className)}
       aria-label="TWOMC — на главную"
     >
       <Image
@@ -43,7 +43,9 @@ export function Logo({
       />
       {withDivider ? <span className="h-7 w-px bg-white/10" aria-hidden /> : null}
       {showText ? (
-        <span className={cn('logo font-bold text-white', text)}>twomc.su</span>
+        <span className={cn('logo font-semibold uppercase tracking-[-0.045em] text-white', text)}>
+          TWOMC<span className="text-primary">.SU</span>
+        </span>
       ) : null}
     </Link>
   );

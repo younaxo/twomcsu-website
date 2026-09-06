@@ -129,12 +129,12 @@ case-insensitive. Невалидный код не ломает регистра
 
 Тестовые коды из `pnpm db:seed`:
 
-| Код           | Тип     | Значение | Лимит / заметка        |
-| ------------- | ------- | -------- | ---------------------- |
-| `WELCOME2024` | PERCENT | 10       | первая покупка в магазине |
-| `SUMMER20`    | PERCENT | 20       | только ранги           |
-| `KEYS50`      | PERCENT | 50       | только ключи, 1×/юзер  |
-| `VIP50`       | FIXED   | 50       | 100 использований      |
+| Код           | Тип     | Значение | Лимит / заметка              |
+| ------------- | ------- | -------- | ---------------------------- |
+| `WELCOME2024` | PERCENT | 10       | первая покупка в магазине    |
+| `SUMMER20`    | PERCENT | 20       | только ранги                 |
+| `KEYS50`      | PERCENT | 50       | только ключи, 1×/юзер        |
+| `VIP50`       | FIXED   | 50       | 100 использований            |
 | `BONUS100`    | BONUS   | 100      | 1000 (бонус при регистрации) |
 
 ### Тестовые аккаунты
@@ -195,15 +195,15 @@ Realtime работает через Socket.IO namespace `/messages`. REST API �
 В UI — «Префикс». В БД и коде модель остаётся `Position`: титул внутри группы (цвет ника,
 приоритет). Права даёт только `roleGroup`. У каждой группы одна позиция с `isDefault`.
 
-| Метод и путь                | Доступ    | Что делает                                             |
-| --------------------------- | --------- | ------------------------------------------------------ |
-| `GET /positions`            | публичный | Видимые префиксы, фильтр `?group=OWNER`                |
-| `GET /positions/manage`     | ADMIN+    | Все префиксы, включая скрытые                          |
-| `GET /positions/:slug`      | публичный | Префикс целиком плюс до 100 носителей                  |
-| `POST /positions`           | OWNER     | Создать префикс                                        |
-| `PATCH /positions/:id`      | OWNER     | Обновить префикс                                       |
-| `DELETE /positions/:id`     | OWNER     | Удалить, если не дефолтный и никто не назначен         |
-| `POST /positions/:id/assign` | ADMIN+   | Выдать префикс игроку, `{ "userId": "..." }`           |
+| Метод и путь                 | Доступ    | Что делает                                     |
+| ---------------------------- | --------- | ---------------------------------------------- |
+| `GET /positions`             | публичный | Видимые префиксы, фильтр `?group=OWNER`        |
+| `GET /positions/manage`      | ADMIN+    | Все префиксы, включая скрытые                  |
+| `GET /positions/:slug`       | публичный | Префикс целиком плюс до 100 носителей          |
+| `POST /positions`            | OWNER     | Создать префикс                                |
+| `PATCH /positions/:id`       | OWNER     | Обновить префикс                               |
+| `DELETE /positions/:id`      | OWNER     | Удалить, если не дефолтный и никто не назначен |
+| `POST /positions/:id/assign` | ADMIN+    | Выдать префикс игроку, `{ "userId": "..." }`   |
 
 Страницы: `/admin/positions` — управление префиксами.
 
@@ -211,12 +211,12 @@ Realtime работает через Socket.IO namespace `/messages`. REST API �
 
 Свободный текст поверх префикса («Технический директор»). Один на игрока.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /custom-positions` | публичный | Активные должности |
-| `GET/POST/PATCH/DELETE /admin/custom-positions` | OWNER | CRUD |
-| `POST /admin/users/:userId/custom-position` | OWNER | Назначить `{ customPositionId }` |
-| `DELETE /admin/users/:userId/custom-position` | OWNER | Снять |
+| Метод и путь                                    | Доступ    | Что делает                       |
+| ----------------------------------------------- | --------- | -------------------------------- |
+| `GET /custom-positions`                         | публичный | Активные должности               |
+| `GET/POST/PATCH/DELETE /admin/custom-positions` | OWNER     | CRUD                             |
+| `POST /admin/users/:userId/custom-position`     | OWNER     | Назначить `{ customPositionId }` |
+| `DELETE /admin/users/:userId/custom-position`   | OWNER     | Снять                            |
 
 Страница: `/admin/custom-positions`.
 
@@ -224,13 +224,13 @@ Realtime работает через Socket.IO namespace `/messages`. REST API �
 
 Подразделения команды. Максимум 3 отдела на игрока.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /departments` | публичный | Активные отделы |
-| `GET/POST/PATCH/DELETE /admin/departments` | OWNER | CRUD |
-| `POST /admin/users/:userId/departments` | ADMIN+ | Назначить (макс 3) |
-| `DELETE /admin/users/:userId/departments/:departmentId` | ADMIN+ | Убрать |
-| `PATCH /admin/users/:userId/departments/order` | ADMIN+ | Порядок |
+| Метод и путь                                            | Доступ    | Что делает         |
+| ------------------------------------------------------- | --------- | ------------------ |
+| `GET /departments`                                      | публичный | Активные отделы    |
+| `GET/POST/PATCH/DELETE /admin/departments`              | OWNER     | CRUD               |
+| `POST /admin/users/:userId/departments`                 | ADMIN+    | Назначить (макс 3) |
+| `DELETE /admin/users/:userId/departments/:departmentId` | ADMIN+    | Убрать             |
+| `PATCH /admin/users/:userId/departments/order`          | ADMIN+    | Порядок            |
 
 Страница: `/admin/departments`. Сид: Технический, PR, Модерация, Разработка, Курирование.
 
@@ -238,14 +238,14 @@ Realtime работает через Socket.IO namespace `/messages`. REST API �
 
 Правила, документы и внутренние материалы. Visibility: PUBLIC … OWNER_ONLY.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /topics` | публичный* | Список с учётом роли (`?category=RULES`) |
-| `GET /topics/:slug` | публичный* | Детали + инкремент views |
-| `GET/POST/PATCH/DELETE /admin/topics` | OWNER | CRUD |
-| `POST /admin/topics/:id/pin\|unpin` | OWNER | Закрепить / открепить |
-| `POST /admin/topics/reorder` | OWNER | Порядок |
-| `POST/DELETE /admin/topics/:id/attachments...` | OWNER | Вложения |
+| Метод и путь                                   | Доступ     | Что делает                               |
+| ---------------------------------------------- | ---------- | ---------------------------------------- |
+| `GET /topics`                                  | публичный* | Список с учётом роли (`?category=RULES`) |
+| `GET /topics/:slug`                            | публичный* | Детали + инкремент views                 |
+| `GET/POST/PATCH/DELETE /admin/topics`          | OWNER      | CRUD                                     |
+| `POST /admin/topics/:id/pin\|unpin`            | OWNER      | Закрепить / открепить                    |
+| `POST /admin/topics/reorder`                   | OWNER      | Порядок                                  |
+| `POST/DELETE /admin/topics/:id/attachments...` | OWNER      | Вложения                                 |
 
 \* недоступные по visibility → 403 / скрыты из списка.
 
@@ -258,22 +258,22 @@ Realtime работает через Socket.IO namespace `/messages`. REST API �
 Категории: UPDATE, EVENT, GUIDE, ANNOUNCEMENT, PATCH_NOTES, COMMUNITY, OTHER.  
 Статусы: DRAFT, SCHEDULED, PUBLISHED, ARCHIVED.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /news` | публичный | Список (`category`, `tag`, `search`, `sort`, `featured`) |
-| `GET /news/featured\|latest\|popular` | публичный | Виджеты |
-| `GET /news/categories\|tags` | публичный | Счётчики |
-| `GET /news/:slug` | публичный | Детали + уникальные просмотры (24ч) |
-| `POST /news/:id/like` | JWT | Toggle лайк |
-| `GET/POST /news/:slug/comments` | публичный / JWT | Комментарии (throttle 5/мин) |
-| `PATCH/DELETE /news/:slug/comments/:id` | JWT | Правка / удаление |
-| `POST .../reactions` | JWT | Реакции (8 emoji) |
-| `PATCH/DELETE /moderation/news/comments/:id...` | MODERATOR+ | Pin / hard delete |
-| `GET/POST/PATCH/DELETE /admin/news` | ADMIN+ | CRUD (удаление → ARCHIVED) |
-| `POST /admin/news/:id/pin\|feature...` | ADMIN+ | Закреп / featured |
-| `POST /admin/news/upload-image` | ADMIN+ | Обложки/контент (webp, ≤5 МБ) |
-| `GET /admin/news/stats` | ADMIN+ | Статистика |
-| `GET /rss/news` | публичный | RSS 2.0 |
+| Метод и путь                                    | Доступ          | Что делает                                               |
+| ----------------------------------------------- | --------------- | -------------------------------------------------------- |
+| `GET /news`                                     | публичный       | Список (`category`, `tag`, `search`, `sort`, `featured`) |
+| `GET /news/featured\|latest\|popular`           | публичный       | Виджеты                                                  |
+| `GET /news/categories\|tags`                    | публичный       | Счётчики                                                 |
+| `GET /news/:slug`                               | публичный       | Детали + уникальные просмотры (24ч)                      |
+| `POST /news/:id/like`                           | JWT             | Toggle лайк                                              |
+| `GET/POST /news/:slug/comments`                 | публичный / JWT | Комментарии (throttle 5/мин)                             |
+| `PATCH/DELETE /news/:slug/comments/:id`         | JWT             | Правка / удаление                                        |
+| `POST .../reactions`                            | JWT             | Реакции (8 emoji)                                        |
+| `PATCH/DELETE /moderation/news/comments/:id...` | MODERATOR+      | Pin / hard delete                                        |
+| `GET/POST/PATCH/DELETE /admin/news`             | ADMIN+          | CRUD (удаление → ARCHIVED)                               |
+| `POST /admin/news/:id/pin\|feature...`          | ADMIN+          | Закреп / featured                                        |
+| `POST /admin/news/upload-image`                 | ADMIN+          | Обложки/контент (webp, ≤5 МБ)                            |
+| `GET /admin/news/stats`                         | ADMIN+          | Статистика                                               |
+| `GET /rss/news`                                 | публичный       | RSS 2.0                                                  |
 
 Cron каждую минуту публикует `SCHEDULED` с `scheduledFor <= now` и шлёт `NEWS_PUBLISHED`.
 
@@ -285,22 +285,22 @@ Cron каждую минуту публикует `SCHEDULED` с `scheduledFor <
 обновления профиля, новости, вехи, кастомные объявления. Видимость: `PUBLIC` / `FRIENDS` / `PRIVATE`.
 Realtime через Socket.IO (`activity:new`, `activity:updated`, `activity:deleted` на namespace `chat`).
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /activity/feed` | публичный (+optional JWT) | Лента (`page`, `limit`, `type`, `filter=all\|friends\|me`) |
-| `GET /activity/feed/user/:username` | публичный (+optional JWT) | Активность пользователя |
-| `GET /activity/feed/global-highlights` | публичный (+optional JWT) | Топ за день/неделю |
-| `GET /activity/:id` | публичный (+optional JWT) | Детали + комментарии |
-| `POST /activity/:id/reactions` | JWT | Toggle реакция (emoji) |
-| `POST /activity/:id/comments` | JWT | Комментарий |
-| `DELETE /activity/comments/:id` | JWT | Удалить свой комментарий |
-| `GET/PATCH /activity/settings` | JWT | Настройки ленты и приватности |
-| `DELETE /moderation/activity/:id` | MODERATOR+ | Скрыть |
-| `POST/DELETE /moderation/activity/:id/pin` | ADMIN+ | Закрепить / открепить |
-| `DELETE /moderation/activity/comments/:id` | MODERATOR+ | Удалить чужой комментарий |
-| `GET /admin/activity` | ADMIN+ | Список для модерации |
-| `GET /admin/activity/stats` | ADMIN+ | Статистика |
-| `POST /admin/activity/custom` | ADMIN+ | Кастомное объявление / ивент |
+| Метод и путь                               | Доступ                    | Что делает                                                 |
+| ------------------------------------------ | ------------------------- | ---------------------------------------------------------- |
+| `GET /activity/feed`                       | публичный (+optional JWT) | Лента (`page`, `limit`, `type`, `filter=all\|friends\|me`) |
+| `GET /activity/feed/user/:username`        | публичный (+optional JWT) | Активность пользователя                                    |
+| `GET /activity/feed/global-highlights`     | публичный (+optional JWT) | Топ за день/неделю                                         |
+| `GET /activity/:id`                        | публичный (+optional JWT) | Детали + комментарии                                       |
+| `POST /activity/:id/reactions`             | JWT                       | Toggle реакция (emoji)                                     |
+| `POST /activity/:id/comments`              | JWT                       | Комментарий                                                |
+| `DELETE /activity/comments/:id`            | JWT                       | Удалить свой комментарий                                   |
+| `GET/PATCH /activity/settings`             | JWT                       | Настройки ленты и приватности                              |
+| `DELETE /moderation/activity/:id`          | MODERATOR+                | Скрыть                                                     |
+| `POST/DELETE /moderation/activity/:id/pin` | ADMIN+                    | Закрепить / открепить                                      |
+| `DELETE /moderation/activity/comments/:id` | MODERATOR+                | Удалить чужой комментарий                                  |
+| `GET /admin/activity`                      | ADMIN+                    | Список для модерации                                       |
+| `GET /admin/activity/stats`                | ADMIN+                    | Статистика                                                 |
+| `POST /admin/activity/custom`              | ADMIN+                    | Кастомное объявление / ивент                               |
 
 События создаются автоматически из заказов, позиций, бейджей, наград, друзей, профиля и новостей.
 
@@ -320,28 +320,28 @@ Realtime через Socket.IO (`activity:new`, `activity:updated`, `activity:del
 Загрузки картинок лежат в `UPLOADS_DIR` (по умолчанию `./uploads` относительно `apps/api`)
 и отдаются по `/uploads/...`. Лимиты: `UPLOAD_MAX_AVATAR_SIZE` (5 МБ) и `UPLOAD_MAX_BANNER_SIZE` (10 МБ).
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /users/me/profile` | авторизованный | Свой профиль для редактирования |
-| `PATCH /users/me/profile` | авторизованный | Обновить поля и приватность |
-| `POST/DELETE /users/me/avatar` | авторизованный | Загрузить / удалить аватар |
-| `POST/DELETE /users/me/banner` | авторизованный | Загрузить / удалить баннер |
-| `PATCH /users/me/banner/preset` | авторизованный | Выбрать пресет баннера |
-| `GET /banners/presets` | публичный | Список активных пресетов |
-| `GET/PUT/DELETE /users/me/socials...` | авторизованный | Соцсети |
-| `POST /users/me/media-request` | авторизованный | Заявка на медиа-бейдж |
-| `GET /users/me/media-requests` | авторизованный | Мои заявки |
-| `GET /users/:username/public` | публичный (+optional JWT) | Полный публичный профиль |
-| `GET /users/:username/statistics` | публичный | Статистика с учётом приватности |
-| `POST /users/:username/view` | авторизованный | Уникальный просмотр |
-| `PUT /users/:username/reaction` | авторизованный | Like / dislike / сброс |
-| `POST /users/:username/report` | авторизованный | Жалоба на профиль |
-| `GET /awards` | публичный | Активные награды |
-| `GET/POST/PATCH/DELETE /admin/awards...` | ADMIN/OWNER | Каталог и выдача наград |
-| `GET/POST/DELETE /admin/users/:userId/badges...` | ADMIN+ | Выдача UserBadge |
-| `GET/PATCH /admin/media-requests...` | ADMIN+ | Модерация медиа-заявок |
-| `GET/PATCH /admin/profile-reports...` | ADMIN+ | Модерация жалоб |
-| `PATCH /admin/users/:userId/statistics` | ADMIN+ | Правка статистики |
+| Метод и путь                                     | Доступ                    | Что делает                      |
+| ------------------------------------------------ | ------------------------- | ------------------------------- |
+| `GET /users/me/profile`                          | авторизованный            | Свой профиль для редактирования |
+| `PATCH /users/me/profile`                        | авторизованный            | Обновить поля и приватность     |
+| `POST/DELETE /users/me/avatar`                   | авторизованный            | Загрузить / удалить аватар      |
+| `POST/DELETE /users/me/banner`                   | авторизованный            | Загрузить / удалить баннер      |
+| `PATCH /users/me/banner/preset`                  | авторизованный            | Выбрать пресет баннера          |
+| `GET /banners/presets`                           | публичный                 | Список активных пресетов        |
+| `GET/PUT/DELETE /users/me/socials...`            | авторизованный            | Соцсети                         |
+| `POST /users/me/media-request`                   | авторизованный            | Заявка на медиа-бейдж           |
+| `GET /users/me/media-requests`                   | авторизованный            | Мои заявки                      |
+| `GET /users/:username/public`                    | публичный (+optional JWT) | Полный публичный профиль        |
+| `GET /users/:username/statistics`                | публичный                 | Статистика с учётом приватности |
+| `POST /users/:username/view`                     | авторизованный            | Уникальный просмотр             |
+| `PUT /users/:username/reaction`                  | авторизованный            | Like / dislike / сброс          |
+| `POST /users/:username/report`                   | авторизованный            | Жалоба на профиль               |
+| `GET /awards`                                    | публичный                 | Активные награды                |
+| `GET/POST/PATCH/DELETE /admin/awards...`         | ADMIN/OWNER               | Каталог и выдача наград         |
+| `GET/POST/DELETE /admin/users/:userId/badges...` | ADMIN+                    | Выдача UserBadge                |
+| `GET/PATCH /admin/media-requests...`             | ADMIN+                    | Модерация медиа-заявок          |
+| `GET/PATCH /admin/profile-reports...`            | ADMIN+                    | Модерация жалоб                 |
+| `PATCH /admin/users/:userId/statistics`          | ADMIN+                    | Правка статистики               |
 
 Страницы:
 
@@ -355,23 +355,23 @@ Realtime через Socket.IO (`activity:new`, `activity:updated`, `activity:del
 Статусы связи: `none`, `friends`, `pending_sent`, `pending_received`, `blocked_by_me`,
 `blocked_by_them`, `self`.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `POST /friends/request/:username` | авторизованный, 20/час | Отправить запрос |
-| `POST /friends/accept/:requestId` | авторизованный | Принять входящий |
-| `POST /friends/reject/:requestId` | авторизованный | Отклонить входящий |
-| `DELETE /friends/requests/:requestId` | авторизованный | Отменить исходящий |
-| `DELETE /friends/:username` | авторизованный | Удалить из друзей |
-| `POST /friends/block/:username` | авторизованный, 30/час | Заблокировать |
-| `DELETE /friends/block/:username` | авторизованный | Разблокировать |
-| `GET /friends?page=&limit=` | авторизованный | Список друзей |
-| `GET /friends/requests/incoming` | авторизованный | Входящие запросы (пагинация) |
-| `GET /friends/requests/incoming/count` | авторизованный | Число входящих (кэш 30с) |
-| `GET /friends/requests/outgoing` | авторизованный | Исходящие запросы (пагинация) |
-| `GET /friends/blocked` | авторизованный | Чёрный список (пагинация) |
-| `GET /friends/status/:username` | авторизованный | Статус относительно пользователя |
-| `GET /friends/count` | авторизованный | Число своих друзей |
-| `GET /friends/count/:username` | публичный | Число друзей пользователя |
+| Метод и путь                           | Доступ                 | Что делает                       |
+| -------------------------------------- | ---------------------- | -------------------------------- |
+| `POST /friends/request/:username`      | авторизованный, 20/час | Отправить запрос                 |
+| `POST /friends/accept/:requestId`      | авторизованный         | Принять входящий                 |
+| `POST /friends/reject/:requestId`      | авторизованный         | Отклонить входящий               |
+| `DELETE /friends/requests/:requestId`  | авторизованный         | Отменить исходящий               |
+| `DELETE /friends/:username`            | авторизованный         | Удалить из друзей                |
+| `POST /friends/block/:username`        | авторизованный, 30/час | Заблокировать                    |
+| `DELETE /friends/block/:username`      | авторизованный         | Разблокировать                   |
+| `GET /friends?page=&limit=`            | авторизованный         | Список друзей                    |
+| `GET /friends/requests/incoming`       | авторизованный         | Входящие запросы (пагинация)     |
+| `GET /friends/requests/incoming/count` | авторизованный         | Число входящих (кэш 30с)         |
+| `GET /friends/requests/outgoing`       | авторизованный         | Исходящие запросы (пагинация)    |
+| `GET /friends/blocked`                 | авторизованный         | Чёрный список (пагинация)        |
+| `GET /friends/status/:username`        | авторизованный         | Статус относительно пользователя |
+| `GET /friends/count`                   | авторизованный         | Число своих друзей               |
+| `GET /friends/count/:username`         | публичный              | Число друзей пользователя        |
 
 Страницы:
 
@@ -390,22 +390,22 @@ Realtime через Socket.IO (`activity:new`, `activity:updated`, `activity:del
 
 Лимиты: 2000 символов, 1 комментарий в минуту, 10 в час. Редактирование — 15 минут.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /users/:username/comments` | публичный (+optional JWT) | Список + закреплённые, пагинация до 150 |
-| `POST /users/:username/comments` | авторизованный | Создать комментарий / ответ |
-| `PATCH /users/:username/comments/:id` | автор, ≤15 мин | Редактировать |
-| `DELETE /users/:username/comments/:id` | автор или MODERATOR+ | Soft delete |
-| `POST /users/:username/comments/:id/pin` | владелец профиля | Закрепить |
-| `POST /users/:username/comments/:id/unpin` | владелец профиля | Открепить |
-| `POST /users/:username/comments/:id/reactions` | авторизованный | Добавить реакцию |
-| `DELETE /users/:username/comments/:id/reactions/:emoji` | авторизованный | Убрать реакцию |
-| `POST /users/:username/comments/:id/report` | авторизованный | Жалоба |
-| `POST /admin/users/:userId/comments/disable` | MODERATOR+ | Принудительно отключить |
-| `POST /admin/users/:userId/comments/enable` | MODERATOR+ | Включить обратно |
-| `GET /admin/comment-reports` | MODERATOR+ | Очередь жалоб |
-| `PATCH /admin/comment-reports/:id` | MODERATOR+ | Одобрить / отклонить |
-| `DELETE /admin/comments/:id` | MODERATOR+ | Hard delete |
+| Метод и путь                                            | Доступ                    | Что делает                              |
+| ------------------------------------------------------- | ------------------------- | --------------------------------------- |
+| `GET /users/:username/comments`                         | публичный (+optional JWT) | Список + закреплённые, пагинация до 150 |
+| `POST /users/:username/comments`                        | авторизованный            | Создать комментарий / ответ             |
+| `PATCH /users/:username/comments/:id`                   | автор, ≤15 мин            | Редактировать                           |
+| `DELETE /users/:username/comments/:id`                  | автор или MODERATOR+      | Soft delete                             |
+| `POST /users/:username/comments/:id/pin`                | владелец профиля          | Закрепить                               |
+| `POST /users/:username/comments/:id/unpin`              | владелец профиля          | Открепить                               |
+| `POST /users/:username/comments/:id/reactions`          | авторизованный            | Добавить реакцию                        |
+| `DELETE /users/:username/comments/:id/reactions/:emoji` | авторизованный            | Убрать реакцию                          |
+| `POST /users/:username/comments/:id/report`             | авторизованный            | Жалоба                                  |
+| `POST /admin/users/:userId/comments/disable`            | MODERATOR+                | Принудительно отключить                 |
+| `POST /admin/users/:userId/comments/enable`             | MODERATOR+                | Включить обратно                        |
+| `GET /admin/comment-reports`                            | MODERATOR+                | Очередь жалоб                           |
+| `PATCH /admin/comment-reports/:id`                      | MODERATOR+                | Одобрить / отклонить                    |
+| `DELETE /admin/comments/:id`                            | MODERATOR+                | Hard delete                             |
 
 Страницы:
 
@@ -428,49 +428,49 @@ Realtime через Socket.IO (`activity:new`, `activity:updated`, `activity:del
 Типы товаров: привилегии, ключи, подписка, значки, БП, валюта, украшения, бандлы и др.
 Цены в ₽. Для валюты `quantity` = сумма в рублях (от 50 до 50 000).
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /store/categories` | публичный | Дерево категорий |
-| `GET /store/products` | публичный | Каталог (`category`, `type`, `search`, `sort`, пагинация) |
-| `GET /store/products/:slug` | публичный (+optional JWT) | Карточка товара |
-| `GET /store/products/:id/bought-together` | публичный | «С этим покупают» |
-| `GET /store/bundles` | публичный | Список бандлов |
-| `GET /store/bundles/:slug` | публичный | Детали бандла |
-| `GET /store/currencies` | публичный | Курсы валют отображения |
-| `GET /store/recent-purchases` | публичный | Лента недавних покупок |
-| `POST /store/quick-buy` | публичный | Быстрая покупка по нику |
-| `GET /store/discounts/bulk` | публичный | Оптовые скидки |
-| `GET /store/discounts/loyalty` | публичный | Уровни лояльности |
-| `GET/POST/PATCH/DELETE /store/cart...` | авторизованный | Корзина, промокод, расчёт |
-| `GET/POST/DELETE/PATCH /store/wishlist...` | авторизованный | Желаемое |
-| `GET /store/wishlist/:username` | публичный | Публичное желаемое |
-| `POST /store/orders` | авторизованный | Создать заказ (`PENDING` + mock paymentUrl) |
-| `GET /store/orders` | авторизованный | Мои заказы |
-| `GET /store/orders/:orderNumber` | авторизованный | Детали заказа |
-| `POST /store/orders/:orderId/mock-complete` | авторизованный | Симуляция оплаты |
-| `POST /store/promocodes/validate` | авторизованный | Проверка промокода |
-| `CRUD /admin/store/categories\|products\|bundles\|discounts\|currencies` | ADMIN+ | Админка каталога |
-| `GET /admin/store/stats` | ADMIN+ | Статистика с графиками |
-| `CRUD /admin/promocodes` | ADMIN+ | Промокоды |
-| `GET /admin/orders`, `GET /admin/orders/stats` | ADMIN+ | Заказы и сводка |
+| Метод и путь                                                             | Доступ                    | Что делает                                                |
+| ------------------------------------------------------------------------ | ------------------------- | --------------------------------------------------------- |
+| `GET /store/categories`                                                  | публичный                 | Дерево категорий                                          |
+| `GET /store/products`                                                    | публичный                 | Каталог (`category`, `type`, `search`, `sort`, пагинация) |
+| `GET /store/products/:slug`                                              | публичный (+optional JWT) | Карточка товара                                           |
+| `GET /store/products/:id/bought-together`                                | публичный                 | «С этим покупают»                                         |
+| `GET /store/bundles`                                                     | публичный                 | Список бандлов                                            |
+| `GET /store/bundles/:slug`                                               | публичный                 | Детали бандла                                             |
+| `GET /store/currencies`                                                  | публичный                 | Курсы валют отображения                                   |
+| `GET /store/recent-purchases`                                            | публичный                 | Лента недавних покупок                                    |
+| `POST /store/quick-buy`                                                  | публичный                 | Быстрая покупка по нику                                   |
+| `GET /store/discounts/bulk`                                              | публичный                 | Оптовые скидки                                            |
+| `GET /store/discounts/loyalty`                                           | публичный                 | Уровни лояльности                                         |
+| `GET/POST/PATCH/DELETE /store/cart...`                                   | авторизованный            | Корзина, промокод, расчёт                                 |
+| `GET/POST/DELETE/PATCH /store/wishlist...`                               | авторизованный            | Желаемое                                                  |
+| `GET /store/wishlist/:username`                                          | публичный                 | Публичное желаемое                                        |
+| `POST /store/orders`                                                     | авторизованный            | Создать заказ (`PENDING` + mock paymentUrl)               |
+| `GET /store/orders`                                                      | авторизованный            | Мои заказы                                                |
+| `GET /store/orders/:orderNumber`                                         | авторизованный            | Детали заказа                                             |
+| `POST /store/orders/:orderId/mock-complete`                              | авторизованный            | Симуляция оплаты                                          |
+| `POST /store/promocodes/validate`                                        | авторизованный            | Проверка промокода                                        |
+| `CRUD /admin/store/categories\|products\|bundles\|discounts\|currencies` | ADMIN+                    | Админка каталога                                          |
+| `GET /admin/store/stats`                                                 | ADMIN+                    | Статистика с графиками                                    |
+| `CRUD /admin/promocodes`                                                 | ADMIN+                    | Промокоды                                                 |
+| `GET /admin/orders`, `GET /admin/orders/stats`                           | ADMIN+                    | Заказы и сводка                                           |
 
 ## Уведомления
 
 Расширенная система: in-app, Socket.IO (`/notifications`), push (Web Push / VAPID), email (SMTP), Discord webhooks, дайджесты, тихие часы, группировка и приоритеты.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /notifications` | авторизованный | Список (`page`, `limit`, `unreadOnly`) |
-| `GET /notifications/unread-count` | авторизованный | Счётчик непрочитанных |
-| `PATCH /notifications/:id/read` | авторизованный | Прочитать одно |
-| `PATCH /notifications/read-all` | авторизованный | Прочитать все → `{ count }` |
-| `GET/PATCH /notifications/settings` | авторизованный | Настройки каналов и тихих часов |
-| `POST /notifications/push/subscribe` | авторизованный | Подписка на push |
-| `GET /notifications/push/vapid-key` | авторизованный | Публичный VAPID ключ |
-| `POST /notifications/discord/webhook` | авторизованный | Личный Discord webhook |
-| `GET/POST/PATCH/DELETE /admin/notifications/webhooks` | ADMIN+ | Глобальные Discord webhooks |
-| `POST /admin/notifications/broadcast` | ADMIN+ | Массовая рассылка |
-| `GET /admin/notifications/stats` | ADMIN+ | Статистика |
+| Метод и путь                                          | Доступ         | Что делает                             |
+| ----------------------------------------------------- | -------------- | -------------------------------------- |
+| `GET /notifications`                                  | авторизованный | Список (`page`, `limit`, `unreadOnly`) |
+| `GET /notifications/unread-count`                     | авторизованный | Счётчик непрочитанных                  |
+| `PATCH /notifications/:id/read`                       | авторизованный | Прочитать одно                         |
+| `PATCH /notifications/read-all`                       | авторизованный | Прочитать все → `{ count }`            |
+| `GET/PATCH /notifications/settings`                   | авторизованный | Настройки каналов и тихих часов        |
+| `POST /notifications/push/subscribe`                  | авторизованный | Подписка на push                       |
+| `GET /notifications/push/vapid-key`                   | авторизованный | Публичный VAPID ключ                   |
+| `POST /notifications/discord/webhook`                 | авторизованный | Личный Discord webhook                 |
+| `GET/POST/PATCH/DELETE /admin/notifications/webhooks` | ADMIN+         | Глобальные Discord webhooks            |
+| `POST /admin/notifications/broadcast`                 | ADMIN+         | Массовая рассылка                      |
+| `GET /admin/notifications/stats`                      | ADMIN+         | Статистика                             |
 
 Страницы: `/profile/notifications`, `/profile/settings` → таб «Уведомления», `/admin/notifications/*`.
 
@@ -478,11 +478,11 @@ Env (опционально): `SMTP_*`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
 
 Промокоды магазина из сида:
 
-| Код | Эффект |
-| --- | --- |
-| `WELCOME2024` | −10%, только первая покупка |
-| `SUMMER20` | −20% на ранги |
-| `KEYS50` | −50% на ключи (1 раз на юзера) |
+| Код           | Эффект                         |
+| ------------- | ------------------------------ |
+| `WELCOME2024` | −10%, только первая покупка    |
+| `SUMMER20`    | −20% на ранги                  |
+| `KEYS50`      | −50% на ключи (1 раз на юзера) |
 
 Страницы:
 
@@ -501,19 +501,19 @@ Env (опционально): `SMTP_*`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
 Никнейм на сайте = Minecraft ник (`username`). Поле `minecraftNick` удалено.
 В настройках профиля ник только для чтения.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /servers` | публичный | Активные серверы + статус + категория |
-| `GET /server-categories` | публичный | Категории серверов |
-| `GET /servers/overview` | публичный | Общий онлайн, пик 24ч, топ |
-| `GET /servers/:slug` | публичный | Детали сервера |
-| `GET /servers/:slug/status` | публичный | Только статус |
-| `GET /servers/:slug/players` | публичный | Онлайн-игроки |
-| `GET /servers/:slug/history?days=` | публичный | История для графика |
-| `GET /servers/widget?ids=` | публичный | HTML-виджет |
-| `GET/POST/PATCH/DELETE /admin/servers` | ADMIN+ | CRUD серверов (включая categoryId) |
-| `GET/POST/PATCH/DELETE /admin/server-categories` | ADMIN+ | CRUD категорий |
-| `GET /admin/servers/:id/logs` | ADMIN+ | Логи мониторинга |
+| Метод и путь                                     | Доступ    | Что делает                            |
+| ------------------------------------------------ | --------- | ------------------------------------- |
+| `GET /servers`                                   | публичный | Активные серверы + статус + категория |
+| `GET /server-categories`                         | публичный | Категории серверов                    |
+| `GET /servers/overview`                          | публичный | Общий онлайн, пик 24ч, топ            |
+| `GET /servers/:slug`                             | публичный | Детали сервера                        |
+| `GET /servers/:slug/status`                      | публичный | Только статус                         |
+| `GET /servers/:slug/players`                     | публичный | Онлайн-игроки                         |
+| `GET /servers/:slug/history?days=`               | публичный | История для графика                   |
+| `GET /servers/widget?ids=`                       | публичный | HTML-виджет                           |
+| `GET/POST/PATCH/DELETE /admin/servers`           | ADMIN+    | CRUD серверов (включая categoryId)    |
+| `GET/POST/PATCH/DELETE /admin/server-categories` | ADMIN+    | CRUD категорий                        |
+| `GET /admin/servers/:id/logs`                    | ADMIN+    | Логи мониторинга                      |
 
 Страницы: `/servers` (фильтр по категориям, крупные карточки без MOTD), `/servers/[slug]`, `/admin/servers`, `/admin/servers/[id]/logs`.
 На главной — счётчик онлайна и топ серверов. В профиле — «Играет на …» / «Не в игре».
@@ -522,58 +522,58 @@ Env (опционально): `SMTP_*`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
 
 Роли разделены на три фронтовые зоны (API-пути `/admin/*` без изменений):
 
-| Зона | URL | Доступ | Содержание |
-| --- | --- | --- | --- |
-| Дашборд | `/dashboard/*` | OWNER | Аналитика, overview-карточки, графики, топы, закладки, настройки сайта |
-| Админ | `/admin/*` | ADMIN+ | Пользователи, контент, магазин, audit log, экспорт, site settings |
-| Модерация | `/moderation/*` | HELPER+ | Обращения, жалобы, комментарии новостей, медиа заявки, модерация чата |
+| Зона      | URL             | Доступ  | Содержание                                                             |
+| --------- | --------------- | ------- | ---------------------------------------------------------------------- |
+| Дашборд   | `/dashboard/*`  | OWNER   | Аналитика, overview-карточки, графики, топы, закладки, настройки сайта |
+| Админ     | `/admin/*`      | ADMIN+  | Пользователи, контент, магазин, audit log, экспорт, site settings      |
+| Модерация | `/moderation/*` | HELPER+ | Обращения, жалобы, комментарии новостей, медиа заявки, модерация чата  |
 
 Старые URL вроде `/admin/dashboard`, `/admin/media-requests`, `/admin/chat/*` редиректят на новые.
 
 ### Admin panel enhancement
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /admin/dashboard/overview` | ADMIN+ | Сводные метрики |
-| `GET /admin/dashboard/charts/*` | ADMIN+ | users / revenue / reports / servers |
-| `GET /admin/dashboard/top-products\|top-buyers\|moderator-activity` | ADMIN+ | Топы и активность модераторов |
-| `GET /admin/users` | ADMIN+ | Список с фильтрами и сортировкой |
-| `PATCH /admin/users/bulk` | ADMIN+ | Массовые действия |
-| `GET /admin/users/:id/full` | ADMIN+ | Полная карточка пользователя |
-| `POST /admin/users\|orders\|reports\|news\|audit-log/export` | ADMIN+ | Экспорт CSV / Excel / PDF |
-| `GET /admin/audit-log` + `/stats` | ADMIN+ | Журнал с severity и статистикой |
-| `CRUD /admin/saved-filters` | ADMIN+ | Сохранённые фильтры |
-| `CRUD /admin/bookmarks` | ADMIN+ | Быстрые ссылки дашборда |
-| `CRUD /admin/exports/scheduled` | ADMIN+ | Запланированные экспорты (cron) |
-| `GET/PATCH /admin/settings/site` | ADMIN+ | Структурированные настройки сайта |
-| `GET /admin/security/sessions\|suspicious\|logins` | ADMIN+ | Security dashboard |
-| `POST /admin/security/ip-whitelist` | ADMIN+ | IP whitelist для админов |
+| Метод и путь                                                        | Доступ | Что делает                          |
+| ------------------------------------------------------------------- | ------ | ----------------------------------- |
+| `GET /admin/dashboard/overview`                                     | ADMIN+ | Сводные метрики                     |
+| `GET /admin/dashboard/charts/*`                                     | ADMIN+ | users / revenue / reports / servers |
+| `GET /admin/dashboard/top-products\|top-buyers\|moderator-activity` | ADMIN+ | Топы и активность модераторов       |
+| `GET /admin/users`                                                  | ADMIN+ | Список с фильтрами и сортировкой    |
+| `PATCH /admin/users/bulk`                                           | ADMIN+ | Массовые действия                   |
+| `GET /admin/users/:id/full`                                         | ADMIN+ | Полная карточка пользователя        |
+| `POST /admin/users\|orders\|reports\|news\|audit-log/export`        | ADMIN+ | Экспорт CSV / Excel / PDF           |
+| `GET /admin/audit-log` + `/stats`                                   | ADMIN+ | Журнал с severity и статистикой     |
+| `CRUD /admin/saved-filters`                                         | ADMIN+ | Сохранённые фильтры                 |
+| `CRUD /admin/bookmarks`                                             | ADMIN+ | Быстрые ссылки дашборда             |
+| `CRUD /admin/exports/scheduled`                                     | ADMIN+ | Запланированные экспорты (cron)     |
+| `GET/PATCH /admin/settings/site`                                    | ADMIN+ | Структурированные настройки сайта   |
+| `GET /admin/security/sessions\|suspicious\|logins`                  | ADMIN+ | Security dashboard                  |
+| `POST /admin/security/ip-whitelist`                                 | ADMIN+ | IP whitelist для админов            |
 
 Страницы: `/dashboard`, `/admin/users`, `/admin/users/[id]`, `/admin/audit-log`, `/admin/settings/site`, `/admin/exports/scheduled`.
 Ctrl+K — Quick Actions. `lastActivityAt` обновляется interceptor’ом на authenticated-запросах.
 
 Общие UI-компоненты: `DashboardCard`, `*ChartCard`, `AdminTable`, `FilterPanel`, `BulkActionsBar`, `ExportDialog`, `BookmarksGrid`, `QuickActionsMenu`, `RolePanelLayout`.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /admin/dashboard` | ADMIN+ | Legacy-метрики (совместимость) |
-| `POST /admin/broadcast` | ADMIN+ | Массовые уведомления |
-| `GET/PATCH /admin/settings` | ADMIN+ | SiteSetting (key-value) |
-| `GET/POST/PATCH/DELETE /admin/announcements` | ADMIN+ | Объявления на сайте |
+| Метод и путь                                 | Доступ | Что делает                     |
+| -------------------------------------------- | ------ | ------------------------------ |
+| `GET /admin/dashboard`                       | ADMIN+ | Legacy-метрики (совместимость) |
+| `POST /admin/broadcast`                      | ADMIN+ | Массовые уведомления           |
+| `GET/PATCH /admin/settings`                  | ADMIN+ | SiteSetting (key-value)        |
+| `GET/POST/PATCH/DELETE /admin/announcements` | ADMIN+ | Объявления на сайте            |
 
 ## Чат (Socket.IO)
 
 Один общий канал (`general`). Закреплённые сообщения — sticky сверху (до 3). Реакции в чате отключены (остались в комментариях профиля).
 Полноэкранной страницы `/chat` нет — чат открывается Sheet справа из боковой панели.
 
-| Метод / событие | Что делает |
-| --- | --- |
-| `GET /chat/channels` | Активные каналы (сейчас только general) |
-| `GET /chat/channels/:slug/messages` | История (infinite scroll, `before`) |
-| `GET /chat/channels/:slug/online` | Онлайн в канале |
-| `GET /chat/channels/:slug/pinned` | Закреплённые (max 3) |
-| `WS /chat` namespace | `join_channel`, `send_message`, typing, pin/mute/ban |
-| `GET/POST/... /admin/chat/*` | Муты, баны, поиск, anti-spam настройки |
+| Метод / событие                     | Что делает                                           |
+| ----------------------------------- | ---------------------------------------------------- |
+| `GET /chat/channels`                | Активные каналы (сейчас только general)              |
+| `GET /chat/channels/:slug/messages` | История (infinite scroll, `before`)                  |
+| `GET /chat/channels/:slug/online`   | Онлайн в канале                                      |
+| `GET /chat/channels/:slug/pinned`   | Закреплённые (max 3)                                 |
+| `WS /chat` namespace                | `join_channel`, `send_message`, typing, pin/mute/ban |
+| `GET/POST/... /admin/chat/*`        | Муты, баны, поиск, anti-spam настройки               |
 
 UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settings` (вкладка «Чат»).
 Курсы игровой валюты: `GET /store/currency-rates`, мок-обмен `POST /store/exchange`.
@@ -581,10 +581,12 @@ UI: Sheet чата, `/moderation/chat/*`, настройки в `/profile/settin
 
 ## Дизайн
 
-Акцент оранжевый (`#F57C00` / `#E65100`), нейтральный тёмный фон без синевы.
-Плавающий glass header (уведомления + профиль с бейджем и chevron) и wall-интегрированная левая sidebar
-(категории Основное/Сообщество, снизу Чат, Корзина и выбор валюты).
-Утилиты `.glass-heavy` / `.glass-medium` / `.glass-light` / `.glass-strong`.
+Визуальная система «обсидиановый интерфейс»: акцент оранжевый (`#F57C00` / `#E65100`),
+нейтральный тёмный фон без синевы, координатная сетка, строгая геометрия и крупная типографика.
+Плавающий glass header (уведомления + профиль с бейджем и chevron) и левая навигационная панель
+«Карта проекта» (категории Основное/Сообщество, снизу Чат, Корзина и выбор валюты).
+Утилиты `.glass-heavy` / `.glass-medium` / `.glass-light` / `.glass-strong` / `.glass-panel`.
+Hover-состояния не используют оранжевое свечение и масштабирование элементов.
 Профиль: статистика «Рубинов» (поле `coins` в БД), короткие ID/тег, бейджи после ника.
 Уведомления: glass-карточки, свайп влево — прочитать, вправо — удалить.
 Техработы / модули / объявления: `/system/status`, админ-страницы в `/admin/settings/*`.
@@ -607,33 +609,33 @@ Placeholder `GameReport`/`GamePunishment` под TigerReports/LiteBans. См. `a
 `POST /reports` (тело): `type`, `description`, опционально `targets[]`, `evidenceLinks[]`,
 `server`, `incidentDate`, `additionalText`, `appealedPunishmentId` (для обжалований), `captchaToken`.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /reports?role=` | авторизованный | Автор / цель / модератор (без архивных) |
-| `GET /reports/:reportNumber` | автор / цель / staff | Детали + notes для staff |
-| `POST /reports` | авторизованный | Создать обращение |
-| `POST /reports/:reportNumber/messages` | автор / цель / staff | Сообщение в переписке |
-| `PATCH /reports/:reportNumber/messages/:id` | автор (5 мин) | Правка / soft-delete своего |
-| `POST /reports/:reportNumber/attachments` | автор / staff | Загрузка файла |
-| `GET /reports/rules?type=` | публичный | Правила из Topics |
-| `GET /users/me/punishments?onlyAppealable=` | авторизованный | Мои наказания |
-| `GET /users/:username/search-hint` | публичный | Подсказка: зарегистрирован ли ник |
-| `GET /moderation/reports` | HELPER+ | Очередь модерации |
-| `PATCH /moderation/reports/:n/assign\|status\|verdict` | staff | Назначение / статус (+comment) / вердикт |
-| `POST/PATCH/DELETE .../notes` (+ pin) | staff | Заметки модераторов |
-| `DELETE .../messages/:id` + pin/unpin | staff | Soft-delete / закрепление |
-| `POST /moderation/reports/:n/lock` | ADMIN+ | Блокировка новых сообщений |
-| `GET /admin/reports/archived` | ADMIN+ | Архив |
-| `POST /admin/reports/:n/archive\|unarchive` | ADMIN+ | Архив / восстановление |
-| `DELETE /admin/reports/:n` (+ hard-delete messages) | ADMIN+ | Полное удаление |
-| `GET /admin/users/:username/punishments` | MOD+ | История наказаний игрока |
-| `POST /admin/users/:userId/punishments` | MOD+ | Выдать наказание |
-| `PATCH /admin/users/:userId/punishments/:id` | MOD+ | Изменить наказание |
-| `GET /admin/reports/stats` | ADMIN+ | Статистика |
-| `POST/DELETE /admin/reports/ban/:userId` | ADMIN+ | Бан на создание обращений |
-| `GET /game-reports`, `/bans`, `.../game-punishments` | — | Placeholder TigerReports / LiteBans |
-| `POST /support/donation-problem` | авторизованный | Проблема с донатом → OWNER |
-| `GET /admin/support/donations` | OWNER | Список донат-обращений |
+| Метод и путь                                           | Доступ               | Что делает                               |
+| ------------------------------------------------------ | -------------------- | ---------------------------------------- |
+| `GET /reports?role=`                                   | авторизованный       | Автор / цель / модератор (без архивных)  |
+| `GET /reports/:reportNumber`                           | автор / цель / staff | Детали + notes для staff                 |
+| `POST /reports`                                        | авторизованный       | Создать обращение                        |
+| `POST /reports/:reportNumber/messages`                 | автор / цель / staff | Сообщение в переписке                    |
+| `PATCH /reports/:reportNumber/messages/:id`            | автор (5 мин)        | Правка / soft-delete своего              |
+| `POST /reports/:reportNumber/attachments`              | автор / staff        | Загрузка файла                           |
+| `GET /reports/rules?type=`                             | публичный            | Правила из Topics                        |
+| `GET /users/me/punishments?onlyAppealable=`            | авторизованный       | Мои наказания                            |
+| `GET /users/:username/search-hint`                     | публичный            | Подсказка: зарегистрирован ли ник        |
+| `GET /moderation/reports`                              | HELPER+              | Очередь модерации                        |
+| `PATCH /moderation/reports/:n/assign\|status\|verdict` | staff                | Назначение / статус (+comment) / вердикт |
+| `POST/PATCH/DELETE .../notes` (+ pin)                  | staff                | Заметки модераторов                      |
+| `DELETE .../messages/:id` + pin/unpin                  | staff                | Soft-delete / закрепление                |
+| `POST /moderation/reports/:n/lock`                     | ADMIN+               | Блокировка новых сообщений               |
+| `GET /admin/reports/archived`                          | ADMIN+               | Архив                                    |
+| `POST /admin/reports/:n/archive\|unarchive`            | ADMIN+               | Архив / восстановление                   |
+| `DELETE /admin/reports/:n` (+ hard-delete messages)    | ADMIN+               | Полное удаление                          |
+| `GET /admin/users/:username/punishments`               | MOD+                 | История наказаний игрока                 |
+| `POST /admin/users/:userId/punishments`                | MOD+                 | Выдать наказание                         |
+| `PATCH /admin/users/:userId/punishments/:id`           | MOD+                 | Изменить наказание                       |
+| `GET /admin/reports/stats`                             | ADMIN+               | Статистика                               |
+| `POST/DELETE /admin/reports/ban/:userId`               | ADMIN+               | Бан на создание обращений                |
+| `GET /game-reports`, `/bans`, `.../game-punishments`   | —                    | Placeholder TigerReports / LiteBans      |
+| `POST /support/donation-problem`                       | авторизованный       | Проблема с донатом → OWNER               |
+| `GET /admin/support/donations`                         | OWNER                | Список донат-обращений                   |
 
 Страницы: `/report`, `/report/new`, `/report/new/*`, `/report/[reportNumber]`, `/support`,
 `/moderation/reports`, `/admin/reports/archived`, `/admin/support/donations`.
@@ -669,9 +671,9 @@ docker exec -it twomc-redis redis-cli -a "$REDIS_PASSWORD" FLUSHDB
 
 ### Env
 
-| Переменная | Зачем |
-| ---------- | ----- |
-| `PRISMA_DEBUG` | `true` — логировать каждый SQL |
+| Переменная     | Зачем                                                  |
+| -------------- | ------------------------------------------------------ |
+| `PRISMA_DEBUG` | `true` — логировать каждый SQL                         |
 | `DATABASE_URL` | `?connection_limit=10&pool_timeout=20` для пула Prisma |
 
 ## Структура
@@ -717,15 +719,15 @@ packages/
 
 Единый markdown-редактор (`MarkdownEditor`) с toolbar, `@mentions`, `:emoji:` и emoji picker используется в комментариях, чате, обращениях, новостях и темах.
 
-| Метод и путь | Что делает |
-| ------------ | ---------- |
-| `GET /users/search-mentions?q=&limit=` | Автокомплит упоминаний (JWT, Redis 30с) |
-| `GET /emojis/custom` | Список активных кастомных эмодзи |
-| `GET /emojis/custom/search?q=` | Поиск кастомных эмодзи |
-| `GET /admin/emojis` | Все эмодзи (ADMIN+) |
-| `POST /admin/emojis` | Создать (multipart: name, file, category…) |
-| `PATCH /admin/emojis/:id` | Обновить |
-| `DELETE /admin/emojis/:id` | Удалить |
+| Метод и путь                           | Что делает                                 |
+| -------------------------------------- | ------------------------------------------ |
+| `GET /users/search-mentions?q=&limit=` | Автокомплит упоминаний (JWT, Redis 30с)    |
+| `GET /emojis/custom`                   | Список активных кастомных эмодзи           |
+| `GET /emojis/custom/search?q=`         | Поиск кастомных эмодзи                     |
+| `GET /admin/emojis`                    | Все эмодзи (ADMIN+)                        |
+| `POST /admin/emojis`                   | Создать (multipart: name, file, category…) |
+| `PATCH /admin/emojis/:id`              | Обновить                                   |
+| `DELETE /admin/emojis/:id`             | Удалить                                    |
 
 Уведомления при `@username`: `COMMENT_MENTION`, `CHAT_MENTION`, `NEWS_COMMENT_MENTION`, `REPORT_MENTION`.
 Админка: `/admin/emojis`.
@@ -739,26 +741,26 @@ packages/
 Статусы: DRAFT, PUBLISHED, CLOSED, ARCHIVED. Видимость: PUBLIC, AUTHENTICATED,
 HELPER/MODERATOR/ADMIN/OWNER_ONLY, INVITE_ONLY. Ответы: черновики + отправка.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
-| `GET /forms` | публичный (+optional JWT) | Опубликованные формы для текущей роли |
-| `GET /forms/:slug` | публичный (+optional JWT) | Детали формы + fields |
-| `GET /forms/invite/:code` | публичный (+optional JWT) | Форма по инвайт-коду |
-| `POST /forms/:slug/responses` | публичный (+optional JWT) | Отправить ответ (`answers`, `captchaToken?`, `inviteCode?`) |
-| `POST /forms/:slug/responses/save-draft` | JWT | Сохранить черновик |
-| `POST /forms/:slug/responses/upload` | публичный (+optional JWT) | Загрузка файла (multipart) |
-| `GET /forms/my` | JWT | Мои формы |
-| `GET /forms/my/responses` | JWT | Мои ответы |
-| `GET /forms/autofill` | JWT | Данные для STATS_DISPLAY / autofill |
-| `GET/POST/PATCH/DELETE /admin/forms` | ADMIN+ | CRUD форм |
-| `POST /admin/forms/:id/publish\|close\|duplicate` | ADMIN+ | Смена статуса и дубликат |
-| `POST /admin/forms/from-template/:slug` | ADMIN+ | Создать из шаблона |
-| `GET /admin/forms/templates` | ADMIN+ | Список шаблонов |
-| `GET /admin/forms/:id/responses` (+ `:responseId`) | ADMIN+ | Список / детали ответа |
-| `DELETE /admin/forms/:id/responses/:responseId` | ADMIN+ | Удалить ответ |
-| `POST /admin/forms/:id/export` | ADMIN+ | Экспорт CSV / Excel / PDF |
-| `GET /admin/forms/:id/stats` | ADMIN+ | Статистика с распределениями |
-| `GET/POST/DELETE /admin/forms/:id/invites...` | ADMIN+ | Инвайт-коды |
+| Метод и путь                                       | Доступ                    | Что делает                                                  |
+| -------------------------------------------------- | ------------------------- | ----------------------------------------------------------- |
+| `GET /forms`                                       | публичный (+optional JWT) | Опубликованные формы для текущей роли                       |
+| `GET /forms/:slug`                                 | публичный (+optional JWT) | Детали формы + fields                                       |
+| `GET /forms/invite/:code`                          | публичный (+optional JWT) | Форма по инвайт-коду                                        |
+| `POST /forms/:slug/responses`                      | публичный (+optional JWT) | Отправить ответ (`answers`, `captchaToken?`, `inviteCode?`) |
+| `POST /forms/:slug/responses/save-draft`           | JWT                       | Сохранить черновик                                          |
+| `POST /forms/:slug/responses/upload`               | публичный (+optional JWT) | Загрузка файла (multipart)                                  |
+| `GET /forms/my`                                    | JWT                       | Мои формы                                                   |
+| `GET /forms/my/responses`                          | JWT                       | Мои ответы                                                  |
+| `GET /forms/autofill`                              | JWT                       | Данные для STATS_DISPLAY / autofill                         |
+| `GET/POST/PATCH/DELETE /admin/forms`               | ADMIN+                    | CRUD форм                                                   |
+| `POST /admin/forms/:id/publish\|close\|duplicate`  | ADMIN+                    | Смена статуса и дубликат                                    |
+| `POST /admin/forms/from-template/:slug`            | ADMIN+                    | Создать из шаблона                                          |
+| `GET /admin/forms/templates`                       | ADMIN+                    | Список шаблонов                                             |
+| `GET /admin/forms/:id/responses` (+ `:responseId`) | ADMIN+                    | Список / детали ответа                                      |
+| `DELETE /admin/forms/:id/responses/:responseId`    | ADMIN+                    | Удалить ответ                                               |
+| `POST /admin/forms/:id/export`                     | ADMIN+                    | Экспорт CSV / Excel / PDF                                   |
+| `GET /admin/forms/:id/stats`                       | ADMIN+                    | Статистика с распределениями                                |
+| `GET/POST/DELETE /admin/forms/:id/invites...`      | ADMIN+                    | Инвайт-коды                                                 |
 
 Страницы: `/forms`, `/forms/[slug]`, `/forms/invite/[code]`, `/admin/forms`,
 `/admin/forms/new`, `/admin/forms/[id]/edit`, `/admin/forms/[id]/responses`,
@@ -775,8 +777,8 @@ UI-компоненты: `FormBuilder`, `FieldPalette`, `FieldSettings`, `FieldP
 убийствам, K/D, рубинам и попаданиям. Заблокированные пользователи и игроки со
 скрытой статистикой в рейтинг не включаются. Данные API кэшируются в Redis на 60 секунд.
 
-| Метод и путь | Доступ | Что делает |
-| --- | --- | --- |
+| Метод и путь                       | Доступ    | Что делает                                |
+| ---------------------------------- | --------- | ----------------------------------------- |
 | `GET /leaderboards?metric=&limit=` | публичный | Получить рейтинг по выбранному показателю |
 
 Ближайшие этапы: Streaming Integration, Voting System, Daily Rewards + Wheel,

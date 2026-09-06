@@ -105,15 +105,15 @@ function NavButton({
   const content = (
     <span
       className={cn(
-        'relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-150',
+        'relative flex min-h-11 w-full items-center gap-3 rounded-xl border px-3 py-2.5 transition-[background-color,border-color,color] duration-200',
         collapsed && 'justify-center px-2',
         active
-          ? 'border-l-2 border-primary bg-primary/15 text-primary'
-          : 'border-l-2 border-transparent text-neutral-400 hover:bg-white/[0.06] hover:text-white',
+          ? 'border-primary/25 bg-primary/10 text-primary'
+          : 'border-transparent text-neutral-400 hover:border-white/[0.06] hover:bg-white/[0.045] hover:text-white',
         item.soon && 'opacity-70',
       )}
     >
-      <Icon className="h-6 w-6 shrink-0" />
+      <Icon className="h-5 w-5 shrink-0" />
       {!collapsed ? (
         <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
           <span className="truncate">{item.label}</span>
@@ -143,7 +143,12 @@ function NavButton({
       {content}
     </Link>
   ) : (
-    <button type="button" className="block w-full cursor-pointer" onClick={onAction} aria-label={item.label}>
+    <button
+      type="button"
+      className="block w-full cursor-pointer"
+      onClick={onAction}
+      aria-label={item.label}
+    >
       {content}
     </button>
   );
@@ -168,26 +173,18 @@ function GroupTitle({ title, collapsed }: { title: string; collapsed?: boolean }
     return <div className="mx-auto my-2 h-px w-8 bg-white/10" aria-hidden />;
   }
   return (
-    <p className="px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500">
+    <p className="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-600">
       {title}
     </p>
   );
 }
 
-function SidebarNav({
-  collapsed,
-  onNavigate,
-}: {
-  collapsed?: boolean;
-  onNavigate?: () => void;
-}) {
+function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
   const openCartDrawer = useStoreUiStore((s) => s.openCartDrawer);
   const setWidgetOpen = useChatStore((s) => s.setWidgetOpen);
-  const unreadChat = useChatStore((s) =>
-    Object.values(s.unreadCounts).reduce((a, b) => a + b, 0),
-  );
+  const unreadChat = useChatStore((s) => Object.values(s.unreadCounts).reduce((a, b) => a + b, 0));
   const cart = useCart(isAuthenticated);
   const conversations = useConversations(isAuthenticated);
   const cartCount = cart.data?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
@@ -218,7 +215,7 @@ function SidebarNav({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-3">
+      <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2.5 py-2">
         {mainGroups.map((group) => {
           const items =
             group.title === 'Сообщество' && isAuthenticated
@@ -229,20 +226,16 @@ function SidebarNav({
               : group.items;
 
           return (
-          <div key={group.title} className="mb-1">
-            <GroupTitle title={group.title} collapsed={collapsed} />
-            <div className="flex flex-col gap-0.5">
-              {items.map((item) => (
-                <div key={item.label} onClick={onNavigate}>
-                  <NavButton
-                    item={item}
-                    active={isActive(item.href)}
-                    collapsed={collapsed}
-                  />
-                </div>
-              ))}
+            <div key={group.title} className="mb-1">
+              <GroupTitle title={group.title} collapsed={collapsed} />
+              <div className="flex flex-col gap-0.5">
+                {items.map((item) => (
+                  <div key={item.label} onClick={onNavigate}>
+                    <NavButton item={item} active={isActive(item.href)} collapsed={collapsed} />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
           );
         })}
 
@@ -260,9 +253,9 @@ function SidebarNav({
         ) : null}
       </nav>
 
-      <div className="mt-auto shrink-0 space-y-1 border-t border-white/5 px-2 py-3">
+      <div className="mt-auto shrink-0 space-y-1 border-t border-white/[0.07] px-2.5 py-3">
         {!collapsed ? (
-          <p className="px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-500">
+          <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-600">
             Быстрый доступ
           </p>
         ) : (
@@ -274,7 +267,15 @@ function SidebarNav({
             item={item}
             collapsed={collapsed}
             active={isActive(item.href)}
-            badge={item.href === '/messages' ? unreadMessages : item.action === 'chat' ? unreadChat : item.action === 'cart' ? cartCount : undefined}
+            badge={
+              item.href === '/messages'
+                ? unreadMessages
+                : item.action === 'chat'
+                  ? unreadChat
+                  : item.action === 'cart'
+                    ? cartCount
+                    : undefined
+            }
             onAction={() => handleAction(item.action)}
           />
         ))}
@@ -316,7 +317,7 @@ export function SiteSidebar() {
   }, []);
 
   useEffect(() => {
-    const width = expanded ? '260px' : '72px';
+    const width = expanded ? '280px' : '76px';
     document.documentElement.style.setProperty('--sidebar-rail-width', width);
     try {
       localStorage.setItem(SIDEBAR_EXPANDED_KEY, expanded ? '1' : '0');
@@ -330,25 +331,42 @@ export function SiteSidebar() {
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          'pointer-events-auto fixed left-0 top-0 z-40 hidden h-screen flex-col overflow-hidden transition-[width] duration-200',
-          'border-r border-white/5 bg-neutral-950/70 backdrop-blur-[20px]',
+          'pointer-events-auto fixed bottom-3 left-3 top-3 z-40 hidden flex-col overflow-hidden rounded-2xl transition-[width] duration-300 ease-out',
+          'border border-white/[0.09] bg-[rgba(13,12,11,0.9)] shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-[28px]',
           'lg:flex',
-          expanded ? 'w-[260px]' : 'w-[72px]',
+          expanded ? 'w-[280px]' : 'w-[76px]',
         )}
         aria-label="Боковая навигация"
       >
-        <div className="flex h-16 shrink-0 items-center justify-end border-b border-white/5 px-3">
+        <div
+          className={cn(
+            'flex h-[68px] shrink-0 items-center border-b border-white/[0.07] px-3',
+            expanded ? 'justify-between' : 'justify-center',
+          )}
+        >
+          {expanded ? (
+            <div className="pl-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                Навигация
+              </p>
+              <p className="text-sm font-semibold text-white">Карта проекта</p>
+            </div>
+          ) : null}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9 text-neutral-400 hover:text-white"
+                className="h-10 w-10 text-neutral-400 hover:text-white"
                 onClick={() => setExpanded((value) => !value)}
                 aria-label={expanded ? 'Свернуть панель' : 'Развернуть панель'}
               >
-                {expanded ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {expanded ? (
+                  <ChevronLeft className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right">{expanded ? 'Свернуть' : 'Развернуть'}</TooltipContent>
@@ -360,12 +378,13 @@ export function SiteSidebar() {
       </aside>
 
       {/* Mobile hamburger */}
-      <div className="fixed bottom-5 left-5 z-40 lg:hidden">
+      <div className="fixed bottom-4 left-4 z-40 lg:hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
             <Button
               size="icon"
-              className="h-12 w-12 rounded-2xl border border-white/10 bg-neutral-950/80 shadow-lg backdrop-blur-xl"
+              variant="outline"
+              className="h-12 w-12 rounded-2xl border-white/15 bg-[rgba(17,16,14,0.9)] text-white shadow-[0_14px_36px_rgba(0,0,0,0.34)] backdrop-blur-2xl"
               aria-label="Открыть меню"
             >
               <Menu className="h-5 w-5" />
@@ -373,10 +392,10 @@ export function SiteSidebar() {
           </SheetTrigger>
           <SheetContent
             side="left"
-            className="w-[min(100vw-2rem,260px)] border-white/5 bg-neutral-950/90 p-0 backdrop-blur-[20px]"
+            className="w-[min(100vw-2rem,280px)] border-white/10 bg-[rgba(13,12,11,0.96)] p-0 backdrop-blur-[28px]"
           >
-            <SheetHeader className="border-b border-white/5 px-4 py-4 text-left">
-              <SheetTitle className="text-base">Навигация</SheetTitle>
+            <SheetHeader className="border-b border-white/[0.07] px-4 py-4 text-left">
+              <SheetTitle className="text-base">Карта проекта</SheetTitle>
             </SheetHeader>
             <div className="h-[calc(100%-4rem)] overflow-y-auto">
               <SidebarNav onNavigate={() => setMobileOpen(false)} />

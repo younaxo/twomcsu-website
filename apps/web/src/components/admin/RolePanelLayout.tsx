@@ -30,13 +30,12 @@ export function RolePanelLayout({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   if (variant === 'sidebar') {
     return (
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
-        <div className="glass-panel flex items-center justify-between rounded-2xl p-4 lg:hidden">
+        <div className="glass-panel frame-corners flex items-center justify-between rounded-2xl p-4 lg:hidden">
           <h1 className="text-lg font-semibold text-white">{title}</h1>
           <div className="flex items-center gap-2">
             {headerExtra}
@@ -54,22 +53,27 @@ export function RolePanelLayout({
 
         <aside
           className={cn(
-            'glass-panel w-full shrink-0 rounded-2xl p-4 lg:sticky lg:top-4 lg:block lg:w-56 xl:w-60',
+            'glass-panel frame-corners w-full shrink-0 rounded-2xl p-3 lg:sticky lg:top-24 lg:block lg:w-60 xl:w-64',
             sidebarOpen ? 'block' : 'hidden lg:block',
           )}
         >
-          <h1 className="mb-4 hidden text-lg font-semibold text-white lg:block">{title}</h1>
-          <nav className="flex max-h-[70vh] flex-col gap-0.5 overflow-y-auto">
+          <div className="mb-4 hidden border-b border-white/[0.07] px-2 pb-4 lg:block">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+              Панель
+            </p>
+            <h1 className="text-lg font-semibold text-white">{title}</h1>
+          </div>
+          <nav className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  'rounded-lg px-3 py-2 text-sm transition-colors hover:bg-white/10',
+                  'rounded-xl border px-3 py-2.5 text-sm transition-colors hover:bg-white/[0.06]',
                   isActive(link.href)
-                    ? 'bg-primary/20 text-[#F57C00]'
-                    : 'text-muted-foreground',
+                    ? 'border-primary/25 bg-primary/10 text-primary'
+                    : 'border-transparent text-muted-foreground',
                 )}
               >
                 {link.label}
@@ -88,7 +92,7 @@ export function RolePanelLayout({
 
   return (
     <div className="space-y-6">
-      <div className="glass-panel rounded-2xl p-4">
+      <div className="glass-panel frame-corners rounded-2xl p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-lg font-semibold text-white">{title}</h1>
           {headerExtra}
@@ -99,8 +103,10 @@ export function RolePanelLayout({
               key={link.href}
               href={link.href}
               className={cn(
-                'rounded-lg px-2.5 py-1.5 text-xs transition-colors hover:bg-white/10',
-                isActive(link.href) ? 'bg-primary/20 text-[#F57C00]' : 'text-muted-foreground',
+                'rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-white/[0.06]',
+                isActive(link.href)
+                  ? 'border-primary/25 bg-primary/10 text-primary'
+                  : 'border-transparent text-muted-foreground',
               )}
             >
               {link.label}
