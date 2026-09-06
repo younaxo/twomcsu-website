@@ -60,7 +60,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     <Link
       href={`/store/product/${product.slug}`}
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-xl glass-medium transition-colors duration-200 hover:bg-white/10',
+        'group relative flex flex-col overflow-hidden rounded-2xl glass-medium transition-[background-color,border-color] duration-200 hover:border-white/[0.16] hover:bg-white/[0.065]',
         className,
       )}
       style={accent ? { borderColor: `${accent}40` } : undefined}
@@ -76,11 +76,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
             {product.name.slice(0, 1)}
           </div>
         )}
-        <div className="absolute left-2 top-2 flex flex-wrap gap-1">
+        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           {product.isNew ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge className="bg-sky-500/90 hover:bg-sky-500">NEW</Badge>
+                <Badge className="bg-sky-500/90 hover:bg-sky-500">Новинка</Badge>
               </TooltipTrigger>
               <TooltipContent>Новинка</TooltipContent>
             </Tooltip>
@@ -88,22 +88,22 @@ export function ProductCard({ product, className }: ProductCardProps) {
           {product.isPopular ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge className="bg-amber-500/90 hover:bg-amber-500">HOT</Badge>
+                <Badge className="bg-amber-500/90 hover:bg-amber-500">Популярное</Badge>
               </TooltipTrigger>
               <TooltipContent>Популярный</TooltipContent>
             </Tooltip>
           ) : null}
         </div>
-        <div className="absolute right-2 top-2">
+        <div className="absolute right-3 top-3">
           <WishlistButton productId={product.id} inWishlist={product.inWishlist} />
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-3">
+      <div className="flex flex-1 flex-col gap-3 p-4">
         <div>
-          <h3 className="line-clamp-1 font-medium text-white">{product.name}</h3>
+          <h3 className="line-clamp-1 text-lg font-semibold text-white">{product.name}</h3>
           {product.description ? (
-            <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+            <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">
               {product.description}
             </p>
           ) : null}
@@ -120,8 +120,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           {variant ? (
             activeVariants.length > 1 ? (
               <span className="text-sm font-medium text-white">
-                от{' '}
-                <DisplayPrice amount={Math.min(...activeVariants.map((v) => v.price))} />
+                от <DisplayPrice amount={Math.min(...activeVariants.map((v) => v.price))} />
               </span>
             ) : (
               <PriceDisplay price={variant.price} oldPrice={variant.oldPrice} size="sm" />
@@ -134,7 +133,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               <Button
                 type="button"
                 size="icon"
-                className="h-8 w-8 shrink-0"
+                className="h-9 w-9 shrink-0"
                 disabled={addToCart.isPending}
                 onClick={(e) => void add(e)}
               >

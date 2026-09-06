@@ -15,11 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  useHideActivity,
-  usePinActivity,
-  useToggleReaction,
-} from '@/hooks/activity';
+import { useHideActivity, usePinActivity, useToggleReaction } from '@/hooks/activity';
 import { cn } from '@/lib/utils';
 import { ActivityComments } from './ActivityComments';
 import { ActivityContent } from './ActivityContent';
@@ -44,15 +40,14 @@ export function ActivityCard({
   const hideActivity = useHideActivity();
   const pinActivity = usePinActivity();
 
-  const isModerator =
-    user && hasRoleGroup(user.roleGroup as RoleGroup, RoleGroup.MODERATOR);
+  const isModerator = user && hasRoleGroup(user.roleGroup as RoleGroup, RoleGroup.MODERATOR);
   const isAdmin = user && hasRoleGroup(user.roleGroup as RoleGroup, RoleGroup.ADMIN);
   const comments = 'comments' in activity ? activity.comments : [];
 
   return (
     <article
       className={cn(
-        'space-y-4 rounded-2xl border border-white/10 border-l-4 glass-medium p-4 sm:p-5',
+        'space-y-4 rounded-2xl border border-white/10 border-l-2 glass-medium p-4 sm:p-5',
         activityAccentClass(activity.type),
       )}
     >
@@ -68,7 +63,13 @@ export function ActivityCard({
         {isModerator ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button type="button" variant="ghost" size="icon" className="h-8 w-8" title="Действия">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                title="Действия"
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -86,15 +87,10 @@ export function ActivityCard({
               {isAdmin ? (
                 <DropdownMenuItem
                   onClick={() => {
-                    void pinActivity
-                      .mutateAsync({ id: activity.id, pin: !activity.isPinned })
-                      .then(
-                        () =>
-                          toast.success(
-                            activity.isPinned ? 'Откреплено' : 'Закреплено',
-                          ),
-                        () => toast.error('Не удалось изменить'),
-                      );
+                    void pinActivity.mutateAsync({ id: activity.id, pin: !activity.isPinned }).then(
+                      () => toast.success(activity.isPinned ? 'Откреплено' : 'Закреплено'),
+                      () => toast.error('Не удалось изменить'),
+                    );
                   }}
                 >
                   {activity.isPinned ? 'Открепить' : 'Закрепить'}
@@ -157,11 +153,7 @@ export function ActivityCard({
       </div>
 
       {showComments ? (
-        <ActivityComments
-          activityId={activity.id}
-          comments={comments}
-          open={commentsOpen}
-        />
+        <ActivityComments activityId={activity.id} comments={comments} open={commentsOpen} />
       ) : null}
     </article>
   );

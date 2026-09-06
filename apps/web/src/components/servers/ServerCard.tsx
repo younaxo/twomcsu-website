@@ -24,7 +24,11 @@ interface ServerCardProps {
   compact?: boolean;
 }
 
-export const ServerCard = memo(function ServerCard({ server, className, compact }: ServerCardProps) {
+export const ServerCard = memo(function ServerCard({
+  server,
+  className,
+  compact,
+}: ServerCardProps) {
   const online = server.status?.online ?? false;
   const players = server.status?.playerCount ?? 0;
   const max = server.status?.maxPlayers ?? server.maxPlayers;
@@ -49,17 +53,13 @@ export const ServerCard = memo(function ServerCard({ server, className, compact 
   return (
     <article
       className={cn(
-        'flex flex-col gap-6 rounded-2xl glass-medium p-6 shadow-[0_8px_32px_rgba(0,0,0,0.25)] sm:p-8',
+        'flex flex-col gap-6 rounded-3xl glass-medium p-5 shadow-[0_16px_44px_rgba(0,0,0,0.22)] sm:p-7',
         className,
       )}
-      style={
-        categoryColor
-          ? { borderColor: `${categoryColor}33`, boxShadow: `0 8px 32px ${categoryColor}14` }
-          : undefined
-      }
+      style={categoryColor ? { borderColor: `${categoryColor}33` } : undefined}
     >
       <div className="flex items-start gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-secondary/50 sm:h-20 sm:w-20">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[18px] border border-border bg-secondary/50 sm:h-[72px] sm:w-[72px]">
           {server.iconUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={server.iconUrl} alt="" className="h-full w-full object-cover" />
@@ -71,7 +71,7 @@ export const ServerCard = memo(function ServerCard({ server, className, compact 
         </div>
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            <h3 className="truncate text-2xl font-semibold tracking-tight text-white">
               {server.name}
             </h3>
             {server.category ? (
@@ -102,7 +102,7 @@ export const ServerCard = memo(function ServerCard({ server, className, compact 
             <span className="text-lg font-normal text-muted-foreground sm:text-xl"> / {max}</span>
           </p>
         </div>
-        <div className="h-2.5 overflow-hidden rounded-full bg-secondary">
+        <div className="h-2 overflow-hidden rounded-full bg-white/[0.07]">
           <div
             className={cn(
               'h-full rounded-full transition-all duration-500',

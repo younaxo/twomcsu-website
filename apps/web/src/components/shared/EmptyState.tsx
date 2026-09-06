@@ -11,21 +11,19 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({
-  icon: Icon,
-  title,
-  description,
-  action,
-  className,
-}: EmptyStateProps) {
+export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card/30 px-6 py-16 text-center',
+        'flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.025] px-6 py-14 text-center',
         className,
       )}
     >
-      {Icon ? <Icon className="h-16 w-16 text-muted-foreground" /> : null}
+      {Icon ? (
+        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.05]">
+          <Icon className="h-6 w-6 text-muted-foreground" />
+        </span>
+      ) : null}
       <div className="space-y-1">
         <p className="text-lg font-medium text-white">{title}</p>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}

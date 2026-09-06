@@ -21,25 +21,17 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  useBundles,
-  useProducts,
-  useRecentPurchases,
-} from '@/hooks/store';
+import { useBundles, useProducts, useRecentPurchases } from '@/hooks/store';
 import { resolveMediaUrl } from '@/lib/profile';
 import type { StoreSort } from '@/stores/storeUiStore';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 
-type StoreTab =
-  | 'all'
-  | 'privileges'
-  | 'keys'
-  | 'currency'
-  | 'decorations'
-  | 'bundles'
-  | 'other';
+type StoreTab = 'all' | 'privileges' | 'keys' | 'currency' | 'decorations' | 'bundles' | 'other';
 
-const TAB_TYPES: Record<Exclude<StoreTab, 'all' | 'bundles' | 'currency' | 'other'>, ProductType> = {
+const TAB_TYPES: Record<
+  Exclude<StoreTab, 'all' | 'bundles' | 'currency' | 'other'>,
+  ProductType
+> = {
   privileges: 'PRIVILEGE',
   keys: 'KEY',
   decorations: 'DECORATION',
@@ -75,15 +67,9 @@ export default function StorePageClient() {
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get('tab') as StoreTab | null) ?? 'all';
   const [tab, setTab] = useState<StoreTab>(
-    [
-      'all',
-      'privileges',
-      'keys',
-      'currency',
-      'decorations',
-      'bundles',
-      'other',
-    ].includes(initialTab)
+    ['all', 'privileges', 'keys', 'currency', 'decorations', 'bundles', 'other'].includes(
+      initialTab,
+    )
       ? initialTab
       : 'all',
   );
@@ -138,10 +124,10 @@ export default function StorePageClient() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-primary/10 p-8 sm:p-10">
-        <p className="mb-2 text-sm uppercase tracking-widest text-primary">Магазин</p>
-        <h1 className="mb-3 text-3xl font-semibold text-white sm:text-4xl">Магазин TWOMC</h1>
-        <p className="max-w-xl text-muted-foreground">
+      <section className="rounded-[28px] glass-heavy p-6 sm:p-10">
+        <span className="eyebrow">Магазин</span>
+        <h1 className="mb-3 mt-4 text-3xl font-semibold text-white sm:text-4xl">Магазин TWOMC</h1>
+        <p className="max-w-xl leading-6 text-muted-foreground">
           Привилегии, ключи, валюта и наборы для сервера. Покупай себе или дари друзьям.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
@@ -161,7 +147,7 @@ export default function StorePageClient() {
               return (
                 <div
                   key={item.id}
-                  className="flex min-w-[180px] items-center gap-2 rounded-lg border border-border bg-card/50 px-3 py-2"
+                  className="flex min-w-[180px] items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2.5"
                 >
                   <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md bg-secondary">
                     {img ? (
