@@ -35,15 +35,15 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mx-3 mb-3 mt-8 overflow-hidden rounded-[1.5rem] border border-white/[0.09] bg-[rgba(13,12,11,0.88)] text-sm text-muted-foreground backdrop-blur-2xl sm:mx-5 lg:ml-6">
-      <div className="surface-grid border-b border-white/[0.07] px-5 py-7 sm:px-8 lg:flex lg:items-center lg:justify-between lg:px-10">
+    <footer className="mx-3 mb-3 mt-8 overflow-hidden rounded-[28px] border border-white/[0.09] bg-[rgba(20,20,22,0.78)] text-sm text-muted-foreground backdrop-blur-2xl sm:mx-5 lg:ml-6">
+      <div className="border-b border-white/[0.07] px-5 py-7 sm:px-8 lg:flex lg:items-center lg:justify-between lg:px-10">
         <div>
-          <span className="eyebrow">Готов к игре?</span>
-          <h2 className="mt-3 text-2xl text-white sm:text-3xl">Подключайся к twomc.su</h2>
+          <p className="text-sm font-medium text-primary">Готов к игре?</p>
+          <h2 className="mt-2 text-2xl text-white sm:text-3xl">Выбери свой сервер</h2>
         </div>
         <Link
           href="/servers"
-          className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl border border-primary bg-primary px-5 font-semibold text-primary-foreground transition-colors hover:border-primary-hover hover:bg-primary-hover lg:mt-0"
+          className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl border border-primary bg-primary px-5 font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_6px_18px_rgba(0,0,0,0.2)] transition-colors hover:border-primary-hover hover:bg-primary-hover lg:mt-0"
         >
           Выбрать сервер
           <ArrowUpRight className="h-4 w-4" />
@@ -136,10 +136,6 @@ export function SiteFooter() {
             >
               @twomcsu_adm
             </a>
-          </div>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/[0.09] bg-white/[0.035] px-3 py-1.5 text-xs font-semibold text-neutral-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            Поддержка на связи
           </div>
         </div>
       </div>

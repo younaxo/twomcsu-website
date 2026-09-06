@@ -60,7 +60,7 @@ export function NotificationBell() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative cursor-pointer text-[#b0b0b0] hover:text-white"
+              className="relative cursor-pointer text-neutral-400 hover:text-white"
             >
               <Bell className="h-4 w-4" />
               {count > 0 ? (
@@ -79,7 +79,7 @@ export function NotificationBell() {
 
       <DropdownMenuContent
         align="end"
-        className="w-[320px] border-white/10 bg-[rgba(15,15,20,0.85)] p-0 backdrop-blur-[24px]"
+        className="w-[min(360px,calc(100vw-1.5rem))] rounded-2xl border-white/10 bg-[rgba(24,24,26,0.92)] p-0 backdrop-blur-[28px]"
       >
         <div className="flex items-center justify-between px-3 py-2.5">
           <DropdownMenuLabel className="p-0 text-base">Уведомления</DropdownMenuLabel>

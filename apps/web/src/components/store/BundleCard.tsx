@@ -48,7 +48,7 @@ export function BundleCard({ bundle, className }: BundleCardProps) {
     <Link
       href={`/store/bundle/${bundle.slug}`}
       className={cn(
-        'flex flex-col overflow-hidden rounded-xl glass-medium transition-colors duration-200 hover:bg-white/10',
+        'flex flex-col overflow-hidden rounded-2xl glass-medium transition-[background-color,border-color] duration-200 hover:border-white/[0.16] hover:bg-white/[0.065]',
         className,
       )}
     >
@@ -56,9 +56,7 @@ export function BundleCard({ bundle, className }: BundleCardProps) {
         {imageUrl ? (
           <Image src={imageUrl} alt={bundle.name} fill className="object-cover" unoptimized />
         ) : (
-          <div className="flex h-full items-center justify-center text-muted-foreground">
-            Набор
-          </div>
+          <div className="flex h-full items-center justify-center text-muted-foreground">Набор</div>
         )}
         {discount ? (
           <span className="absolute right-2 top-2 rounded-md bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
@@ -68,18 +66,14 @@ export function BundleCard({ bundle, className }: BundleCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="font-medium text-white">{bundle.name}</h3>
+        <h3 className="text-lg font-semibold text-white">{bundle.name}</h3>
         {bundle.description ? (
           <p className="line-clamp-2 text-sm text-muted-foreground">{bundle.description}</p>
         ) : null}
         <p className="text-xs text-muted-foreground">{bundle.items.length} товаров в наборе</p>
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-          <PriceDisplay
-            price={bundle.totalPrice}
-            oldPrice={bundle.originalPrice}
-            size="sm"
-          />
+          <PriceDisplay price={bundle.totalPrice} oldPrice={bundle.originalPrice} size="sm" />
           <Button
             type="button"
             size="sm"

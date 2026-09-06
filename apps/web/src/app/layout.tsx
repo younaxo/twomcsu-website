@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="flex min-h-screen flex-col transition-[padding-left] duration-300 ease-out lg:pl-[var(--sidebar-rail-width)]">
                   <SiteHeader />
                   <AnnouncementsBanner />
-                  <main className="mx-auto w-full max-w-[1580px] flex-1 px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8 xl:px-10">
+                  <main className="mx-auto w-full max-w-[1480px] flex-1 px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8 xl:px-10">
                     {children}
                   </main>
                   <SiteFooter />
@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   toastOptions={{
                     classNames: {
                       toast:
-                        'group toast rounded-xl border border-white/[0.12] bg-[rgba(17,16,14,0.96)] text-white shadow-[0_18px_48px_rgba(0,0,0,0.42)] backdrop-blur-2xl',
+                        'group toast rounded-2xl border border-white/[0.12] bg-[rgba(24,24,26,0.94)] text-white shadow-[0_18px_48px_rgba(0,0,0,0.42)] backdrop-blur-2xl',
                       title: 'text-sm font-semibold',
                       description: 'text-[13px] font-medium text-neutral-300',
                     },

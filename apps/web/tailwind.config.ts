@@ -49,8 +49,7 @@ const config: Config = {
         'glow-primary': '0 0 24px hsl(var(--primary) / 0.35)',
       },
       backgroundImage: {
-        'gradient-primary':
-          'linear-gradient(135deg, hsl(30 100% 48%), hsl(36 100% 50%))',
+        'gradient-primary': 'linear-gradient(135deg, hsl(30 100% 48%), hsl(36 100% 50%))',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -68,7 +67,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-onest)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-geologica)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'var(--font-geologica)', 'system-ui', 'sans-serif'],
       },
     },
   },

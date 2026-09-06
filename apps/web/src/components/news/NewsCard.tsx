@@ -25,11 +25,16 @@ export function NewsCard({ news, compact = false, className }: NewsCardProps) {
     <Link
       href={`/news/${news.slug}`}
       className={cn(
-        'group flex flex-col overflow-hidden rounded-2xl glass-medium transition-opacity hover:opacity-90',
+        'group flex flex-col overflow-hidden rounded-2xl glass-medium transition-[background-color,border-color] duration-200 hover:border-white/[0.16] hover:bg-white/[0.06]',
         className,
       )}
     >
-      <div className={cn('relative w-full overflow-hidden bg-secondary/40', compact ? 'aspect-[16/9]' : 'aspect-[16/9]')}>
+      <div
+        className={cn(
+          'relative w-full overflow-hidden bg-secondary/40',
+          compact ? 'aspect-[16/9]' : 'aspect-[16/9]',
+        )}
+      >
         {news.coverImage ? (
           <Image
             src={news.coverImage}
@@ -40,11 +45,15 @@ export function NewsCard({ news, compact = false, className }: NewsCardProps) {
             unoptimized
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-muted-foreground">Нет обложки</div>
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            Нет обложки
+          </div>
         )}
         <div className="absolute right-2 top-2 flex items-center gap-1.5">
           {news.isFeatured ? (
-            <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-white">Топ</span>
+            <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-white">
+              Топ
+            </span>
           ) : null}
           <NewsCategoryBadge category={news.category} />
         </div>
@@ -53,12 +62,9 @@ export function NewsCard({ news, compact = false, className }: NewsCardProps) {
         ) : null}
       </div>
 
-      <div className={cn('flex flex-1 flex-col gap-2 p-4', compact && 'p-3')}>
+      <div className={cn('flex flex-1 flex-col gap-2 p-4', compact && 'p-4')}>
         <h3
-          className={cn(
-            'font-semibold text-white line-clamp-2',
-            compact ? 'text-base' : 'text-lg',
-          )}
+          className={cn('font-semibold text-white line-clamp-2', compact ? 'text-base' : 'text-lg')}
         >
           {news.title}
         </h3>
@@ -82,12 +88,7 @@ export function NewsCard({ news, compact = false, className }: NewsCardProps) {
                 {news.author.username.slice(0, 1).toUpperCase()}
               </span>
             )}
-            <ColoredUsername
-              user={news.author}
-              size="sm"
-              showBadge={false}
-              linkToProfile={false}
-            />
+            <ColoredUsername user={news.author} size="sm" showBadge={false} linkToProfile={false} />
             {published ? <span>· {published}</span> : null}
           </div>
           <div className="flex items-center gap-3">

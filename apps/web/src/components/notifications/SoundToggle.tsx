@@ -23,7 +23,7 @@ export function SoundToggle() {
           type="button"
           variant="ghost"
           size="icon"
-          className="text-[#b0b0b0] hover:text-white"
+          className="text-neutral-400 hover:text-white"
           onClick={() => {
             const next = !enabled;
             setEnabled(next);

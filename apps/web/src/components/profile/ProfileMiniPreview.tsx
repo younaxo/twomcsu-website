@@ -47,11 +47,11 @@ function PreviewBody({ profile, onLogout }: { profile: MyProfile; onLogout: () =
 
   return (
     <div>
-      <div className="relative h-24 w-full overflow-hidden rounded-t-md bg-gradient-to-br from-primary/30 via-secondary to-card">
+      <div className="relative h-24 w-full overflow-hidden rounded-t-2xl bg-white/[0.045]">
         {bannerUrl ? (
           <Image src={bannerUrl} alt="" fill className="object-cover" sizes="320px" unoptimized />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(15,15,20,0.95)] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(24,24,26,0.96)] to-transparent" />
       </div>
 
       <div className="relative -mt-10 px-5 pb-3">
@@ -158,7 +158,10 @@ export function ProfileMiniPreview({ username, avatar, onLogout }: ProfileMiniPr
           <ChevronDown className="hidden h-3.5 w-3.5 shrink-0 text-muted-foreground sm:block" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className={cn('glass-heavy w-80 overflow-hidden p-0')}>
+      <DropdownMenuContent
+        align="end"
+        className={cn('glass-heavy w-80 overflow-hidden rounded-2xl p-0')}
+      >
         {profile.data ? (
           <PreviewBody profile={profile.data} onLogout={onLogout} />
         ) : (
