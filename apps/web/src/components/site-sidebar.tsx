@@ -19,12 +19,14 @@ import {
   MessageCircle,
   MessagesSquare,
   Newspaper,
+  Radio,
   Scale,
   Server,
   Shield,
   ShoppingBag,
   ShoppingCart,
   Trophy,
+  Vote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -68,6 +70,8 @@ const mainGroups: NavGroup[] = [
       { href: '/feed', label: 'Лента активности', icon: Activity },
       { href: '/achievements', label: 'Достижения', icon: Trophy },
       { href: '/leaderboards', label: 'Рейтинг', icon: Medal },
+      { href: '/streams', label: 'Стримы', icon: Radio },
+      { href: '/vote', label: 'Голосование', icon: Vote },
     ],
   },
   {

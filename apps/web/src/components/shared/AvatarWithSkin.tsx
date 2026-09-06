@@ -34,9 +34,10 @@ export function AvatarWithSkin({
   showMinecraftHead = true,
 }: AvatarWithSkinProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const dim = typeof size === 'number'
-    ? { avatar: size, head: Math.max(14, Math.round(size * 0.4)) }
-    : sizes[size];
+  const dim =
+    typeof size === 'number'
+      ? { avatar: size, head: Math.max(14, Math.round(size * 0.4)) }
+      : sizes[size];
   const avatarUrl = resolveMediaUrl(user.avatar);
   const skinName = getMinecraftUsername(user.username);
   const fallbackAvatar = `https://mc-heads.net/avatar/${encodeURIComponent(skinName)}/256`;
@@ -46,11 +47,10 @@ export function AvatarWithSkin({
     user.username,
     user.avatarDecoration === undefined && user.username !== 'Steve',
   );
-  const decoration = user.avatarDecoration === undefined
-    ? decorationQuery.data
-    : user.avatarDecoration;
-  const headOverlap = Math.round(dim.head * 0.25);
-  const canvasSize = dim.avatar + (showMinecraftHead ? dim.head - headOverlap : 0);
+  const decoration =
+    user.avatarDecoration === undefined ? decorationQuery.data : user.avatarDecoration;
+  const headGap = Math.max(4, Math.round(dim.avatar * 0.08));
+  const canvasWidth = dim.avatar + (showMinecraftHead ? headGap + dim.head : 0);
 
   return (
     <>
@@ -68,14 +68,14 @@ export function AvatarWithSkin({
             setPreviewOpen(true);
           }
         }}
-        className={cn('relative isolate inline-block shrink-0 cursor-pointer overflow-visible rounded-full', className)}
-        style={{ width: canvasSize, height: canvasSize }}
+        className={cn(
+          'relative isolate inline-block shrink-0 cursor-pointer overflow-visible rounded-full',
+          className,
+        )}
+        style={{ width: canvasWidth, height: dim.avatar }}
         aria-label={`Аватар ${user.username}`}
       >
-        <Avatar
-          className="absolute left-0 top-0"
-          style={{ width: dim.avatar, height: dim.avatar }}
-        >
+        <Avatar className="absolute left-0 top-0" style={{ width: dim.avatar, height: dim.avatar }}>
           <AvatarImage src={avatarUrl} alt={user.username} />
           <AvatarFallback className="p-0">
             {user.username ? (
@@ -109,8 +109,8 @@ export function AvatarWithSkin({
             height={dim.head}
             className="pointer-events-none absolute z-30 rounded-full border border-black/60 bg-black/70 shadow-md"
             style={{
-              left: dim.avatar - headOverlap,
-              top: dim.avatar - headOverlap,
+              left: dim.avatar + headGap,
+              top: Math.round((dim.avatar - dim.head) / 2),
               width: dim.head,
               height: dim.head,
             }}
