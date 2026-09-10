@@ -28,8 +28,8 @@ import {
   Trophy,
   Vote,
 } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Link, usePathname } from '@/i18n/navigation';
 import { useEffect, useState } from 'react';
 import { CurrencySelector } from '@/components/store/CurrencySelector';
 import { Badge } from '@/components/ui/badge';
@@ -47,61 +47,65 @@ const SIDEBAR_EXPANDED_KEY = 'twomc.sidebarExpanded';
 
 type NavItem = {
   href?: string;
-  label: string;
+  labelKey: string;
   icon: ComponentType<{ className?: string }>;
   soon?: boolean;
   action?: 'chat' | 'cart';
 };
 
 type NavGroup = {
-  title: string;
+  titleKey: string;
   items: NavItem[];
 };
 
 const mainGroups: NavGroup[] = [
   {
-    title: 'Основное',
+    titleKey: 'groupMain',
     items: [
-      { href: '/', label: 'Главная', icon: Home },
-      { href: '/store', label: 'Магазин', icon: ShoppingBag },
-      { href: '/servers', label: 'Серверы', icon: Server },
-      { href: '/news', label: 'Новости', icon: Newspaper },
-      { href: '/events', label: 'Календарь', icon: CalendarDays },
-      { href: '/feed', label: 'Лента активности', icon: Activity },
-      { href: '/achievements', label: 'Достижения', icon: Trophy },
-      { href: '/leaderboards', label: 'Рейтинг', icon: Medal },
-      { href: '/streams', label: 'Стримы', icon: Radio },
-      { href: '/vote', label: 'Голосование', icon: Vote },
+      { href: '/', labelKey: 'home', icon: Home },
+      { href: '/store', labelKey: 'store', icon: ShoppingBag },
+      { href: '/servers', labelKey: 'servers', icon: Server },
+      { href: '/news', labelKey: 'news', icon: Newspaper },
+      { href: '/events', labelKey: 'events', icon: CalendarDays },
+      { href: '/feed', labelKey: 'feed', icon: Activity },
+      { href: '/achievements', labelKey: 'achievements', icon: Trophy },
+      { href: '/leaderboards', labelKey: 'leaderboards', icon: Medal },
+      { href: '/streams', labelKey: 'streams', icon: Radio },
+      { href: '/vote', labelKey: 'vote', icon: Vote },
     ],
   },
   {
-    title: 'Сообщество',
+    titleKey: 'groupCommunity',
     items: [
-      { href: '/rules', label: 'Правила', icon: Scale },
-      { href: '/documents', label: 'Документы', icon: FileText },
-      { href: '/forms', label: 'Формы', icon: ClipboardList },
-      { href: '/wiki', label: 'Вики', icon: BookOpen, soon: true },
-      { href: '/reports', label: 'Репорты', icon: AlertTriangle, soon: true },
+      { href: '/rules', labelKey: 'rules', icon: Scale },
+      { href: '/documents', labelKey: 'documents', icon: FileText },
+      { href: '/forms', labelKey: 'forms', icon: ClipboardList },
+      { href: '/wiki', labelKey: 'wiki', icon: BookOpen, soon: true },
+      { href: '/reports', labelKey: 'reports', icon: AlertTriangle, soon: true },
     ],
   },
 ];
 
 const quickAccess: NavItem[] = [
-  { href: '/messages', label: 'Сообщения', icon: MessagesSquare },
-  { label: 'Чат', icon: MessageCircle, action: 'chat' },
-  { label: 'Корзина', icon: ShoppingCart, action: 'cart' },
+  { href: '/messages', labelKey: 'messages', icon: MessagesSquare },
+  { labelKey: 'chat', icon: MessageCircle, action: 'chat' },
+  { labelKey: 'cart', icon: ShoppingCart, action: 'cart' },
 ];
 
 function NavButton({
   item,
+  label,
   active,
   badge,
+  soonLabel,
   onAction,
   collapsed,
 }: {
   item: NavItem;
+  label: string;
   active?: boolean;
   badge?: number;
+  soonLabel: string;
   onAction?: () => void;
   collapsed?: boolean;
 }) {
@@ -112,18 +116,18 @@ function NavButton({
         'relative flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-[background-color,color] duration-200',
         collapsed && 'justify-center px-2',
         active
-          ? 'bg-white/[0.09] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]'
-          : 'text-neutral-400 hover:bg-white/[0.05] hover:text-white',
+          ? 'bg-white/[0.09] text-foreground shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]'
+          : 'text-muted-foreground hover:bg-white/[0.05] hover:text-foreground',
         item.soon && 'opacity-70',
       )}
     >
       <Icon className={cn('h-5 w-5 shrink-0', active && 'text-primary')} />
       {!collapsed ? (
         <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
-          <span className="truncate">{item.label}</span>
+          <span className="truncate">{label}</span>
           {item.soon ? (
             <Badge variant="secondary" className="shrink-0 px-1.5 py-0 text-[10px]">
-              скоро
+              {soonLabel}
             </Badge>
           ) : null}
         </span>
@@ -143,7 +147,7 @@ function NavButton({
   );
 
   const node = item.href ? (
-    <Link href={item.href} className="block cursor-pointer" aria-label={item.label}>
+    <Link href={item.href} className="block cursor-pointer" aria-label={label}>
       {content}
     </Link>
   ) : (
@@ -151,7 +155,7 @@ function NavButton({
       type="button"
       className="block w-full cursor-pointer"
       onClick={onAction}
-      aria-label={item.label}
+      aria-label={label}
     >
       {content}
     </button>
@@ -165,8 +169,8 @@ function NavButton({
         <span className="block cursor-pointer">{node}</span>
       </TooltipTrigger>
       <TooltipContent side="right" className="flex items-center gap-2">
-        {item.label}
-        {item.soon ? <span className="text-muted-foreground">· в разработке</span> : null}
+        {label}
+        {item.soon ? <span className="text-muted-foreground">· {soonLabel}</span> : null}
       </TooltipContent>
     </Tooltip>
   );
@@ -177,13 +181,14 @@ function GroupTitle({ title, collapsed }: { title: string; collapsed?: boolean }
     return <div className="mx-auto my-2 h-px w-8 bg-white/10" aria-hidden />;
   }
   return (
-    <p className="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-500">
+    <p className="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
       {title}
     </p>
   );
 }
 
 function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
+  const t = useTranslations('nav');
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
   const openCartDrawer = useStoreUiStore((s) => s.openCartDrawer);
@@ -196,13 +201,13 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
 
   const roleItems: NavItem[] = [];
   if (user && hasRoleGroup(user.roleGroup, RoleGroup.HELPER)) {
-    roleItems.push({ href: '/moderation', label: 'Модерация', icon: Shield });
+    roleItems.push({ href: '/moderation', labelKey: 'moderation', icon: Shield });
   }
   if (user && hasRoleGroup(user.roleGroup, RoleGroup.ADMIN)) {
-    roleItems.push({ href: '/admin', label: 'Админ', icon: LayoutDashboard });
+    roleItems.push({ href: '/admin', labelKey: 'admin', icon: LayoutDashboard });
   }
   if (user && hasRoleGroup(user.roleGroup, RoleGroup.OWNER)) {
-    roleItems.push({ href: '/dashboard', label: 'Дашборд', icon: LayoutDashboard });
+    roleItems.push({ href: '/dashboard', labelKey: 'dashboard', icon: LayoutDashboard });
   }
 
   const handleAction = (action?: 'chat' | 'cart') => {
@@ -222,20 +227,26 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
       <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2.5 py-2">
         {mainGroups.map((group) => {
           const items =
-            group.title === 'Сообщество' && isAuthenticated
+            group.titleKey === 'groupCommunity' && isAuthenticated
               ? [
                   ...group.items,
-                  { href: '/report', label: 'Обращения', icon: Mail } satisfies NavItem,
+                  { href: '/report', labelKey: 'reportsAuth', icon: Mail } satisfies NavItem,
                 ]
               : group.items;
 
           return (
-            <div key={group.title} className="mb-1">
-              <GroupTitle title={group.title} collapsed={collapsed} />
+            <div key={group.titleKey} className="mb-1">
+              <GroupTitle title={t(group.titleKey)} collapsed={collapsed} />
               <div className="flex flex-col gap-0.5">
                 {items.map((item) => (
-                  <div key={item.label} onClick={onNavigate}>
-                    <NavButton item={item} active={isActive(item.href)} collapsed={collapsed} />
+                  <div key={item.labelKey} onClick={onNavigate}>
+                    <NavButton
+                      item={item}
+                      label={t(item.labelKey)}
+                      soonLabel={t('soon')}
+                      active={isActive(item.href)}
+                      collapsed={collapsed}
+                    />
                   </div>
                 ))}
               </div>
@@ -245,11 +256,17 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
 
         {roleItems.length > 0 ? (
           <div className="mb-1">
-            <GroupTitle title="Панели" collapsed={collapsed} />
+            <GroupTitle title={t('groupPanels')} collapsed={collapsed} />
             <div className="flex flex-col gap-0.5">
               {roleItems.map((item) => (
-                <div key={item.label} onClick={onNavigate}>
-                  <NavButton item={item} active={isActive(item.href)} collapsed={collapsed} />
+                <div key={item.labelKey} onClick={onNavigate}>
+                  <NavButton
+                    item={item}
+                    label={t(item.labelKey)}
+                    soonLabel={t('soon')}
+                    active={isActive(item.href)}
+                    collapsed={collapsed}
+                  />
                 </div>
               ))}
             </div>
@@ -259,16 +276,18 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
 
       <div className="mt-auto shrink-0 space-y-1 border-t border-white/[0.07] px-2.5 py-3">
         {!collapsed ? (
-          <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-500">
-            Быстрый доступ
+          <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            {t('quickAccess')}
           </p>
         ) : (
           <div className="mx-auto my-1 h-px w-8 bg-white/10" aria-hidden />
         )}
         {quickAccess.map((item) => (
           <NavButton
-            key={item.label}
+            key={item.labelKey}
             item={item}
+            label={t(item.labelKey)}
+            soonLabel={t('soon')}
             collapsed={collapsed}
             active={isActive(item.href)}
             badge={
@@ -291,7 +310,7 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
                   <CurrencySelector compact className="h-10 w-full justify-center px-2" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right">Валюта</TooltipContent>
+              <TooltipContent side="right">{t('quickAccess')}</TooltipContent>
             </Tooltip>
           ) : (
             <CurrencySelector compact className="w-full" />
@@ -303,6 +322,8 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
 }
 
 export function SiteSidebar() {
+  const t = useTranslations('nav');
+  const th = useTranslations('header');
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -335,12 +356,11 @@ export function SiteSidebar() {
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          'pointer-events-auto fixed bottom-3 left-3 top-3 z-40 hidden flex-col overflow-hidden rounded-[20px] transition-[width] duration-300 ease-out',
-          'border border-white/[0.09] bg-[rgba(20,20,22,0.84)] shadow-[0_24px_70px_rgba(0,0,0,0.32)] backdrop-blur-[30px]',
+          'glass-strong pointer-events-auto fixed bottom-3 left-3 top-3 z-40 hidden flex-col overflow-hidden rounded-[20px] transition-[width] duration-300 ease-out',
           'lg:flex',
           expanded ? 'w-64' : 'w-[72px]',
         )}
-        aria-label="Боковая навигация"
+        aria-label={t('sidebarLabel')}
       >
         <div
           className={cn(
@@ -348,16 +368,18 @@ export function SiteSidebar() {
             expanded ? 'justify-between' : 'justify-center',
           )}
         >
-          {expanded ? <p className="pl-2 text-sm font-semibold text-white">Меню</p> : null}
+          {expanded ? (
+            <p className="pl-2 text-sm font-semibold text-foreground">{th('menu')}</p>
+          ) : null}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="h-10 w-10 text-neutral-400 hover:text-white"
+                className="h-10 w-10 text-muted-foreground hover:text-foreground"
                 onClick={() => setExpanded((value) => !value)}
-                aria-label={expanded ? 'Свернуть панель' : 'Развернуть панель'}
+                aria-label={expanded ? th('collapse') : th('expand')}
               >
                 {expanded ? (
                   <ChevronLeft className="h-4 w-4" />
@@ -366,7 +388,7 @@ export function SiteSidebar() {
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="right">{expanded ? 'Свернуть' : 'Развернуть'}</TooltipContent>
+            <TooltipContent side="right">{expanded ? th('collapse') : th('expand')}</TooltipContent>
           </Tooltip>
         </div>
         <div className="min-h-0 flex-1">
@@ -381,18 +403,15 @@ export function SiteSidebar() {
             <Button
               size="icon"
               variant="ghost"
-              className="h-10 w-10 rounded-xl bg-white/[0.05] text-white"
-              aria-label="Открыть меню"
+              className="h-10 w-10 rounded-xl bg-white/[0.05] text-foreground"
+              aria-label={th('openMenu')}
             >
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent
-            side="left"
-            className="w-[min(100vw-2rem,280px)] border-white/10 bg-[rgba(20,20,22,0.96)] p-0 backdrop-blur-[30px]"
-          >
+          <SheetContent side="left" className="glass-strong w-[min(100vw-2rem,280px)] p-0">
             <SheetHeader className="border-b border-white/[0.07] px-4 py-4 text-left">
-              <SheetTitle className="text-base">Меню</SheetTitle>
+              <SheetTitle className="text-base">{th('menu')}</SheetTitle>
             </SheetHeader>
             <div className="h-[calc(100%-4rem)] overflow-y-auto">
               <SidebarNav onNavigate={() => setMobileOpen(false)} />
