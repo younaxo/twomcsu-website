@@ -17,6 +17,7 @@ import { DecorationsModule } from './modules/decorations/decorations.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { CommentsModule } from './modules/comments/comments.module';
+import { ConsentModule } from './modules/consent/consent.module';
 import { EmojisModule } from './modules/emojis/emojis.module';
 import { EventsModule } from './modules/events/events.module';
 import { FormsModule } from './modules/forms/forms.module';
@@ -74,6 +75,7 @@ import { VotingModule } from './modules/voting/voting.module';
     DecorationsModule,
     FriendsModule,
     CommentsModule,
+    ConsentModule,
     EmojisModule,
     EventsModule,
     NotificationsModule,
