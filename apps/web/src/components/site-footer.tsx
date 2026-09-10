@@ -1,89 +1,98 @@
 'use client';
 
-import { ArrowUpRight, MessageCircle, Send, Users } from 'lucide-react';
-import Link from 'next/link';
-import type { ComponentType } from 'react';
+import { ArrowUpRight, Send } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { Link } from '@/i18n/navigation';
 import { Logo } from '@/components/shared/Logo';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { useSystemStatus } from '@/hooks/useSystemStatus';
+import { cn } from '@/lib/utils';
 
-const playerLinks = [
-  { href: '/servers', label: 'Серверы' },
-  { href: '/store', label: 'Магазин' },
-  { href: '/news', label: 'Новости' },
-  { href: '/leaderboards', label: 'Рейтинг' },
-  { href: '/feed', label: 'Лента сообщества' },
-] as const;
-
-const helpLinks = [
-  { href: '/rules', label: 'Правила проекта' },
-  { href: '/documents', label: 'Документы' },
-  { href: '/support', label: 'Центр поддержки' },
-  { href: '/report', label: 'Мои обращения' },
-  { href: 'https://www.mojang.com/legal/terms', label: 'Условия Mojang', external: true },
-] as const;
-
-const socials: Array<{
-  href: string;
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-}> = [
-  { href: 'https://discord.gg', label: 'Discord', icon: MessageCircle },
-  { href: 'https://vk.com', label: 'ВКонтакте', icon: Users },
-  { href: 'https://t.me', label: 'Telegram', icon: Send },
-];
+// Payment method marks (Visa/Mastercard/МИР/СБП) go in apps/web/public/payment/*.svg once the
+// original brand SVGs are provided — see PENDING_ASSETS.md. Row renders once that array is filled.
+const paymentMethods: Array<{ id: string; file: string; alt: string }> = [];
 
 export function SiteFooter() {
+  const t = useTranslations('footer');
+  const tNav = useTranslations('nav');
+  const { data: status } = useSystemStatus();
+  const online = !status?.maintenance.isEnabled;
   const year = new Date().getFullYear();
 
+  const playerLinks = [
+    { href: '/servers', label: t('startPlaying') },
+    { href: '/store', label: tNav('store') },
+    { href: '/servers', label: tNav('servers') },
+    { href: '/rules', label: tNav('rules') },
+    { href: '/news', label: tNav('news') },
+    { href: '/support', label: tNav('support') },
+  ] as const;
+
   return (
-    <footer className="mx-3 mb-3 mt-8 overflow-hidden rounded-[28px] border border-white/[0.09] bg-[rgba(20,20,22,0.78)] text-sm text-muted-foreground backdrop-blur-2xl sm:mx-5 lg:ml-6">
+    <footer className="glass-strong mx-3 mb-3 mt-8 overflow-hidden rounded-[28px] text-sm text-muted-foreground sm:mx-5 lg:ml-6">
       <div className="border-b border-white/[0.07] px-5 py-7 sm:px-8 lg:flex lg:items-center lg:justify-between lg:px-10">
         <div>
-          <p className="text-sm font-medium text-primary">Готов к игре?</p>
-          <h2 className="mt-2 text-2xl text-white sm:text-3xl">Выбери свой сервер</h2>
+          <p className="text-sm font-medium text-primary">{t('ctaEyebrow')}</p>
+          <h2 className="mt-2 text-2xl text-foreground sm:text-3xl">{t('ctaTitle')}</h2>
         </div>
         <Link
           href="/servers"
-          className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl border border-primary bg-primary px-5 font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_6px_18px_rgba(0,0,0,0.2)] transition-colors hover:border-primary-hover hover:bg-primary-hover lg:mt-0"
+          className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl border border-primary bg-primary px-5 font-semibold text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_6px_18px_rgba(0,0,0,0.2)] transition-colors hover:border-primary-hover hover:bg-primary-hover lg:mt-0"
         >
-          Выбрать сервер
+          {t('ctaButton')}
           <ArrowUpRight className="h-4 w-4" />
         </Link>
       </div>
 
-      <div className="grid gap-10 px-5 py-10 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.35fr_0.8fr_0.8fr_1fr] lg:px-10">
+      <div className="grid gap-10 px-5 py-10 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.25fr_0.8fr_0.8fr_0.95fr] lg:px-10">
         <div>
           <Logo size="md" />
-          <p className="mt-5 max-w-sm leading-6">
-            Игровой проект Minecraft с собственным сообществом, сервисами и живыми мирами.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {socials.map((social) => {
-              const Icon = social.icon;
-              return (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={social.label}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3.5 text-sm font-medium text-neutral-300 transition-colors hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white"
-                >
-                  <Icon className="h-4 w-4" />
-                  {social.label}
-                </a>
-              );
-            })}
+          <p className="mt-5 max-w-sm leading-6">{t('about')}</p>
+          <div className="mt-5 space-y-1 text-xs leading-5 text-muted-foreground/80">
+            <p>Баранов Кирилл Алексеевич</p>
+            <p>ИНН 230815487140</p>
+          </div>
+          <div className="mt-5 space-y-2">
+            <a
+              className="block transition-colors hover:text-foreground"
+              href="mailto:help@twomc.su"
+            >
+              help@twomc.su
+            </a>
+            <a
+              className="block transition-colors hover:text-foreground"
+              href="mailto:admin@twomc.su"
+            >
+              admin@twomc.su
+            </a>
+            <p>
+              <a className="transition-colors hover:text-foreground" href="mailto:gov@twomc.su">
+                gov@twomc.su
+              </a>{' '}
+              <span className="text-xs text-muted-foreground/70">— {t('govEmailLabel')}</span>
+            </p>
+            <a
+              className="flex items-center gap-1.5 transition-colors hover:text-foreground"
+              href="https://t.me/twomcsu_adm"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Send className="h-3.5 w-3.5" aria-hidden />
+              @twomcsu_adm
+            </a>
           </div>
         </div>
 
         <div>
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500">
-            Игрокам
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
+            {t('playersTitle')}
           </p>
           <ul className="space-y-2.5">
-            {playerLinks.map((link) => (
-              <li key={link.label}>
-                <Link className="transition-colors hover:text-white" href={link.href}>
+            {playerLinks.map((link, index) => (
+              <li key={`${link.href}-${index}`}>
+                <Link className="transition-colors hover:text-foreground" href={link.href}>
                   {link.label}
                 </Link>
               </li>
@@ -92,60 +101,58 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500">
-            Помощь
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
+            {t('legalTitle')}
           </p>
           <ul className="space-y-2.5">
-            {helpLinks.map((link) => (
-              <li key={link.label}>
-                {'external' in link && link.external ? (
-                  <a
-                    className="transition-colors hover:text-white"
-                    href={link.href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link className="transition-colors hover:text-white" href={link.href}>
-                    {link.label}
-                  </Link>
-                )}
-              </li>
-            ))}
+            <li>
+              <Link className="transition-colors hover:text-foreground" href="/documents">
+                {t('legalInfo')}
+              </Link>
+            </li>
           </ul>
         </div>
 
         <div>
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500">
-            Связь
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
+            {t('settingsTitle')}
           </p>
           <div className="space-y-3">
-            <a className="block transition-colors hover:text-white" href="mailto:help@twomc.su">
-              help@twomc.su
-            </a>
-            <a className="block transition-colors hover:text-white" href="mailto:admin@twomc.su">
-              admin@twomc.su
-            </a>
-            <a
-              className="block transition-colors hover:text-white"
-              href="https://t.me/twomcsu_adm"
-              target="_blank"
-              rel="noreferrer"
-            >
-              @twomcsu_adm
-            </a>
+            <LanguageSwitcher variant="full" />
+            <ThemeToggle />
+            <div className="flex items-center gap-2 pt-1 text-xs">
+              <span
+                className={cn('h-2 w-2 rounded-full', online ? 'bg-success' : 'bg-warning')}
+                aria-hidden
+              />
+              {online ? t('statusOnline') : t('statusIssues')}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-white/[0.07] px-5 py-5 text-xs text-neutral-600 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
-        <p>© twomc.su {year}. Все права защищены.</p>
-        <p>Баранов Кирилл Алексеевич · ИНН 230815487140</p>
-        <p className="max-w-md md:text-right">
-          Проект не связан с Mojang AB. Средства направляются на развитие проекта.
-        </p>
+      <div className="flex flex-col gap-3 border-t border-white/[0.07] px-5 py-5 text-xs text-muted-foreground/70 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
+        <div className="space-y-0.5">
+          <p>
+            © twomc.su {year}. {t('rights')}
+          </p>
+          <p className="max-w-md">{t('disclaimer')}</p>
+        </div>
+        {paymentMethods.length > 0 ? (
+          <div className="flex items-center gap-2" aria-label={t('paymentMethods')}>
+            {paymentMethods.map((method) => (
+              <Image
+                key={method.id}
+                src={`/payment/${method.file}`}
+                alt={method.alt}
+                width={40}
+                height={26}
+                unoptimized
+                className="h-6 w-auto rounded-[4px] opacity-90"
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
     </footer>
   );
