@@ -10,9 +10,12 @@ import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
 import { cn } from '@/lib/utils';
 
-// Payment method marks (Visa/Mastercard/МИР/СБП) go in apps/web/public/payment/*.svg once the
-// original brand SVGs are provided — see PENDING_ASSETS.md. Row renders once that array is filled.
-const paymentMethods: Array<{ id: string; file: string; alt: string }> = [];
+const paymentMethods: Array<{ id: string; file: string; alt: string }> = [
+  { id: 'visa', file: 'visa.svg', alt: 'Visa' },
+  { id: 'mastercard', file: 'mastercard.svg', alt: 'Mastercard' },
+  { id: 'mir', file: 'mir.svg', alt: 'МИР' },
+  { id: 'sbp', file: 'sbp.svg', alt: 'СБП' },
+];
 
 export function SiteFooter() {
   const t = useTranslations('footer');
@@ -113,20 +116,20 @@ export function SiteFooter() {
           </ul>
         </div>
 
-        <div>
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
+        <div className="lg:items-end lg:text-right">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground/80 lg:text-right">
             {t('settingsTitle')}
           </p>
-          <div className="space-y-3">
-            <LanguageSwitcher variant="full" />
-            <ThemeToggle />
-            <div className="flex items-center gap-2 pt-1 text-xs">
+          <div className="flex flex-col gap-3 lg:items-end">
+            <LanguageSwitcher variant="full" className="lg:w-auto" />
+            <div className="flex items-center gap-2 text-xs">
               <span
                 className={cn('h-2 w-2 rounded-full', online ? 'bg-success' : 'bg-warning')}
                 aria-hidden
               />
               {online ? t('statusOnline') : t('statusIssues')}
             </div>
+            <ThemeToggle />
           </div>
         </div>
       </div>
@@ -148,7 +151,7 @@ export function SiteFooter() {
                 width={40}
                 height={26}
                 unoptimized
-                className="h-6 w-auto rounded-[4px] opacity-90"
+                className="h-6 w-auto"
               />
             ))}
           </div>
