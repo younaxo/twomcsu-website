@@ -1,7 +1,7 @@
 'use client';
 
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';

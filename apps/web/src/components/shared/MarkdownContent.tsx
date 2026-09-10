@@ -4,7 +4,7 @@ import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Children, useMemo, useState, type ReactNode } from 'react';
 import { MentionHoverCard } from '@/components/shared/MentionHoverCard';
 import { useCustomEmojis } from '@/hooks/markdown';
@@ -15,7 +15,14 @@ const sanitizeSchema = {
   attributes: {
     ...defaultSchema.attributes,
     span: [...(defaultSchema.attributes?.span ?? []), ['className'], ['class']],
-    img: [...(defaultSchema.attributes?.img ?? []), ['src'], ['alt'], ['title'], ['width'], ['height']],
+    img: [
+      ...(defaultSchema.attributes?.img ?? []),
+      ['src'],
+      ['alt'],
+      ['title'],
+      ['width'],
+      ['height'],
+    ],
     a: [...(defaultSchema.attributes?.a ?? []), ['href'], ['target'], ['rel']],
     code: [...(defaultSchema.attributes?.code ?? []), ['className'], ['class']],
   },
@@ -39,10 +46,7 @@ export function MarkdownContent({ content, className, html }: MarkdownContentPro
     [customEmojis],
   );
 
-  const prepared = useMemo(
-    () => preprocessMarkdown(content, emojiMap),
-    [content, emojiMap],
-  );
+  const prepared = useMemo(() => preprocessMarkdown(content, emojiMap), [content, emojiMap]);
 
   if (html) {
     return (
@@ -101,7 +105,10 @@ export function MarkdownContent({ content, className, html }: MarkdownContentPro
       const isBlock = Boolean(codeClass);
       if (isBlock) {
         return (
-          <code className={cn('block overflow-x-auto rounded-lg bg-black/40 p-3 text-sm', codeClass)} {...props}>
+          <code
+            className={cn('block overflow-x-auto rounded-lg bg-black/40 p-3 text-sm', codeClass)}
+            {...props}
+          >
             {children}
           </code>
         );

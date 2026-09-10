@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -29,13 +29,7 @@ function formatPhone(raw: string): string {
   const digits = raw.replace(/\D/g, '').slice(0, 11);
   const normalized = digits.startsWith('8') ? `7${digits.slice(1)}` : digits;
   const d = normalized.startsWith('7') ? normalized : `7${normalized}`;
-  const parts = [
-    d.slice(0, 1),
-    d.slice(1, 4),
-    d.slice(4, 7),
-    d.slice(7, 9),
-    d.slice(9, 11),
-  ];
+  const parts = [d.slice(0, 1), d.slice(1, 4), d.slice(4, 7), d.slice(7, 9), d.slice(9, 11)];
   let result = '+7';
   if (parts[1]) result += ` (${parts[1]}`;
   if (parts[1]?.length === 3) result += ')';

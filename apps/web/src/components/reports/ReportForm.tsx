@@ -1,8 +1,8 @@
 'use client';
 
 import { RoleGroup, ReportType, hasRoleGroup } from '@twomc/shared';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -60,8 +60,7 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
   const [evidenceLinks, setEvidenceLinks] = useState<EvidenceLinkDraft[]>([{ url: '', title: '' }]);
   const [files, setFiles] = useState<File[]>([]);
 
-  const needsTarget =
-    type === ReportType.PLAYER_COMPLAINT || type === ReportType.ADMIN_COMPLAINT;
+  const needsTarget = type === ReportType.PLAYER_COMPLAINT || type === ReportType.ADMIN_COMPLAINT;
   const needsServer = type === ReportType.PLAYER_COMPLAINT;
   const needsIncident = type === ReportType.PLAYER_COMPLAINT;
   const needsEvidence =
@@ -234,8 +233,8 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
                 {staffTargetsInPlayerComplaint.length > 0 ? (
                   <div className="space-y-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
                     <p>
-                      Этот пользователь входит в команду проекта. Для жалобы на него используйте
-                      тип «Жалоба на администрацию»
+                      Этот пользователь входит в команду проекта. Для жалобы на него используйте тип
+                      «Жалоба на администрацию»
                     </p>
                     <Button asChild size="sm" variant="secondary">
                       <Link href="/report/new/admin">Перейти к жалобе на администрацию</Link>

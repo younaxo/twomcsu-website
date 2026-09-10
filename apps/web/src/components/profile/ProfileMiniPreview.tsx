@@ -13,7 +13,7 @@ import {
   Users,
 } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { DepartmentIcons } from '@/components/shared/DepartmentIcons';

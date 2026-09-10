@@ -3,7 +3,7 @@
 import type { FormResponseSummary } from '@twomc/shared';
 import { format } from 'date-fns';
 import { Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 
 interface Props {
@@ -31,9 +31,7 @@ export function ResponsesTable({ formId, responses, onDelete, deleting }: Props)
           {responses.map((response) => (
             <tr key={response.id} className="border-b border-border/50">
               <td className="p-3 text-white">
-                {response.isAnonymous
-                  ? '(аноним)'
-                  : (response.respondentUsername ?? '—')}
+                {response.isAnonymous ? '(аноним)' : (response.respondentUsername ?? '—')}
               </td>
               <td className="p-3">
                 {response.isComplete ? (
@@ -58,9 +56,7 @@ export function ResponsesTable({ formId, responses, onDelete, deleting }: Props)
               <td className="p-3">
                 <div className="flex gap-1">
                   <Button asChild size="sm" variant="secondary">
-                    <Link href={`/admin/forms/${formId}/responses/${response.id}`}>
-                      Открыть
-                    </Link>
+                    <Link href={`/admin/forms/${formId}/responses/${response.id}`}>Открыть</Link>
                   </Button>
                   {onDelete ? (
                     <Button

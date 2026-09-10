@@ -2,7 +2,7 @@
 
 import type { ActivityAuthor, ActivityType } from '@twomc/shared';
 import { ACTIVITY_TYPE_LABELS } from '@twomc/shared';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { ActivityPinIcon, ActivityTypeIcon } from './ActivityTypeIcon';
@@ -19,10 +19,7 @@ export function ActivityHeader({ user, type, createdAt, isPinned }: ActivityHead
   return (
     <div className="flex items-start gap-3">
       <Link href={`/users/${user.username}`} className="shrink-0">
-        <AvatarWithSkin
-          user={{ username: user.username, avatar: user.avatar }}
-          size="sm"
-        />
+        <AvatarWithSkin user={{ username: user.username, avatar: user.avatar }} size="sm" />
       </Link>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">

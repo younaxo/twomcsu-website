@@ -3,7 +3,7 @@
 import type { AppNotification } from '@twomc/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 

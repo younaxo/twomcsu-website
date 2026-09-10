@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useActivityHighlights } from '@/hooks/activity';
 import { ActivityCardCompact } from './ActivityCardCompact';

@@ -3,7 +3,7 @@
 import type { StoreProduct } from '@twomc/shared';
 import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { toast } from 'sonner';
 import { BulkDiscountBadge } from '@/components/store/BulkDiscountBadge';
 import { PriceDisplay } from '@/components/store/PriceDisplay';

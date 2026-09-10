@@ -1,7 +1,7 @@
 'use client';
 
 import type { FormDetail } from '@twomc/shared';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Captcha, type CaptchaHandle } from '@/components/shared/Captcha';
@@ -223,7 +223,11 @@ export function FormRenderer({ form, inviteCode }: Props) {
 
       {form.requiresCaptcha && (!form.multiStep || step === steps.length - 1) ? (
         <div className="rounded-2xl glass-medium p-4">
-          <Captcha ref={captchaRef} onVerify={setCaptchaToken} onExpire={() => setCaptchaToken('')} />
+          <Captcha
+            ref={captchaRef}
+            onVerify={setCaptchaToken}
+            onExpire={() => setCaptchaToken('')}
+          />
         </div>
       ) : null}
 

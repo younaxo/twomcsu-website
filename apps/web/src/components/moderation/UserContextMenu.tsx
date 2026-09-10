@@ -14,7 +14,7 @@ import {
   VolumeX,
   X,
 } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { BanDialog } from '@/components/moderation/BanDialog';
@@ -327,10 +327,9 @@ export function UserContextMenu({
               variant="destructive"
               disabled={busy}
               onClick={() => {
-                void run(
-                  () => api.delete(`/admin/users/${user.id}`),
-                  'Аккаунт удалён',
-                ).then(() => setDeleteAccountOpen(false));
+                void run(() => api.delete(`/admin/users/${user.id}`), 'Аккаунт удалён').then(() =>
+                  setDeleteAccountOpen(false),
+                );
               }}
             >
               Удалить навсегда

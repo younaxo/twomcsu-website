@@ -3,7 +3,7 @@
 import type { CartItem } from '@twomc/shared';
 import { Gift, ShoppingBag, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -129,19 +129,10 @@ export function CartDrawer() {
               items.map((item) => {
                 const img = itemImage(item);
                 return (
-                  <div
-                    key={item.id}
-                    className="flex gap-3 rounded-lg border border-border p-3"
-                  >
+                  <div key={item.id} className="flex gap-3 rounded-lg border border-border p-3">
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-secondary">
                       {img ? (
-                        <Image
-                          src={img}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
+                        <Image src={img} alt="" fill className="object-cover" unoptimized />
                       ) : null}
                     </div>
                     <div className="min-w-0 flex-1 space-y-2">
@@ -151,9 +142,7 @@ export function CartDrawer() {
                             {itemTitle(item)}
                           </p>
                           {item.giftToUsername ? (
-                            <p className="text-xs text-primary">
-                              Подарок → {item.giftToUsername}
-                            </p>
+                            <p className="text-xs text-primary">Подарок → {item.giftToUsername}</p>
                           ) : null}
                         </div>
                         <Button

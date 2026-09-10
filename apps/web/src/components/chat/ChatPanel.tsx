@@ -3,7 +3,7 @@
 import type { ChatMessage } from '@twomc/shared';
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
 import { MessageSquare, Pin, Users } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { MessageBubble } from '@/components/chat/MessageBubble';
@@ -57,14 +57,9 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
   const [newBelow, setNewBelow] = useState(0);
 
   const channel = channelQuery.data;
-  const canModerate = user
-    ? hasRoleGroup(user.roleGroup, RoleGroup.MODERATOR)
-    : false;
+  const canModerate = user ? hasRoleGroup(user.roleGroup, RoleGroup.MODERATOR) : false;
 
-  const pinnedMessages = useMemo(
-    () => (pinnedQuery.data ?? []).slice(0, 3),
-    [pinnedQuery.data],
-  );
+  const pinnedMessages = useMemo(() => (pinnedQuery.data ?? []).slice(0, 3), [pinnedQuery.data]);
 
   useEffect(() => {
     setCurrentChannel(slug);
@@ -146,15 +141,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
       socket.off('user:typing', onTyping);
       socket.off('user:stopped_typing', onStopTyping);
     };
-  }, [
-    socket,
-    channel,
-    settings.showTyping,
-    setTyping,
-    incrementUnread,
-    isWidgetOpen,
-    pinnedQuery,
-  ]);
+  }, [socket, channel, settings.showTyping, setTyping, incrementUnread, isWidgetOpen, pinnedQuery]);
 
   useEffect(() => {
     clearUnread(slug);
@@ -167,7 +154,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
   }, [localMessages.length]);
 
   const typingLabel = useMemo(() => {
-    const names = channel ? typingByChannel[channel.id] ?? [] : [];
+    const names = channel ? (typingByChannel[channel.id] ?? []) : [];
     const filtered = names.filter((n) => n !== user?.username);
     if (filtered.length === 0) return null;
     if (filtered.length === 1) return `${filtered[0]} печатает…`;
@@ -199,10 +186,13 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
     async <T,>(event: string, payload: unknown): Promise<T & { ok: boolean; error?: string }> => {
       if (!socket) throw new Error('Нет соединения');
       return new Promise((resolve) => {
-        socket.timeout(8000).emit(event, payload, (err: Error | null, res: T & { ok: boolean; error?: string }) => {
-          if (err) resolve({ ok: false, error: err.message } as T & { ok: boolean; error?: string });
-          else resolve(res);
-        });
+        socket
+          .timeout(8000)
+          .emit(event, payload, (err: Error | null, res: T & { ok: boolean; error?: string }) => {
+            if (err)
+              resolve({ ok: false, error: err.message } as T & { ok: boolean; error?: string });
+            else resolve(res);
+          });
       });
     },
     [socket],
@@ -230,8 +220,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
           <p className="text-xs text-muted-foreground">
             {connected ? (
               <>
-                <span className="text-emerald-400">●</span>{' '}
-                {onlineQuery.data?.length ?? 0} онлайн
+                <span className="text-emerald-400">●</span> {onlineQuery.data?.length ?? 0} онлайн
               </>
             ) : isAuthenticated ? (
               'Подключение…'

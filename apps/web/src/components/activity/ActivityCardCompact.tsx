@@ -1,7 +1,7 @@
 'use client';
 
 import type { ActivityItem } from '@twomc/shared';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { cn } from '@/lib/utils';
 import { activityAccentClass, ActivityTypeIcon } from './ActivityTypeIcon';

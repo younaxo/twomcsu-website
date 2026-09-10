@@ -2,7 +2,7 @@
 
 import type { AchievementWithProgress } from '@twomc/shared';
 import { ACHIEVEMENT_RARITY_COLORS } from '@twomc/shared';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Lock } from 'lucide-react';

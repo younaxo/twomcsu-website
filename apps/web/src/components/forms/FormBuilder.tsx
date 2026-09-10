@@ -17,19 +17,14 @@ import {
 } from '@dnd-kit/sortable';
 import { FormStatus, type FormDetail, type FormFieldDto, type FormFieldType } from '@twomc/shared';
 import { Eye, Settings2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { v4 as uuid } from 'uuid';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { extractErrorMessage } from '@/lib/api';
-import {
-  useCreateForm,
-  usePublishForm,
-  useUpdateForm,
-  type FormPayload,
-} from '@/hooks/forms';
+import { useCreateForm, usePublishForm, useUpdateForm, type FormPayload } from '@/hooks/forms';
 import { FieldPalette } from './FieldPalette';
 import { FieldPreview } from './FieldPreview';
 import { FieldSettings } from './FieldSettings';

@@ -1,7 +1,7 @@
 'use client';
 
 import { Ban } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 
 interface DisabledModulePageProps {
@@ -9,10 +9,7 @@ interface DisabledModulePageProps {
   backHref?: string;
 }
 
-export function DisabledModulePage({
-  reason,
-  backHref = '/',
-}: DisabledModulePageProps) {
+export function DisabledModulePage({ reason, backHref = '/' }: DisabledModulePageProps) {
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-5 px-4 text-center">
       <div className="glass-medium flex h-16 w-16 items-center justify-center rounded-2xl">

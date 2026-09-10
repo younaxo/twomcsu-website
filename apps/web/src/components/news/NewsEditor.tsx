@@ -8,7 +8,7 @@ import {
   type NewsAdminItem,
 } from '@twomc/shared';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
@@ -17,18 +17,43 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  useCreateNews,
-  useUpdateNews,
-  useUploadNewsImage,
-} from '@/hooks/news';
+import { useCreateNews, useUpdateNews, useUploadNewsImage } from '@/hooks/news';
 
 function slugifyClient(title: string): string {
   const map: Record<string, string> = {
-    а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo', ж: 'zh', з: 'z',
-    и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r',
-    с: 's', т: 't', у: 'u', ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch',
-    ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya',
+    а: 'a',
+    б: 'b',
+    в: 'v',
+    г: 'g',
+    д: 'd',
+    е: 'e',
+    ё: 'yo',
+    ж: 'zh',
+    з: 'z',
+    и: 'i',
+    й: 'y',
+    к: 'k',
+    л: 'l',
+    м: 'm',
+    н: 'n',
+    о: 'o',
+    п: 'p',
+    р: 'r',
+    с: 's',
+    т: 't',
+    у: 'u',
+    ф: 'f',
+    х: 'kh',
+    ц: 'ts',
+    ч: 'ch',
+    ш: 'sh',
+    щ: 'sch',
+    ъ: '',
+    ы: 'y',
+    ь: '',
+    э: 'e',
+    ю: 'yu',
+    я: 'ya',
   };
   return title
     .toLowerCase()
@@ -354,15 +379,33 @@ export function NewsEditor({ initial }: NewsEditorProps) {
           <p className="text-sm font-semibold text-white">Настройки</p>
           <label className="flex items-center justify-between gap-2 text-sm">
             Разрешить комментарии
-            <Switch checked={allowComments} onCheckedChange={(v) => { setAllowComments(v); markDirty(); }} />
+            <Switch
+              checked={allowComments}
+              onCheckedChange={(v) => {
+                setAllowComments(v);
+                markDirty();
+              }}
+            />
           </label>
           <label className="flex items-center justify-between gap-2 text-sm">
             Закрепить
-            <Switch checked={isPinned} onCheckedChange={(v) => { setIsPinned(v); markDirty(); }} />
+            <Switch
+              checked={isPinned}
+              onCheckedChange={(v) => {
+                setIsPinned(v);
+                markDirty();
+              }}
+            />
           </label>
           <label className="flex items-center justify-between gap-2 text-sm">
             Featured (на главной)
-            <Switch checked={isFeatured} onCheckedChange={(v) => { setIsFeatured(v); markDirty(); }} />
+            <Switch
+              checked={isFeatured}
+              onCheckedChange={(v) => {
+                setIsFeatured(v);
+                markDirty();
+              }}
+            />
           </label>
         </div>
 
@@ -370,12 +413,18 @@ export function NewsEditor({ initial }: NewsEditorProps) {
           <p className="text-sm font-semibold text-white">SEO</p>
           <Input
             value={metaTitle}
-            onChange={(e) => { setMetaTitle(e.target.value); markDirty(); }}
+            onChange={(e) => {
+              setMetaTitle(e.target.value);
+              markDirty();
+            }}
             placeholder="Meta title"
           />
           <Textarea
             value={metaDescription}
-            onChange={(e) => { setMetaDescription(e.target.value); markDirty(); }}
+            onChange={(e) => {
+              setMetaDescription(e.target.value);
+              markDirty();
+            }}
             placeholder="Meta description"
             rows={3}
           />
@@ -386,7 +435,10 @@ export function NewsEditor({ initial }: NewsEditorProps) {
           <Input
             type="datetime-local"
             value={scheduledFor}
-            onChange={(e) => { setScheduledFor(e.target.value); markDirty(); }}
+            onChange={(e) => {
+              setScheduledFor(e.target.value);
+              markDirty();
+            }}
           />
         </div>
       </aside>

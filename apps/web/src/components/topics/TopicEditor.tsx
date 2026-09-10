@@ -9,8 +9,8 @@ import {
   hasRoleGroup,
 } from '@twomc/shared';
 import { Trash2, Upload } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { MarkdownEditor } from '@/components/shared/MarkdownEditor';
@@ -158,7 +158,9 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">{topicId ? 'Редактирование темы' : 'Новая тема'}</h1>
+          <h1 className="text-2xl font-semibold">
+            {topicId ? 'Редактирование темы' : 'Новая тема'}
+          </h1>
           <p className="text-sm text-muted-foreground">Markdown поддерживается</p>
         </div>
         <Button variant="ghost" asChild>

@@ -1,14 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import {
-  ArrowDown,
-  ArrowUp,
-  Bookmark,
-  ExternalLink,
-  Plus,
-  Trash2,
-} from 'lucide-react';
+import { Link } from '@/i18n/navigation';
+import { ArrowDown, ArrowUp, Bookmark, ExternalLink, Plus, Trash2 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -126,9 +119,7 @@ export function BookmarksGrid({
                   </div>
                 </div>
                 <p className="font-medium text-white">{bookmark.title}</p>
-                <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-                  {bookmark.url}
-                </p>
+                <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{bookmark.url}</p>
                 {external ? (
                   <ExternalLink className="absolute bottom-4 right-4 h-3.5 w-3.5 text-muted-foreground" />
                 ) : null}

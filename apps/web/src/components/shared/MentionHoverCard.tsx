@@ -2,7 +2,7 @@
 
 import type { UserProfile } from '@twomc/shared';
 import { MessageCircle, UserPlus, UserRound } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { SkinHead } from '@/components/shared/SkinHead';
@@ -160,8 +160,7 @@ function MentionCardBody({
             disabled={isSending}
             onClick={onAddFriend}
           >
-            <UserPlus className="h-3.5 w-3.5" />
-            В друзья
+            <UserPlus className="h-3.5 w-3.5" />В друзья
           </Button>
         ) : null}
         <Button size="sm" variant="ghost" className="gap-1.5" disabled title="Скоро">

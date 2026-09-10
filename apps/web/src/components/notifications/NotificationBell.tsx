@@ -1,7 +1,7 @@
 'use client';
 
 import { Bell, Settings } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { SwipeableNotificationItem } from '@/components/notifications/SwipeableNotificationItem';
