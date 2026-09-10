@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "title": "twomc.su — сервер Minecraft",
+    "description": "Ігровий сервер Minecraft twomc.su"
+  },
+  "nav": {
+    "home": "Головна",
+    "store": "Магазин",
+    "servers": "Сервери",
+    "rules": "Правила",
+    "documents": "Документи",
+    "news": "Новини",
+    "support": "Підтримка",
+    "events": "Календар",
+    "feed": "Стрічка активності",
+    "achievements": "Досягнення",
+    "leaderboards": "Рейтинг",
+    "streams": "Стріми",
+    "vote": "Голосування",
+    "forms": "Форми",
+    "wiki": "Вікі",
+    "reports": "Репорти",
+    "reportsAuth": "Звернення",
+    "messages": "Повідомлення",
+    "chat": "Чат",
+    "cart": "Кошик",
+    "moderation": "Модерація",
+    "admin": "Адмін",
+    "dashboard": "Дашборд",
+    "groupMain": "Основне",
+    "sidebarLabel": "Бічна навігація",
+    "headerLabel": "Основна навігація",
+    "groupCommunity": "Спільнота",
+    "groupPanels": "Панелі",
+    "quickAccess": "Швидкий доступ",
+    "soon": "незабаром"
+  },
+  "header": {
+    "menu": "Меню",
+    "collapse": "Згорнути панель",
+    "expand": "Розгорнути панель",
+    "openMenu": "Відкрити меню",
+    "login": "Увійти",
+    "register": "Реєстрація",
+    "currency": "Валюта"
+  },
+  "auth": {
+    "myProfile": "Мій профіль",
+    "settings": "Налаштування",
+    "friends": "Друзі",
+    "wishlist": "Список бажань",
+    "orders": "Замовлення",
+    "logout": "Вийти"
+  },
+  "language": {
+    "label": "Мова",
+    "ru": "Русский",
+    "uk": "Українська",
+    "en": "English"
+  },
+  "theme": {
+    "label": "Тема",
+    "light": "Світла",
+    "dark": "Темна",
+    "system": "Системна"
+  },
+  "footer": {
+    "ctaEyebrow": "Готовий грати?",
+    "ctaTitle": "Обери свій сервер",
+    "ctaButton": "Обрати сервер",
+    "about": "Ігровий проєкт Minecraft із власною спільнотою, сервісами та живими світами.",
+    "playersTitle": "Гравцям",
+    "legalTitle": "Правова інформація",
+    "settingsTitle": "Налаштування",
+    "contactTitle": "Зв'язок",
+    "startPlaying": "Почати гру",
+    "privacyPolicy": "Політика конфіденційності",
+    "termsOfService": "Угода користувача",
+    "cookiePolicy": "Політика використання Cookie",
+    "legalInfo": "Юридична інформація",
+    "serverStatus": "Статус серверів",
+    "statusOnline": "Сервери працюють",
+    "statusIssues": "Можливі неполадки",
+    "govEmailLabel": "Для державних органів",
+    "rights": "Усі права захищені.",
+    "disclaimer": "Проєкт не пов'язаний із Mojang AB. Кошти спрямовуються на розвиток проєкту.",
+    "paymentMethods": "Способи оплати"
+  },
+  "cookieConsent": {
+    "title": "Ми використовуємо файли cookie",
+    "description": "Необхідні cookie потрібні для входу та роботи сайту. Аналітика допомагає покращувати сервіс — вмикайте за бажанням. Детальніше в <cookiePolicy>Політиці Cookie</cookiePolicy> та <privacyPolicy>Політиці конфіденційності</privacyPolicy>.",
+    "reject": "Відхилити",
+    "acceptAll": "Прийняти",
+    "customize": "Налаштувати",
+    "save": "Зберегти вибір",
+    "back": "Назад",
+    "categories": {
+      "necessary": {
+        "title": "Необхідні",
+        "description": "Авторизація, безпека, робота кошика. Завжди увімкнені."
+      },
+      "analytics": {
+        "title": "Аналітика",
+        "description": "Допомагає зрозуміти, які розділи сайту корисні гравцям."
+      },
+      "marketing": {
+        "title": "Маркетинг",
+        "description": "Персоналізація акцій та рекламних матеріалів."
+      },
+      "preferences": {
+        "title": "Уподобання",
+        "description": "Запам'ятовує мову, тему та інші налаштування інтерфейсу."
+      }
+    },
+    "alwaysOn": "Завжди увімкнено"
+  }
+}

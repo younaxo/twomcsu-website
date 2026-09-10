@@ -1,0 +1,114 @@
+{
+  "meta": {
+    "title": "twomc.su — Minecraft server",
+    "description": "The twomc.su Minecraft game server"
+  },
+  "nav": {
+    "home": "Home",
+    "store": "Store",
+    "servers": "Servers",
+    "rules": "Rules",
+    "documents": "Documents",
+    "news": "News",
+    "support": "Support",
+    "events": "Calendar",
+    "feed": "Activity feed",
+    "achievements": "Achievements",
+    "leaderboards": "Leaderboards",
+    "streams": "Streams",
+    "vote": "Voting",
+    "forms": "Forms",
+    "wiki": "Wiki",
+    "reports": "Reports",
+    "reportsAuth": "Tickets",
+    "messages": "Messages",
+    "chat": "Chat",
+    "cart": "Cart",
+    "moderation": "Moderation",
+    "admin": "Admin",
+    "dashboard": "Dashboard",
+    "groupMain": "Main",
+    "sidebarLabel": "Sidebar navigation",
+    "headerLabel": "Main navigation",
+    "groupCommunity": "Community",
+    "groupPanels": "Panels",
+    "quickAccess": "Quick access",
+    "soon": "soon"
+  },
+  "header": {
+    "menu": "Menu",
+    "collapse": "Collapse panel",
+    "expand": "Expand panel",
+    "openMenu": "Open menu",
+    "login": "Log in",
+    "register": "Sign up",
+    "currency": "Currency"
+  },
+  "auth": {
+    "myProfile": "My profile",
+    "settings": "Settings",
+    "friends": "Friends",
+    "wishlist": "Wishlist",
+    "orders": "Orders",
+    "logout": "Log out"
+  },
+  "language": {
+    "label": "Language",
+    "ru": "Русский",
+    "uk": "Українська",
+    "en": "English"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "footer": {
+    "ctaEyebrow": "Ready to play?",
+    "ctaTitle": "Pick your server",
+    "ctaButton": "Choose a server",
+    "about": "A Minecraft game project with its own community, services and live worlds.",
+    "playersTitle": "Players",
+    "legalTitle": "Legal",
+    "settingsTitle": "Settings",
+    "contactTitle": "Contact",
+    "startPlaying": "Start playing",
+    "privacyPolicy": "Privacy policy",
+    "termsOfService": "Terms of service",
+    "cookiePolicy": "Cookie policy",
+    "legalInfo": "Legal information",
+    "serverStatus": "Server status",
+    "statusOnline": "Servers online",
+    "statusIssues": "Possible issues",
+    "govEmailLabel": "For government authorities",
+    "rights": "All rights reserved.",
+    "disclaimer": "This project is not affiliated with Mojang AB. Funds go toward the project's development.",
+    "paymentMethods": "Payment methods"
+  },
+  "cookieConsent": {
+    "title": "We use cookies",
+    "description": "Necessary cookies keep sign-in and the site working. Analytics is optional and helps us improve the service. Learn more in the <cookiePolicy>Cookie Policy</cookiePolicy> and <privacyPolicy>Privacy Policy</privacyPolicy>.",
+    "reject": "Reject",
+    "acceptAll": "Accept",
+    "customize": "Customize",
+    "save": "Save choices",
+    "back": "Back",
+    "categories": {
+      "necessary": { "title": "Necessary", "description": "Sign-in, security, cart. Always on." },
+      "analytics": {
+        "title": "Analytics",
+        "description": "Helps us understand which sections are useful to players."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Personalization of promotions and ad materials."
+      },
+      "preferences": {
+        "title": "Preferences",
+        "description": "Remembers language, theme and other UI settings."
+      }
+    },
+    "alwaysOn": "Always on"
+  }
+}

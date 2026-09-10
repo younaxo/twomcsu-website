@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "title": "twomc.su — Minecraft сервер",
+    "description": "Игровой Minecraft сервер twomc.su"
+  },
+  "nav": {
+    "home": "Главная",
+    "store": "Магазин",
+    "servers": "Серверы",
+    "rules": "Правила",
+    "documents": "Документы",
+    "news": "Новости",
+    "support": "Поддержка",
+    "events": "Календарь",
+    "feed": "Лента активности",
+    "achievements": "Достижения",
+    "leaderboards": "Рейтинг",
+    "streams": "Стримы",
+    "vote": "Голосование",
+    "forms": "Формы",
+    "wiki": "Вики",
+    "reports": "Репорты",
+    "reportsAuth": "Обращения",
+    "messages": "Сообщения",
+    "chat": "Чат",
+    "cart": "Корзина",
+    "moderation": "Модерация",
+    "admin": "Админ",
+    "dashboard": "Дашборд",
+    "groupMain": "Основное",
+    "sidebarLabel": "Боковая навигация",
+    "headerLabel": "Основная навигация",
+    "groupCommunity": "Сообщество",
+    "groupPanels": "Панели",
+    "quickAccess": "Быстрый доступ",
+    "soon": "скоро"
+  },
+  "header": {
+    "menu": "Меню",
+    "collapse": "Свернуть панель",
+    "expand": "Развернуть панель",
+    "openMenu": "Открыть меню",
+    "login": "Войти",
+    "register": "Регистрация",
+    "currency": "Валюта"
+  },
+  "auth": {
+    "myProfile": "Мой профиль",
+    "settings": "Настройки",
+    "friends": "Друзья",
+    "wishlist": "Вишлист",
+    "orders": "Заказы",
+    "logout": "Выйти"
+  },
+  "language": {
+    "label": "Язык",
+    "ru": "Русский",
+    "uk": "Українська",
+    "en": "English"
+  },
+  "theme": {
+    "label": "Тема",
+    "light": "Светлая",
+    "dark": "Тёмная",
+    "system": "Системная"
+  },
+  "footer": {
+    "ctaEyebrow": "Готов к игре?",
+    "ctaTitle": "Выбери свой сервер",
+    "ctaButton": "Выбрать сервер",
+    "about": "Игровой проект Minecraft с собственным сообществом, сервисами и живыми мирами.",
+    "playersTitle": "Игрокам",
+    "legalTitle": "Правовая информация",
+    "settingsTitle": "Настройки",
+    "contactTitle": "Связь",
+    "startPlaying": "Начать играть",
+    "privacyPolicy": "Политика конфиденциальности",
+    "termsOfService": "Пользовательское соглашение",
+    "cookiePolicy": "Политика использования Cookie",
+    "legalInfo": "Юридическая информация",
+    "serverStatus": "Статус серверов",
+    "statusOnline": "Серверы работают",
+    "statusIssues": "Возможны неполадки",
+    "govEmailLabel": "Для государственных органов",
+    "rights": "Все права защищены.",
+    "disclaimer": "Проект не связан с Mojang AB. Средства направляются на развитие проекта.",
+    "paymentMethods": "Способы оплаты"
+  },
+  "cookieConsent": {
+    "title": "Мы используем файлы cookie",
+    "description": "Необходимые cookie нужны для входа и работы сайта. Аналитика поможет улучшать сервис — включайте по желанию. Подробнее в <cookiePolicy>Политике Cookie</cookiePolicy> и <privacyPolicy>Политике конфиденциальности</privacyPolicy>.",
+    "reject": "Отклонить",
+    "acceptAll": "Принять",
+    "customize": "Настроить",
+    "save": "Сохранить выбор",
+    "back": "Назад",
+    "categories": {
+      "necessary": {
+        "title": "Необходимые",
+        "description": "Авторизация, безопасность, работа корзины. Всегда включены."
+      },
+      "analytics": {
+        "title": "Аналитика",
+        "description": "Помогает понять, какие разделы сайта полезны игрокам."
+      },
+      "marketing": {
+        "title": "Маркетинг",
+        "description": "Персонализация акций и рекламных материалов."
+      },
+      "preferences": {
+        "title": "Предпочтения",
+        "description": "Запоминает язык, тему и другие настройки интерфейса."
+      }
+    },
+    "alwaysOn": "Всегда включено"
+  }
+}
