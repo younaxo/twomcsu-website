@@ -98,16 +98,10 @@ function parseRestricted(error: unknown): RestrictedProfileResponse | null {
   return null;
 }
 
-export function ProfileClient({
-  username,
-  initial,
-  initialRestricted = null,
-}: ProfileClientProps) {
+export function ProfileClient({ username, initial, initialRestricted = null }: ProfileClientProps) {
   const { user: me, isAuthenticated } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(initial);
-  const [restricted, setRestricted] = useState<RestrictedProfileResponse | null>(
-    initialRestricted,
-  );
+  const [restricted, setRestricted] = useState<RestrictedProfileResponse | null>(initialRestricted);
   const [friendsCount, setFriendsCount] = useState<number | null>(null);
   const userAchievements = useUserAchievements(username);
   const createConversation = useCreateDirectConversation();
@@ -248,7 +242,9 @@ export function ProfileClient({
                             )}
                           </a>
                         </TooltipTrigger>
-                        <TooltipContent>{mediaGroupLabels[badge.mediaGroup]}</TooltipContent>
+                        <TooltipContent>
+                          {mediaGroupLabels[badge.mediaGroup]} · ранг {badge.rank ?? 1}
+                        </TooltipContent>
                       </Tooltip>
                     ))}
                   </div>
@@ -292,7 +288,9 @@ export function ProfileClient({
                       disabled={createConversation.isPending}
                       onClick={async () => {
                         try {
-                          const conversation = await createConversation.mutateAsync(profile.username);
+                          const conversation = await createConversation.mutateAsync(
+                            profile.username,
+                          );
                           window.location.assign(`/messages?conversation=${conversation.id}`);
                         } catch (error) {
                           toast.error(extractErrorMessage(error, 'Не удалось открыть диалог'));
@@ -306,9 +304,7 @@ export function ProfileClient({
                     <ReportProfileDialog username={profile.username} />
                   </>
                 ) : null}
-                {me &&
-                !profile.isOwner &&
-                hasRoleGroup(me.roleGroup, RoleGroup.HELPER) ? (
+                {me && !profile.isOwner && hasRoleGroup(me.roleGroup, RoleGroup.HELPER) ? (
                   <UserContextMenu
                     user={{
                       id: profile.id,
@@ -412,7 +408,9 @@ export function ProfileClient({
                   </div>
                   <dl className="grid gap-2 text-sm sm:grid-cols-[140px_1fr]">
                     <dt className="text-muted-foreground">Префикс</dt>
-                    <dd style={{ color: profile.position.color }}>{profile.position.displayName}</dd>
+                    <dd style={{ color: profile.position.color }}>
+                      {profile.position.displayName}
+                    </dd>
                     <dt className="text-muted-foreground">Регистрация</dt>
                     <dd>{format(new Date(profile.createdAt), 'dd.MM.yyyy', { locale: ru })}</dd>
                     <dt className="text-muted-foreground">Последний вход</dt>
@@ -436,8 +434,7 @@ export function ProfileClient({
                   <CardTitle className="text-base">Услуги</CardTitle>
                 </CardHeader>
                 <CardContent className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Wrench className="h-4 w-4" />
-                  В разработке
+                  <Wrench className="h-4 w-4" />В разработке
                 </CardContent>
               </Card>
 
@@ -631,10 +628,7 @@ function ProfileActivitySection({ username }: { username: string }) {
 
   if (items.length === 0) {
     return (
-      <EmptyState
-        title="Пока нет активности"
-        description="События этого игрока появятся здесь"
-      />
+      <EmptyState title="Пока нет активности" description="События этого игрока появятся здесь" />
     );
   }
 
@@ -724,9 +718,7 @@ function ProfileWishlistSection({
               href={`/store/product/${product.slug}`}
               className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-secondary"
             >
-              {img ? (
-                <Image src={img} alt="" fill className="object-cover" unoptimized />
-              ) : null}
+              {img ? <Image src={img} alt="" fill className="object-cover" unoptimized /> : null}
             </Link>
             <div className="min-w-0 flex-1">
               <Link

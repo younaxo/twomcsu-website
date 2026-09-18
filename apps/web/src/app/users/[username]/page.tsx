@@ -37,11 +37,7 @@ export default async function UserProfilePage({ params }: PageProps) {
   // Restricted SSR responses still mount the client so an authenticated owner can load their profile
   if (result.kind === 'restricted') {
     return (
-      <ProfileClient
-        username={params.username}
-        initial={null}
-        initialRestricted={result.data}
-      />
+      <ProfileClient username={params.username} initial={null} initialRestricted={result.data} />
     );
   }
 

@@ -232,7 +232,9 @@ export default function ProfileSettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Настройки профиля</h1>
-        <p className="text-sm text-muted-foreground">Управляйте внешним видом и приватностью аккаунта</p>
+        <p className="text-sm text-muted-foreground">
+          Управляйте внешним видом и приватностью аккаунта
+        </p>
       </div>
 
       <Tabs
@@ -484,7 +486,9 @@ export default function ProfileSettingsPage() {
               <div className="space-y-3">
                 <div>
                   <p className="font-medium">Кто может видеть ваш профиль</p>
-                  <p className="text-sm text-muted-foreground">Выберите уровень видимости страницы</p>
+                  <p className="text-sm text-muted-foreground">
+                    Выберите уровень видимости страницы
+                  </p>
                 </div>
                 <RadioGroup
                   value={profile.profileVisibility}
@@ -845,10 +849,7 @@ export default function ProfileSettingsPage() {
             </CardHeader>
             <CardContent>
               <Form {...passwordForm}>
-                <form
-                  onSubmit={passwordForm.handleSubmit(changePassword)}
-                  className="space-y-4"
-                >
+                <form onSubmit={passwordForm.handleSubmit(changePassword)} className="space-y-4">
                   <FormField
                     control={passwordForm.control}
                     name="currentPassword"
@@ -903,7 +904,12 @@ export default function ProfileSettingsPage() {
                 <CardTitle>Активные сессии</CardTitle>
                 <CardDescription>Устройства, на которых выполнен вход</CardDescription>
               </div>
-              <Button type="button" variant="destructive" size="sm" onClick={() => void revokeAll()}>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => void revokeAll()}
+              >
                 Выйти со всех устройств
               </Button>
             </CardHeader>
@@ -1004,7 +1010,7 @@ function MediaTab({ profile, onRefresh }: { profile: MyProfile; onRefresh: () =>
             <ul className="space-y-2 text-sm">
               {profile.mediaBadges.map((badge) => (
                 <li key={badge.mediaGroup}>
-                  {mediaGroupLabels[badge.mediaGroup]} — {badge.channelUrl}
+                  {mediaGroupLabels[badge.mediaGroup]} · ранг {badge.rank ?? 1} — {badge.channelUrl}
                 </li>
               ))}
             </ul>
@@ -1019,7 +1025,10 @@ function MediaTab({ profile, onRefresh }: { profile: MyProfile; onRefresh: () =>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>Платформа</Label>
-            <Select value={mediaGroup} onValueChange={(value) => setMediaGroup(value as MediaGroup)}>
+            <Select
+              value={mediaGroup}
+              onValueChange={(value) => setMediaGroup(value as MediaGroup)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

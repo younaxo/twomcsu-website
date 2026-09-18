@@ -10,6 +10,7 @@ import { AdminEmptyState } from '@/components/admin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -23,6 +24,7 @@ import { mediaGroupLabels } from '@/lib/profile';
 
 export default function AdminMediaRequestsPage() {
   const [rows, setRows] = useState<MediaBadgeRequestAdmin[]>([]);
+  const [ranks, setRanks] = useState<Record<string, number>>({});
 
   const load = useCallback(async () => {
     try {
@@ -39,7 +41,10 @@ export default function AdminMediaRequestsPage() {
 
   const review = async (id: string, status: 'APPROVED' | 'REJECTED') => {
     try {
-      await api.patch(`/admin/media-requests/${id}`, { status });
+      await api.patch(`/admin/media-requests/${id}`, {
+        status,
+        ...(status === 'APPROVED' ? { rank: ranks[id] ?? 1 } : {}),
+      });
       toast.success(status === 'APPROVED' ? 'Заявка одобрена' : 'Заявка отклонена');
       await load();
     } catch (error) {
@@ -85,7 +90,12 @@ export default function AdminMediaRequestsPage() {
                     </TableCell>
                     <TableCell>{mediaGroupLabels[row.mediaGroup]}</TableCell>
                     <TableCell>
-                      <a href={row.channelUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                      <a
+                        href={row.channelUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary hover:underline"
+                      >
                         ссылка
                       </a>
                     </TableCell>
@@ -96,7 +106,25 @@ export default function AdminMediaRequestsPage() {
                     <TableCell className="space-x-2">
                       {row.status === 'PENDING' ? (
                         <>
-                          <Button type="button" size="sm" onClick={() => void review(row.id, 'APPROVED')}>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={4}
+                            value={ranks[row.id] ?? 1}
+                            onChange={(event) =>
+                              setRanks((value) => ({
+                                ...value,
+                                [row.id]: Number(event.target.value),
+                              }))
+                            }
+                            className="inline-flex h-9 w-16"
+                            aria-label="Ранг"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => void review(row.id, 'APPROVED')}
+                          >
                             Одобрить
                           </Button>
                           <Button

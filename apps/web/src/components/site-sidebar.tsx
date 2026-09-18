@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ClipboardList,
   FileText,
+  Gift,
   Home,
   LayoutDashboard,
   Mail,
@@ -26,6 +27,9 @@ import {
   ShoppingBag,
   ShoppingCart,
   Trophy,
+  Users,
+  Dices,
+  Clapperboard,
   Vote,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -72,6 +76,8 @@ const mainGroups: NavGroup[] = [
       { href: '/leaderboards', label: 'Рейтинг', icon: Medal },
       { href: '/streams', label: 'Стримы', icon: Radio },
       { href: '/vote', label: 'Голосование', icon: Vote },
+      { href: '/rewards', label: 'Награды', icon: Gift },
+      { href: '/minigames', label: 'Мини-игры', icon: Dices },
     ],
   },
   {
@@ -80,6 +86,8 @@ const mainGroups: NavGroup[] = [
       { href: '/rules', label: 'Правила', icon: Scale },
       { href: '/documents', label: 'Документы', icon: FileText },
       { href: '/forms', label: 'Формы', icon: ClipboardList },
+      { href: '/referrals', label: 'Рефералы', icon: Users },
+      { href: '/media', label: 'Медиа-кабинет', icon: Clapperboard },
       { href: '/wiki', label: 'Вики', icon: BookOpen, soon: true },
       { href: '/reports', label: 'Репорты', icon: AlertTriangle, soon: true },
     ],

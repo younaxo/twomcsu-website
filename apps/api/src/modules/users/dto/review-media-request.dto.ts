@@ -1,5 +1,5 @@
 import { MediaBadgeRequestStatus } from '@twomc/shared';
-import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 export class ReviewMediaRequestDto {
   @IsIn([MediaBadgeRequestStatus.APPROVED, MediaBadgeRequestStatus.REJECTED])
@@ -9,4 +9,10 @@ export class ReviewMediaRequestDto {
   @IsString()
   @MaxLength(500)
   reviewNote?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(4)
+  rank?: number;
 }

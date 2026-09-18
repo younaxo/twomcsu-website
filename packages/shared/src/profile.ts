@@ -69,7 +69,9 @@ export const userBadgeTypeOrder: UserBadgeType[] = [
   UserBadgeType.SUBSCRIBER_PLUS,
 ];
 
-export function getTopBadge<T extends { type: UserBadgeType }>(badges: T[] | undefined): T | undefined {
+export function getTopBadge<T extends { type: UserBadgeType }>(
+  badges: T[] | undefined,
+): T | undefined {
   if (!badges?.length) return undefined;
   for (const type of userBadgeTypeOrder) {
     const found = badges.find((b) => b.type === type);
@@ -132,8 +134,7 @@ export const FriendRequestPolicy = {
   NOBODY: 'NOBODY',
 } as const;
 
-export type FriendRequestPolicy =
-  (typeof FriendRequestPolicy)[keyof typeof FriendRequestPolicy];
+export type FriendRequestPolicy = (typeof FriendRequestPolicy)[keyof typeof FriendRequestPolicy];
 
 export interface UserBadge {
   id: string;
@@ -151,6 +152,7 @@ export interface SocialLink {
 export interface MediaBadge {
   mediaGroup: MediaGroup;
   channelUrl: string;
+  rank?: number;
 }
 
 export interface Award {

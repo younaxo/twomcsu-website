@@ -76,6 +76,7 @@ export function toMediaBadge(row: MediaBadgeRow): MediaBadge {
   return {
     mediaGroup: row.mediaGroup as MediaGroup,
     channelUrl: row.channelUrl,
+    rank: row.rank,
   };
 }
 
@@ -226,9 +227,7 @@ export function toMyProfile(user: ProfileUser, bannerUrl: string | null): MyProf
     statistics: user.statistics ? toStatistics(user.statistics) : null,
     displayBadgeId: user.displayBadgeId,
     displayBadge:
-      user.displayBadge && user.displayBadge.isActive
-        ? toUserBadge(user.displayBadge)
-        : null,
+      user.displayBadge && user.displayBadge.isActive ? toUserBadge(user.displayBadge) : null,
   };
 }
 
@@ -247,9 +246,7 @@ interface PublicProfileOptions {
 export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions): UserProfile {
   const showPersonal = options.isOwner || options.canBypassPrivate;
   const showAge =
-    Boolean(user.birthDate) &&
-    user.showBirthDate &&
-    (showPersonal || !user.hideBirthDate);
+    Boolean(user.birthDate) && user.showBirthDate && (showPersonal || !user.hideBirthDate);
 
   return {
     id: user.id,
@@ -273,8 +270,7 @@ export function toPublicProfile(user: ProfileUser, options: PublicProfileOptions
     badges: user.badges.filter((b) => b.isActive).map(toUserBadge),
     awards: user.awards.map(toUserAward),
     mediaBadges: user.mediaBadges.filter((b) => b.isApproved).map(toMediaBadge),
-    socials:
-      showPersonal || !user.hideSocials ? user.socialLinks.map(toSocialLink) : null,
+    socials: showPersonal || !user.hideSocials ? user.socialLinks.map(toSocialLink) : null,
     statistics:
       showPersonal || !user.hideStatistics
         ? user.statistics
