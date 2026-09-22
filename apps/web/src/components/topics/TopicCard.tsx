@@ -18,7 +18,7 @@ export function TopicCard({ topic, hrefPrefix }: TopicCardProps) {
     <Link
       href={`${hrefPrefix}/${topic.slug}`}
       className={cn(
-        'group flex flex-col gap-3 rounded-xl glass-medium p-5 transition-colors duration-200 hover:bg-white/10',
+        'group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 transition-colors duration-200 hover:bg-accent',
         topic.color ? 'border-l-4' : undefined,
       )}
       style={topic.color ? { borderLeftColor: topic.color } : undefined}

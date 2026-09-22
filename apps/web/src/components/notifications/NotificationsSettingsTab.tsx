@@ -69,7 +69,7 @@ export function NotificationsSettingsTab() {
 
   return (
     <div className="space-y-6">
-      <section className="space-y-4 rounded-2xl glass-medium p-5">
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <h2 className="text-lg font-medium text-white">Каналы доставки</h2>
 
         <div className="flex items-center justify-between gap-3">
@@ -134,7 +134,7 @@ export function NotificationsSettingsTab() {
         </div>
       </section>
 
-      <section className="space-y-4 rounded-2xl glass-medium p-5">
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <h2 className="text-lg font-medium text-white">Режим отправки</h2>
         <RadioGroup
           value={data.digestMode}
@@ -167,7 +167,7 @@ export function NotificationsSettingsTab() {
         ) : null}
       </section>
 
-      <section className="space-y-4 rounded-2xl glass-medium p-5">
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-medium text-white">Тихие часы</h2>
@@ -202,7 +202,7 @@ export function NotificationsSettingsTab() {
         ) : null}
       </section>
 
-      <section className="space-y-4 rounded-2xl glass-medium p-5">
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <h2 className="text-lg font-medium text-white">Настройки по типам</h2>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">

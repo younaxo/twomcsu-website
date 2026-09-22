@@ -14,7 +14,7 @@ export default function RootNotFound() {
     <html lang="ru" className="dark">
       <body className="min-h-screen bg-background text-foreground antialiased">
         <main className="flex min-h-screen items-center justify-center px-4">
-          <section className="glass-strong max-w-md rounded-2xl p-10 text-center">
+          <section className="max-w-md rounded-2xl border border-border bg-card p-10 text-center">
             <p className="mb-3 text-sm uppercase tracking-widest text-primary">Ошибка 404</p>
             <h1 className="mb-4 text-4xl text-foreground">Страница не найдена</h1>
             <p className="mx-auto mb-8 max-w-md text-muted-foreground">

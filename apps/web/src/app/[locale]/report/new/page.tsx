@@ -20,7 +20,7 @@ export default function ReportNewPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
-      <header className="rounded-2xl glass-strong p-6 md:p-8">
+      <header className="rounded-2xl border border-border bg-card p-6 md:p-8">
         <h1 className="text-2xl font-bold text-white md:text-3xl">Создать обращение</h1>
         <p className="mt-2 text-sm text-muted-foreground md:text-base">
           Выберите тип обращения — мы направим его нужной команде модерации

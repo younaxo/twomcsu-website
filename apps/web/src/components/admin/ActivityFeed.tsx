@@ -33,7 +33,7 @@ export function ActivityFeed({
   const visible = maxItems ? items.slice(0, maxItems) : items;
 
   return (
-    <div className={cn('rounded-2xl glass-medium p-4', className)}>
+    <div className={cn('rounded-2xl border border-border bg-card p-4', className)}>
       <h2 className="mb-3 text-sm font-medium text-white">{title}</h2>
 
       {visible.length === 0 ? (
@@ -43,9 +43,7 @@ export function ActivityFeed({
           {visible.map((item) => {
             const Icon = item.icon ?? Activity;
             const when =
-              typeof item.timestamp === 'string'
-                ? new Date(item.timestamp)
-                : item.timestamp;
+              typeof item.timestamp === 'string' ? new Date(item.timestamp) : item.timestamp;
 
             return (
               <li

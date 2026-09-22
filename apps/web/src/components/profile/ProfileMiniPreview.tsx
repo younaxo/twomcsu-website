@@ -160,7 +160,7 @@ export function ProfileMiniPreview({ username, avatar, onLogout }: ProfileMiniPr
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className={cn('glass-heavy w-80 overflow-hidden rounded-2xl p-0')}
+        className={cn('border border-border bg-card w-80 overflow-hidden rounded-2xl p-0')}
       >
         {profile.data ? (
           <PreviewBody profile={profile.data} onLogout={onLogout} />

@@ -25,7 +25,7 @@ export function NewsCard({ news, compact = false, className }: NewsCardProps) {
     <Link
       href={`/news/${news.slug}`}
       className={cn(
-        'group flex flex-col overflow-hidden rounded-2xl glass-medium transition-[background-color,border-color] duration-200 hover:border-white/[0.16] hover:bg-white/[0.06]',
+        'group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors duration-200 hover:bg-accent',
         className,
       )}
     >

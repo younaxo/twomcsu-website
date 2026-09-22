@@ -21,10 +21,7 @@ export function ImagePreview({
   alt = 'Изображение',
   gallery,
 }: ImagePreviewProps) {
-  const images = useMemo(
-    () => (gallery && gallery.length > 0 ? gallery : [src]),
-    [gallery, src],
-  );
+  const images = useMemo(() => (gallery && gallery.length > 0 ? gallery : [src]), [gallery, src]);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -90,13 +87,19 @@ export function ImagePreview({
               type="button"
               size="sm"
               variant="secondary"
-              className="glass-medium"
+              className="border border-border bg-card"
               onClick={download}
             >
               <Download className="mr-1 h-4 w-4" />
               Скачать
             </Button>
-            <Button type="button" size="sm" variant="secondary" className="glass-medium" asChild>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              className="border border-border bg-card"
+              asChild
+            >
               <a href={current} target="_blank" rel="noreferrer">
                 <ExternalLink className="mr-1 h-4 w-4" />
                 Открыть
@@ -130,11 +133,7 @@ export function ImagePreview({
           ) : null}
 
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={current}
-            alt={alt}
-            className="max-h-[85vh] max-w-[90vw] object-contain"
-          />
+          <img src={current} alt={alt} className="max-h-[85vh] max-w-[90vw] object-contain" />
         </div>
       </DialogContent>
     </Dialog>

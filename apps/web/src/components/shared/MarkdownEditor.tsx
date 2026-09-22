@@ -28,18 +28,9 @@ import { EmojiPickerButton } from '@/components/shared/EmojiPicker';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
 import { SkinHead } from '@/components/shared/SkinHead';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEmojiSearch, useMentionSearch, type EmojiSearchItem } from '@/hooks/markdown';
-import {
-  getActiveTrigger,
-  insertAtCursor,
-  wrapSelection,
-} from '@/lib/markdown-utils';
+import { getActiveTrigger, insertAtCursor, wrapSelection } from '@/lib/markdown-utils';
 import { cn } from '@/lib/utils';
 
 export interface MarkdownEditorProps {
@@ -175,15 +166,7 @@ export function MarkdownEditor({
     const selected = value.slice(el.selectionStart, el.selectionEnd) || 'текст';
     const wrapped = wrapSelection(value, el.selectionStart, el.selectionEnd, '[', `](url)`);
     // Prefer wrapping selection as link text
-    applyEdit(
-      wrapSelection(
-        value,
-        el.selectionStart,
-        el.selectionEnd,
-        '[',
-        '](https://)',
-      ),
-    );
+    applyEdit(wrapSelection(value, el.selectionStart, el.selectionEnd, '[', '](https://)'));
     void selected;
     void wrapped;
   };
@@ -273,7 +256,7 @@ export function MarkdownEditor({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-xl glass-medium transition ring-offset-background',
+        'overflow-hidden rounded-xl border border-border bg-card transition ring-offset-background',
         'focus-within:ring-2 focus-within:ring-[#F57C00]',
         disabled && 'opacity-60',
         className,
@@ -499,9 +482,7 @@ function Toolbar({
         <ToolBtn label="Упоминание" disabled={disabled} onClick={() => onAction('mention')}>
           <AtSign className="h-3.5 w-3.5" />
         </ToolBtn>
-        {emojiEnabled ? (
-          <EmojiPickerButton disabled={disabled} onSelect={onEmojiSelect} />
-        ) : null}
+        {emojiEnabled ? <EmojiPickerButton disabled={disabled} onSelect={onEmojiSelect} /> : null}
         <div className="ml-auto">
           <ToolBtn
             label={preview ? 'Скрыть превью' : 'Превью'}

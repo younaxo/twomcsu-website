@@ -30,7 +30,7 @@ export function ReportRulesCard({
   const empty = !topic || !topic.content?.trim() || topic.content.includes('Здесь будет текст');
 
   return (
-    <div className={cn('space-y-4 rounded-2xl glass-medium p-5', className)}>
+    <div className={cn('space-y-4 rounded-2xl border border-border bg-card p-5', className)}>
       <h2 className="text-lg font-semibold text-white">Правила обращения</h2>
 
       {empty ? (
@@ -56,7 +56,10 @@ export function ReportRulesCard({
           checked={agreed}
           onCheckedChange={(value) => onAgreedChange(value === true)}
         />
-        <Label htmlFor="report-rules-agree" className="cursor-pointer text-sm leading-snug text-neutral-200">
+        <Label
+          htmlFor="report-rules-agree"
+          className="cursor-pointer text-sm leading-snug text-neutral-200"
+        >
           Я ознакомлен с правилами и согласен
         </Label>
       </div>

@@ -56,7 +56,7 @@ export function MaintenancePage({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(12,12,15,0.92)] px-4 backdrop-blur-xl">
-      <div className="glass-strong w-full max-w-lg space-y-6 rounded-2xl p-8 text-center shadow-[0_16px_48px_rgba(0,0,0,0.45)]">
+      <div className="border border-border bg-card w-full max-w-lg space-y-6 rounded-2xl p-8 text-center shadow-[0_16px_48px_rgba(0,0,0,0.45)]">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
           <Wrench className="h-10 w-10 text-[#F57C00]" aria-hidden />
         </div>

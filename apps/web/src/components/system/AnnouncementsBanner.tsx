@@ -1,22 +1,13 @@
 'use client';
 
-import {
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle2,
-  Info,
-  X,
-} from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle2, Info, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSystemStatus, type SystemAnnouncement } from '@/hooks/useSystemStatus';
 import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'twomc.dismissed-announcements';
 
-const typeStyles: Record<
-  string,
-  { icon: typeof Info; className: string }
-> = {
+const typeStyles: Record<string, { icon: typeof Info; className: string }> = {
   info: {
     icon: Info,
     className: 'border-sky-500/30 bg-sky-500/10 text-sky-100',
@@ -62,7 +53,7 @@ function AnnouncementItem({
   return (
     <div
       className={cn(
-        'glass-medium flex items-start gap-3 rounded-xl border px-4 py-3',
+        'border border-border bg-card flex items-start gap-3 rounded-xl border px-4 py-3',
         style.className,
       )}
     >

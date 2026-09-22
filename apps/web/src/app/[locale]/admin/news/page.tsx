@@ -88,7 +88,7 @@ export default function AdminNewsPage() {
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl glass-medium">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         {list.isLoading ? (
           <div className="p-4">
             <Skeleton className="h-40 w-full" />

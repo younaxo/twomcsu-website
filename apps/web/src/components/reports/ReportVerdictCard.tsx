@@ -44,7 +44,7 @@ export function ReportVerdictCard({ report }: { report: ReportDetails }) {
   return (
     <article
       className={cn(
-        'animate-in fade-in slide-in-from-top-2 rounded-2xl border border-white/10 bg-gradient-to-br p-6 shadow-lg duration-500 glass-strong',
+        'animate-in fade-in slide-in-from-top-2 rounded-2xl border border-border bg-card bg-gradient-to-br p-6 shadow-lg duration-500',
         tone.gradient,
       )}
       style={{ borderLeftWidth: 4, borderLeftColor: tone.accent }}

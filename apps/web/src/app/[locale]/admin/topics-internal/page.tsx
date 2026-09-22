@@ -77,7 +77,7 @@ export default function AdminTopicsInternalPage() {
           if (!items.length) return null;
 
           return (
-            <Card key={visibility} className="glass-medium border-white/5">
+            <Card key={visibility}>
               <CardHeader>
                 <CardTitle className="text-base">{TOPIC_VISIBILITY_LABELS[visibility]}</CardTitle>
               </CardHeader>

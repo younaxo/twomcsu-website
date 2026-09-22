@@ -37,7 +37,7 @@ export function NewsTableOfContents({ items }: NewsTableOfContentsProps) {
   if (!items.length) return null;
 
   return (
-    <nav className="rounded-2xl glass-medium p-4">
+    <nav className="rounded-2xl border border-border bg-card p-4">
       <p className="mb-3 text-sm font-semibold text-white">Содержание</p>
       <ul className="space-y-1.5 text-sm">
         {items.map((item) => (
@@ -46,7 +46,9 @@ export function NewsTableOfContents({ items }: NewsTableOfContentsProps) {
               href={`#${item.id}`}
               onClick={(e) => {
                 e.preventDefault();
-                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document
+                  .getElementById(item.id)
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
               className={cn(
                 'block transition-opacity hover:opacity-80',

@@ -70,7 +70,7 @@ export default function AdminNotificationWebhooksPage() {
         <p className="text-sm text-muted-foreground">Глобальные вебхуки для событий уведомлений</p>
       </div>
 
-      <section className="space-y-3 rounded-2xl glass-medium p-5">
+      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <div className="grid gap-3 md:grid-cols-3">
           <div className="space-y-2">
             <Label>Название</Label>
@@ -99,7 +99,7 @@ export default function AdminNotificationWebhooksPage() {
 
       <div className="space-y-3">
         {(list.data ?? []).map((webhook) => (
-          <article key={webhook.id} className="rounded-2xl glass-medium p-4">
+          <article key={webhook.id} className="rounded-2xl border border-border bg-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="font-medium text-white">{webhook.name}</h2>

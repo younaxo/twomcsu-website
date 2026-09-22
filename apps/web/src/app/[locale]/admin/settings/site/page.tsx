@@ -73,7 +73,7 @@ export default function AdminSiteSettingsPage() {
       />
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="glass-medium flex h-auto flex-wrap gap-1 p-1">
+        <TabsList className="border border-border bg-card flex h-auto flex-wrap gap-1 p-1">
           <TabsTrigger value="general">Основные</TabsTrigger>
           <TabsTrigger value="contacts">Контакты</TabsTrigger>
           <TabsTrigger value="registration">Регистрация</TabsTrigger>
@@ -83,7 +83,10 @@ export default function AdminSiteSettingsPage() {
           <TabsTrigger value="security">Безопасность</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="general" className="glass-panel space-y-4 rounded-2xl p-5">
+        <TabsContent
+          value="general"
+          className="border border-border bg-card space-y-4 rounded-2xl p-5"
+        >
           <Field label="Название сайта">
             <Input value={form.siteName} onChange={(e) => patch({ siteName: e.target.value })} />
           </Field>
@@ -107,7 +110,10 @@ export default function AdminSiteSettingsPage() {
           </Field>
         </TabsContent>
 
-        <TabsContent value="contacts" className="glass-panel space-y-4 rounded-2xl p-5">
+        <TabsContent
+          value="contacts"
+          className="border border-border bg-card space-y-4 rounded-2xl p-5"
+        >
           <Field label="Email">
             <Input
               value={form.contactEmail ?? ''}
@@ -140,7 +146,10 @@ export default function AdminSiteSettingsPage() {
           </Field>
         </TabsContent>
 
-        <TabsContent value="registration" className="glass-panel space-y-4 rounded-2xl p-5">
+        <TabsContent
+          value="registration"
+          className="border border-border bg-card space-y-4 rounded-2xl p-5"
+        >
           <ToggleField
             label="Регистрация включена"
             checked={form.registrationEnabled}
@@ -174,7 +183,10 @@ export default function AdminSiteSettingsPage() {
           />
         </TabsContent>
 
-        <TabsContent value="features" className="glass-panel space-y-3 rounded-2xl p-5">
+        <TabsContent
+          value="features"
+          className="border border-border bg-card space-y-3 rounded-2xl p-5"
+        >
           {(
             [
               ['chatEnabled', 'Чат'],
@@ -194,7 +206,7 @@ export default function AdminSiteSettingsPage() {
           ))}
         </TabsContent>
 
-        <TabsContent value="seo" className="glass-panel space-y-4 rounded-2xl p-5">
+        <TabsContent value="seo" className="border border-border bg-card space-y-4 rounded-2xl p-5">
           <Field label="Meta title">
             <Input
               value={form.metaTitle ?? ''}
@@ -234,7 +246,7 @@ export default function AdminSiteSettingsPage() {
           </Field>
         </TabsContent>
 
-        <TabsContent value="notifications" className="glass-panel rounded-2xl p-5">
+        <TabsContent value="notifications" className="border border-border bg-card rounded-2xl p-5">
           <ToggleField
             label="Уведомления по умолчанию включены"
             checked={form.defaultNotificationsEnabled}
@@ -242,7 +254,10 @@ export default function AdminSiteSettingsPage() {
           />
         </TabsContent>
 
-        <TabsContent value="security" className="glass-panel space-y-4 rounded-2xl p-5">
+        <TabsContent
+          value="security"
+          className="border border-border bg-card space-y-4 rounded-2xl p-5"
+        >
           <ToggleField
             label="2FA для админов"
             checked={form.requireAdmin2fa}

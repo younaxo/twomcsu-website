@@ -1,18 +1,12 @@
 'use client';
 
-import {
-  ActivityVisibility,
-  type ActivityFeedSettings,
-} from '@twomc/shared';
+import { ActivityVisibility, type ActivityFeedSettings } from '@twomc/shared';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  useActivitySettings,
-  useUpdateActivitySettings,
-} from '@/hooks/activity';
+import { useActivitySettings, useUpdateActivitySettings } from '@/hooks/activity';
 
 const showFields: Array<{
   key: keyof ActivityFeedSettings;
@@ -66,7 +60,7 @@ export function ActivitySettingsTab() {
 
   return (
     <div className="space-y-8">
-      <section className="space-y-4 rounded-2xl glass-medium p-5">
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div>
           <h3 className="text-base font-semibold text-white">Что показывать в моей ленте</h3>
           <p className="text-sm text-muted-foreground">
@@ -89,7 +83,7 @@ export function ActivitySettingsTab() {
         </div>
       </section>
 
-      <section className="space-y-4 rounded-2xl glass-medium p-5">
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div>
           <h3 className="text-base font-semibold text-white">Приватность моей активности</h3>
           <p className="text-sm text-muted-foreground">Кто видит ваши события</p>
@@ -122,7 +116,7 @@ export function ActivitySettingsTab() {
         </div>
       </section>
 
-      <section className="space-y-4 rounded-2xl glass-medium p-5">
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <h3 className="text-base font-semibold text-white">Уведомления</h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-4">

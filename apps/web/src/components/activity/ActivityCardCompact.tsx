@@ -17,7 +17,7 @@ export function ActivityCardCompact({ activity, className }: ActivityCardCompact
     <Link
       href={`/feed/${activity.id}`}
       className={cn(
-        'flex gap-3 rounded-xl border border-white/10 border-l-4 glass-medium p-3 transition-colors hover:bg-white/5',
+        'flex gap-3 rounded-xl border border-border border-l-4 bg-card p-3 transition-colors hover:bg-accent',
         activityAccentClass(activity.type),
         className,
       )}

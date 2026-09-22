@@ -71,7 +71,7 @@ export default function ArchivedReportsPage() {
           icon={Archive}
           title="Архив пуст"
           description="Архивированные обращения появятся здесь"
-          className="glass-medium border-white/10"
+          className="border-border bg-card"
         />
       ) : (
         <div className="space-y-3">

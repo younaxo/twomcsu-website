@@ -53,7 +53,7 @@ export const ServerCard = memo(function ServerCard({
   return (
     <article
       className={cn(
-        'flex flex-col gap-6 rounded-3xl glass-medium p-5 shadow-[0_16px_44px_rgba(0,0,0,0.22)] sm:p-7',
+        'flex flex-col gap-6 rounded-3xl border border-border bg-card p-5 shadow-[0_16px_44px_rgba(0,0,0,0.22)] sm:p-7',
         className,
       )}
       style={categoryColor ? { borderColor: `${categoryColor}33` } : undefined}

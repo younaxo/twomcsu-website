@@ -59,7 +59,7 @@ export function MentionHoverCard({ username, children, className }: MentionHover
       {children}
       {open && profile ? (
         <span
-          className="absolute left-0 top-full z-50 mt-2 w-[320px] max-w-[calc(100vw-2rem)] animate-in fade-in-0 zoom-in-95 rounded-2xl glass-strong p-4 shadow-xl"
+          className="absolute left-0 top-full z-50 mt-2 w-[320px] max-w-[calc(100vw-2rem)] animate-in fade-in-0 zoom-in-95 rounded-2xl border border-border bg-card p-4 shadow-xl"
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
         >

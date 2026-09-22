@@ -176,7 +176,7 @@ export default function OwnerDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="glass-panel rounded-2xl p-5">
+      <div className="rounded-2xl border border-border bg-card p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-white">

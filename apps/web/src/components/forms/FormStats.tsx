@@ -25,10 +25,7 @@ export function FormStats({ stats }: Props) {
       <div className="grid gap-3 md:grid-cols-3">
         <StatCard label="Всего ответов" value={stats.totalResponses} />
         <StatCard label="Завершено" value={stats.completedResponses} />
-        <StatCard
-          label="Процент завершения"
-          value={`${Math.round(stats.completionRate * 100)}%`}
-        />
+        <StatCard label="Процент завершения" value={`${Math.round(stats.completionRate * 100)}%`} />
       </div>
 
       <div className="grid gap-4">
@@ -45,10 +42,9 @@ export function FormStats({ stats }: Props) {
             field.type === FormFieldType.CHECKBOX ||
             field.type === FormFieldType.RATING
           ) {
-            const chartType =
-              field.type === FormFieldType.RATING ? 'bar' : 'pie';
+            const chartType = field.type === FormFieldType.RATING ? 'bar' : 'pie';
             return (
-              <div key={field.fieldId} className="rounded-2xl glass-medium p-4">
+              <div key={field.fieldId} className="rounded-2xl border border-border bg-card p-4">
                 <div className="flex items-baseline justify-between">
                   <h3 className="text-sm font-semibold text-white">{field.label}</h3>
                   <span className="text-xs text-muted-foreground">{field.count} ответов</span>
@@ -57,13 +53,7 @@ export function FormStats({ stats }: Props) {
                   <ResponsiveContainer width="100%" height="100%">
                     {chartType === 'pie' ? (
                       <PieChart>
-                        <Pie
-                          data={entries}
-                          dataKey="value"
-                          nameKey="name"
-                          outerRadius={80}
-                          label
-                        >
+                        <Pie data={entries} dataKey="value" nameKey="name" outerRadius={80} label>
                           {entries.map((_entry, index) => (
                             <Cell key={index} fill={COLORS[index % COLORS.length]} />
                           ))}
@@ -86,7 +76,7 @@ export function FormStats({ stats }: Props) {
 
           if (field.type === FormFieldType.NUMBER || field.type === FormFieldType.CURRENCY_AMOUNT) {
             return (
-              <div key={field.fieldId} className="rounded-2xl glass-medium p-4">
+              <div key={field.fieldId} className="rounded-2xl border border-border bg-card p-4">
                 <h3 className="text-sm font-semibold text-white">{field.label}</h3>
                 <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
                   <StatCard label="Среднее" value={field.average ?? '—'} />
@@ -98,11 +88,9 @@ export function FormStats({ stats }: Props) {
           }
 
           return (
-            <div key={field.fieldId} className="rounded-2xl glass-medium p-4">
+            <div key={field.fieldId} className="rounded-2xl border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-white">{field.label}</h3>
-              <p className="mt-2 text-xs text-muted-foreground">
-                {field.count} ответов
-              </p>
+              <p className="mt-2 text-xs text-muted-foreground">{field.count} ответов</p>
             </div>
           );
         })}

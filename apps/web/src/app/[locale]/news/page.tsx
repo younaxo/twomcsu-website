@@ -55,7 +55,7 @@ export default function NewsPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl glass-strong p-6 sm:p-8">
+      <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-white">Новости TWOMC</h1>
@@ -78,7 +78,7 @@ export default function NewsPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         <div className="space-y-4">
-          <div className="space-y-3 rounded-2xl glass-medium p-4">
+          <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
             <form
               className="relative"
               onSubmit={(e) => {
@@ -153,7 +153,7 @@ export default function NewsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl glass-medium p-10 text-center text-muted-foreground">
+            <div className="rounded-2xl border border-border bg-card p-10 text-center text-muted-foreground">
               Пока нет новостей
             </div>
           )}
@@ -184,7 +184,7 @@ export default function NewsPage() {
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-2xl glass-medium p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <h2 className="mb-3 text-sm font-semibold text-white">Популярные теги</h2>
             <div className="flex flex-wrap gap-2">
               {tags.data?.map((item) => (
@@ -203,7 +203,7 @@ export default function NewsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl glass-medium p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <h2 className="mb-3 text-sm font-semibold text-white">Самые обсуждаемые</h2>
             <ul className="space-y-2">
               {discussed.map((item) => (

@@ -30,7 +30,7 @@ export function ActivityWidget() {
           ))}
         </div>
       ) : (
-        <p className="rounded-2xl glass-medium p-5 text-sm text-muted-foreground">
+        <p className="rounded-2xl border border-border bg-card p-5 text-sm text-muted-foreground">
           Пока нет свежей активности
         </p>
       )}

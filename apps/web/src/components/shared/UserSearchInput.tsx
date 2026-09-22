@@ -143,9 +143,7 @@ export function UserSearchInput({
         aria-autocomplete="list"
         aria-expanded={open}
         aria-controls={listboxId}
-        aria-activedescendant={
-          activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined
-        }
+        aria-activedescendant={activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined}
         onChange={(event) => {
           setQuery(event.target.value);
           setOpen(true);
@@ -170,7 +168,7 @@ export function UserSearchInput({
           ref={listRef}
           id={listboxId}
           role="listbox"
-          className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md glass-heavy text-popover-foreground shadow-md"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-border bg-card text-popover-foreground shadow-md"
         >
           {results.map((user, index) => (
             <li

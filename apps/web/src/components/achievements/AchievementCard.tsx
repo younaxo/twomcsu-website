@@ -31,7 +31,7 @@ export function AchievementCard({
     <Link href={`/achievements/${achievement.slug}`} className="block">
       <div
         className={cn(
-          'group relative flex gap-4 rounded-2xl glass-medium p-4 transition-all duration-200 hover:bg-white/[0.04]',
+          'group relative flex gap-4 rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:bg-accent',
           !isUnlocked && 'opacity-75',
           className,
         )}

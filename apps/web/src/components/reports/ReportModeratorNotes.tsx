@@ -53,7 +53,7 @@ export function ReportModeratorNotes({
   };
 
   return (
-    <section className="space-y-4 rounded-2xl glass-medium p-5">
+    <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
       <h2 className="text-sm font-medium text-muted-foreground">Заметки модераторов</h2>
 
       <div className="space-y-3">

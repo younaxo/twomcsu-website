@@ -115,7 +115,7 @@ export function ReportCard({
   );
 
   const cardClassName = cn(
-    'group flex items-start gap-4 rounded-2xl glass-medium p-4 transition duration-200',
+    'group flex items-start gap-4 rounded-2xl border border-border bg-card p-4 transition duration-200',
     'hover:glass-light',
     (href || onClick || linkHref) && 'cursor-pointer',
     className,

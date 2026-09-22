@@ -85,7 +85,7 @@ export function AchievementUnlockedDialog({ payload, onDismiss }: AchievementUnl
       ) : null}
 
       <div
-        className="relative z-10 mx-4 w-full max-w-sm rounded-2xl glass-medium p-6 text-center shadow-2xl"
+        className="relative z-10 mx-4 w-full max-w-sm rounded-2xl border border-border bg-card p-6 text-center shadow-2xl"
         style={{
           border: `2px solid ${color}`,
           boxShadow: `0 0 48px ${color}33`,
@@ -122,7 +122,7 @@ export function AchievementUnlockedDialog({ payload, onDismiss }: AchievementUnl
           {ACHIEVEMENT_RARITY_LABELS[achievement.rarity]}
         </div>
 
-        {(rewards.rubies > 0 || rewards.title || rewards.badgeType) ? (
+        {rewards.rubies > 0 || rewards.title || rewards.badgeType ? (
           <div className="mb-4 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm">
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Награды

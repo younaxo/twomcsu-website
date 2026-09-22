@@ -20,15 +20,13 @@ export function AgreementChecklistField({ field, value, onChange, disabled }: Pr
     : [];
 
   const toggle = (item: string) => {
-    const next = agreed.includes(item)
-      ? agreed.filter((v) => v !== item)
-      : [...agreed, item];
+    const next = agreed.includes(item) ? agreed.filter((v) => v !== item) : [...agreed, item];
     onChange({ fieldId: field.id, jsonValue: next });
   };
 
   return (
     <FieldShell field={field}>
-      <div className="space-y-2 rounded-xl glass-medium p-3">
+      <div className="space-y-2 rounded-xl border border-border bg-card p-3">
         {items.map((item, index) => {
           const id = `${field.id}-ag-${index}`;
           return (
@@ -44,9 +42,7 @@ export function AgreementChecklistField({ field, value, onChange, disabled }: Pr
             </label>
           );
         })}
-        {!items.length ? (
-          <p className="text-xs text-muted-foreground">Пункты не заданы</p>
-        ) : null}
+        {!items.length ? <p className="text-xs text-muted-foreground">Пункты не заданы</p> : null}
       </div>
     </FieldShell>
   );

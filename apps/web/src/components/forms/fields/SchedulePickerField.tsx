@@ -30,7 +30,7 @@ export function SchedulePickerField({ field, value, onChange, disabled }: Props)
 
   return (
     <FieldShell field={field}>
-      <div className="overflow-x-auto rounded-xl glass-medium p-3">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card p-3">
         <table className="w-full text-xs">
           <thead>
             <tr>
@@ -56,9 +56,7 @@ export function SchedulePickerField({ field, value, onChange, disabled }: Props)
                         onClick={() => toggle(day, h)}
                         className={cn(
                           'block h-5 w-5 rounded transition-colors',
-                          active
-                            ? 'bg-[#F57C00]'
-                            : 'bg-white/[0.06] hover:bg-white/10',
+                          active ? 'bg-[#F57C00]' : 'bg-white/[0.06] hover:bg-white/10',
                         )}
                       />
                     </td>

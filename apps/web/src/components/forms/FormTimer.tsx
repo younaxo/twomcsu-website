@@ -40,7 +40,9 @@ export function FormTimer({ timeLimit, onExpire }: Props) {
   return (
     <div
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs ${
-        critical ? 'bg-destructive/20 text-destructive' : 'glass-medium text-muted-foreground'
+        critical
+          ? 'bg-destructive/20 text-destructive'
+          : 'border border-border bg-card text-muted-foreground'
       }`}
     >
       <Clock className="h-3.5 w-3.5" />

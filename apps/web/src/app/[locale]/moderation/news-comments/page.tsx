@@ -37,7 +37,7 @@ export default function ModerationNewsCommentsPage() {
         Укажите ID комментария для закрепления или удаления. Действия также доступны на странице
         новости.
       </p>
-      <div className="max-w-lg space-y-3 rounded-2xl glass-medium p-4">
+      <div className="max-w-lg space-y-3 rounded-2xl border border-border bg-card p-4">
         <Input
           value={commentId}
           onChange={(e) => setCommentId(e.target.value)}

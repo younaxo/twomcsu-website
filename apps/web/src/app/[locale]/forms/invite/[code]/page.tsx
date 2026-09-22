@@ -18,7 +18,7 @@ export default function FormByInvitePage() {
 
   if (isError || !data) {
     return (
-      <div className="rounded-2xl glass-strong p-8 text-center">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center">
         <h1 className="text-xl font-semibold text-white">Приглашение недействительно</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Код мог быть отозван или срок его действия истёк.

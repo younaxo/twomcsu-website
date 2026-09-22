@@ -145,7 +145,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
 
   if (form.alreadyResponded && form.onePerUser) {
     return (
-      <div className="rounded-2xl glass-strong p-8 text-center">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center">
         <h2 className="text-xl font-semibold text-white">Вы уже отправляли эту форму</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Повторная отправка запрещена настройками формы.
@@ -156,7 +156,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
 
   if (submitted) {
     return (
-      <div className="rounded-2xl glass-strong p-8 text-center">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center">
         <h2 className="text-xl font-semibold text-white">Спасибо за ответ!</h2>
         {form.thankYouMessage ? (
           <div className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
@@ -180,7 +180,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-3 rounded-2xl glass-strong p-6">
+      <header className="space-y-3 rounded-2xl border border-border bg-card p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-white">{form.title}</h1>
@@ -209,7 +209,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
 
       <div className="space-y-4">
         {stepFields.map((field) => (
-          <div key={field.id} className={cn('rounded-2xl glass-medium p-4')}>
+          <div key={field.id} className={cn('rounded-2xl border border-border bg-card p-4')}>
             <FieldRenderer
               field={field}
               slug={form.slug}
@@ -222,7 +222,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
       </div>
 
       {form.requiresCaptcha && (!form.multiStep || step === steps.length - 1) ? (
-        <div className="rounded-2xl glass-medium p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <Captcha
             ref={captchaRef}
             onVerify={setCaptchaToken}

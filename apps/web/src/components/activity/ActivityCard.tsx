@@ -47,7 +47,7 @@ export function ActivityCard({
   return (
     <article
       className={cn(
-        'space-y-4 rounded-2xl border border-white/10 border-l-2 glass-medium p-4 sm:p-5',
+        'space-y-4 rounded-2xl border border-border border-l-2 bg-card p-4 sm:p-5',
         activityAccentClass(activity.type),
       )}
     >

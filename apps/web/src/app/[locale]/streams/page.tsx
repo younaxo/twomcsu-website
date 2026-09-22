@@ -15,7 +15,7 @@ function StreamCard({ channel }: { channel: StreamChannel }) {
       href={channel.liveUrl ?? channel.channelUrl}
       target="_blank"
       rel="noreferrer"
-      className="group block overflow-hidden rounded-2xl border border-white/10 glass-medium transition-colors hover:border-white/25"
+      className="group block overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/40"
     >
       <div className="relative aspect-video bg-black/30">
         {channel.thumbnailUrl ? (
@@ -63,7 +63,7 @@ export default function StreamsPage() {
   const partners = streams.data?.filter((item) => item.isPartner && !item.isLive) ?? [];
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6">
-      <header className="relative overflow-hidden rounded-3xl border border-white/10 glass-strong p-6 sm:p-9">
+      <header className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 sm:p-9">
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-red-500/10 blur-3xl" />
         <div className="relative flex items-center gap-2 text-red-400">
           <Radio className="h-6 w-6" />

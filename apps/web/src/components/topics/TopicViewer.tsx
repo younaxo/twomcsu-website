@@ -53,7 +53,7 @@ export function TopicViewer({ topic }: TopicViewerProps) {
         <MarkdownContent
           content={topic.content}
           className={cn(
-            'rounded-2xl glass-medium p-6',
+            'rounded-2xl border border-border bg-card p-6',
             'prose-headings:scroll-mt-24 prose-a:text-primary',
           )}
         />

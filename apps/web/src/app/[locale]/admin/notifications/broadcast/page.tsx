@@ -45,7 +45,7 @@ export default function AdminNotificationBroadcastPage() {
       </div>
 
       <form
-        className="space-y-4 rounded-2xl glass-medium p-5"
+        className="space-y-4 rounded-2xl border border-border bg-card p-5"
         onSubmit={(event) => {
           event.preventDefault();
           void broadcast

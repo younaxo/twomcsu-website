@@ -35,7 +35,7 @@ export function RolePanelLayout({
   if (variant === 'sidebar') {
     return (
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
-        <div className="glass-panel flex items-center justify-between rounded-2xl p-4 lg:hidden">
+        <div className="border border-border bg-card flex items-center justify-between rounded-2xl p-4 lg:hidden">
           <h1 className="text-lg font-semibold text-white">{title}</h1>
           <div className="flex items-center gap-2">
             {headerExtra}
@@ -89,7 +89,7 @@ export function RolePanelLayout({
 
   return (
     <div className="space-y-6">
-      <div className="glass-panel rounded-3xl p-4 sm:p-5">
+      <div className="border border-border bg-card rounded-3xl p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-lg font-semibold text-white">{title}</h1>
           {headerExtra}

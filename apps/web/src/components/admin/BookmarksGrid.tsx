@@ -56,7 +56,7 @@ export function BookmarksGrid({
       </div>
 
       {sorted.length === 0 ? (
-        <div className="rounded-2xl glass-medium p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
           {emptyMessage}
         </div>
       ) : (
@@ -65,7 +65,7 @@ export function BookmarksGrid({
             const Icon = resolveIcon(bookmark.icon);
             const external = isExternal(bookmark.url);
             const card = (
-              <div className="group relative flex h-full flex-col rounded-2xl glass-medium p-4 transition-colors hover:bg-white/10">
+              <div className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-accent">
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5">
                     <Icon className="h-5 w-5 text-[#F57C00]" aria-hidden />

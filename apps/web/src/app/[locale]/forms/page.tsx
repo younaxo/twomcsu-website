@@ -22,7 +22,7 @@ export default function FormsListPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl glass-strong p-6 sm:p-8">
+      <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
         <div className="flex items-center gap-3">
           <ClipboardList className="h-8 w-8 text-primary" />
           <div>
@@ -44,7 +44,7 @@ export default function FormsListPage() {
             <Link
               key={form.id}
               href={`/forms/${form.slug}`}
-              className="group block overflow-hidden rounded-2xl glass-medium transition-colors hover:bg-white/10"
+              className="group block overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:bg-accent"
             >
               {form.coverImage ? (
                 <div className="relative aspect-video overflow-hidden">
@@ -74,7 +74,7 @@ export default function FormsListPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl glass-medium p-10 text-center text-muted-foreground">
+        <div className="rounded-2xl border border-border bg-card p-10 text-center text-muted-foreground">
           Пока нет доступных форм
         </div>
       )}

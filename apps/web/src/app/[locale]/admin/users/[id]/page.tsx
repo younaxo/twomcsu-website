@@ -102,7 +102,7 @@ export default function AdminUserDetailPage() {
         }
       />
 
-      <div className="glass-panel flex flex-wrap items-center gap-4 rounded-2xl p-5">
+      <div className="border border-border bg-card flex flex-wrap items-center gap-4 rounded-2xl p-5">
         <AvatarWithSkin
           user={{ username: user.username, avatar: (user.avatar as string | null) ?? null }}
           size={64}
@@ -129,7 +129,7 @@ export default function AdminUserDetailPage() {
             ['Друзья', data.stats.friends],
             ['Наказания', data.stats.punishments],
           ].map(([label, value]) => (
-            <div key={String(label)} className="rounded-xl glass-medium px-3 py-2">
+            <div key={String(label)} className="rounded-xl border border-border bg-card px-3 py-2">
               <p className="text-lg font-semibold text-white">{value}</p>
               <p className="text-xs text-muted-foreground">{label}</p>
             </div>
@@ -138,7 +138,7 @@ export default function AdminUserDetailPage() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="glass-medium flex h-auto flex-wrap gap-1 p-1">
+        <TabsList className="border border-border bg-card flex h-auto flex-wrap gap-1 p-1">
           <TabsTrigger value="overview">Обзор</TabsTrigger>
           <TabsTrigger value="orders">Заказы</TabsTrigger>
           <TabsTrigger value="reports">Обращения</TabsTrigger>
@@ -149,7 +149,7 @@ export default function AdminUserDetailPage() {
           <TabsTrigger value="moderation">Модерация</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="glass-panel rounded-2xl p-5">
+        <TabsContent value="overview" className="border border-border bg-card rounded-2xl p-5">
           <dl className="grid gap-4 sm:grid-cols-2">
             <div>
               <dt className="text-xs text-muted-foreground">Email</dt>
@@ -170,7 +170,7 @@ export default function AdminUserDetailPage() {
           </dl>
         </TabsContent>
 
-        <TabsContent value="orders" className="glass-panel rounded-2xl p-4">
+        <TabsContent value="orders" className="border border-border bg-card rounded-2xl p-4">
           {data.orders.length === 0 ? (
             <EmptyTab text="Заказов нет" />
           ) : (
@@ -201,7 +201,7 @@ export default function AdminUserDetailPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="reports" className="glass-panel rounded-2xl p-4">
+        <TabsContent value="reports" className="border border-border bg-card rounded-2xl p-4">
           {data.reports.authored.length === 0 && data.reports.against.length === 0 ? (
             <EmptyTab text="Обращений нет" />
           ) : (
@@ -252,7 +252,7 @@ export default function AdminUserDetailPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="comments" className="glass-panel rounded-2xl p-4">
+        <TabsContent value="comments" className="border border-border bg-card rounded-2xl p-4">
           {data.comments.length === 0 ? (
             <EmptyTab text="Комментариев нет" />
           ) : (
@@ -279,7 +279,7 @@ export default function AdminUserDetailPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="friends" className="glass-panel rounded-2xl p-4">
+        <TabsContent value="friends" className="border border-border bg-card rounded-2xl p-4">
           {data.friends.length === 0 ? (
             <EmptyTab text="Друзей нет" />
           ) : (
@@ -288,7 +288,7 @@ export default function AdminUserDetailPage() {
                 <Link
                   key={friend.id}
                   href={`/admin/users/${friend.id}`}
-                  className="flex items-center gap-3 rounded-xl glass-medium p-3 transition-colors hover:bg-white/10"
+                  className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:bg-accent"
                 >
                   <AvatarWithSkin user={friend} size={36} />
                   <span className="font-medium text-white">{friend.username}</span>
@@ -298,7 +298,7 @@ export default function AdminUserDetailPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="punishments" className="glass-panel rounded-2xl p-4">
+        <TabsContent value="punishments" className="border border-border bg-card rounded-2xl p-4">
           {data.punishments.length === 0 ? (
             <EmptyTab text="Наказаний нет" />
           ) : (
@@ -329,7 +329,7 @@ export default function AdminUserDetailPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="activity" className="glass-panel rounded-2xl p-4">
+        <TabsContent value="activity" className="border border-border bg-card rounded-2xl p-4">
           {data.activity.length === 0 ? (
             <EmptyTab text="Активности нет" />
           ) : (
@@ -362,7 +362,7 @@ export default function AdminUserDetailPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="moderation" className="glass-panel rounded-2xl p-4">
+        <TabsContent value="moderation" className="border border-border bg-card rounded-2xl p-4">
           {user.roleGroup === RoleGroup.PLAYER || user.roleGroup === RoleGroup.HELPER ? (
             <EmptyTab text="Нет данных модерации для этой роли" />
           ) : (

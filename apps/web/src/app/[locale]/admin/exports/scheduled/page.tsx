@@ -186,7 +186,7 @@ export default function ScheduledExportsPage() {
           description="Создайте задачу для автоматической выгрузки"
         />
       ) : (
-        <div className="overflow-x-auto rounded-2xl glass-medium">
+        <div className="overflow-x-auto rounded-2xl border border-border bg-card">
           <Table>
             <TableHeader>
               <TableRow>

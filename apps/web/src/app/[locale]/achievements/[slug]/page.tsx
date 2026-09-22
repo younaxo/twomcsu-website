@@ -65,7 +65,7 @@ export default function AchievementDetailPage({ params }: AchievementDetailPageP
 
       {/* Hero card */}
       <div
-        className="glass-medium rounded-2xl p-6"
+        className="border border-border bg-card rounded-2xl p-6"
         style={{
           borderLeft: `4px solid ${color}`,
           border: `1px solid rgba(255,255,255,0.06)`,

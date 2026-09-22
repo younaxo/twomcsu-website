@@ -566,7 +566,7 @@ export function MessagesClient() {
 
   if (conversations.isLoading) {
     return (
-      <div className="grid h-[calc(100vh-8rem)] gap-0 overflow-hidden rounded-2xl glass-medium lg:grid-cols-[320px_1fr]">
+      <div className="grid h-[calc(100vh-8rem)] gap-0 overflow-hidden rounded-2xl border border-border bg-card lg:grid-cols-[320px_1fr]">
         <Skeleton className="h-full" />
         <Skeleton className="h-full" />
       </div>
@@ -574,7 +574,7 @@ export function MessagesClient() {
   }
 
   return (
-    <div className="h-[calc(100dvh-7rem)] min-h-[520px] overflow-hidden rounded-2xl border border-white/5 glass-medium lg:grid lg:grid-cols-[320px_minmax(0,1fr)]">
+    <div className="h-[calc(100dvh-7rem)] min-h-[520px] overflow-hidden rounded-2xl border border-border bg-card lg:grid lg:grid-cols-[320px_minmax(0,1fr)]">
       <ConversationList
         items={filtered}
         activeId={activeId}

@@ -54,7 +54,7 @@ export default function AdminActivityCustomPage() {
     <div className="mx-auto max-w-xl space-y-6">
       <AdminPageHeader title="Кастомная активность" description="Объявления и ивенты в ленте" />
 
-      <div className="space-y-4 rounded-2xl glass-medium p-5">
+      <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div className="space-y-2">
           <Label htmlFor="title">Заголовок</Label>
           <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />

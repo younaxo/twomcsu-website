@@ -23,7 +23,7 @@ export default function AdminActivityStatsPage() {
               { label: 'Скрыто', value: data.hiddenCount },
               { label: 'Реакции', value: data.reactionsCount },
             ].map((card) => (
-              <div key={card.label} className="rounded-2xl glass-medium p-4">
+              <div key={card.label} className="rounded-2xl border border-border bg-card p-4">
                 <p className="text-sm text-muted-foreground">{card.label}</p>
                 <p className="mt-1 text-2xl font-semibold text-white">
                   {card.value.toLocaleString('ru-RU')}
@@ -32,7 +32,7 @@ export default function AdminActivityStatsPage() {
             ))}
           </div>
 
-          <section className="rounded-2xl glass-medium p-5">
+          <section className="rounded-2xl border border-border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold text-white">По типам</h2>
             {data.byType.length === 0 ? (
               <AdminEmptyState title="Нет данных" />
@@ -51,7 +51,7 @@ export default function AdminActivityStatsPage() {
             )}
           </section>
 
-          <section className="rounded-2xl glass-medium p-5">
+          <section className="rounded-2xl border border-border bg-card p-5">
             <h2 className="mb-4 text-base font-semibold text-white">Топ авторов</h2>
             <ul className="space-y-2">
               {data.topUsers.map((row) => (

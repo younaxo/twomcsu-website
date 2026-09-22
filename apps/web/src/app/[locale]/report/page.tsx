@@ -42,7 +42,7 @@ function StatCard({
       type="button"
       onClick={onClick}
       className={cn(
-        'rounded-2xl glass-medium p-5 text-left transition hover:bg-white/[0.06]',
+        'rounded-2xl border border-border bg-card p-5 text-left transition hover:bg-accent',
         active && 'ring-1 ring-[#F57C00]/60',
         onClick ? 'cursor-pointer' : 'cursor-default',
       )}
@@ -104,7 +104,7 @@ export default function ReportListPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
-      <header className="rounded-2xl glass-strong p-6 md:p-8">
+      <header className="rounded-2xl border border-border bg-card p-6 md:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <Mail className="h-12 w-12 shrink-0 text-[#F57C00]" strokeWidth={1.5} />
@@ -168,7 +168,7 @@ export default function ReportListPage() {
         />
       </div>
 
-      <div className="rounded-2xl glass-medium p-4 md:p-5">
+      <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
         <p className="mb-4 text-sm font-medium text-white">Фильтры</p>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           <div className="relative xl:col-span-2">
@@ -277,7 +277,7 @@ export default function ReportListPage() {
               ? 'По выбранным фильтрам ничего не найдено'
               : 'Создайте обращение, если нужна помощь модерации'
           }
-          className="glass-medium border-white/10"
+          className="border-border bg-card"
           action={
             <Button asChild className="bg-[#F57C00] text-black hover:bg-[#F57C00]/90">
               <Link href="/report/new">Создать обращение</Link>

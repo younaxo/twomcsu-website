@@ -80,7 +80,7 @@ export function ReportTypeCard({ type }: { type: ReportType }) {
     <Link
       href={config.href}
       className={cn(
-        'group flex h-full flex-col rounded-2xl glass-medium p-6 transition duration-200',
+        'group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition duration-200',
         'hover:glass-light hover:brightness-110',
       )}
     >

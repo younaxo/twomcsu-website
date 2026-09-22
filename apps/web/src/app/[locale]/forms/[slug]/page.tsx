@@ -18,7 +18,7 @@ export default function FormFillPage() {
 
   if (isError || !data) {
     return (
-      <div className="rounded-2xl glass-strong p-8 text-center">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center">
         <h1 className="text-xl font-semibold text-white">Форма не найдена</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Возможно, она была удалена или у вас нет доступа.

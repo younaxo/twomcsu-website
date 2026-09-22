@@ -273,7 +273,7 @@ export default function AdminDepartmentsPage() {
               }
             />
           ) : (
-            <Card className="glass-medium border-white/5">
+            <Card>
               <CardContent className="pt-6">
                 <Table>
                   <TableHeader>
@@ -448,7 +448,7 @@ export default function AdminDepartmentsPage() {
         </div>
       )}
 
-      <Card className="glass-medium border-white/5">
+      <Card>
         <CardHeader>
           <CardTitle className="text-base">Отделы игрока</CardTitle>
         </CardHeader>

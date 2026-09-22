@@ -65,7 +65,7 @@ export default function AdminDonationSupportPage() {
         </p>
       </div>
 
-      <div className="grid gap-3 rounded-2xl glass-medium p-4 md:grid-cols-2">
+      <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-2">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -100,7 +100,7 @@ export default function AdminDonationSupportPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="overflow-hidden rounded-2xl glass-medium">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
           {list.isLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : items.length === 0 ? (
@@ -137,7 +137,7 @@ export default function AdminDonationSupportPage() {
           )}
         </div>
 
-        <div className="rounded-2xl glass-strong p-5">
+        <div className="rounded-2xl border border-border bg-card p-5">
           {!selected ? (
             <p className="text-sm text-muted-foreground">
               Выберите обращение для просмотра документов

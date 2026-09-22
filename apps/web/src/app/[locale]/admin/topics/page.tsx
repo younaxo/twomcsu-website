@@ -133,7 +133,7 @@ export default function AdminTopicsPage() {
           }
         />
       ) : (
-        <Card className="glass-medium border-white/5">
+        <Card>
           <CardContent className="pt-6">
             <Table>
               <TableHeader>

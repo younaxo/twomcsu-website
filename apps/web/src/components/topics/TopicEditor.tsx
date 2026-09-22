@@ -169,7 +169,7 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-4 rounded-2xl glass-medium p-5">
+        <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
           <div className="space-y-2">
             <Label>Заголовок</Label>
             <Input value={form.title} onChange={(e) => syncTitle(e.target.value)} />
@@ -273,7 +273,7 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
           </div>
         </div>
 
-        <div className="space-y-3 rounded-2xl glass-medium p-5">
+        <div className="space-y-3 rounded-2xl border border-border bg-card p-5">
           <Label>Содержимое</Label>
           <MarkdownEditor
             value={form.content}
@@ -287,7 +287,7 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
       </div>
 
       {topicId ? (
-        <section className="space-y-3 rounded-2xl glass-medium p-5">
+        <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
           <Label>Вложения</Label>
           <Input
             type="file"

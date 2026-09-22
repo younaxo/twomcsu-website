@@ -203,7 +203,7 @@ export function FormBuilder({ initial }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl glass-strong p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
         <Input
           value={draft.title ?? ''}
           onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
@@ -227,14 +227,14 @@ export function FormBuilder({ initial }: Props) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[280px_1fr_320px]">
-        <div className="space-y-3 rounded-2xl glass-medium p-4">
+        <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
           <h3 className="text-sm font-semibold text-white">Поля</h3>
           <FieldPalette onAdd={addField} />
         </div>
 
         <div className="space-y-3">
           {fields.length === 0 ? (
-            <div className="rounded-2xl glass-medium p-8 text-center text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
               Пока нет полей. Добавьте поле из палитры слева.
             </div>
           ) : (
@@ -259,7 +259,7 @@ export function FormBuilder({ initial }: Props) {
           )}
         </div>
 
-        <div className="rounded-2xl glass-medium p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <h3 className="mb-3 text-sm font-semibold text-white">Свойства</h3>
           {selected ? (
             <FieldSettings

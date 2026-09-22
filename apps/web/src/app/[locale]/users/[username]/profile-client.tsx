@@ -168,11 +168,11 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
   return (
     <div className="space-y-6">
       {ownerPrivacyNote ? (
-        <div className="glass-medium rounded-xl border border-orange-500/30 px-4 py-3 text-sm text-orange-200">
+        <div className="border border-border bg-card rounded-xl border border-orange-500/30 px-4 py-3 text-sm text-orange-200">
           {ownerPrivacyNote}
         </div>
       ) : null}
-      <div className="glass-medium overflow-visible rounded-2xl">
+      <div className="border border-border bg-card overflow-visible rounded-2xl">
         <div className="relative h-[200px] w-full overflow-hidden rounded-t-2xl bg-secondary sm:h-[320px]">
           {bannerUrl ? (
             <Image

@@ -24,7 +24,7 @@ export default function VotePage() {
   const voting = useVoting();
   return (
     <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-8 sm:px-6">
-      <header className="relative overflow-hidden rounded-3xl border border-white/10 glass-strong p-6 sm:p-9">
+      <header className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 sm:p-9">
         <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-primary/15 blur-3xl" />
         <div className="relative flex items-center gap-2 text-primary">
           <Vote className="h-6 w-6" />
@@ -40,7 +40,7 @@ export default function VotePage() {
       </header>
       {user && voting.data ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="glass-medium">
+          <Card className="border border-border bg-card">
             <CardContent className="flex items-center gap-4 p-5">
               <CheckCircle2 className="h-8 w-8 text-emerald-400" />
               <div>
@@ -49,7 +49,7 @@ export default function VotePage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="glass-medium">
+          <Card className="border border-border bg-card">
             <CardContent className="flex items-center gap-4 p-5">
               <Gem className="h-8 w-8 text-primary" />
               <div>
@@ -78,7 +78,7 @@ export default function VotePage() {
         {voting.data?.sites.map((site) => {
           const wait = remaining(site.nextVoteAt);
           return (
-            <Card key={site.id} className="border-white/10 glass-medium">
+            <Card key={site.id}>
               <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
                 <div className="flex min-w-0 flex-1 items-center gap-4">
                   {site.logoUrl ? (

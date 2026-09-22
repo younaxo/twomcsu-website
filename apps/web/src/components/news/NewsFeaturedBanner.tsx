@@ -14,7 +14,7 @@ export function NewsFeaturedBanner({ news }: NewsFeaturedBannerProps) {
   return (
     <Link
       href={`/news/${news.slug}`}
-      className="group relative block overflow-hidden rounded-2xl glass-strong transition-opacity hover:opacity-95"
+      className="group relative block overflow-hidden rounded-2xl border border-border bg-card transition-opacity hover:opacity-95"
     >
       <div className="relative aspect-[21/9] min-h-[200px] w-full bg-secondary/40">
         {news.coverImage ? (

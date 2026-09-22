@@ -12,7 +12,7 @@ interface DisabledModulePageProps {
 export function DisabledModulePage({ reason, backHref = '/' }: DisabledModulePageProps) {
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-5 px-4 text-center">
-      <div className="glass-medium flex h-16 w-16 items-center justify-center rounded-2xl">
+      <div className="border border-border bg-card flex h-16 w-16 items-center justify-center rounded-2xl">
         <Ban className="h-8 w-8 text-amber-500" aria-hidden />
       </div>
       <div className="space-y-2">

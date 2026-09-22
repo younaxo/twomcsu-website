@@ -394,7 +394,7 @@ export default function ProfileSettingsPage() {
             profile={profile}
             onChange={(avatarDecoration) => setProfile({ ...profile, avatarDecoration })}
           />
-          <Card className="glass-medium border-white/5">
+          <Card>
             <CardHeader>
               <CardTitle>Мои бейджи</CardTitle>
               <CardDescription>Перетаскивайте для изменения порядка</CardDescription>
@@ -407,7 +407,7 @@ export default function ProfileSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="glass-medium border-white/5">
+          <Card>
             <CardHeader>
               <CardTitle>Мои награды</CardTitle>
               <CardDescription>Перетаскивайте для изменения порядка</CardDescription>
@@ -420,7 +420,7 @@ export default function ProfileSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="glass-medium border-white/5">
+          <Card>
             <CardHeader>
               <CardTitle>Бейдж возле ника</CardTitle>
               <CardDescription>

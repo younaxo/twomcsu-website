@@ -202,7 +202,7 @@ export default function AdminCustomPositionsPage() {
           }
         />
       ) : (
-        <Card className="glass-medium border-white/5">
+        <Card>
           <CardContent className="pt-6">
             <Table>
               <TableHeader>
@@ -267,7 +267,7 @@ export default function AdminCustomPositionsPage() {
         </Card>
       )}
 
-      <Card className="glass-medium border-white/5">
+      <Card>
         <CardHeader>
           <CardTitle className="text-base">Кастомная должность игрока</CardTitle>
         </CardHeader>

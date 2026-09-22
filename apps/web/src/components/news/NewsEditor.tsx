@@ -280,7 +280,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
             maxHeight={720}
             showPreview
           />
-          <div className="mt-3 max-h-[360px] overflow-auto rounded-xl glass-medium p-4 md:hidden">
+          <div className="mt-3 max-h-[360px] overflow-auto rounded-xl border border-border bg-card p-4 md:hidden">
             <p className="mb-2 text-xs text-muted-foreground">Превью</p>
             <MarkdownContent content={content || '_Пусто_'} />
           </div>
@@ -323,7 +323,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
       </div>
 
       <aside className="space-y-4">
-        <div className="space-y-3 rounded-2xl glass-medium p-4">
+        <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
           <p className="text-sm font-semibold text-white">Обложка</p>
           {coverImage ? (
             <div className="relative aspect-video overflow-hidden rounded-lg">
@@ -345,7 +345,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
           />
         </div>
 
-        <div className="space-y-3 rounded-2xl glass-medium p-4">
+        <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
           <p className="text-sm font-semibold text-white">Категория</p>
           <select
             className="w-full rounded-md border border-border bg-secondary/40 px-3 py-2 text-sm"
@@ -363,7 +363,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
           </select>
         </div>
 
-        <div className="space-y-3 rounded-2xl glass-medium p-4">
+        <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
           <p className="text-sm font-semibold text-white">Теги</p>
           <Input
             value={tags}
@@ -375,7 +375,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
           />
         </div>
 
-        <div className="space-y-3 rounded-2xl glass-medium p-4">
+        <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
           <p className="text-sm font-semibold text-white">Настройки</p>
           <label className="flex items-center justify-between gap-2 text-sm">
             Разрешить комментарии
@@ -409,7 +409,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
           </label>
         </div>
 
-        <div className="space-y-3 rounded-2xl glass-medium p-4">
+        <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
           <p className="text-sm font-semibold text-white">SEO</p>
           <Input
             value={metaTitle}
@@ -430,7 +430,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
           />
         </div>
 
-        <div className="space-y-3 rounded-2xl glass-medium p-4">
+        <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
           <p className="text-sm font-semibold text-white">Планирование</p>
           <Input
             type="datetime-local"

@@ -30,7 +30,7 @@ export function TopList({
   valueLabel,
 }: TopListProps) {
   return (
-    <div className={cn('rounded-2xl glass-medium p-4', className)}>
+    <div className={cn('rounded-2xl border border-border bg-card p-4', className)}>
       {title ? <h2 className="mb-3 text-sm font-medium text-white">{title}</h2> : null}
 
       {items.length === 0 ? (

@@ -56,7 +56,7 @@ export default function LeaderboardsPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6">
-      <header className="relative overflow-hidden rounded-3xl border border-white/10 glass-strong p-6 sm:p-9">
+      <header className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 sm:p-9">
         <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-primary/15 blur-3xl" />
         <div className="relative flex items-center gap-3 text-primary">
           <Trophy className="h-7 w-7" />
@@ -114,7 +114,7 @@ export default function LeaderboardsPage() {
       ) : null}
 
       {(leaderboard.data?.items.length ?? 0) > 3 ? (
-        <Card className="overflow-hidden border-white/10 glass-medium">
+        <Card className="overflow-hidden">
           <CardContent className="divide-y divide-white/5 p-0">
             {leaderboard.data?.items.slice(3).map((entry) => (
               <Link

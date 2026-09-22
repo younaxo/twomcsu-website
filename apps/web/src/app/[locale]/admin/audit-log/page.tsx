@@ -143,7 +143,7 @@ export default function AdminAuditLogPage() {
       />
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="glass-medium">
+        <TabsList className="border border-border bg-card">
           <TabsTrigger value="log">Журнал</TabsTrigger>
           <TabsTrigger value="stats">Статистика</TabsTrigger>
         </TabsList>
@@ -207,7 +207,7 @@ export default function AdminAuditLogPage() {
               description="Действия администраторов появятся здесь"
             />
           ) : (
-            <div className="overflow-x-auto rounded-2xl glass-medium">
+            <div className="overflow-x-auto rounded-2xl border border-border bg-card">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-white/5 text-xs text-muted-foreground">
@@ -260,7 +260,7 @@ export default function AdminAuditLogPage() {
             <Skeleton className="h-64 w-full rounded-2xl" />
           ) : (
             <>
-              <div className="glass-panel rounded-2xl p-4">
+              <div className="border border-border bg-card rounded-2xl p-4">
                 <p className="text-sm text-muted-foreground">Записей за 30 дней</p>
                 <p className="text-3xl font-semibold text-white">
                   {(stats.data?.total ?? 0).toLocaleString('ru-RU')}
@@ -279,7 +279,7 @@ export default function AdminAuditLogPage() {
                   height={280}
                 />
               </div>
-              <div className="glass-panel rounded-2xl p-4">
+              <div className="border border-border bg-card rounded-2xl p-4">
                 <h3 className="mb-3 text-sm font-medium text-white">Топ администраторов</h3>
                 <ul className="space-y-2">
                   {(stats.data?.topActors ?? []).map((row, i) => (

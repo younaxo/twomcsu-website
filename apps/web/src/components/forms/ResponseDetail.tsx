@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  FormFieldType,
-  type FormFieldAnswerDto,
-  type FormResponseDetail,
-} from '@twomc/shared';
+import { FormFieldType, type FormFieldAnswerDto, type FormResponseDetail } from '@twomc/shared';
 import { format } from 'date-fns';
 import Image from 'next/image';
 
@@ -62,9 +58,17 @@ function renderAnswer(answer: FormFieldAnswerDto) {
       }
       break;
     case FormFieldType.DATE_RANGE:
-      if (answer.jsonValue && typeof answer.jsonValue === 'object' && !Array.isArray(answer.jsonValue)) {
+      if (
+        answer.jsonValue &&
+        typeof answer.jsonValue === 'object' &&
+        !Array.isArray(answer.jsonValue)
+      ) {
         const range = answer.jsonValue as { from?: string; to?: string };
-        return <span className="text-sm">{range.from ?? '—'} — {range.to ?? '—'}</span>;
+        return (
+          <span className="text-sm">
+            {range.from ?? '—'} — {range.to ?? '—'}
+          </span>
+        );
       }
       break;
     case FormFieldType.SCHEDULE_PICKER:
@@ -81,7 +85,8 @@ function renderAnswer(answer: FormFieldAnswerDto) {
   if (answer.dateValue) {
     return <span className="text-sm">{format(new Date(answer.dateValue), 'yyyy-MM-dd')}</span>;
   }
-  if (answer.textValue) return <span className="text-sm whitespace-pre-wrap">{answer.textValue}</span>;
+  if (answer.textValue)
+    return <span className="text-sm whitespace-pre-wrap">{answer.textValue}</span>;
   if (answer.jsonValue !== null && answer.jsonValue !== undefined) {
     return (
       <pre className="text-xs text-muted-foreground">
@@ -95,7 +100,7 @@ function renderAnswer(answer: FormFieldAnswerDto) {
 export function ResponseDetail({ response }: Props) {
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl glass-strong p-4">
+      <div className="rounded-2xl border border-border bg-card p-4">
         <p className="text-sm text-muted-foreground">
           {response.isAnonymous ? 'Аноним' : (response.respondentUsername ?? 'Пользователь')} ·{' '}
           {response.isComplete ? 'Отправлен' : 'Черновик'} ·{' '}
@@ -109,7 +114,7 @@ export function ResponseDetail({ response }: Props) {
       </div>
       <div className="space-y-3">
         {response.answers.map((answer) => (
-          <div key={answer.id} className="rounded-2xl glass-medium p-4">
+          <div key={answer.id} className="rounded-2xl border border-border bg-card p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
               {answer.fieldLabel ?? answer.fieldId}
             </p>

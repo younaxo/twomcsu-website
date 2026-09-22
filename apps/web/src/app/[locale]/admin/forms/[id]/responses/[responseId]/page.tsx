@@ -19,7 +19,7 @@ export default function AdminFormResponsePage() {
 
   if (isError || !data) {
     return (
-      <div className="rounded-2xl glass-strong p-8 text-center text-muted-foreground">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
         Ответ не найден
       </div>
     );

@@ -72,7 +72,7 @@ export default function AdminMaintenancePage() {
         title="Технические работы"
         description="Полная блокировка сайта для всех, кроме администраторов"
       />
-      <div className="glass-medium max-w-xl space-y-4 rounded-2xl p-6">
+      <div className="border border-border bg-card max-w-xl space-y-4 rounded-2xl p-6">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="font-medium">Режим техработ</p>

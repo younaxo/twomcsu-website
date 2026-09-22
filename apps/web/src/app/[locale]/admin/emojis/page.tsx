@@ -161,7 +161,7 @@ export default function AdminEmojisPage() {
         />
       </div>
 
-      <div className="overflow-x-auto rounded-2xl glass-medium">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-white/10 text-muted-foreground">
             <tr>
@@ -271,7 +271,7 @@ export default function AdminEmojisPage() {
               />
             </div>
             {previewUrl ? (
-              <div className="flex items-center gap-3 rounded-xl glass-medium p-3">
+              <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={previewUrl} alt="preview" className="h-12 w-12 object-contain" />
                 <code className="text-sm">:{name || 'name'}:</code>

@@ -29,7 +29,7 @@ export default function AdminNewsStatsPage() {
           ['Запланировано', s.scheduled],
           ['Архив', s.archived],
         ].map(([label, value]) => (
-          <div key={label as string} className="rounded-2xl glass-medium p-4">
+          <div key={label as string} className="rounded-2xl border border-border bg-card p-4">
             <p className="text-sm text-muted-foreground">{label}</p>
             <p className="mt-1 text-2xl font-semibold text-white">{value as number}</p>
           </div>
@@ -47,7 +47,7 @@ export default function AdminNewsStatsPage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-white">Активность (14 дней)</h2>
-        <div className="rounded-2xl glass-medium p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <div className="flex h-40 items-end gap-1">
             {s.activityByDay.map((day) => {
               const max = Math.max(...s.activityByDay.map((d) => d.count), 1);

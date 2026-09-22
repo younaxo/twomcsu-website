@@ -35,7 +35,7 @@ export function DashboardCard({
   const isNeutral = hasChange && changePercent === 0;
 
   return (
-    <div className={cn('rounded-2xl glass-medium p-4', className)}>
+    <div className={cn('rounded-2xl border border-border bg-card p-4', className)}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground">{title}</p>

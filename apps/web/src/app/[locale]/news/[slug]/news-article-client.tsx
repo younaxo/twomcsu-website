@@ -48,7 +48,7 @@ export function NewsArticleClient({ slug }: NewsArticleClientProps) {
 
   if (!detail.data) {
     return (
-      <div className="rounded-2xl glass-medium p-10 text-center">
+      <div className="rounded-2xl border border-border bg-card p-10 text-center">
         <p className="text-muted-foreground">Новость не найдена</p>
         <Button asChild className="mt-4" variant="secondary">
           <Link href="/news">К списку новостей</Link>
@@ -80,7 +80,7 @@ export function NewsArticleClient({ slug }: NewsArticleClientProps) {
         <span className="text-white">{news.title}</span>
       </nav>
 
-      <header className="space-y-4 rounded-2xl glass-strong p-6 sm:p-8">
+      <header className="space-y-4 rounded-2xl border border-border bg-card p-6 sm:p-8">
         <NewsCategoryBadge category={news.category} />
         <h1 className="text-3xl font-bold text-white sm:text-4xl">{news.title}</h1>
         {news.excerpt ? (
@@ -132,7 +132,10 @@ export function NewsArticleClient({ slug }: NewsArticleClientProps) {
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
-        <NewsContent content={news.content} className="rounded-2xl glass-medium p-6" />
+        <NewsContent
+          content={news.content}
+          className="rounded-2xl border border-border bg-card p-6"
+        />
         <aside className="hidden space-y-4 lg:block">
           <div className="sticky top-24 space-y-4">
             <NewsLikeButton

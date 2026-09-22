@@ -35,9 +35,12 @@ export function DecorationPicker({
   };
 
   return (
-    <Card className="glass-medium border-white/5">
+    <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />Украшение аватара</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          Украшение аватара
+        </CardTitle>
         <CardDescription>Выберите рамку или эффект из своей коллекции</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -48,7 +51,9 @@ export function DecorationPicker({
             <p className="text-sm text-muted-foreground">Предпросмотр выбранного оформления</p>
           </div>
         </div>
-        {owned.isLoading ? <p className="text-sm text-muted-foreground">Загрузка коллекции…</p> : null}
+        {owned.isLoading ? (
+          <p className="text-sm text-muted-foreground">Загрузка коллекции…</p>
+        ) : null}
         {!owned.isLoading && !owned.data?.length ? (
           <p className="rounded-xl border border-dashed border-white/10 p-5 text-sm text-muted-foreground">
             В коллекции пока нет украшений. Доступные варианты появятся в магазине.
@@ -69,16 +74,24 @@ export function DecorationPicker({
                   )}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.imageUrl} alt={item.name} className="mx-auto aspect-square w-full object-contain" />
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="mx-auto aspect-square w-full object-contain"
+                  />
                   <span className="mt-2 block text-xs font-medium">{item.name}</span>
-                  {active ? <Check className="absolute right-2 top-2 h-5 w-5 rounded-full bg-primary p-1 text-white" /> : null}
+                  {active ? (
+                    <Check className="absolute right-2 top-2 h-5 w-5 rounded-full bg-primary p-1 text-white" />
+                  ) : null}
                 </button>
               );
             })}
           </div>
         )}
         {profile.avatarDecoration ? (
-          <Button variant="secondary" onClick={() => void choose(null)} disabled={select.isPending}>Снять украшение</Button>
+          <Button variant="secondary" onClick={() => void choose(null)} disabled={select.isPending}>
+            Снять украшение
+          </Button>
         ) : null}
       </CardContent>
     </Card>

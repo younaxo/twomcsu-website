@@ -38,11 +38,9 @@ export function ReportMessageInput({
         for (const file of files) {
           const form = new FormData();
           form.append('file', file);
-          await api.post(
-            `/reports/${reportNumber}/messages/${message.id}/attachments`,
-            form,
-            { headers: { 'Content-Type': 'multipart/form-data' } },
-          );
+          await api.post(`/reports/${reportNumber}/messages/${message.id}/attachments`, form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
         }
         await qc.invalidateQueries({ queryKey: queryKeys.report(reportNumber) });
       }
@@ -60,14 +58,14 @@ export function ReportMessageInput({
 
   if (isLocked) {
     return (
-      <p className="rounded-xl glass-medium px-4 py-3 text-sm text-muted-foreground">
+      <p className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
         Обращение заблокировано для новых сообщений
       </p>
     );
   }
 
   return (
-    <div className="space-y-3 rounded-xl glass-medium p-4">
+    <div className="space-y-3 rounded-xl border border-border bg-card p-4">
       <MarkdownEditor
         value={content}
         onChange={setContent}

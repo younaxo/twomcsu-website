@@ -25,7 +25,7 @@ export default function GroupInvitePage() {
 
   if (invite.isError || !invite.data) {
     return (
-      <div className="mx-auto max-w-xl rounded-2xl p-8 text-center glass-strong">
+      <div className="mx-auto max-w-xl rounded-2xl border border-border bg-card p-8 text-center">
         <h1 className="text-2xl font-semibold">Приглашение недействительно</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Ссылка не найдена, отозвана или её срок действия истёк.
@@ -53,7 +53,7 @@ export default function GroupInvitePage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl rounded-2xl border border-white/10 p-6 text-center glass-strong sm:p-10">
+    <div className="mx-auto max-w-xl rounded-2xl border border-border bg-card p-6 text-center sm:p-10">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15 text-primary">
         <MessageCircle className="h-8 w-8" />
       </div>

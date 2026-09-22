@@ -36,7 +36,7 @@ export function FieldPreview({ field, selected, onSelect, onDelete }: Props) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        'group relative rounded-2xl border border-transparent glass-medium p-4 transition-colors',
+        'group relative rounded-2xl border border-transparent border border-border bg-card p-4 transition-colors',
         selected && 'border-[#F57C00]',
       )}
       onClick={onSelect}

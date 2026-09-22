@@ -111,7 +111,7 @@ export default function ReportDetailsPage() {
             </div>
           ) : null}
 
-          <section className="rounded-2xl glass-medium p-5">
+          <section className="rounded-2xl border border-border bg-card p-5">
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <ReportTypeIcon type={data.type} size="xl" />
               <div>
@@ -169,7 +169,7 @@ export default function ReportDetailsPage() {
           </section>
 
           {targets.length > 0 ? (
-            <section className="rounded-2xl glass-medium p-5">
+            <section className="rounded-2xl border border-border bg-card p-5">
               <h2 className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Users className="h-4 w-4" />
                 Обвиняемые
@@ -211,7 +211,7 @@ export default function ReportDetailsPage() {
             </section>
           ) : null}
 
-          <section className="rounded-2xl glass-medium p-5">
+          <section className="rounded-2xl border border-border bg-card p-5">
             <h2 className="mb-3 flex items-center gap-2 text-lg font-medium text-white">
               <FileText className="h-5 w-5 text-muted-foreground" />
               Описание
@@ -234,7 +234,7 @@ export default function ReportDetailsPage() {
           </section>
 
           {hasEvidence ? (
-            <section className="rounded-2xl glass-medium p-5">
+            <section className="rounded-2xl border border-border bg-card p-5">
               <h2 className="mb-3 flex items-center gap-2 text-lg font-medium text-white">
                 <Link2 className="h-5 w-5 text-muted-foreground" />
                 Доказательства
@@ -283,7 +283,7 @@ export default function ReportDetailsPage() {
             />
           ) : null}
 
-          <section className="space-y-4 rounded-2xl glass-medium p-5">
+          <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
             <h2 className="text-lg font-medium text-white">Переписка</h2>
             <ReportMessagesList
               messages={data.messages}
@@ -298,7 +298,7 @@ export default function ReportDetailsPage() {
 
         {isModerator ? (
           <aside className="w-full min-w-0 lg:sticky lg:top-20 lg:h-fit">
-            <div className="rounded-2xl glass-medium p-4">
+            <div className="rounded-2xl border border-border bg-card p-4">
               <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Действия
               </p>

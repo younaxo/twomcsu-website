@@ -115,13 +115,13 @@ export function DonationProblemForm() {
         <h1 className="text-2xl font-semibold text-white">Проблема с донатом</h1>
       </div>
 
-      <div className="rounded-xl glass-medium p-4 text-sm text-neutral-200">
+      <div className="rounded-xl border border-border bg-card p-4 text-sm text-neutral-200">
         Обращения по донату рассматриваются руководством проекта. Заполните все поля максимально
         подробно.
       </div>
 
       <FormProvider {...form}>
-        <form onSubmit={submit} className="space-y-5 rounded-2xl glass-strong p-5">
+        <form onSubmit={submit} className="space-y-5 rounded-2xl border border-border bg-card p-5">
           <div className="space-y-2">
             <Label>Почта для связи *</Label>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />

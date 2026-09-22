@@ -67,7 +67,7 @@ export default function ModerationReportsPage() {
           setPage(1);
         }}
       >
-        <TabsList className="glass-medium">
+        <TabsList className="border border-border bg-card">
           <TabsTrigger value="all">Все</TabsTrigger>
           <TabsTrigger value="me">Мои</TabsTrigger>
           <TabsTrigger value="free">Свободные</TabsTrigger>
@@ -81,7 +81,7 @@ export default function ModerationReportsPage() {
           setPage(1);
         }}
       >
-        <TabsList className="glass-medium">
+        <TabsList className="border border-border bg-card">
           <TabsTrigger value="all">Все типы</TabsTrigger>
           <TabsTrigger value="complaints">Жалобы</TabsTrigger>
           <TabsTrigger value="appeals">Обжалования</TabsTrigger>
@@ -90,7 +90,7 @@ export default function ModerationReportsPage() {
         </TabsList>
       </Tabs>
 
-      <div className="grid gap-3 rounded-2xl glass-medium p-4 md:grid-cols-2">
+      <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 md:grid-cols-2">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -134,7 +134,7 @@ export default function ModerationReportsPage() {
         <EmptyState
           title="Нет обращений"
           description="По текущим фильтрам ничего не найдено"
-          className="glass-medium border-white/10"
+          className="border-border bg-card"
         />
       ) : (
         <>

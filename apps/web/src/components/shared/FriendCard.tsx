@@ -57,7 +57,7 @@ function FriendCardComponent({ friend, onRemoved, onBlocked, className }: Friend
   return (
     <div
       className={cn(
-        'group relative flex items-center gap-3 rounded-xl glass-medium p-3 transition-colors duration-200 hover:bg-white/10',
+        'group relative flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-colors duration-200 hover:bg-accent',
         className,
       )}
     >
