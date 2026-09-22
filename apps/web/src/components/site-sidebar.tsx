@@ -7,8 +7,6 @@ import {
   AlertTriangle,
   BookOpen,
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
   ClipboardList,
   Coins,
   FileText,
@@ -35,6 +33,7 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useEffect, useState } from 'react';
 import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { Logo } from '@/components/shared/Logo';
 import { CurrencySelector } from '@/components/store/CurrencySelector';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -47,8 +46,6 @@ import { useMyProfile } from '@/hooks/useFriendsQueries';
 import { useChatStore } from '@/stores/chatStore';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 import { cn } from '@/lib/utils';
-
-const SIDEBAR_EXPANDED_KEY = 'twomc.sidebarExpanded';
 
 type NavItem = {
   href?: string;
@@ -431,73 +428,27 @@ export function SiteSidebar() {
   const th = useTranslations('header');
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(SIDEBAR_EXPANDED_KEY);
-      if (stored === '1') setExpanded(true);
-    } catch {
-      /* ignore */
-    }
+    document.documentElement.style.setProperty('--sidebar-rail-width', '72px');
   }, []);
-
-  useEffect(() => {
-    const width = expanded ? '256px' : '72px';
-    document.documentElement.style.setProperty('--sidebar-rail-width', width);
-    try {
-      localStorage.setItem(SIDEBAR_EXPANDED_KEY, expanded ? '1' : '0');
-    } catch {
-      /* ignore */
-    }
-  }, [expanded]);
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — fixed-width icon rail, not user-resizable */}
       <aside
-        className={cn(
-          'glass-strong pointer-events-auto fixed bottom-3 left-3 top-3 z-40 hidden flex-col overflow-hidden rounded-[20px] transition-[width] duration-300 ease-out',
-          'lg:flex',
-          expanded ? 'w-64' : 'w-[72px]',
-        )}
+        className="glass-strong pointer-events-auto fixed bottom-3 left-3 top-3 z-40 hidden w-[72px] flex-col overflow-hidden rounded-[20px] lg:flex"
         aria-label={t('sidebarLabel')}
       >
-        <div
-          className={cn(
-            'flex h-[68px] shrink-0 items-center border-b border-white/[0.07] px-3',
-            expanded ? 'justify-between' : 'justify-center',
-          )}
-        >
-          {expanded ? (
-            <p className="pl-2 text-sm font-semibold text-foreground">{th('menu')}</p>
-          ) : null}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="h-10 w-10 text-muted-foreground hover:text-foreground"
-                onClick={() => setExpanded((value) => !value)}
-                aria-label={expanded ? th('collapse') : th('expand')}
-              >
-                {expanded ? (
-                  <ChevronLeft className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">{expanded ? th('collapse') : th('expand')}</TooltipContent>
-          </Tooltip>
+        <div className="flex h-[68px] shrink-0 items-center justify-center border-b border-white/[0.07] px-3">
+          <Logo size="sm" showText={false} />
         </div>
         <div className="min-h-0 flex-1">
-          <SidebarNav collapsed={!expanded} />
+          <SidebarNav collapsed />
         </div>
       </aside>
 

@@ -37,8 +37,6 @@
   },
   "header": {
     "menu": "Menu",
-    "collapse": "Collapse panel",
-    "expand": "Expand panel",
     "openMenu": "Open menu",
     "login": "Log in",
     "register": "Sign up",
