@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  Coins,
   FileText,
   Home,
   LayoutDashboard,
@@ -19,8 +20,10 @@ import {
   MessageCircle,
   MessagesSquare,
   Newspaper,
+  Play,
   Radio,
   Scale,
+  Send,
   Server,
   Shield,
   ShoppingBag,
@@ -31,6 +34,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useEffect, useState } from 'react';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
 import { CurrencySelector } from '@/components/store/CurrencySelector';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,6 +43,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/store';
 import { useConversations } from '@/hooks/useDirectMessages';
+import { useMyProfile } from '@/hooks/useFriendsQueries';
 import { useChatStore } from '@/stores/chatStore';
 import { useStoreUiStore } from '@/stores/storeUiStore';
 import { cn } from '@/lib/utils';
@@ -187,6 +192,66 @@ function GroupTitle({ title, collapsed }: { title: string; collapsed?: boolean }
   );
 }
 
+function SidebarTopActions({ collapsed }: { collapsed?: boolean }) {
+  const t = useTranslations('footer');
+  const { isAuthenticated } = useAuth();
+  const profile = useMyProfile(isAuthenticated);
+  const coins = profile.data?.statistics?.coins;
+
+  const balance = isAuthenticated ? (
+    <Link
+      href="/store"
+      className={cn(
+        'flex h-10 items-center gap-1.5 rounded-xl bg-white/[0.05] text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.08]',
+        collapsed ? 'w-full justify-center' : 'w-full px-3',
+      )}
+    >
+      <Coins className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+      {coins != null ? coins.toLocaleString('ru-RU') : '—'}
+    </Link>
+  ) : null;
+
+  const play = (
+    <Link
+      href="/servers"
+      className={cn(
+        'flex h-11 items-center gap-2 rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_6px_18px_rgba(0,0,0,0.2)] transition-colors hover:bg-primary-hover',
+        collapsed ? 'w-full justify-center' : 'w-full px-3',
+      )}
+      aria-label={t('startPlaying')}
+    >
+      <Play className="h-4 w-4 shrink-0 fill-current" aria-hidden />
+      {!collapsed ? t('startPlaying') : null}
+    </Link>
+  );
+
+  if (!collapsed) {
+    return (
+      <div className="shrink-0 space-y-2 px-2.5 pt-3">
+        {balance}
+        {play}
+      </div>
+    );
+  }
+
+  return (
+    <div className="shrink-0 space-y-2 px-2 pt-3">
+      {balance ? (
+        <Tooltip delayDuration={200}>
+          <TooltipTrigger asChild>{balance}</TooltipTrigger>
+          <TooltipContent side="right">
+            {coins != null ? coins.toLocaleString('ru-RU') : '—'}
+          </TooltipContent>
+        </Tooltip>
+      ) : null}
+      <Tooltip delayDuration={200}>
+        <TooltipTrigger asChild>{play}</TooltipTrigger>
+        <TooltipContent side="right">{t('startPlaying')}</TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
+
 function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const t = useTranslations('nav');
   const pathname = usePathname();
@@ -224,6 +289,7 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      <SidebarTopActions collapsed={collapsed} />
       <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2.5 py-2">
         {mainGroups.map((group) => {
           const items =
@@ -315,6 +381,45 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
           ) : (
             <CurrencySelector compact className="w-full" />
           )}
+        </div>
+
+        <div
+          className={cn('mx-auto my-1 h-px w-8 bg-white/10', !collapsed && 'mx-3 w-auto')}
+          aria-hidden
+        />
+
+        {collapsed ? (
+          <Tooltip delayDuration={200}>
+            <TooltipTrigger asChild>
+              <a
+                href="https://t.me/twomcsu_adm"
+                target="_blank"
+                rel="noreferrer"
+                className="flex h-10 w-full items-center justify-center rounded-xl text-[#2AABEE] transition-colors hover:bg-[#2AABEE]/10"
+                aria-label="Telegram"
+              >
+                <Send className="h-4 w-4" aria-hidden />
+              </a>
+            </TooltipTrigger>
+            <TooltipContent side="right">Telegram · @twomcsu_adm</TooltipContent>
+          </Tooltip>
+        ) : (
+          <a
+            href="https://t.me/twomcsu_adm"
+            target="_blank"
+            rel="noreferrer"
+            className="flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-medium text-[#2AABEE] transition-colors hover:bg-[#2AABEE]/10"
+          >
+            <Send className="h-4 w-4 shrink-0" aria-hidden />
+            @twomcsu_adm
+          </a>
+        )}
+
+        <div className={cn('pt-1', collapsed && 'flex justify-center')}>
+          <LanguageSwitcher
+            variant={collapsed ? 'compact' : 'full'}
+            className={collapsed ? undefined : 'w-full'}
+          />
         </div>
       </div>
     </div>

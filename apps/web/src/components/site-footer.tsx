@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUpRight, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
@@ -33,22 +33,18 @@ export function SiteFooter() {
     { href: '/support', label: tNav('support') },
   ] as const;
 
+  // All five resolve to /documents (the real legal hub) until dedicated
+  // routes exist — keeps every link working, none of them a dead page.
+  const legalLinks = [
+    t('privacyPolicy'),
+    t('termsOfService'),
+    t('cookiePolicy'),
+    t('legalInfo'),
+    t('refundPolicy'),
+  ];
+
   return (
     <footer className="glass-strong mx-3 mb-3 mt-8 overflow-hidden rounded-[28px] text-sm text-muted-foreground sm:mx-5 lg:ml-6">
-      <div className="border-b border-white/[0.07] px-5 py-7 sm:px-8 lg:flex lg:items-center lg:justify-between lg:px-10">
-        <div>
-          <p className="text-sm font-medium text-primary">{t('ctaEyebrow')}</p>
-          <h2 className="mt-2 text-2xl text-foreground sm:text-3xl">{t('ctaTitle')}</h2>
-        </div>
-        <Link
-          href="/servers"
-          className="mt-5 inline-flex h-11 items-center gap-2 rounded-xl border border-primary bg-primary px-5 font-semibold text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_6px_18px_rgba(0,0,0,0.2)] transition-colors hover:border-primary-hover hover:bg-primary-hover lg:mt-0"
-        >
-          {t('ctaButton')}
-          <ArrowUpRight className="h-4 w-4" />
-        </Link>
-      </div>
-
       <div className="grid gap-10 px-5 py-10 sm:px-8 md:grid-cols-2 lg:grid-cols-[1.25fr_0.8fr_0.8fr_0.95fr] lg:px-10">
         <div>
           <Logo size="md" />
@@ -108,11 +104,13 @@ export function SiteFooter() {
             {t('legalTitle')}
           </p>
           <ul className="space-y-2.5">
-            <li>
-              <Link className="transition-colors hover:text-foreground" href="/documents">
-                {t('legalInfo')}
-              </Link>
-            </li>
+            {legalLinks.map((label) => (
+              <li key={label}>
+                <Link className="transition-colors hover:text-foreground" href="/documents">
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -122,7 +120,7 @@ export function SiteFooter() {
           </p>
           <div className="flex flex-col gap-3 lg:items-end">
             <LanguageSwitcher variant="full" className="lg:w-auto" />
-            <div className="flex items-center gap-2 text-xs">
+            <div className="inline-flex items-center gap-2 self-end rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs">
               <span
                 className={cn('h-2 w-2 rounded-full', online ? 'bg-success' : 'bg-warning')}
                 aria-hidden

@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ChevronDown, Globe } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
@@ -44,7 +44,8 @@ export function LanguageSwitcher({ variant = 'compact', className }: LanguageSwi
           aria-label={t('label')}
           className={cn(
             'inline-flex h-10 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/[0.05] hover:text-foreground',
-            variant === 'full' && 'w-full justify-between px-3',
+            variant === 'full' &&
+              'w-full justify-between border border-white/10 bg-white/[0.03] px-3 text-foreground',
             className,
           )}
         >
@@ -63,13 +64,12 @@ export function LanguageSwitcher({ variant = 'compact', className }: LanguageSwi
           ) : (
             <>
               <span className="flex items-center gap-2">
-                <Globe className="h-4 w-4" aria-hidden />
                 <Image
                   src={flags[locale] ?? flags.ru}
                   alt=""
-                  width={16}
-                  height={16}
-                  className="rounded-full"
+                  width={20}
+                  height={14}
+                  className="rounded-[3px]"
                   unoptimized
                 />
                 {t(locale as 'ru' | 'uk' | 'en')}
