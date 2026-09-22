@@ -67,6 +67,7 @@
     --font-onest: 'Onest Local';
     --font-geologica: 'Geologica Local';
     --font-display: 'Dela Gothic One Local';
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
     /* Light theme (default token values) */
     --background: 220 20% 97%;
@@ -194,7 +195,9 @@
     background-color: var(--page-bg-color);
     background-image: var(--page-bg-image);
     background-attachment: fixed;
-    font-family: var(--font-onest), system-ui, sans-serif;
+    font-family:
+      var(--font-onest), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     font-weight: 400;
     line-height: 1.5;
     letter-spacing: -0.006em;
@@ -202,7 +205,9 @@
 
   h1,
   h2 {
-    font-family: var(--font-display), var(--font-geologica), system-ui, sans-serif;
+    font-family:
+      var(--font-display), var(--font-geologica), ui-sans-serif, system-ui, sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     font-weight: 400;
     letter-spacing: -0.03em;
     line-height: 1.08;
@@ -210,14 +215,18 @@
 
   h3,
   .logo {
-    font-family: var(--font-geologica), system-ui, sans-serif;
+    font-family:
+      var(--font-geologica), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.2;
   }
 
   .font-display {
-    font-family: var(--font-display), var(--font-geologica), system-ui, sans-serif;
+    font-family:
+      var(--font-display), var(--font-geologica), ui-sans-serif, system-ui, sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     font-weight: 400;
   }
 
@@ -303,6 +312,7 @@
     border-radius: 0.25rem;
     background: hsl(var(--secondary));
     padding: 0.1rem 0.3rem;
+    font-family: var(--font-mono);
     font-size: 0.85em;
   }
 
@@ -311,6 +321,7 @@
     border-radius: 0.5rem;
     background: hsl(var(--secondary));
     padding: 0.75rem;
+    font-family: var(--font-mono);
   }
 }
 
