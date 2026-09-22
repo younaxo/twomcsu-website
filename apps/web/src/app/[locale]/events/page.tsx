@@ -74,7 +74,7 @@ export default function EventsPage() {
 
   return (
     <div className="space-y-7">
-      <section className="glass-strong overflow-hidden rounded-3xl border border-white/10 p-6 sm:p-8">
+      <section className="overflow-hidden rounded-3xl border border-border bg-card p-6 sm:p-8">
         <div className="flex items-center gap-3 text-primary">
           <CalendarDays className="h-6 w-6" />
           <span className="text-sm uppercase tracking-[0.2em]">События TWOMC</span>

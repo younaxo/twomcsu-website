@@ -20,7 +20,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-8 sm:space-y-10">
-      <section className="relative overflow-hidden rounded-[28px] glass-heavy">
+      <section className="relative overflow-hidden rounded-[28px] border border-border bg-card">
         <div className="pointer-events-none absolute -right-16 -top-32 h-80 w-80 rounded-full bg-white/[0.045] blur-[80px]" />
 
         <div className="relative grid lg:grid-cols-[1.12fr_0.88fr]">
@@ -112,7 +112,7 @@ export default function HomePage() {
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[0.78fr_1.22fr]">
-        <div className="rounded-3xl glass-medium p-5 sm:p-6">
+        <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
               <span className="eyebrow">Прямо сейчас</span>
@@ -142,7 +142,7 @@ export default function HomePage() {
           </Button>
         </div>
 
-        <div className="rounded-3xl glass-medium p-5 sm:p-6">
+        <div className="rounded-3xl border border-border bg-card p-5 sm:p-6">
           <ActivityWidget />
         </div>
       </section>
@@ -174,7 +174,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : (
-          <p className="rounded-2xl glass-medium p-6 text-sm text-muted-foreground">
+          <p className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
             Пока нет опубликованных новостей
           </p>
         )}

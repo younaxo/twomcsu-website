@@ -125,7 +125,7 @@ export default function StorePageClient() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[28px] glass-heavy p-6 sm:p-10">
+      <section className="rounded-[28px] border border-border bg-card p-6 sm:p-10">
         <span className="eyebrow">Магазин</span>
         <h1 className="mb-3 mt-4 text-3xl font-semibold text-white sm:text-4xl">Магазин TWOMC</h1>
         <p className="max-w-xl leading-6 text-muted-foreground">
