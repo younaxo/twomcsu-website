@@ -2,7 +2,7 @@
 
 import type { GameServer } from '@twomc/shared';
 import { Flame, Leaf, Star } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { CopyableAddress } from '@/components/servers/CopyableAddress';

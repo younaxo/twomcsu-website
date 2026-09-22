@@ -2,7 +2,7 @@
 
 import type { Position, UserBadgeType } from '@twomc/shared';
 import { userBadgeTypeOrder } from '@twomc/shared';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { memo, useMemo } from 'react';
 import { UserBadgeIcon } from '@/components/shared/UserBadgeIcon';
 import { PositionBadge } from '@/components/shared/PositionBadge';

@@ -3,7 +3,7 @@
 import type { NewsSummary } from '@twomc/shared';
 import { Eye, Heart, MessageCircle, Pin } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';

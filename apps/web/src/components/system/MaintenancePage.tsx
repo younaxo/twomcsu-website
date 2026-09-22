@@ -1,7 +1,7 @@
 'use client';
 
 import { ExternalLink, Wrench } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -32,7 +32,9 @@ function useCountdown(targetIso: string | null | undefined) {
       const h = Math.floor(diff / 3_600_000);
       const m = Math.floor((diff % 3_600_000) / 60_000);
       const s = Math.floor((diff % 60_000) / 1000);
-      setLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+      setLeft(
+        `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`,
+      );
     };
 
     tick();

@@ -2,7 +2,7 @@
 
 import type { AchievementWithProgress } from '@twomc/shared';
 import { ACHIEVEMENT_RARITY_COLORS } from '@twomc/shared';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { AchievementIcon } from './AchievementIcon';
 import { AchievementRarityBadge } from './AchievementRarityBadge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

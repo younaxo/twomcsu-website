@@ -2,7 +2,7 @@
 
 import type { FriendUser } from '@twomc/shared';
 import { MoreHorizontal, UserMinus, UserX } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
@@ -16,11 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-  useBlockUser,
-  usePrefetchProfile,
-  useRemoveFriend,
-} from '@/hooks/useFriendsQueries';
+import { useBlockUser, usePrefetchProfile, useRemoveFriend } from '@/hooks/useFriendsQueries';
 import { extractErrorMessage } from '@/lib/api';
 import { resolveMediaUrl } from '@/lib/profile';
 import { cn } from '@/lib/utils';

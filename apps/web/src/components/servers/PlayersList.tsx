@@ -4,7 +4,7 @@ import type { ServerPlayer } from '@twomc/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Users } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { SkinHead } from '@/components/shared/SkinHead';
 
@@ -29,11 +29,7 @@ export function PlayersList({ players }: PlayersListProps) {
         const href = player.user ? `/users/${player.user.username}` : undefined;
         const content = (
           <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 px-3 py-2.5 transition-colors hover:bg-accent/40">
-            <SkinHead
-              username={player.username}
-              avatar={player.user?.avatar ?? null}
-              size={40}
-            />
+            <SkinHead username={player.username} avatar={player.user?.avatar ?? null} size={40} />
             <div className="min-w-0">
               <p className="truncate font-medium text-white">{player.username}</p>
               <p className="text-xs text-muted-foreground">

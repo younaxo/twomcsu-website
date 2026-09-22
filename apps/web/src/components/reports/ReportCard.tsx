@@ -1,13 +1,10 @@
 'use client';
 
-import {
-  REPORT_TYPE_LABELS,
-  type ReportSummary,
-} from '@twomc/shared';
+import { REPORT_TYPE_LABELS, type ReportSummary } from '@twomc/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Check, ChevronRight, Clock } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ReportNumberBadge } from '@/components/reports/ReportNumberBadge';
 import { ReportStatusBadge } from '@/components/reports/ReportStatusBadge';
 import { ReportTypeIcon } from '@/components/reports/ReportTypeIcon';
@@ -98,9 +95,7 @@ export function ReportCard({
         ) : null}
 
         {report.assignedTo ? (
-          <p className="text-sm text-neutral-400">
-            Обрабатывает: @{report.assignedTo.username}
-          </p>
+          <p className="text-sm text-neutral-400">Обрабатывает: @{report.assignedTo.username}</p>
         ) : null}
       </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import type { Position } from '@twomc/shared';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface MentionTextProps {

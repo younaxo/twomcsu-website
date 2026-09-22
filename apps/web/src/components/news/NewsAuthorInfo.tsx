@@ -2,7 +2,7 @@
 
 import type { NewsAuthor } from '@twomc/shared';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 
 interface NewsAuthorInfoProps {
@@ -11,7 +11,10 @@ interface NewsAuthorInfoProps {
 
 export function NewsAuthorInfo({ author }: NewsAuthorInfoProps) {
   return (
-    <Link href={`/users/${author.username}`} className="inline-flex items-center gap-2 transition-opacity hover:opacity-80">
+    <Link
+      href={`/users/${author.username}`}
+      className="inline-flex items-center gap-2 transition-opacity hover:opacity-80"
+    >
       {author.avatar ? (
         <Image
           src={author.avatar}
@@ -26,7 +29,13 @@ export function NewsAuthorInfo({ author }: NewsAuthorInfoProps) {
           {author.username.slice(0, 1).toUpperCase()}
         </span>
       )}
-      <ColoredUsername user={author} size="md" showBadge badges={author.badges} linkToProfile={false} />
+      <ColoredUsername
+        user={author}
+        size="md"
+        showBadge
+        badges={author.badges}
+        linkToProfile={false}
+      />
     </Link>
   );
 }

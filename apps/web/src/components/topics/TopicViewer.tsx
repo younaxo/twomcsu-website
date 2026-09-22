@@ -3,7 +3,7 @@
 import type { TopicDetails } from '@twomc/shared';
 import { RoleGroup, TopicVisibility, hasRoleGroup } from '@twomc/shared';
 import { Download, Pencil } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useMemo } from 'react';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
 import { Button } from '@/components/ui/button';
@@ -47,9 +47,7 @@ export function TopicViewer({ topic }: TopicViewerProps) {
               </Button>
             ) : null}
           </div>
-          {topic.description ? (
-            <p className="text-muted-foreground">{topic.description}</p>
-          ) : null}
+          {topic.description ? <p className="text-muted-foreground">{topic.description}</p> : null}
         </header>
 
         <MarkdownContent
@@ -94,10 +92,7 @@ export function TopicViewer({ topic }: TopicViewerProps) {
             <p className="mb-3 text-sm font-medium text-white">Содержание</p>
             <ul className="space-y-2 text-sm">
               {headings.map((heading) => (
-                <li
-                  key={heading.id}
-                  className={cn(heading.level === 3 && 'pl-3')}
-                >
+                <li key={heading.id} className={cn(heading.level === 3 && 'pl-3')}>
                   <a
                     href={`#${heading.id}`}
                     className="text-muted-foreground transition-colors hover:text-white"

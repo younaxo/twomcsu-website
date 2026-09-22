@@ -2,7 +2,7 @@
 
 import type { StoreBundle } from '@twomc/shared';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { toast } from 'sonner';
 import { PriceDisplay } from '@/components/store/PriceDisplay';
 import { Button } from '@/components/ui/button';

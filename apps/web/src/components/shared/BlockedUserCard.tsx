@@ -3,7 +3,7 @@
 import type { BlockedUserItem } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
@@ -56,7 +56,12 @@ function BlockedUserCardComponent({ item, onUnblocked }: BlockedUserCardProps) {
         </div>
       </div>
 
-      <Button size="sm" variant="outline" disabled={unblockUser.isPending} onClick={() => void unblock()}>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={unblockUser.isPending}
+        onClick={() => void unblock()}
+      >
         Разблокировать
       </Button>
     </div>

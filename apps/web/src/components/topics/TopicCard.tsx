@@ -3,7 +3,7 @@
 import type { TopicSummary } from '@twomc/shared';
 import { TopicVisibility } from '@twomc/shared';
 import { Eye, Pin } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Badge } from '@/components/ui/badge';
 import { TOPIC_CATEGORY_LABELS, TOPIC_VISIBILITY_LABELS } from '@/lib/topic';
 import { cn } from '@/lib/utils';

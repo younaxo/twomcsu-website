@@ -130,6 +130,7 @@ model User {
   notificationSettings   NotificationSettings?
   pushSubscriptions      PushSubscription[]
   auditLogs              AuditLog[]            @relation("AuditLogActor")
+  cookieConsents         CookieConsent[]
 
   /// Referral code shown to friends; generated on registration
   referralCode String? @unique
@@ -1161,6 +1162,28 @@ model NotificationSettings {
   updatedAt         DateTime   @updatedAt
 
   @@map("notification_settings")
+}
+
+/// Consent event log — one row per save, so history is auditable (not overwritten in place).
+/// `userId` is set once the visitor is signed in; `anonymousId` covers guests via a
+/// first-party cookie id. Latest row per user/anonymousId wins.
+model CookieConsent {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anonymousId String?
+  necessary   Boolean  @default(true)
+  analytics   Boolean  @default(false)
+  marketing   Boolean  @default(false)
+  preferences Boolean  @default(false)
+  version     String
+  ipHash      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([anonymousId])
+  @@index([userId, updatedAt])
+  @@map("cookie_consents")
 }
 
 model PushSubscription {

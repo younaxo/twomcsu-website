@@ -3,7 +3,7 @@
 import type { ActivityDetail, ActivityItem } from '@twomc/shared';
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
 import { MoreHorizontal, MessageCircle } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';

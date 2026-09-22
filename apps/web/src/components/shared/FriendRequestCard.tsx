@@ -4,7 +4,7 @@ import type { FriendRequestItem } from '@twomc/shared';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Check, X } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';

@@ -2,10 +2,13 @@
 
 import type { ActivityItem } from '@twomc/shared';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 interface ActivityContentProps {
-  activity: Pick<ActivityItem, 'title' | 'description' | 'imageUrl' | 'actionUrl' | 'user' | 'type'>;
+  activity: Pick<
+    ActivityItem,
+    'title' | 'description' | 'imageUrl' | 'actionUrl' | 'user' | 'type'
+  >;
 }
 
 export function ActivityContent({ activity }: ActivityContentProps) {
@@ -21,11 +24,7 @@ export function ActivityContent({ activity }: ActivityContentProps) {
       {activity.imageUrl ? (
         <div className="relative overflow-hidden rounded-xl border border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={activity.imageUrl}
-            alt=""
-            className="max-h-64 w-full object-cover"
-          />
+          <img src={activity.imageUrl} alt="" className="max-h-64 w-full object-cover" />
         </div>
       ) : null}
       {activity.type === 'CUSTOM' || activity.type === 'EVENT_ANNOUNCED' ? (

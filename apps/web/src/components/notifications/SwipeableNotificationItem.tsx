@@ -4,7 +4,7 @@ import type { AppNotification } from '@twomc/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Check, Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -136,11 +136,21 @@ export function SwipeableNotificationItem({
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 space-y-0.5">
-              <p className={cn('truncate font-semibold text-white', compact ? 'text-sm' : 'text-base')}>
+              <p
+                className={cn(
+                  'truncate font-semibold text-white',
+                  compact ? 'text-sm' : 'text-base',
+                )}
+              >
                 {notification.title}
               </p>
               {notification.message ? (
-                <p className={cn('text-muted-foreground', compact ? 'line-clamp-2 text-xs' : 'text-sm')}>
+                <p
+                  className={cn(
+                    'text-muted-foreground',
+                    compact ? 'line-clamp-2 text-xs' : 'text-sm',
+                  )}
+                >
                   {notification.message}
                 </p>
               ) : null}

@@ -4,6 +4,7 @@ export * from './api';
 export * from './auth';
 export * from './chat';
 export * from './comments';
+export * from './consent';
 export * from './custom-position';
 export * from './department';
 export * from './decorations';

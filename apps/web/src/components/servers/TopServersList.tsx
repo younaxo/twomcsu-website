@@ -1,7 +1,7 @@
 'use client';
 
 import type { ServersOverview } from '@twomc/shared';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ServerStatusBadge } from '@/components/servers/ServerStatusBadge';
 
 interface TopServersListProps {

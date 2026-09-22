@@ -3,7 +3,7 @@
 import type { ActivityCommentItem } from '@twomc/shared';
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
 import { Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { AvatarWithSkin } from '@/components/shared/AvatarWithSkin';
 import { ColoredUsername } from '@/components/shared/ColoredUsername';
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
