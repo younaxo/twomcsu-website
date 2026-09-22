@@ -67,7 +67,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
-          'var(--font-onest)',
+          'var(--font-geologica)',
           'ui-sans-serif',
           'system-ui',
           'sans-serif',
@@ -77,7 +77,6 @@ const config: Config = {
           'Noto Color Emoji',
         ],
         display: [
-          'var(--font-display)',
           'var(--font-geologica)',
           'ui-sans-serif',
           'system-ui',

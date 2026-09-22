@@ -26,7 +26,7 @@ export default function HomePage() {
         <div className="relative grid lg:grid-cols-[1.12fr_0.88fr]">
           <div className="flex flex-col justify-center px-6 py-10 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
             <span className="eyebrow">Minecraft-сервер twomc.su</span>
-            <h1 className="mt-5 max-w-3xl text-[clamp(2.6rem,5.3vw,4.6rem)] font-semibold leading-[1.02] tracking-[-0.055em] text-white">
+            <h1 className="mt-5 max-w-3xl text-[clamp(2.1rem,3.6vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-white">
               Здесь начинается твоя игра.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-neutral-300 sm:text-lg">

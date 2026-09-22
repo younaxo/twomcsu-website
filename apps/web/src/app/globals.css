@@ -196,7 +196,7 @@
     background-image: var(--page-bg-image);
     background-attachment: fixed;
     font-family:
-      var(--font-onest), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+      var(--font-geologica), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
       'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     font-weight: 400;
     line-height: 1.5;
@@ -206,11 +206,11 @@
   h1,
   h2 {
     font-family:
-      var(--font-display), var(--font-geologica), ui-sans-serif, system-ui, sans-serif,
-      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    font-weight: 400;
+      var(--font-geologica), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-weight: 680;
     letter-spacing: -0.03em;
-    line-height: 1.08;
+    line-height: 1.1;
   }
 
   h3,
@@ -225,9 +225,9 @@
 
   .font-display {
     font-family:
-      var(--font-display), var(--font-geologica), ui-sans-serif, system-ui, sans-serif,
-      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    font-weight: 400;
+      var(--font-geologica), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-weight: 650;
   }
 
   a,
