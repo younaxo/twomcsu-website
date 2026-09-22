@@ -97,7 +97,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
-  ],
+  // Excludes _next internals and any path with a file extension (fonts, sw.js, manifest,
+  // images, etc.) — public/ assets have no locale and must never be rewritten by intlMiddleware.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 };
