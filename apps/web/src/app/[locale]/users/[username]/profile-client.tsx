@@ -4,17 +4,14 @@ import type { FriendsCountResponse, RestrictedProfileResponse, UserProfile } fro
 import { RoleGroup, hasRoleGroup } from '@twomc/shared';
 import {
   Cake,
+  ExternalLink,
   Eye,
-  Gem,
   Gift,
   Heart,
   MapPin,
   MessageCircle,
   Package,
   Shield,
-  Skull,
-  Sword,
-  TrendingUp,
   Tv,
   UserRound,
   Video,
@@ -63,6 +60,7 @@ import {
   socialPlatformLabels,
 } from '@/lib/profile';
 import { useStoreUiStore } from '@/stores/storeUiStore';
+import { cn } from '@/lib/utils';
 
 const SkinViewer3D = dynamic(
   () => import('@/components/shared/SkinViewer').then((mod) => mod.SkinViewer3D),
@@ -158,6 +156,13 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
 
   const bannerUrl = resolveMediaUrl(profile.bannerUrl);
   const statsHidden = profile.statistics === null && !profile.isOwner;
+  const allSocials = profile.socials ?? [];
+  const socialLinks = allSocials.filter(
+    (link) => link.platform === 'DISCORD' || link.platform === 'STEAM',
+  );
+  const otherSocials = allSocials.filter(
+    (link) => link.platform !== 'DISCORD' && link.platform !== 'STEAM',
+  );
   const ownerPrivacyNote =
     profile.isOwner && profile.profileVisibility === 'NOBODY'
       ? 'Ваш профиль (виден только вам)'
@@ -172,8 +177,8 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
           {ownerPrivacyNote}
         </div>
       ) : null}
-      <div className="border border-border bg-card overflow-visible rounded-2xl">
-        <div className="relative h-[200px] w-full overflow-hidden rounded-t-2xl bg-secondary sm:h-[320px]">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="relative h-[180px] w-full bg-secondary sm:h-[260px]">
           {bannerUrl ? (
             <Image
               src={bannerUrl}
@@ -188,176 +193,241 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
           ) : (
             <div className="h-full w-full bg-gradient-to-r from-neutral-900 via-primary/15 to-neutral-900" />
           )}
-        </div>
 
-        <div className="relative px-4 pb-6 pt-4 sm:px-6 sm:pt-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="relative shrink-0">
-                <AvatarWithSkin user={profile} size="lg" />
-              </div>
-
-              <div className="space-y-1.5 pb-1">
-                <ColoredUsername
-                  user={profile}
-                  size="lg"
-                  linkToProfile={false}
-                  badges={profile.badges}
-                  maxBadges={3}
-                />
-                {profile.customPosition ? (
-                  <p
-                    className="text-sm italic leading-snug"
-                    style={{ color: profile.customPosition.color ?? '#F57C00' }}
-                  >
-                    {profile.customPosition.name}
-                  </p>
-                ) : null}
-                <p
-                  className="text-[13px] font-medium leading-snug"
-                  style={{ color: profile.position.color }}
-                >
-                  {profile.position.displayName}
-                </p>
-                <DepartmentBadgesList departments={profile.departments ?? []} />
-                {profile.mediaBadges.length > 0 ? (
-                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                    {profile.mediaBadges.map((badge) => (
-                      <Tooltip key={badge.mediaGroup}>
-                        <TooltipTrigger asChild>
-                          <a
-                            href={badge.channelUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="cursor-pointer text-muted-foreground hover:text-foreground"
-                          >
-                            {badge.mediaGroup === 'YOUTUBE' ? (
-                              <Video className="h-4 w-4" />
-                            ) : badge.mediaGroup === 'TWITCH' ? (
-                              <Tv className="h-4 w-4" />
-                            ) : (
-                              <span className="text-xs font-medium">
-                                {mediaGroupLabels[badge.mediaGroup]}
-                              </span>
-                            )}
-                          </a>
-                        </TooltipTrigger>
-                        <TooltipContent>{mediaGroupLabels[badge.mediaGroup]}</TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </div>
-                ) : null}
-                <ProfileStatus status={profile.statusText} className="mt-2 max-w-xl" />
-                <p className="text-sm text-muted-foreground">
-                  {profile.isOnlineInGame && profile.currentServer ? (
-                    <>
-                      <span className="text-emerald-400">●</span> Играет на{' '}
-                      <Link
-                        href={`/servers/${profile.currentServer}`}
-                        className="text-primary hover:underline"
-                      >
-                        {profile.currentServer}
-                      </Link>
-                    </>
-                  ) : profile.lastServerActivity ? (
-                    <>
-                      Был в игре{' '}
-                      {formatDistanceToNow(new Date(profile.lastServerActivity), {
-                        addSuffix: true,
-                        locale: ru,
-                      })}
-                    </>
-                  ) : (
-                    'Не в игре'
-                  )}
-                </p>
-              </div>
+          <div className="absolute right-3 top-3 flex items-center gap-2 sm:right-4 sm:top-4">
+            <div className="rounded-full border border-border bg-card/90 backdrop-blur">
+              <ReactionButtons
+                username={profile.username}
+                likesCount={profile.likesCount}
+                dislikesCount={profile.dislikesCount}
+                userReaction={profile.userReaction}
+                disabled={!isAuthenticated || profile.isOwner}
+              />
             </div>
-
-            <div className="flex flex-col items-start gap-3 sm:items-end">
-              <AwardsList awards={profile.awards} size={28} />
-              <div className="flex flex-wrap items-center gap-2">
-                {isAuthenticated && !profile.isOwner ? (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="gap-2"
-                      disabled={createConversation.isPending}
-                      onClick={async () => {
-                        try {
-                          const conversation = await createConversation.mutateAsync(
-                            profile.username,
-                          );
-                          window.location.assign(`/messages?conversation=${conversation.id}`);
-                        } catch (error) {
-                          toast.error(extractErrorMessage(error, 'Не удалось открыть диалог'));
-                        }
-                      }}
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Написать
-                    </Button>
-                    <FriendButton username={profile.username} />
-                    <ReportProfileDialog username={profile.username} />
-                  </>
-                ) : null}
-                {me && !profile.isOwner && hasRoleGroup(me.roleGroup, RoleGroup.HELPER) ? (
-                  <UserContextMenu
-                    user={{
-                      id: profile.id,
-                      username: profile.username,
-                      avatar: profile.avatar,
-                    }}
-                  >
-                    <Button variant="secondary" size="sm" className="glass-hover-orange gap-2">
-                      <Shield className="h-4 w-4" />
-                      Модерация
-                    </Button>
-                  </UserContextMenu>
-                ) : null}
-              </div>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card/90 px-3 text-xs font-medium text-muted-foreground backdrop-blur">
+                  <Eye className="h-3.5 w-3.5" />
+                  {formatNumber(profile.viewsCount)}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Просмотры профиля</TooltipContent>
+            </Tooltip>
           </div>
         </div>
-      </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {statsHidden ? (
-          <Card className="sm:col-span-2 lg:col-span-4">
-            <CardContent className="py-6 text-center text-sm text-muted-foreground">
-              Статистика скрыта
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            <StatCard
-              title="Рубинов"
-              value={profile.statistics?.coins ?? 0}
-              icon={Gem}
-              tip="Баланс рубинов"
+        <div className="flex flex-col items-center px-4 pb-6 text-center sm:px-6">
+          <div className="relative -mt-12 sm:-mt-16">
+            <AvatarWithSkin user={profile} size="lg" />
+            <span
+              className={cn(
+                'absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-card',
+                profile.isOnlineInGame ? 'bg-emerald-400' : 'bg-neutral-500',
+              )}
+              aria-hidden
             />
-            <StatCard
-              title="Убийств"
-              value={profile.statistics?.kills ?? 0}
-              icon={Sword}
-              tip="Количество убийств"
+          </div>
+
+          {profile.shortId != null ? (
+            <span className="mt-3 rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+              #{profile.shortId}
+            </span>
+          ) : null}
+
+          <div className="mt-2">
+            <ColoredUsername
+              user={profile}
+              size="lg"
+              linkToProfile={false}
+              badges={profile.badges}
+              maxBadges={3}
+              className="justify-center"
             />
-            <StatCard
-              title="Смертей"
-              value={profile.statistics?.deaths ?? 0}
-              icon={Skull}
-              tip="Количество смертей"
-            />
-            <StatCard
-              title="У/С"
-              value={profile.statistics?.killDeathRatio ?? 0}
-              icon={TrendingUp}
-              tip="Соотношение убийств к смертям"
-              ratio
-            />
-          </>
-        )}
+          </div>
+
+          {profile.customPosition ? (
+            <p
+              className="mt-1 text-sm italic leading-snug"
+              style={{ color: profile.customPosition.color ?? '#F57C00' }}
+            >
+              {profile.customPosition.name}
+            </p>
+          ) : (
+            <p
+              className="mt-1 text-[13px] font-medium leading-snug"
+              style={{ color: profile.position.color }}
+            >
+              {profile.position.displayName}
+            </p>
+          )}
+
+          <DepartmentBadgesList
+            departments={profile.departments ?? []}
+            className="mt-2 justify-center"
+          />
+
+          {profile.mediaBadges.length > 0 ? (
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+              {profile.mediaBadges.map((badge) => (
+                <Tooltip key={badge.mediaGroup}>
+                  <TooltipTrigger asChild>
+                    <a
+                      href={badge.channelUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    >
+                      {badge.mediaGroup === 'YOUTUBE' ? (
+                        <Video className="h-4 w-4" />
+                      ) : badge.mediaGroup === 'TWITCH' ? (
+                        <Tv className="h-4 w-4" />
+                      ) : (
+                        <span className="text-xs font-medium">
+                          {mediaGroupLabels[badge.mediaGroup]}
+                        </span>
+                      )}
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>{mediaGroupLabels[badge.mediaGroup]}</TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          ) : null}
+
+          <ProfileStatus status={profile.statusText} className="mt-3 max-w-xl" />
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            {profile.isOnlineInGame && profile.currentServer ? (
+              <>
+                <span className="text-emerald-400">●</span> Играет на{' '}
+                <Link
+                  href={`/servers/${profile.currentServer}`}
+                  className="text-primary hover:underline"
+                >
+                  {profile.currentServer}
+                </Link>
+              </>
+            ) : profile.lastServerActivity ? (
+              <>
+                Был в игре{' '}
+                {formatDistanceToNow(new Date(profile.lastServerActivity), {
+                  addSuffix: true,
+                  locale: ru,
+                })}
+              </>
+            ) : (
+              'Не в игре'
+            )}
+          </p>
+
+          {profile.lastLoginAt ? (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Последний вход:{' '}
+              {format(new Date(profile.lastLoginAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
+            </p>
+          ) : null}
+
+          {statsHidden ? (
+            <p className="mt-5 text-sm text-muted-foreground">Статистика скрыта</p>
+          ) : (
+            <div className="mt-6 grid w-full max-w-2xl grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+              <HeaderStat
+                label="Рубинов"
+                value={profile.statistics?.coins ?? 0}
+                tip="Баланс рубинов"
+              />
+              <HeaderStat
+                label="Убийств"
+                value={profile.statistics?.kills ?? 0}
+                tip="Количество убийств"
+              />
+              <HeaderStat
+                label="Смертей"
+                value={profile.statistics?.deaths ?? 0}
+                tip="Количество смертей"
+              />
+              <HeaderStat
+                label="У/С"
+                value={(profile.statistics?.killDeathRatio ?? 0).toFixed(2)}
+                tip="Соотношение убийств к смертям"
+              />
+              <HeaderStat
+                label="Попаданий"
+                value={profile.statistics?.hits ?? 0}
+                tip="Попаданий по игрокам"
+              />
+              <HeaderStat
+                label="Друзей"
+                value={friendsCount === null ? '—' : friendsCount}
+                tip="Друзей в сети"
+              />
+              <HeaderStat
+                label="Время в игре"
+                value={formatPlayTime(profile.statistics?.playTime ?? 0)}
+                tip="Суммарное время в игре"
+              />
+              <HeaderStat
+                label="Регистрация"
+                value={format(new Date(profile.createdAt), 'dd.MM.yyyy', { locale: ru })}
+                tip="Дата регистрации"
+              />
+            </div>
+          )}
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <AwardsList awards={profile.awards} size={28} />
+            {isAuthenticated && !profile.isOwner ? (
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="gap-2"
+                  disabled={createConversation.isPending}
+                  onClick={async () => {
+                    try {
+                      const conversation = await createConversation.mutateAsync(profile.username);
+                      window.location.assign(`/messages?conversation=${conversation.id}`);
+                    } catch (error) {
+                      toast.error(extractErrorMessage(error, 'Не удалось открыть диалог'));
+                    }
+                  }}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Написать
+                </Button>
+                <FriendButton username={profile.username} />
+                <ReportProfileDialog username={profile.username} />
+              </>
+            ) : null}
+            {me && !profile.isOwner && hasRoleGroup(me.roleGroup, RoleGroup.HELPER) ? (
+              <UserContextMenu
+                user={{ id: profile.id, username: profile.username, avatar: profile.avatar }}
+              >
+                <Button variant="secondary" size="sm" className="glass-hover-orange gap-2">
+                  <Shield className="h-4 w-4" />
+                  Модерация
+                </Button>
+              </UserContextMenu>
+            ) : null}
+          </div>
+
+          {socialLinks.length > 0 ? (
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-4 border-t border-border pt-5">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={socialHref(link.platform, link.value)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {socialPlatformLabels[link.platform]}
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <Tabs defaultValue="info">
@@ -409,20 +479,10 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
                     <dd style={{ color: profile.position.color }}>
                       {profile.position.displayName}
                     </dd>
-                    <dt className="text-muted-foreground">Регистрация</dt>
-                    <dd>{format(new Date(profile.createdAt), 'dd.MM.yyyy', { locale: ru })}</dd>
-                    <dt className="text-muted-foreground">Последний вход</dt>
-                    <dd>
-                      {profile.lastLoginAt
-                        ? format(new Date(profile.lastLoginAt), 'dd.MM.yyyy HH:mm', { locale: ru })
-                        : '—'}
-                    </dd>
                     <dt className="text-muted-foreground">Последний сервер</dt>
                     <dd>{profile.statistics?.lastServer ?? '—'}</dd>
                     <dt className="text-muted-foreground">Клан</dt>
                     <dd className="text-muted-foreground">В разработке</dd>
-                    <dt className="text-muted-foreground">Друзей</dt>
-                    <dd>{friendsCount === null ? '—' : formatNumber(friendsCount)}</dd>
                   </dl>
                 </CardContent>
               </Card>
@@ -479,13 +539,13 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
                 </Card>
               )}
 
-              {profile.socials && profile.socials.length > 0 ? (
+              {otherSocials.length > 0 ? (
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-base">Соц сети</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-3">
-                    {profile.socials.map((link) => (
+                    {otherSocials.map((link) => (
                       <Tooltip key={link.platform}>
                         <TooltipTrigger asChild>
                           <a
@@ -523,28 +583,6 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
                   </CardContent>
                 </Card>
               ) : null}
-
-              <div className="flex flex-wrap items-center gap-4">
-                <ReactionButtons
-                  username={profile.username}
-                  likesCount={profile.likesCount}
-                  dislikesCount={profile.dislikesCount}
-                  userReaction={profile.userReaction}
-                  disabled={!isAuthenticated || profile.isOwner}
-                />
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Eye className="h-4 w-4" />
-                      {formatNumber(profile.viewsCount)}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>Просмотры профиля</TooltipContent>
-                </Tooltip>
-                {isAuthenticated && !profile.isOwner ? (
-                  <ReportProfileDialog username={profile.username} />
-                ) : null}
-              </div>
             </div>
           </div>
         </TabsContent>
@@ -578,37 +616,25 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
   );
 }
 
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  tip,
-  ratio,
-}: {
-  title: string;
-  value: number;
-  icon: React.ComponentType<{ className?: string }>;
-  tip: string;
-  ratio?: boolean;
-}) {
+function HeaderStat({ label, value, tip }: { label: string; value: number | string; tip: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Card>
-          <CardContent className="space-y-2 p-4">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">{title}</p>
-            <div className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-primary" />
-              <p className="text-xl font-semibold">
-                {ratio ? value.toFixed(2) : formatNumber(value)}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="cursor-default">
+          <p className="text-lg font-semibold tabular-nums text-white sm:text-xl">
+            {typeof value === 'number' ? formatNumber(value) : value}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{label}</p>
+        </div>
       </TooltipTrigger>
       <TooltipContent>{tip}</TooltipContent>
     </Tooltip>
   );
+}
+
+/** Minutes -> "354.6ч" (playTime is stored in minutes) */
+function formatPlayTime(minutes: number): string {
+  return `${(minutes / 60).toFixed(1)}ч`;
 }
 
 function ProfileActivitySection({ username }: { username: string }) {
