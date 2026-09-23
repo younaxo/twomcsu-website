@@ -58,7 +58,7 @@ export default function ModerationReportsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-white">Обращения на модерации</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Обращения на модерации</h1>
 
       <Tabs
         value={assignedTab}

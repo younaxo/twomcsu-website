@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 function EventRow({ event }: { event: CalendarEvent }) {
   return (
     <Link href={`/events/${event.slug}`} className="block">
-      <Card className="border border-white/5 transition-colors hover:border-white/15">
+      <Card className="border border-border transition-colors hover:border-foreground/20">
         <CardContent className="flex gap-4 p-4">
           <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-primary/10 text-primary">
             <span className="text-xl font-semibold">{format(new Date(event.startsAt), 'd')}</span>
@@ -41,14 +41,14 @@ function EventRow({ event }: { event: CalendarEvent }) {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="truncate text-base text-white">{event.title}</h3>
+              <h3 className="truncate text-base text-foreground">{event.title}</h3>
               <Badge variant="secondary">{calendarEventCategoryLabels[event.category]}</Badge>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {event.allDay ? 'Весь день' : format(new Date(event.startsAt), 'HH:mm')}
               {event.location ? <span> · {event.location}</span> : null}
             </p>
-            <p className="mt-1 line-clamp-2 text-sm text-neutral-300">{event.description}</p>
+            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{event.description}</p>
           </div>
         </CardContent>
       </Card>
@@ -79,7 +79,7 @@ export default function EventsPage() {
           <CalendarDays className="h-6 w-6" />
           <span className="text-sm uppercase tracking-[0.2em]">События TWOMC</span>
         </div>
-        <h1 className="mt-3 text-3xl text-white sm:text-4xl">Календарь проекта</h1>
+        <h1 className="mt-3 text-3xl text-foreground sm:text-4xl">Календарь проекта</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
           Турниры, обновления, праздники и встречи сообщества — всё важное в одном месте.
         </p>
@@ -105,8 +105,8 @@ export default function EventsPage() {
         ))}
       </div>
 
-      <Card className="overflow-hidden border border-white/5">
-        <div className="flex items-center justify-between border-b border-white/5 p-4">
+      <Card className="overflow-hidden border border-border">
+        <div className="flex items-center justify-between border-b border-border p-4">
           <Button variant="ghost" size="icon" onClick={() => setMonth(subMonths(month, 1))}>
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -115,7 +115,7 @@ export default function EventsPage() {
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
-        <div className="grid grid-cols-7 border-b border-white/5 text-center text-xs text-muted-foreground">
+        <div className="grid grid-cols-7 border-b border-border text-center text-xs text-muted-foreground">
           {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) => (
             <div key={day} className="py-2">
               {day}
@@ -129,14 +129,14 @@ export default function EventsPage() {
               <div
                 key={day.toISOString()}
                 className={cn(
-                  'min-h-24 border-b border-r border-white/5 p-1.5 sm:min-h-32 sm:p-2',
-                  !isSameMonth(day, month) && 'bg-black/15 text-muted-foreground',
+                  'min-h-24 border-b border-r border-border p-1.5 sm:min-h-32 sm:p-2',
+                  !isSameMonth(day, month) && 'bg-muted/40 text-muted-foreground',
                 )}
               >
                 <span
                   className={cn(
                     'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs',
-                    isSameDay(day, new Date()) && 'bg-primary text-white',
+                    isSameDay(day, new Date()) && 'bg-primary text-primary-foreground',
                   )}
                 >
                   {format(day, 'd')}

@@ -21,7 +21,7 @@ export function ChartCard({
     <div className={cn('rounded-2xl border border-border bg-card p-4', className)}>
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-medium text-white">{title}</h2>
+          <h2 className="text-sm font-medium text-foreground">{title}</h2>
           {description ? (
             <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
           ) : null}

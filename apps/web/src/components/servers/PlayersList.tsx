@@ -31,7 +31,7 @@ export function PlayersList({ players }: PlayersListProps) {
           <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 px-3 py-2.5 transition-colors hover:bg-accent/40">
             <SkinHead username={player.username} avatar={player.user?.avatar ?? null} size={40} />
             <div className="min-w-0">
-              <p className="truncate font-medium text-white">{player.username}</p>
+              <p className="truncate font-medium text-foreground">{player.username}</p>
               <p className="text-xs text-muted-foreground">
                 {player.lastServerActivity
                   ? `Активен ${formatDistanceToNow(new Date(player.lastServerActivity), {

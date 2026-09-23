@@ -39,7 +39,7 @@ export function CheckboxField({ field, value, onChange, disabled }: Props) {
                 disabled={disabled}
                 onCheckedChange={() => toggle(choice)}
               />
-              <span className="text-white">{choice}</span>
+              <span className="text-foreground">{choice}</span>
             </label>
           );
         })}

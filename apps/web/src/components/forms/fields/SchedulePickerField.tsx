@@ -45,7 +45,7 @@ export function SchedulePickerField({ field, value, onChange, disabled }: Props)
           <tbody>
             {DAYS.map((day) => (
               <tr key={day}>
-                <td className="pr-2 text-white">{day}</td>
+                <td className="pr-2 text-foreground">{day}</td>
                 {HOURS.map((h) => {
                   const active = raw[day]?.includes(h) ?? false;
                   return (
@@ -56,7 +56,7 @@ export function SchedulePickerField({ field, value, onChange, disabled }: Props)
                         onClick={() => toggle(day, h)}
                         className={cn(
                           'block h-5 w-5 rounded transition-colors',
-                          active ? 'bg-[#F57C00]' : 'bg-white/[0.06] hover:bg-white/10',
+                          active ? 'bg-primary' : 'bg-control-fill hover:bg-control-hover',
                         )}
                       />
                     </td>

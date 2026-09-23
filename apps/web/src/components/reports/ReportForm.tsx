@@ -180,7 +180,7 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Создать обращение</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Создать обращение</h1>
         <p className="text-sm text-muted-foreground">Шаг {step} из 2</p>
       </div>
 
@@ -200,7 +200,7 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
               type="button"
               disabled={!agreed}
               onClick={() => setStep(2)}
-              className="bg-[#F57C00] text-black hover:bg-[#F57C00]/90"
+              className="bg-primary text-black hover:bg-primary-hover"
             >
               Далее
             </Button>
@@ -347,7 +347,7 @@ export function ReportForm({ type }: { type: Exclude<ReportType, 'DONATION_PROBL
               <Button
                 type="submit"
                 disabled={createReport.isPending || staffTargetsInPlayerComplaint.length > 0}
-                className="bg-[#F57C00] text-black hover:bg-[#F57C00]/90"
+                className="bg-primary text-black hover:bg-primary-hover"
               >
                 Отправить обращение
               </Button>

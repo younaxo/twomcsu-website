@@ -67,7 +67,7 @@ export function AchievementUnlockedDialog({ payload, onDismiss }: AchievementUnl
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+        className="absolute inset-0 bg-overlay backdrop-blur-md"
         onClick={onDismiss}
         aria-hidden
       />
@@ -94,7 +94,7 @@ export function AchievementUnlockedDialog({ payload, onDismiss }: AchievementUnl
         <button
           type="button"
           onClick={onDismiss}
-          className="absolute right-3 top-3 rounded-full p-1 text-muted-foreground hover:text-white"
+          className="absolute right-3 top-3 rounded-full p-1 text-muted-foreground hover:text-foreground"
           aria-label="Закрыть"
         >
           <X className="h-4 w-4" />
@@ -108,7 +108,7 @@ export function AchievementUnlockedDialog({ payload, onDismiss }: AchievementUnl
           <AchievementIcon iconUrl={achievement.iconUrl} rarity={achievement.rarity} size={80} />
         </div>
 
-        <h2 className="mb-1.5 text-xl font-bold text-white">{achievement.name}</h2>
+        <h2 className="mb-1.5 text-xl font-bold text-foreground">{achievement.name}</h2>
         <p className="mb-3 text-sm text-muted-foreground">{achievement.description}</p>
 
         <div
@@ -123,18 +123,18 @@ export function AchievementUnlockedDialog({ payload, onDismiss }: AchievementUnl
         </div>
 
         {rewards.rubies > 0 || rewards.title || rewards.badgeType ? (
-          <div className="mb-4 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm">
+          <div className="mb-4 rounded-xl border border-border bg-muted/40 p-3 text-sm">
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Награды
             </p>
             <div className="space-y-1">
               {rewards.rubies > 0 ? (
-                <p className="text-white">
+                <p className="text-foreground">
                   <span className="font-semibold text-amber-400">+{rewards.rubies}</span> рубинов
                 </p>
               ) : null}
               {rewards.title ? (
-                <p className="text-white">
+                <p className="text-foreground">
                   Титул:{' '}
                   <span className="font-medium" style={{ color }}>
                     {rewards.title}
@@ -142,7 +142,7 @@ export function AchievementUnlockedDialog({ payload, onDismiss }: AchievementUnl
                 </p>
               ) : null}
               {rewards.badgeType ? (
-                <p className="text-white">
+                <p className="text-foreground">
                   Бейдж: <span className="font-medium">{rewards.badgeType}</span>
                 </p>
               ) : null}

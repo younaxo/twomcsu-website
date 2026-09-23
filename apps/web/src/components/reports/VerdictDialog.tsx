@@ -55,7 +55,7 @@ export function VerdictDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-strong border-white/10">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Вынести вердикт</DialogTitle>
         </DialogHeader>
@@ -78,7 +78,6 @@ export function VerdictDialog({
           <Button
             onClick={() => void submit()}
             disabled={setVerdict.isPending}
-            className="bg-[#F57C00] text-black hover:bg-[#E65100]"
           >
             Сохранить
           </Button>

@@ -41,9 +41,9 @@ export function Logo({
         priority
         className={cn(imageClassName)}
       />
-      {withDivider ? <span className="h-7 w-px bg-white/10" aria-hidden /> : null}
+      {withDivider ? <span className="h-7 w-px bg-foreground/10" aria-hidden /> : null}
       {showText ? (
-        <span className={cn('logo font-bold text-white', text)}>
+        <span className={cn('logo font-bold text-foreground', text)}>
           twomc<span className="text-primary">.su</span>
         </span>
       ) : null}

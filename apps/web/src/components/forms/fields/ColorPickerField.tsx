@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function ColorPickerField({ field, value, onChange, disabled }: Props) {
-  const current = value?.textValue ?? '#F57C00';
+  const current = value?.textValue ?? '#c45008';
   return (
     <FieldShell field={field}>
       <div className="flex items-center gap-2">

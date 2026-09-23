@@ -33,7 +33,7 @@ export default function AdminNewsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-white">Новости</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Новости</h1>
         <div className="flex gap-2">
           <Button asChild variant="secondary">
             <Link href="/admin/news/stats">Статистика</Link>
@@ -124,7 +124,7 @@ export default function AdminNewsPage() {
                     )}
                   </td>
                   <td className="p-3">
-                    <div className="flex items-center gap-1 font-medium text-white">
+                    <div className="flex items-center gap-1 font-medium text-foreground">
                       {item.isPinned ? <Pin className="h-3.5 w-3.5 text-primary" /> : null}
                       {item.isFeatured ? <Star className="h-3.5 w-3.5 text-primary" /> : null}
                       {item.title}

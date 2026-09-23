@@ -51,7 +51,7 @@ export function NewsCard({ news, compact = false, className }: NewsCardProps) {
         )}
         <div className="absolute right-2 top-2 flex items-center gap-1.5">
           {news.isFeatured ? (
-            <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-white">
+            <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
               Топ
             </span>
           ) : null}
@@ -64,7 +64,7 @@ export function NewsCard({ news, compact = false, className }: NewsCardProps) {
 
       <div className={cn('flex flex-1 flex-col gap-2 p-4', compact && 'p-4')}>
         <h3
-          className={cn('font-semibold text-white line-clamp-2', compact ? 'text-base' : 'text-lg')}
+          className={cn('font-semibold text-foreground line-clamp-2', compact ? 'text-base' : 'text-lg')}
         >
           {news.title}
         </h3>

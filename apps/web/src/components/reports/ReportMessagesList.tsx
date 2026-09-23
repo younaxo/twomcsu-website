@@ -52,7 +52,7 @@ function MessageCard({
 
   if (message.isSystem) {
     return (
-      <div className="rounded-lg bg-white/5 px-4 py-2 text-center text-sm text-neutral-400">
+      <div className="rounded-lg bg-secondary px-4 py-2 text-center text-sm text-muted-foreground">
         {message.content}
         <span className="ml-2 text-xs opacity-70">
           {format(new Date(message.createdAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
@@ -62,7 +62,7 @@ function MessageCard({
   }
 
   return (
-    <article className="group rounded-xl glass-light p-4 transition hover:bg-white/[0.04]">
+    <article className="group rounded-xl glass-light p-4 transition hover:bg-accent">
       <div className="mb-3 flex flex-wrap items-start gap-2">
         <AvatarWithSkin user={message.author} size="sm" />
         <div className="min-w-0 flex-1">
@@ -74,7 +74,7 @@ function MessageCard({
               </Badge>
             ) : null}
             {message.isPinned ? (
-              <Badge className="bg-white/10 text-[10px] text-neutral-200">
+              <Badge className="bg-secondary text-[10px] text-secondary-foreground">
                 <Pin className="mr-1 h-3 w-3" />
                 Закреплено
               </Badge>
@@ -105,7 +105,7 @@ function MessageCard({
                     .catch((error) => toast.error(extractErrorMessage(error)))
                 }
               >
-                <Pin className={cn('h-4 w-4', message.isPinned && 'text-white')} />
+                <Pin className={cn('h-4 w-4', message.isPinned && 'text-foreground')} />
               </Button>
             ) : null}
             {isStaffViewer ? (
@@ -170,12 +170,12 @@ function MessageCard({
         <MarkdownContent
           content={message.content}
           html={message.contentHtml ?? undefined}
-          className="prose-sm text-neutral-200"
+          className="text-sm text-foreground"
         />
       )}
 
       {!message.isDeleted && message.attachments?.length ? (
-        <div className="mt-3 flex flex-wrap gap-2 border-t border-white/5 pt-3">
+        <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
           {message.attachments.map((file) =>
             file.mimeType.startsWith('image/') ? (
               <ImageWithPreview
@@ -193,7 +193,7 @@ function MessageCard({
                 href={file.fileUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg glass-light px-3 py-2 text-xs text-neutral-200 transition hover:opacity-80"
+                className="inline-flex items-center gap-2 rounded-lg glass-light px-3 py-2 text-xs text-foreground transition hover:opacity-80"
               >
                 <FileText className="h-4 w-4 shrink-0" />
                 {file.fileName}
@@ -248,7 +248,7 @@ export function ReportMessagesList({
             Закреплённые
           </p>
           {render(pinned)}
-          <div className="border-b border-white/10" />
+          <div className="border-b border-border" />
         </div>
       ) : null}
       {render(rest)}

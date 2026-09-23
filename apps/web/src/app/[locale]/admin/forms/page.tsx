@@ -65,7 +65,7 @@ export default function AdminFormsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-white">Формы</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Формы</h1>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setTemplatesOpen(true)}>
             Из шаблона
@@ -125,7 +125,7 @@ export default function AdminFormsPage() {
               {list.data?.data.map((form) => (
                 <tr key={form.id} className="border-b border-border/50">
                   <td className="p-3">
-                    <div className="font-medium text-white">{form.title}</div>
+                    <div className="font-medium text-foreground">{form.title}</div>
                     <div className="text-xs text-muted-foreground">/{form.slug}</div>
                   </td>
                   <td className="p-3">{STATUS_LABELS[form.status]}</td>
@@ -247,9 +247,9 @@ export default function AdminFormsPage() {
                       toast.error(extractErrorMessage(error, 'Не удалось'));
                     }
                   }}
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] p-3 text-left transition-colors hover:bg-white/10"
+                  className="w-full rounded-lg border border-border bg-foreground/[0.03] p-3 text-left transition-colors hover:bg-foreground/[0.08]"
                 >
-                  <p className="text-sm font-semibold text-white">{template.title}</p>
+                  <p className="text-sm font-semibold text-foreground">{template.title}</p>
                   {template.description ? (
                     <p className="text-xs text-muted-foreground">{template.description}</p>
                   ) : null}

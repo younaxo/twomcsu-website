@@ -57,7 +57,7 @@ export default function AchievementDetailPage({ params }: AchievementDetailPageP
     <div className="space-y-6">
       <Link
         href="/achievements"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         Все достижения
@@ -86,7 +86,7 @@ export default function AchievementDetailPage({ params }: AchievementDetailPageP
 
           <div className="flex-1 space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl font-bold text-foreground">
                 {achievement.isHidden ? '???' : achievement.name}
               </h1>
               <AchievementRarityBadge rarity={achievement.rarity} />

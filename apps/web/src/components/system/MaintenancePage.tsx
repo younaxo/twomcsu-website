@@ -55,19 +55,19 @@ export function MaintenancePage({
   const countdown = useCountdown(estimatedEnd);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(12,12,15,0.92)] px-4 backdrop-blur-xl">
-      <div className="border border-border bg-card w-full max-w-lg space-y-6 rounded-2xl p-8 text-center shadow-[0_16px_48px_rgba(0,0,0,0.45)]">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-          <Wrench className="h-10 w-10 text-[#F57C00]" aria-hidden />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-overlay px-4 backdrop-blur-xl">
+      <div className="w-full max-w-lg space-y-6 rounded-window border border-border bg-card p-8 text-center shadow-lg">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-secondary">
+          <Wrench className="h-10 w-10 text-primary" aria-hidden />
         </div>
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-white">{title}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
           <p className="text-muted-foreground">{message}</p>
         </div>
         {countdown ? (
-          <div className="rounded-xl border border-white/10 bg-black/30 px-4 py-3">
-            <p className="text-xs uppercase tracking-wider text-neutral-500">Ожидаемое окончание</p>
-            <p className="mt-1 font-mono text-2xl text-white">{countdown}</p>
+          <div className="rounded-xl border border-border bg-surface-sunken px-4 py-3">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Ожидаемое окончание</p>
+            <p className="mt-1 font-mono text-2xl text-foreground">{countdown}</p>
           </div>
         ) : null}
         <div className="flex flex-wrap items-center justify-center gap-3">

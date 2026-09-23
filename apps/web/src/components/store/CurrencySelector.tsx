@@ -49,7 +49,7 @@ export function CurrencySelector({ className, compact }: CurrencySelectorProps) 
     <Select value={currency} onValueChange={setCurrency}>
       <SelectTrigger
         className={cn(
-          'glass-light border-white/10',
+          'glass-light',
           compact ? 'h-10 w-full' : 'w-36',
           className,
         )}

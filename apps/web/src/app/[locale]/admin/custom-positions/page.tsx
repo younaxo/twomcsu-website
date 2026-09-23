@@ -51,7 +51,7 @@ type FormState = {
 const emptyForm: FormState = {
   name: '',
   slug: '',
-  color: '#F57C00',
+  color: '#c45008',
   icon: '',
   description: '',
   isActive: true,
@@ -101,7 +101,7 @@ export default function AdminCustomPositionsPage() {
     setForm({
       name: item.name,
       slug: item.slug,
-      color: item.color ?? '#F57C00',
+      color: item.color ?? '#c45008',
       icon: item.icon ?? '',
       description: item.description ?? '',
       isActive: item.isActive,
@@ -220,7 +220,7 @@ export default function AdminCustomPositionsPage() {
                     <TableCell>
                       <span
                         className="block h-6 w-6 rounded-md border border-border"
-                        style={{ backgroundColor: item.color ?? '#F57C00' }}
+                        style={{ backgroundColor: item.color ?? 'hsl(var(--primary))' }}
                       />
                     </TableCell>
                     <TableCell>
@@ -273,7 +273,7 @@ export default function AdminCustomPositionsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {selectedUser ? (
-            <div className="flex items-center justify-between rounded-md border border-white/10 px-3 py-2">
+            <div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
               <span className="text-sm font-medium">{selectedUser.username}</span>
               <Button variant="ghost" size="sm" onClick={() => setSelectedUser(null)}>
                 Сменить

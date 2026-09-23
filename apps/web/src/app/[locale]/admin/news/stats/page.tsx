@@ -19,7 +19,7 @@ export default function AdminNewsStatsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-white">Статистика новостей</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Статистика новостей</h1>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {[
@@ -31,13 +31,13 @@ export default function AdminNewsStatsPage() {
         ].map(([label, value]) => (
           <div key={label as string} className="rounded-2xl border border-border bg-card p-4">
             <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-semibold text-white">{value as number}</p>
+            <p className="mt-1 text-2xl font-semibold text-foreground">{value as number}</p>
           </div>
         ))}
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-white">Топ по просмотрам</h2>
+        <h2 className="text-lg font-semibold text-foreground">Топ по просмотрам</h2>
         <div className="grid gap-4 md:grid-cols-3">
           {s.topByViews.map((item) => (
             <NewsCard key={item.id} news={item} compact />
@@ -46,7 +46,7 @@ export default function AdminNewsStatsPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-white">Активность (14 дней)</h2>
+        <h2 className="text-lg font-semibold text-foreground">Активность (14 дней)</h2>
         <div className="rounded-2xl border border-border bg-card p-4">
           <div className="flex h-40 items-end gap-1">
             {s.activityByDay.map((day) => {

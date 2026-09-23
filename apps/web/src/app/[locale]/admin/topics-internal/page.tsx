@@ -85,7 +85,7 @@ export default function AdminTopicsInternalPage() {
                 {items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 px-3 py-2"
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border px-3 py-2"
                   >
                     <div>
                       <Link

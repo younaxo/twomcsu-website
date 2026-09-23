@@ -62,6 +62,13 @@
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/*
+  Design tokens — rebuilt from scratch (see final report for the full audit).
+  Values were designed in OKLCH for perceptually-even tonal ramps and verified
+  for WCAG contrast, then stored as HSL to keep the existing hsl(var(--x))
+  pipeline every component already depends on (safer than migrating the color
+  function itself with no browser available to verify the result visually).
+*/
 @layer base {
   :root {
     --font-onest: 'Onest Local';
@@ -69,100 +76,178 @@
     --font-display: 'Dela Gothic One Local';
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-    /* Light theme (default token values) */
-    --background: 220 20% 97%;
-    --foreground: 222 18% 13%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 18% 13%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 18% 13%;
-    --primary: 30 100% 45%;
-    --primary-hover: 24 100% 42%;
-    --primary-muted: 30 90% 94%;
+    /* ---------- Light theme ---------- */
+    --background: 225 20% 96%;
+    --foreground: 227 15% 12%;
+    --canvas: 225 20% 96%;
+    --surface: 0 0% 100%;
+    --surface-raised: 240 33% 99%;
+    --surface-sunken: 222 18% 93%;
+    --overlay: 222 20% 8%;
+    --overlay-opacity: 0.55;
+    --card: 240 33% 99%;
+    --card-foreground: 227 15% 12%;
+    --popover: 240 33% 99%;
+    --popover-foreground: 227 15% 12%;
+
+    --primary: 23 92% 40%;
+    --primary-hover: 24 90% 36%;
+    --primary-active: 23 90% 31%;
+    --primary-muted: 29 83% 91%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 18% 93%;
-    --secondary-foreground: 222 18% 16%;
-    --muted: 220 16% 92%;
-    --muted-foreground: 222 10% 40%;
-    --accent: 220 16% 92%;
-    --accent-foreground: 222 18% 16%;
-    --destructive: 0 72% 48%;
+
+    --secondary: 222 18% 93%;
+    --secondary-foreground: 227 15% 15%;
+    --muted: 222 16% 94%;
+    --muted-foreground: 223 9% 46%;
+    --accent: 222 16% 93%;
+    --accent-foreground: 227 15% 15%;
+
+    /* Text-safe by default (used far more often as inline/badge text than as a solid fill). */
+    --destructive: 0 74% 48%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 65% 34%;
-    --warning: 38 92% 40%;
-    --border: 220 14% 88%;
-    --input: 220 14% 90%;
-    --ring: 30 100% 45%;
-    --radius: 0.8rem;
+    --destructive-solid: 0 74% 48%;
+    --success: 148 65% 30%;
+    --success-solid: 148 65% 30%;
+    --warning: 39 84% 33%;
+    --warning-solid: 39 84% 33%;
+    --info: 217 80% 40%;
+    --info-solid: 217 80% 40%;
+
+    --border: 222 18% 89%;
+    --separator: 222 16% 91%;
+    --input: 222 18% 88%;
+    --ring: 23 92% 40%;
+    --focus: 23 92% 40%;
+
+    --control-fill: 222 16% 93%;
+    --control-hover: 222 16% 90%;
+    --control-active: 222 16% 87%;
+    --control-disabled: 222 14% 95%;
+
+    --radius-control: 0.625rem;
+    --radius-card: 1rem;
+    --radius-window: 1.5rem;
+    --radius: var(--radius-card);
     --sidebar-rail-width: 72px;
     --header-height: 64px;
 
-    /* Glass surfaces — light theme */
-    --glass-heavy-bg: rgba(255, 255, 255, 0.86);
-    --glass-heavy-border: rgba(20, 20, 25, 0.09);
-    --glass-heavy-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 24px 60px rgba(20, 20, 25, 0.1);
-    --glass-medium-bg: rgba(255, 255, 255, 0.7);
-    --glass-medium-border: rgba(20, 20, 25, 0.08);
-    --glass-medium-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    --glass-light-bg: rgba(20, 20, 25, 0.035);
-    --glass-light-border: rgba(20, 20, 25, 0.07);
-    --glass-strong-bg: rgba(255, 255, 255, 0.92);
-    --glass-strong-border: rgba(20, 20, 25, 0.1);
-    --glass-strong-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 18px 48px rgba(20, 20, 25, 0.12);
-    --glass-panel-bg: rgba(255, 255, 255, 0.78);
-    --glass-panel-border: rgba(20, 20, 25, 0.08);
-    --glass-panel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    --page-bg-color: #f3f4f6;
+    --shadow-xs: 0 1px 2px rgba(24, 26, 34, 0.05);
+    --shadow-sm: 0 2px 6px rgba(24, 26, 34, 0.07), 0 1px 2px rgba(24, 26, 34, 0.04);
+    --shadow-md:
+      0 10px 28px rgba(24, 26, 34, 0.09), 0 2px 8px rgba(24, 26, 34, 0.05);
+    --shadow-lg:
+      0 24px 56px rgba(24, 26, 34, 0.13), 0 6px 18px rgba(24, 26, 34, 0.06);
+
+    /* Glass — tinted from the surface it borrows from; see liquid-glass skill for the recipe */
+    --glass-tint: 255, 255, 255;
+    --glass-rim: 24, 26, 34;
+    --glass-chip-bg: rgba(var(--glass-tint), 0.55);
+    --glass-chip-border: rgba(var(--glass-rim), 0.08);
+    --glass-panel-bg: rgba(var(--glass-tint), 0.72);
+    --glass-panel-border: rgba(var(--glass-rim), 0.09);
+    --glass-panel-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 1px 0 rgba(var(--glass-rim), 0.04) inset,
+      var(--shadow-md);
+    --glass-menu-bg: rgba(var(--glass-tint), 0.86);
+    --glass-menu-border: rgba(var(--glass-rim), 0.1);
+    --glass-menu-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), var(--shadow-lg);
+    --glass-nav-bg: rgba(var(--glass-tint), 0.78);
+    --glass-nav-border: rgba(var(--glass-rim), 0.09);
+    --glass-nav-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), var(--shadow-md);
+    --glass-modal-bg: rgba(var(--glass-tint), 0.94);
+    --glass-modal-border: rgba(var(--glass-rim), 0.1);
+    --glass-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), var(--shadow-lg);
+    --glass-orange-bg: rgba(194, 79, 8, 0.1);
+    --glass-orange-border: rgba(194, 79, 8, 0.22);
+
+    --page-bg-color: #f2f3f6;
     --page-bg-image:
-      radial-gradient(circle at 50% -12rem, rgba(20, 20, 25, 0.05), transparent 38rem),
-      linear-gradient(180deg, #f7f7f8 0%, #f1f2f4 30rem, #edeef0 100%);
+      radial-gradient(ellipse 900px 500px at 12% -8%, rgba(194, 79, 8, 0.05), transparent 60%),
+      radial-gradient(ellipse 700px 480px at 108% 12%, rgba(50, 90, 160, 0.045), transparent 60%),
+      linear-gradient(180deg, #f6f7fa 0%, #f2f3f6 32rem, #eceef2 100%);
   }
 
+  /* ---------- Dark theme: deep graphite-blue, never pure/near-black ---------- */
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 96%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 96%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 96%;
-    --primary: 30 100% 48%;
-    --primary-hover: 24 100% 45%;
-    --primary-muted: 30 75% 16%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 94%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 64%;
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 142 71% 45%;
-    --warning: 45 93% 47%;
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
-    --ring: 30 100% 48%;
+    --background: 223 20% 7%;
+    --foreground: 228 17% 94%;
+    --canvas: 223 20% 7%;
+    --surface: 227 16% 11%;
+    --surface-raised: 226 15% 14%;
+    --surface-sunken: 223 20% 6%;
+    --overlay: 222 20% 3%;
+    --overlay-opacity: 0.6;
+    --card: 227 16% 11%;
+    --card-foreground: 228 17% 94%;
+    --popover: 226 16% 12%;
+    --popover-foreground: 228 17% 94%;
 
-    /* Glass surfaces — dark theme: graphite with a faint cool-blue cast, not neutral grey */
-    --glass-heavy-bg: rgba(23, 25, 30, 0.82);
-    --glass-heavy-border: rgba(255, 255, 255, 0.11);
-    --glass-heavy-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 24px 70px rgba(0, 0, 0, 0.3);
-    --glass-medium-bg: rgba(24, 26, 31, 0.62);
-    --glass-medium-border: rgba(255, 255, 255, 0.09);
-    --glass-medium-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    --glass-light-bg: rgba(255, 255, 255, 0.045);
-    --glass-light-border: rgba(255, 255, 255, 0.075);
-    --glass-strong-bg: rgba(19, 21, 27, 0.88);
-    --glass-strong-border: rgba(255, 255, 255, 0.115);
-    --glass-strong-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 60px rgba(0, 0, 0, 0.34);
-    --glass-panel-bg: rgba(21, 23, 29, 0.68);
-    --glass-panel-border: rgba(255, 255, 255, 0.09);
-    --glass-panel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    --page-bg-color: #0d0d0e;
+    --primary: 24 88% 52%;
+    --primary-hover: 24 92% 58%;
+    --primary-active: 23 90% 46%;
+    --primary-muted: 26 51% 15%;
+    /* Dark theme's primary is bright enough that white text fails AA (3:1); near-black reads correctly instead. */
+    --primary-foreground: 223 20% 8%;
+
+    --secondary: 226 14% 17%;
+    --secondary-foreground: 225 12% 92%;
+    --muted: 226 15% 15%;
+    --muted-foreground: 225 10% 61%;
+    --accent: 226 14% 18%;
+    --accent-foreground: 228 17% 96%;
+
+    /* Text-safe by default; -solid holds the darker value used behind white fill text. */
+    --destructive: 0 78% 62%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-solid: 0 75% 50%;
+    --success: 148 55% 46%;
+    --success-solid: 148 55% 32%;
+    --warning: 39 88% 55%;
+    --warning-solid: 39 85% 33%;
+    --info: 217 85% 62%;
+    --info-solid: 217 80% 40%;
+
+    --border: 226 13% 19%;
+    --separator: 226 13% 17%;
+    --input: 226 14% 18%;
+    --ring: 24 88% 52%;
+    --focus: 24 88% 52%;
+
+    --control-fill: 226 14% 16%;
+    --control-hover: 226 14% 20%;
+    --control-active: 226 14% 24%;
+    --control-disabled: 226 15% 13%;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.32);
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.36);
+    --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 28px 64px rgba(0, 0, 0, 0.48);
+
+    --glass-tint: 20, 22, 28;
+    --glass-rim: 255, 255, 255;
+    --glass-chip-bg: rgba(var(--glass-tint), 0.5);
+    --glass-chip-border: rgba(var(--glass-rim), 0.07);
+    --glass-panel-bg: rgba(var(--glass-tint), 0.64);
+    --glass-panel-border: rgba(var(--glass-rim), 0.08);
+    --glass-panel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-md);
+    --glass-menu-bg: rgba(var(--glass-tint), 0.86);
+    --glass-menu-border: rgba(var(--glass-rim), 0.1);
+    --glass-menu-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--shadow-lg);
+    --glass-nav-bg: rgba(var(--glass-tint), 0.78);
+    --glass-nav-border: rgba(var(--glass-rim), 0.09);
+    --glass-nav-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), var(--shadow-md);
+    --glass-modal-bg: rgba(var(--glass-tint), 0.92);
+    --glass-modal-border: rgba(var(--glass-rim), 0.1);
+    --glass-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--shadow-lg);
+    --glass-orange-bg: rgba(255, 148, 79, 0.1);
+    --glass-orange-border: rgba(255, 148, 79, 0.22);
+
+    --page-bg-color: #0c0e13;
     --page-bg-image:
-      radial-gradient(circle at 50% -12rem, rgba(255, 255, 255, 0.055), transparent 38rem),
-      linear-gradient(180deg, #111112 0%, #0d0d0e 30rem, #0b0b0c 100%);
+      radial-gradient(ellipse 900px 520px at 10% -10%, rgba(255, 138, 61, 0.055), transparent 60%),
+      radial-gradient(ellipse 760px 520px at 110% 8%, rgba(70, 120, 210, 0.05), transparent 60%),
+      linear-gradient(180deg, #101218 0%, #0c0e13 32rem, #090a0e 100%);
   }
 
   * {
@@ -172,21 +257,42 @@
   html {
     color-scheme: light;
     scroll-behavior: smooth;
-    scrollbar-color: hsl(var(--muted)) hsl(var(--background));
+    scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
   }
 
   html.dark {
     color-scheme: dark;
   }
 
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.28);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.42);
+    background-clip: padding-box;
+  }
+
   ::selection {
-    background: rgba(245, 124, 0, 0.35);
-    color: #ffffff;
+    background: hsl(var(--primary) / 0.32);
+    color: hsl(var(--foreground));
   }
 
   ::-moz-selection {
-    background: rgba(245, 124, 0, 0.35);
-    color: #ffffff;
+    background: hsl(var(--primary) / 0.32);
+    color: hsl(var(--foreground));
   }
 
   body {
@@ -239,8 +345,9 @@
   }
 
   :focus-visible {
-    outline: 2px solid hsl(var(--ring));
+    outline: 2px solid hsl(var(--focus));
     outline-offset: 3px;
+    border-radius: 2px;
   }
 
   img,
@@ -261,13 +368,18 @@
 }
 
 @layer components {
+  .comment-markdown {
+    color: hsl(var(--foreground));
+    line-height: 1.6;
+  }
+
   .comment-markdown .spoiler {
     filter: blur(5px);
     cursor: pointer;
     transition:
-      filter 0.15s ease,
-      color 0.15s ease,
-      background 0.15s ease;
+      filter var(--duration-fast, 180ms) var(--ease-out, ease),
+      color var(--duration-fast, 180ms) var(--ease-out, ease),
+      background var(--duration-fast, 180ms) var(--ease-out, ease);
     background: hsl(var(--muted));
     border-radius: 0.25rem;
     padding: 0 0.15rem;
@@ -323,6 +435,73 @@
     padding: 0.75rem;
     font-family: var(--font-mono);
   }
+
+  .comment-markdown h1,
+  .comment-markdown h2,
+  .comment-markdown h3,
+  .comment-markdown h4 {
+    margin: 1.1em 0 0.4em;
+    font-weight: 650;
+    line-height: 1.25;
+    color: hsl(var(--foreground));
+    scroll-margin-top: calc(var(--header-height) + 1rem);
+  }
+
+  .comment-markdown h1 {
+    font-size: 1.4em;
+  }
+  .comment-markdown h2 {
+    font-size: 1.25em;
+  }
+  .comment-markdown h3 {
+    font-size: 1.1em;
+  }
+  .comment-markdown h4 {
+    font-size: 1em;
+  }
+
+  .comment-markdown strong {
+    font-weight: 650;
+    color: hsl(var(--foreground));
+  }
+
+  .comment-markdown em {
+    font-style: italic;
+  }
+
+  .comment-markdown hr {
+    margin: 1em 0;
+    border: none;
+    border-top: 1px solid hsl(var(--border));
+  }
+
+  .comment-markdown img {
+    max-width: 100%;
+    border-radius: var(--radius-control);
+  }
+
+  .comment-markdown table {
+    width: 100%;
+    margin: 0.5em 0;
+    border-collapse: collapse;
+    font-size: 0.9em;
+  }
+
+  .comment-markdown th,
+  .comment-markdown td {
+    border: 1px solid hsl(var(--border));
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+  }
+
+  .comment-markdown th {
+    background: hsl(var(--muted));
+    font-weight: 600;
+  }
+
+  .comment-markdown li {
+    margin: 0.15rem 0;
+  }
 }
 
 @layer utilities {
@@ -334,43 +513,123 @@
     cursor: not-allowed;
   }
 
-  .glass-heavy {
-    background: var(--glass-heavy-bg);
-    backdrop-filter: blur(30px) saturate(140%);
-    -webkit-backdrop-filter: blur(30px) saturate(140%);
-    border: 1px solid var(--glass-heavy-border);
-    box-shadow: var(--glass-heavy-shadow);
+  /* ---------- Liquid Glass — tiered, functional-layer-only ---------- */
+  /* chip: small repeated elements (badges, pills). Cheapest blur, no inset rim. */
+  .glass-chip {
+    background: var(--glass-chip-bg);
+    backdrop-filter: blur(8px) saturate(150%);
+    -webkit-backdrop-filter: blur(8px) saturate(150%);
+    border: 1px solid var(--glass-chip-border);
   }
 
+  /* panel: compact floating surfaces (small popovers, inline toolbars). */
+  .glass-light,
   .glass-medium {
-    background: var(--glass-medium-bg);
-    backdrop-filter: blur(22px) saturate(135%);
-    -webkit-backdrop-filter: blur(22px) saturate(135%);
-    border: 1px solid var(--glass-medium-border);
-    box-shadow: var(--glass-medium-shadow);
-  }
-
-  .glass-light {
-    background: var(--glass-light-bg);
-    backdrop-filter: blur(14px) saturate(125%);
-    -webkit-backdrop-filter: blur(14px) saturate(125%);
-    border: 1px solid var(--glass-light-border);
-  }
-
-  .glass-strong {
-    background: var(--glass-strong-bg);
-    backdrop-filter: blur(36px) saturate(145%);
-    -webkit-backdrop-filter: blur(36px) saturate(145%);
-    border: 1px solid var(--glass-strong-border);
-    box-shadow: var(--glass-strong-shadow);
-  }
-
-  .glass-panel {
     background: var(--glass-panel-bg);
-    backdrop-filter: blur(24px) saturate(135%);
-    -webkit-backdrop-filter: blur(24px) saturate(135%);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
     border: 1px solid var(--glass-panel-border);
     box-shadow: var(--glass-panel-shadow);
+  }
+
+  /* nav: header / sidebar / footer — the primary functional glass layer. */
+  .glass-panel,
+  .glass-strong {
+    background: var(--glass-nav-bg);
+    backdrop-filter: blur(28px) saturate(165%);
+    -webkit-backdrop-filter: blur(28px) saturate(165%);
+    border: 1px solid var(--glass-nav-border);
+    box-shadow: var(--glass-nav-shadow);
+  }
+
+  /* menu: dropdowns, popovers, tooltips, context menus — heavier wash so small text stays readable over arbitrary content. */
+  .glass-menu {
+    background: var(--glass-menu-bg);
+    backdrop-filter: blur(26px) saturate(160%);
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    border: 1px solid var(--glass-menu-border);
+    box-shadow: var(--glass-menu-shadow);
+  }
+
+  /* modal: dialogs, sheets — near-opaque frost over the scrim. */
+  .glass-heavy {
+    background: var(--glass-modal-bg);
+    backdrop-filter: blur(34px) saturate(170%);
+    -webkit-backdrop-filter: blur(34px) saturate(170%);
+    border: 1px solid var(--glass-modal-border);
+    box-shadow: var(--glass-modal-shadow);
+  }
+
+  /* orange tint: a single branded glass surface (primary FAB, selected/active state). Use sparingly — see liquid-glass skill. */
+  .glass-orange {
+    background: var(--glass-orange-bg);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid var(--glass-orange-border);
+  }
+
+  /* Accessible fallbacks — every glass tier degrades to an opaque surface. */
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-chip,
+    .glass-light,
+    .glass-medium,
+    .glass-panel,
+    .glass-strong,
+    .glass-menu,
+    .glass-heavy,
+    .glass-orange {
+      background: hsl(var(--card)) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    .glass-chip,
+    .glass-light,
+    .glass-medium,
+    .glass-panel,
+    .glass-strong,
+    .glass-menu,
+    .glass-heavy,
+    .glass-orange {
+      background: hsl(var(--card)) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border-width: 1.5px !important;
+      border-color: hsl(var(--border)) !important;
+      box-shadow: none !important;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .glass-chip,
+    .glass-light,
+    .glass-medium,
+    .glass-panel,
+    .glass-strong,
+    .glass-menu,
+    .glass-heavy,
+    .glass-orange {
+      background: Canvas !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: 1px solid CanvasText !important;
+      box-shadow: none !important;
+    }
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-chip,
+    .glass-light,
+    .glass-medium,
+    .glass-panel,
+    .glass-strong,
+    .glass-menu,
+    .glass-heavy,
+    .glass-orange {
+      background: hsl(var(--card));
+    }
   }
 
   .eyebrow {

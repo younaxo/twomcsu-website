@@ -29,7 +29,7 @@ export function ComingSoonPage({
       )}
     >
       <div className="border border-border bg-card flex h-20 w-20 items-center justify-center rounded-2xl">
-        <Icon className="h-10 w-10 text-[#F57C00]" aria-hidden />
+        <Icon className="h-10 w-10 text-primary" aria-hidden />
       </div>
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">{title}</h1>

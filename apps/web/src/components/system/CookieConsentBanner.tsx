@@ -36,7 +36,7 @@ export function CookieConsentBanner() {
             <Cookie className="h-4 w-4" aria-hidden />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-white">{t('title')}</p>
+            <p className="text-sm font-semibold text-foreground">{t('title')}</p>
             <p className="mt-1 text-[13px] leading-5 text-muted-foreground">
               {t.rich('description', {
                 cookiePolicy: (chunks) => (
@@ -55,14 +55,14 @@ export function CookieConsentBanner() {
         </div>
 
         {customizing ? (
-          <div className="mt-4 space-y-2.5 border-t border-white/[0.07] pt-4">
+          <div className="mt-4 space-y-2.5 border-t border-foreground/[0.07] pt-4">
             {categoryKeys.map((key) => (
               <div
                 key={key}
-                className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5"
+                className="flex items-center justify-between gap-3 rounded-xl bg-foreground/[0.04] px-3 py-2.5"
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-white">{t(`categories.${key}.title`)}</p>
+                  <p className="text-sm font-medium text-foreground">{t(`categories.${key}.title`)}</p>
                   <p className="text-xs text-muted-foreground">
                     {t(`categories.${key}.description`)}
                   </p>
@@ -103,7 +103,7 @@ export function CookieConsentBanner() {
               <button
                 type="button"
                 onClick={() => setCustomizing(true)}
-                className="text-sm font-medium text-muted-foreground underline-offset-2 hover:text-white hover:underline"
+                className="text-sm font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
               >
                 {t('customize')}
               </button>

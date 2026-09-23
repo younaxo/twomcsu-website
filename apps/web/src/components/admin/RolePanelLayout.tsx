@@ -36,7 +36,7 @@ export function RolePanelLayout({
     return (
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
         <div className="border border-border bg-card flex items-center justify-between rounded-2xl p-4 lg:hidden">
-          <h1 className="text-lg font-semibold text-white">{title}</h1>
+          <h1 className="text-lg font-semibold text-foreground">{title}</h1>
           <div className="flex items-center gap-2">
             {headerExtra}
             <Button
@@ -57,8 +57,8 @@ export function RolePanelLayout({
             sidebarOpen ? 'block' : 'hidden lg:block',
           )}
         >
-          <div className="mb-4 hidden border-b border-white/[0.07] px-2 pb-4 lg:block">
-            <h1 className="text-lg font-semibold text-white">{title}</h1>
+          <div className="mb-4 hidden border-b border-foreground/[0.07] px-2 pb-4 lg:block">
+            <h1 className="text-lg font-semibold text-foreground">{title}</h1>
           </div>
           <nav className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto">
             {links.map((link) => (
@@ -67,9 +67,9 @@ export function RolePanelLayout({
                 href={link.href}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  'rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-white/[0.06]',
+                  'rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-foreground/[0.06]',
                   isActive(link.href)
-                    ? 'bg-white/[0.09] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]'
+                    ? 'bg-foreground/[0.08] text-foreground shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]'
                     : 'text-muted-foreground',
                 )}
               >
@@ -91,7 +91,7 @@ export function RolePanelLayout({
     <div className="space-y-6">
       <div className="border border-border bg-card rounded-3xl p-4 sm:p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-lg font-semibold text-white">{title}</h1>
+          <h1 className="text-lg font-semibold text-foreground">{title}</h1>
           {headerExtra}
         </div>
         <nav className="flex flex-wrap gap-1">
@@ -100,9 +100,9 @@ export function RolePanelLayout({
               key={link.href}
               href={link.href}
               className={cn(
-                'rounded-xl px-3 py-2 text-sm font-medium transition-colors hover:bg-white/[0.06]',
+                'rounded-xl px-3 py-2 text-sm font-medium transition-colors hover:bg-control-hover',
                 isActive(link.href)
-                  ? 'bg-white/[0.09] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]'
+                  ? 'bg-control-active text-foreground shadow-sm'
                   : 'text-muted-foreground',
               )}
             >

@@ -21,15 +21,15 @@ export default function HomePage() {
   return (
     <div className="space-y-8 sm:space-y-10">
       <section className="relative overflow-hidden rounded-[28px] border border-border bg-card">
-        <div className="pointer-events-none absolute -right-16 -top-32 h-80 w-80 rounded-full bg-white/[0.045] blur-[80px]" />
+        <div className="pointer-events-none absolute -right-16 -top-32 h-80 w-80 rounded-full bg-primary/10 blur-[80px]" />
 
         <div className="relative grid lg:grid-cols-[1.12fr_0.88fr]">
           <div className="flex flex-col justify-center px-6 py-10 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
             <span className="eyebrow">Minecraft-сервер twomc.su</span>
-            <h1 className="mt-5 max-w-3xl text-[clamp(2.1rem,3.6vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-white">
+            <h1 className="mt-5 max-w-3xl text-[clamp(2.1rem,3.6vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground">
               Здесь начинается твоя игра.
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-neutral-300 sm:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
               Выбирай режим, знакомься с игроками и развивай свой профиль в едином сообществе
               twomc.su.
             </p>
@@ -38,7 +38,7 @@ export default function HomePage() {
               {gameModes.map((mode) => (
                 <span
                   key={mode}
-                  className="rounded-full border border-white/[0.09] bg-white/[0.045] px-3 py-1.5 text-sm font-medium text-neutral-300"
+                  className="rounded-full border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground"
                 >
                   {mode}
                 </span>
@@ -58,22 +58,22 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="border-t border-white/[0.08] bg-white/[0.025] p-5 sm:p-7 lg:border-l lg:border-t-0 lg:p-8">
-            <div className="flex h-full min-h-[320px] flex-col rounded-[22px] border border-white/[0.09] bg-black/20 p-5 sm:p-6">
+          <div className="border-t border-border bg-surface-sunken/40 p-5 sm:p-7 lg:border-l lg:border-t-0 lg:p-8">
+            <div className="flex h-full min-h-[320px] flex-col rounded-[22px] border border-border bg-surface-sunken p-5 sm:p-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-white">Сеть серверов</p>
+                  <p className="text-sm font-semibold text-foreground">Сеть серверов</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">Данные обновляются онлайн</p>
                 </div>
                 <span
                   className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
                     networkOnline
                       ? 'border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-300'
-                      : 'border-white/10 bg-white/[0.04] text-neutral-400'
+                      : 'border-border bg-muted text-muted-foreground'
                   }`}
                 >
                   <span
-                    className={`h-1.5 w-1.5 rounded-full ${networkOnline ? 'bg-emerald-400' : 'bg-neutral-500'}`}
+                    className={`h-1.5 w-1.5 rounded-full ${networkOnline ? 'bg-emerald-400' : 'bg-muted-foreground'}`}
                   />
                   {overview.isLoading ? 'Проверяем' : networkOnline ? 'Онлайн' : 'Нет данных'}
                 </span>
@@ -88,23 +88,23 @@ export default function HomePage() {
               </div>
 
               <dl className="grid grid-cols-2 gap-2.5">
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
+                <div className="rounded-2xl border border-border bg-surface p-4">
                   <dt className="text-xs text-muted-foreground">Пик за сутки</dt>
-                  <dd className="mt-1.5 text-2xl font-semibold tabular-nums text-white">
+                  <dd className="mt-1.5 text-2xl font-semibold tabular-nums text-foreground">
                     {(overview.data?.peakOnline24h ?? 0).toLocaleString('ru-RU')}
                   </dd>
                 </div>
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
+                <div className="rounded-2xl border border-border bg-surface p-4">
                   <dt className="text-xs text-muted-foreground">Серверов</dt>
-                  <dd className="mt-1.5 text-2xl font-semibold tabular-nums text-white">
+                  <dd className="mt-1.5 text-2xl font-semibold tabular-nums text-foreground">
                     {overview.data?.activeServers ?? 0}
                   </dd>
                 </div>
               </dl>
 
-              <div className="mt-4 flex items-center gap-3 border-t border-white/[0.07] pt-4 text-sm text-muted-foreground">
+              <div className="mt-4 flex items-center gap-3 border-t border-border pt-4 text-sm text-muted-foreground">
                 <Gamepad2 className="h-4 w-4 text-primary" />
-                Адрес: <strong className="font-semibold text-white">twomc.su</strong>
+                Адрес: <strong className="font-semibold text-foreground">twomc.su</strong>
               </div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function HomePage() {
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
               <span className="eyebrow">Прямо сейчас</span>
-              <h2 className="mt-3 text-2xl text-white">Топ серверов</h2>
+              <h2 className="mt-3 text-2xl text-foreground">Топ серверов</h2>
             </div>
             <Button asChild variant="ghost" size="sm">
               <Link href="/servers">
@@ -151,7 +151,7 @@ export default function HomePage() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <span className="eyebrow">Обновления проекта</span>
-            <h2 className="mt-3 text-3xl text-white">Последние новости</h2>
+            <h2 className="mt-3 text-3xl text-foreground">Последние новости</h2>
           </div>
           <Button asChild variant="ghost">
             <Link href="/news">

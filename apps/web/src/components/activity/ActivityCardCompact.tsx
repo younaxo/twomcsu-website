@@ -31,7 +31,7 @@ export function ActivityCardCompact({ activity, className }: ActivityCardCompact
           <ActivityTypeIcon type={activity.type} className="h-3.5 w-3.5" />
           <span>{formatActivityTime(activity.createdAt)}</span>
         </div>
-        <p className="mt-0.5 truncate text-sm text-white">
+        <p className="mt-0.5 truncate text-sm text-foreground">
           <span className="font-medium">{activity.user.username}</span>{' '}
           <span className="text-muted-foreground">{activity.title}</span>
         </p>

@@ -47,7 +47,7 @@ export default function WishlistPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Вишлист</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Вишлист</h1>
           <p className="text-sm text-muted-foreground">Товары, которые вы хотите</p>
         </div>
         <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function WishlistPage() {
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/store/product/${product.slug}`}
-                    className="font-medium text-white hover:underline"
+                    className="font-medium text-foreground hover:underline"
                   >
                     {product.name}
                   </Link>

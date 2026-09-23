@@ -19,7 +19,7 @@ function SuccessContent() {
         <CheckCircle2 className="h-16 w-16 text-primary" />
       </div>
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold text-white">Спасибо за покупку!</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Спасибо за покупку!</h1>
         <p className="text-muted-foreground">
           {mock
             ? 'Заказ создан. Оплата пока в тестовом режиме.'
@@ -27,7 +27,7 @@ function SuccessContent() {
         </p>
         {orderNumber || orderId ? (
           <p className="text-sm text-muted-foreground">
-            Номер: <span className="font-mono text-white">{orderNumber ?? orderId}</span>
+            Номер: <span className="font-mono text-foreground">{orderNumber ?? orderId}</span>
           </p>
         ) : null}
       </div>

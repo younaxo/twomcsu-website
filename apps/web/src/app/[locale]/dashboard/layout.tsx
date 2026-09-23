@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <a href="/moderation/reports">
             <Bell className="mr-1.5 h-4 w-4" />
             Обращения
-            <span className="ml-1.5 rounded-full bg-[#F57C00] px-1.5 py-0.5 text-xs text-white">
+            <span className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
               {pendingCount}
             </span>
           </a>

@@ -51,7 +51,7 @@ export function MarkdownContent({ content, className, html }: MarkdownContentPro
   if (html) {
     return (
       <div
-        className={cn('comment-markdown prose prose-invert max-w-none', className)}
+        className={cn('comment-markdown max-w-none', className)}
         dangerouslySetInnerHTML={{ __html: html }}
         onClick={handleSpoilerClick}
       />
@@ -97,7 +97,7 @@ export function MarkdownContent({ content, className, html }: MarkdownContentPro
       return <MarkdownImage src={src} alt={alt ?? ''} />;
     },
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-[#F57C00] pl-4 text-muted-foreground">
+      <blockquote className="border-l-4 border-primary pl-4 text-muted-foreground">
         {children}
       </blockquote>
     ),
@@ -106,7 +106,7 @@ export function MarkdownContent({ content, className, html }: MarkdownContentPro
       if (isBlock) {
         return (
           <code
-            className={cn('block overflow-x-auto rounded-lg bg-black/40 p-3 text-sm', codeClass)}
+            className={cn('block overflow-x-auto rounded-lg bg-secondary p-3 text-sm', codeClass)}
             {...props}
           >
             {children}
@@ -114,7 +114,7 @@ export function MarkdownContent({ content, className, html }: MarkdownContentPro
         );
       }
       return (
-        <code className="rounded bg-black/40 px-1.5 py-0.5 text-[0.9em]" {...props}>
+        <code className="rounded bg-secondary px-1.5 py-0.5 text-[0.9em]" {...props}>
           {children}
         </code>
       );
@@ -126,7 +126,7 @@ export function MarkdownContent({ content, className, html }: MarkdownContentPro
   };
 
   return (
-    <div className={cn('comment-markdown prose prose-invert max-w-none', className)}>
+    <div className={cn('comment-markdown max-w-none', className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}
@@ -236,7 +236,7 @@ function MarkdownImage({ src, alt }: { src: string; alt: string }) {
       {open ? (
         <button
           type="button"
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-overlay p-4"
           onClick={() => setOpen(false)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

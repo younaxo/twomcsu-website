@@ -32,7 +32,7 @@ export function TopicCard({ topic, hrefPrefix }: TopicCardProps) {
           ) : null}
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate text-lg font-semibold text-white group-hover:text-primary">
+              <h2 className="truncate text-lg font-semibold text-foreground group-hover:text-primary">
                 {topic.title}
               </h2>
               {topic.isPinned ? (

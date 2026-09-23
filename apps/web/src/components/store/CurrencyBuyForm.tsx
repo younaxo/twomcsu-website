@@ -100,7 +100,7 @@ export function CurrencyBuyForm({
       <div className="space-y-1 rounded-lg bg-secondary/50 p-4 text-sm">
         <p>
           Получите:{' '}
-          <span className="font-semibold text-white">
+          <span className="font-semibold text-foreground">
             {totalUnits.toLocaleString('ru-RU')} {label}
           </span>
         </p>

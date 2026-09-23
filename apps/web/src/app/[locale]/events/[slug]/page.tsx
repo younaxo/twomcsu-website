@@ -56,9 +56,9 @@ export default function EventDetailsPage() {
         <Card>
           <CardContent className="p-6 sm:p-8">
             <Badge>{calendarEventCategoryLabels[item.category]}</Badge>
-            <h1 className="mt-4 text-3xl text-white sm:text-4xl">{item.title}</h1>
+            <h1 className="mt-4 text-3xl text-foreground sm:text-4xl">{item.title}</h1>
             <div
-              className="prose prose-invert mt-7 max-w-none"
+              className="comment-markdown mt-7 max-w-none"
               dangerouslySetInnerHTML={{ __html: item.descriptionHtml }}
             />
           </CardContent>

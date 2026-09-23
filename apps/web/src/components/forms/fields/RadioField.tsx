@@ -30,7 +30,7 @@ export function RadioField({ field, value, onChange, disabled }: Props) {
           return (
             <div key={choice} className="flex items-center gap-2">
               <RadioGroupItem id={inputId} value={choice} />
-              <label htmlFor={inputId} className="cursor-pointer text-sm text-white">
+              <label htmlFor={inputId} className="cursor-pointer text-sm text-foreground">
                 {choice}
               </label>
             </div>

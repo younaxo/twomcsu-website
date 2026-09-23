@@ -188,7 +188,7 @@ export default function AdminStreamsPage() {
               placeholder="https://…"
             />
           </div>
-          <label className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3 text-sm">
+          <label className="flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm">
             Партнёр TWOMC.SU
             <Switch
               checked={form.isPartner}
@@ -211,7 +211,7 @@ export default function AdminStreamsPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
                   <div
-                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${channel.isLive ? 'bg-red-500/15 text-red-400' : 'bg-white/5 text-muted-foreground'}`}
+                    className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${channel.isLive ? 'bg-destructive/15 text-destructive' : 'bg-secondary text-muted-foreground'}`}
                   >
                     <Radio className="h-5 w-5" />
                   </div>
@@ -228,12 +228,12 @@ export default function AdminStreamsPage() {
                   aria-label="Удалить"
                   onClick={() => void remove(channel.id)}
                 >
-                  <Trash2 className="h-4 w-4 text-red-400" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
                 <span
-                  className={`rounded-full px-2.5 py-1 ${channel.isLive ? 'bg-red-500/15 text-red-300' : 'bg-white/5 text-muted-foreground'}`}
+                  className={`rounded-full px-2.5 py-1 ${channel.isLive ? 'bg-destructive/15 text-destructive' : 'bg-secondary text-muted-foreground'}`}
                 >
                   {channel.isLive ? `В эфире · ${channel.viewerCount}` : 'Не в эфире'}
                 </span>
@@ -264,7 +264,7 @@ export default function AdminStreamsPage() {
         ))}
       </div>
       {!channels.length ? (
-        <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           Каналы ещё не добавлены
         </div>
       ) : null}

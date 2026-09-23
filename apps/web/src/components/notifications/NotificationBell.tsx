@@ -60,7 +60,7 @@ export function NotificationBell() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative cursor-pointer text-neutral-400 hover:text-white"
+              className="relative cursor-pointer text-muted-foreground hover:text-foreground"
             >
               <Bell className="h-4 w-4" />
               {count > 0 ? (
@@ -79,7 +79,7 @@ export function NotificationBell() {
 
       <DropdownMenuContent
         align="end"
-        className="w-[min(360px,calc(100vw-1.5rem))] rounded-2xl border-white/10 bg-[rgba(24,24,26,0.92)] p-0 backdrop-blur-[28px]"
+        className="w-[min(360px,calc(100vw-1.5rem))] rounded-2xl border-border bg-popover p-0 backdrop-blur-[28px]"
       >
         <div className="flex items-center justify-between px-3 py-2.5">
           <DropdownMenuLabel className="p-0 text-base">Уведомления</DropdownMenuLabel>
@@ -125,7 +125,7 @@ export function NotificationBell() {
             </TabsList>
           </Tabs>
         </div>
-        <DropdownMenuSeparator className="m-0 bg-white/10" />
+        <DropdownMenuSeparator className="m-0" />
 
         <div className="max-h-96 space-y-1.5 overflow-y-auto p-2">
           {list.isLoading ? (
@@ -178,7 +178,7 @@ export function NotificationBell() {
           )}
         </div>
 
-        <DropdownMenuSeparator className="m-0 bg-white/10" />
+        <DropdownMenuSeparator className="m-0" />
         <div className="p-2">
           <Button asChild variant="secondary" size="sm" className="w-full">
             <Link href="/profile/notifications">Все уведомления</Link>

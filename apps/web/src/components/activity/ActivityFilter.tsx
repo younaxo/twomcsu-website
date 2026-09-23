@@ -50,7 +50,7 @@ export function ActivityFilter({
                 'rounded-lg border px-3 py-1.5 text-sm transition-colors',
                 filter === tab.value
                   ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10',
+                  : 'border-border bg-control-fill text-muted-foreground hover:bg-control-hover',
               )}
             >
               {tab.label}
@@ -68,8 +68,8 @@ export function ActivityFilter({
             className={cn(
               'rounded-lg border px-3 py-1.5 text-sm transition-colors',
               type === item.type
-                ? 'border-primary/60 bg-primary/15 text-white'
-                : 'border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10',
+                ? 'border-primary/60 bg-primary/15 text-foreground'
+                : 'border-border bg-control-fill text-muted-foreground hover:bg-control-hover',
             )}
             title={item.type ? ACTIVITY_TYPE_LABELS[item.type] : 'Все типы'}
           >

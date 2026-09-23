@@ -202,7 +202,7 @@ export default function ScheduledExportsPage() {
             <TableBody>
               {(list.data ?? []).map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-medium text-white">{item.name}</TableCell>
+                  <TableCell className="font-medium text-foreground">{item.name}</TableCell>
                   <TableCell>
                     {PAGE_OPTIONS.find((p) => p.value === item.page)?.label ?? item.page}
                   </TableCell>
@@ -326,7 +326,7 @@ export default function ScheduledExportsPage() {
               />
             </div>
             {editing ? (
-              <div className="flex items-center justify-between rounded-lg border border-white/5 px-3 py-2">
+              <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
                 <Label>Активен</Label>
                 <Switch
                   checked={form.isActive}

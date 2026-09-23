@@ -46,17 +46,17 @@ function PunishmentCard({
       onClick={onSelect}
       className={cn(
         'w-full rounded-xl glass-light p-4 text-left transition',
-        'hover:bg-white/10',
-        selected && 'ring-2 ring-[#F57C00] bg-white/5',
+        'hover:bg-accent',
+        selected && 'ring-2 ring-primary bg-accent',
       )}
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-[#F57C00]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-white">
+            <span className="text-sm font-medium text-foreground">
               {PUNISHMENT_TYPE_LABELS[punishment.punishmentType]}
             </span>
             <Badge
@@ -65,13 +65,13 @@ function PunishmentCard({
                 'border-transparent text-xs',
                 punishment.isActive
                   ? 'bg-red-500/20 text-red-300'
-                  : 'bg-neutral-500/20 text-neutral-300',
+                  : 'bg-muted text-muted-foreground',
               )}
             >
               {punishment.isActive ? 'Активно' : 'Снято'}
             </Badge>
           </div>
-          <p className="text-sm text-neutral-200">{punishment.reason}</p>
+          <p className="text-sm text-foreground">{punishment.reason}</p>
           <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {punishment.server ? <span>Сервер: {punishment.server}</span> : null}
             <span>
@@ -134,8 +134,8 @@ export function PunishmentSelector({
       </div>
 
       {selected ? (
-        <div className="rounded-xl border border-[#F57C00]/30 bg-[#F57C00]/10 p-4">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#F57C00]">
+        <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-primary">
             Выбрано наказание
           </p>
           <PunishmentCard

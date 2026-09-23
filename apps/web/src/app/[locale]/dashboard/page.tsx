@@ -179,7 +179,7 @@ export default function OwnerDashboardPage() {
       <div className="rounded-2xl border border-border bg-card p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-white">
+            <h1 className="text-2xl font-semibold text-foreground">
               Добро пожаловать, {user?.username ?? 'администратор'}!
             </h1>
             <p className="mt-1 text-sm capitalize text-muted-foreground">{today}</p>

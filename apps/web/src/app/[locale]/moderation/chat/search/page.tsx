@@ -57,7 +57,7 @@ export default function AdminChatSearchPage() {
               <p className="text-xs text-muted-foreground">
                 {m.author?.username ?? '—'} · {new Date(m.createdAt).toLocaleString('ru-RU')}
               </p>
-              <p className="mt-1 text-white">{m.content}</p>
+              <p className="mt-1 text-foreground">{m.content}</p>
             </div>
           ))}
         </div>

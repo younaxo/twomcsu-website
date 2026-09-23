@@ -92,7 +92,7 @@ export function NewConversationDialog({ onCreated }: Props) {
           </TabsList>
           <TabsContent value="direct" className="space-y-4 pt-2">
             {directUser ? (
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="flex items-center justify-between rounded-xl border border-border bg-secondary p-3">
                 <span className="font-medium">{directUser.username}</span>
                 <Button variant="ghost" size="icon" onClick={() => setDirectUser(null)}>
                   <X className="h-4 w-4" />

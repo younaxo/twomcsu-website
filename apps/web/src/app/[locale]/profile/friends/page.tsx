@@ -94,12 +94,12 @@ export default function FriendsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Друзья</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Друзья</h1>
         <p className="text-sm text-muted-foreground">Управляйте друзьями и запросами</p>
       </div>
 
       <div className="glass-card max-w-lg space-y-2 rounded-xl p-4">
-        <div className="flex items-center gap-2 text-sm font-medium text-white">
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <UserPlus className="h-4 w-4 text-primary" />
           Добавить в друзья
         </div>

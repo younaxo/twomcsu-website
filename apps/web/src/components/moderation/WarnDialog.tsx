@@ -27,7 +27,7 @@ export function WarnDialog({ open, onOpenChange, username, onConfirm }: WarnDial
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-strong border-white/10">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Предупредить {username}</DialogTitle>
         </DialogHeader>
@@ -39,7 +39,6 @@ export function WarnDialog({ open, onOpenChange, username, onConfirm }: WarnDial
                 type="button"
                 size="sm"
                 variant="secondary"
-                className="glass-hover-orange"
                 onClick={() => setReason(preset === 'Другое' ? '' : preset)}
               >
                 {preset}

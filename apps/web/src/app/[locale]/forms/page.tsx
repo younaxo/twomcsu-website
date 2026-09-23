@@ -26,7 +26,7 @@ export default function FormsListPage() {
         <div className="flex items-center gap-3">
           <ClipboardList className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold text-white">Формы</h1>
+            <h1 className="text-3xl font-bold text-foreground">Формы</h1>
             <p className="mt-1 text-muted-foreground">Заявки, опросы и голосования сообщества</p>
           </div>
         </div>
@@ -58,7 +58,7 @@ export default function FormsListPage() {
                 </div>
               ) : null}
               <div className="space-y-3 p-4">
-                <h2 className="line-clamp-2 text-lg font-semibold text-white">{form.title}</h2>
+                <h2 className="line-clamp-2 text-lg font-semibold text-foreground">{form.title}</h2>
                 {form.description ? (
                   <p className="line-clamp-3 text-sm text-muted-foreground">{form.description}</p>
                 ) : null}

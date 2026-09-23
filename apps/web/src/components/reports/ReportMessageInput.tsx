@@ -100,7 +100,6 @@ export function ReportMessageInput({
           type="button"
           onClick={() => void submit()}
           disabled={sending || addMessage.isPending || content.trim().length < 1}
-          className="bg-[#F57C00] text-black hover:bg-[#E65100]"
         >
           Отправить
         </Button>

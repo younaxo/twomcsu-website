@@ -20,9 +20,9 @@ export function CodeEditorField({ field, value, onChange, disabled }: Props) {
 
   return (
     <FieldShell field={field}>
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-card border border-border bg-card focus-within:ring-2 focus-within:ring-focus/40">
         {language ? (
-          <div className="flex items-center justify-between border-b border-white/5 px-3 py-1.5 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between border-b border-border px-3 py-1.5 text-xs text-muted-foreground">
             <span className="font-mono uppercase tracking-wide">{language}</span>
           </div>
         ) : null}
@@ -31,7 +31,7 @@ export function CodeEditorField({ field, value, onChange, disabled }: Props) {
           disabled={disabled}
           onChange={(e) => onChange({ fieldId: field.id, textValue: e.target.value })}
           spellCheck={false}
-          className="min-h-[200px] w-full resize-y bg-transparent px-3 py-2 font-mono text-sm outline-none"
+          className="min-h-[200px] w-full resize-y bg-transparent px-3 py-2 font-mono text-sm text-foreground outline-none"
           placeholder={field.placeholder ?? '// code'}
         />
       </div>

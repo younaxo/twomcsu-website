@@ -38,9 +38,9 @@ export function PlayerSelectorField({ field, value, onChange, disabled }: Props)
             {selected.map((username) => (
               <li
                 key={username}
-                className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] py-0.5 pl-2 pr-1 text-xs"
+                className="flex items-center gap-1 rounded-full border border-border bg-muted py-0.5 pl-2 pr-1 text-xs"
               >
-                <span className="text-white">{username}</span>
+                <span className="text-foreground">{username}</span>
                 {!disabled ? (
                   <Button
                     type="button"

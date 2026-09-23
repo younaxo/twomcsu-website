@@ -47,7 +47,7 @@ export function ProductVariantSelector({
                   <DisplayPrice amount={variant.oldPrice} />
                 </span>
               ) : null}
-              <span className="font-medium text-white">
+              <span className="font-medium text-foreground">
                 <DisplayPrice amount={variant.price} />
               </span>
               {discount ? (

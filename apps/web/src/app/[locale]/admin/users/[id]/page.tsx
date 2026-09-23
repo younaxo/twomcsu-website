@@ -109,7 +109,7 @@ export default function AdminUserDetailPage() {
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold text-white">{user.username}</h2>
+            <h2 className="text-xl font-semibold text-foreground">{user.username}</h2>
             <Badge variant="secondary">{ROLE_LABELS[user.roleGroup] ?? user.roleGroup}</Badge>
             {isBanned ? <Badge variant="destructive">Забанен</Badge> : null}
           </div>
@@ -130,7 +130,7 @@ export default function AdminUserDetailPage() {
             ['Наказания', data.stats.punishments],
           ].map(([label, value]) => (
             <div key={String(label)} className="rounded-xl border border-border bg-card px-3 py-2">
-              <p className="text-lg font-semibold text-white">{value}</p>
+              <p className="text-lg font-semibold text-foreground">{value}</p>
               <p className="text-xs text-muted-foreground">{label}</p>
             </div>
           ))}
@@ -153,19 +153,19 @@ export default function AdminUserDetailPage() {
           <dl className="grid gap-4 sm:grid-cols-2">
             <div>
               <dt className="text-xs text-muted-foreground">Email</dt>
-              <dd className="text-white">{user.email}</dd>
+              <dd className="text-foreground">{user.email}</dd>
             </div>
             <div>
               <dt className="text-xs text-muted-foreground">Тег</dt>
-              <dd className="text-white">{user.tag}</dd>
+              <dd className="text-foreground">{user.tag}</dd>
             </div>
             <div>
               <dt className="text-xs text-muted-foreground">Роль</dt>
-              <dd className="text-white">{ROLE_LABELS[user.roleGroup] ?? user.roleGroup}</dd>
+              <dd className="text-foreground">{ROLE_LABELS[user.roleGroup] ?? user.roleGroup}</dd>
             </div>
             <div>
               <dt className="text-xs text-muted-foreground">Причина бана</dt>
-              <dd className="text-white">{(user.banReason as string | null) ?? '—'}</dd>
+              <dd className="text-foreground">{(user.banReason as string | null) ?? '—'}</dd>
             </div>
           </dl>
         </TabsContent>
@@ -207,7 +207,7 @@ export default function AdminUserDetailPage() {
           ) : (
             <div className="space-y-6">
               <section>
-                <h3 className="mb-2 text-sm font-medium text-white">Созданные</h3>
+                <h3 className="mb-2 text-sm font-medium text-foreground">Созданные</h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -228,7 +228,7 @@ export default function AdminUserDetailPage() {
                 </Table>
               </section>
               <section>
-                <h3 className="mb-2 text-sm font-medium text-white">На пользователя</h3>
+                <h3 className="mb-2 text-sm font-medium text-foreground">На пользователя</h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -291,7 +291,7 @@ export default function AdminUserDetailPage() {
                   className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:bg-accent"
                 >
                   <AvatarWithSkin user={friend} size={36} />
-                  <span className="font-medium text-white">{friend.username}</span>
+                  <span className="font-medium text-foreground">{friend.username}</span>
                 </Link>
               ))}
             </div>

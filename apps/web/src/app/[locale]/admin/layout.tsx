@@ -121,7 +121,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Button asChild variant="secondary" size="sm">
           <a href="/moderation/reports">
             <Bell className="mr-1.5 h-4 w-4" />
-            <span className="rounded-full bg-[#F57C00] px-1.5 py-0.5 text-xs text-white">
+            <span className="rounded-full bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
               {pendingCount}
             </span>
           </a>

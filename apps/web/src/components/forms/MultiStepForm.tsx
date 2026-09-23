@@ -28,13 +28,13 @@ export function MultiStepForm({ steps, currentStep, onStepChange }: Props) {
           className={cn(
             'flex items-center gap-2 rounded-full px-3 py-1 text-xs transition-colors',
             step.index === currentStep
-              ? 'bg-[#F57C00] text-white'
+              ? 'bg-primary text-primary-foreground'
               : step.index < currentStep
-                ? 'bg-white/10 text-white'
-                : 'bg-white/[0.03] text-muted-foreground',
+                ? 'bg-control-fill text-foreground'
+                : 'bg-muted/30 text-muted-foreground',
           )}
         >
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-black/30 text-[10px]">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-foreground/15 text-[10px]">
             {step.index + 1}
           </span>
           {step.title ?? `Шаг ${step.index + 1}`}

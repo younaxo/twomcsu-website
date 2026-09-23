@@ -14,7 +14,7 @@ interface ActivityContentProps {
 export function ActivityContent({ activity }: ActivityContentProps) {
   const body = (
     <div className="space-y-3">
-      <p className="text-[15px] leading-relaxed text-white">
+      <p className="text-[15px] leading-relaxed text-foreground">
         <span className="font-medium">{activity.user.username}</span>{' '}
         <span className="text-muted-foreground">{activity.title}</span>
       </p>
@@ -22,7 +22,7 @@ export function ActivityContent({ activity }: ActivityContentProps) {
         <p className="text-sm text-muted-foreground">{activity.description}</p>
       ) : null}
       {activity.imageUrl ? (
-        <div className="relative overflow-hidden rounded-xl border border-white/10">
+        <div className="relative overflow-hidden rounded-xl border border-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={activity.imageUrl} alt="" className="max-h-64 w-full object-cover" />
         </div>

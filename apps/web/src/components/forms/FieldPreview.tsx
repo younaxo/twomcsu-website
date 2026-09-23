@@ -37,7 +37,7 @@ export function FieldPreview({ field, selected, onSelect, onDelete }: Props) {
       style={style}
       className={cn(
         'group relative rounded-2xl border border-transparent border border-border bg-card p-4 transition-colors',
-        selected && 'border-[#F57C00]',
+        selected && 'border-primary',
       )}
       onClick={onSelect}
     >
@@ -47,7 +47,7 @@ export function FieldPreview({ field, selected, onSelect, onDelete }: Props) {
             type="button"
             {...attributes}
             {...listeners}
-            className="cursor-grab rounded-md p-1 text-muted-foreground hover:bg-white/10 active:cursor-grabbing"
+            className="cursor-grab rounded-md p-1 text-muted-foreground hover:bg-control-hover active:cursor-grabbing"
             aria-label="Перетащить"
             onClick={(event) => event.stopPropagation()}
           >

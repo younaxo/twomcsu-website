@@ -30,7 +30,7 @@ export function ResponsesTable({ formId, responses, onDelete, deleting }: Props)
         <tbody>
           {responses.map((response) => (
             <tr key={response.id} className="border-b border-border/50">
-              <td className="p-3 text-white">
+              <td className="p-3 text-foreground">
                 {response.isAnonymous ? '(аноним)' : (response.respondentUsername ?? '—')}
               </td>
               <td className="p-3">
@@ -39,7 +39,7 @@ export function ResponsesTable({ formId, responses, onDelete, deleting }: Props)
                     Отправлен
                   </span>
                 ) : (
-                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-muted-foreground">
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                     Черновик
                   </span>
                 )}

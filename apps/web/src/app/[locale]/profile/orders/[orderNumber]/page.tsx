@@ -51,7 +51,7 @@ export default function OrderDetailPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="font-mono text-2xl font-semibold text-white">{order.orderNumber}</h1>
+          <h1 className="font-mono text-2xl font-semibold text-foreground">{order.orderNumber}</h1>
           <p className="text-sm text-muted-foreground">
             {format(new Date(order.createdAt), 'dd MMMM yyyy, HH:mm', { locale: ru })}
           </p>
@@ -74,7 +74,7 @@ export default function OrderDetailPage() {
                 {img ? <Image src={img} alt="" fill className="object-cover" unoptimized /> : null}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-white">{name}</p>
+                <p className="font-medium text-foreground">{name}</p>
                 <p className="text-xs text-muted-foreground">
                   <DisplayPrice amount={item.unitPrice} /> × {item.quantity}
                   {item.giftToUserId ? ' · подарок' : ''}
@@ -104,7 +104,7 @@ export default function OrderDetailPage() {
             </span>
           </div>
         ) : null}
-        <div className="flex justify-between border-t border-border pt-2 text-base font-semibold text-white">
+        <div className="flex justify-between border-t border-border pt-2 text-base font-semibold text-foreground">
           <span>Итого</span>
           <span>
             <DisplayPrice amount={order.total} />

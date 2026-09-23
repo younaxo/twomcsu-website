@@ -257,7 +257,7 @@ export function MarkdownEditor({
     <div
       className={cn(
         'overflow-hidden rounded-xl border border-border bg-card transition ring-offset-background',
-        'focus-within:ring-2 focus-within:ring-[#F57C00]',
+        'focus-within:ring-2 focus-within:ring-focus',
         disabled && 'opacity-60',
         className,
       )}
@@ -310,7 +310,7 @@ export function MarkdownEditor({
           onEmojiSelect={(emoji) => runInsert(emoji)}
         />
       ) : emojiEnabled ? (
-        <div className="flex justify-end border-b border-white/5 px-2 py-1">
+        <div className="flex justify-end border-b border-border px-2 py-1">
           <EmojiPickerButton disabled={disabled} onSelect={(emoji) => runInsert(emoji)} />
         </div>
       ) : null}
@@ -346,7 +346,7 @@ export function MarkdownEditor({
           />
 
           {autocomplete && suggestions.length > 0 ? (
-            <div className="absolute bottom-2 left-2 right-2 z-40 max-h-64 overflow-auto rounded-xl border border-white/10 bg-zinc-950/95 p-1 shadow-xl backdrop-blur">
+            <div className="absolute bottom-2 left-2 right-2 z-40 max-h-64 overflow-auto rounded-xl border border-border bg-popover p-1 shadow-xl backdrop-blur">
               {autocomplete.type === 'mention'
                 ? (suggestions as MentionSearchResult[]).map((user, index) => (
                     <button
@@ -354,7 +354,7 @@ export function MarkdownEditor({
                       type="button"
                       className={cn(
                         'flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors',
-                        index === activeIndex ? 'bg-[#F57C00]/20' : 'hover:bg-white/5',
+                        index === activeIndex ? 'bg-primary/20' : 'hover:bg-accent',
                       )}
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => selectMention(user)}
@@ -388,7 +388,7 @@ export function MarkdownEditor({
                       type="button"
                       className={cn(
                         'flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors',
-                        index === activeIndex ? 'bg-[#F57C00]/20' : 'hover:bg-white/5',
+                        index === activeIndex ? 'bg-primary/20' : 'hover:bg-accent',
                       )}
                       onMouseEnter={() => setActiveIndex(index)}
                       onClick={() => selectEmoji(emoji)}
@@ -407,7 +407,7 @@ export function MarkdownEditor({
         </div>
 
         {preview ? (
-          <div className="border-t border-white/5 px-3 py-3 md:border-l md:border-t-0">
+          <div className="border-t border-border px-3 py-3 md:border-l md:border-t-0">
             {value.trim() ? (
               <MarkdownContent content={value} />
             ) : (
@@ -420,7 +420,7 @@ export function MarkdownEditor({
       {maxLength !== undefined ? (
         <div
           className={cn(
-            'border-t border-white/5 px-3 py-1.5 text-right text-xs',
+            'border-t border-border px-3 py-1.5 text-right text-xs',
             overLimit ? 'text-destructive' : 'text-muted-foreground',
           )}
         >
@@ -448,7 +448,7 @@ function Toolbar({
 }) {
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-white/5 px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-border px-2 py-1.5">
         <ToolBtn label="Жирный (Ctrl+B)" disabled={disabled} onClick={() => onAction('bold')}>
           <Bold className="h-3.5 w-3.5" />
         </ToolBtn>
@@ -515,7 +515,7 @@ function ToolBtn({
           type="button"
           disabled={disabled}
           onClick={onClick}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground disabled:opacity-50"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
           aria-label={label}
         >
           {children}

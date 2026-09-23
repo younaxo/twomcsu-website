@@ -218,7 +218,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-semibold text-white">
+          <h1 className="text-2xl font-semibold text-foreground">
             {initial ? 'Редактирование новости' : 'Новая новость'}
           </h1>
           <span className="text-xs text-muted-foreground">
@@ -324,7 +324,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
 
       <aside className="space-y-4">
         <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm font-semibold text-white">Обложка</p>
+          <p className="text-sm font-semibold text-foreground">Обложка</p>
           {coverImage ? (
             <div className="relative aspect-video overflow-hidden rounded-lg">
               <Image src={coverImage} alt="" fill className="object-cover" unoptimized />
@@ -346,7 +346,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
         </div>
 
         <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm font-semibold text-white">Категория</p>
+          <p className="text-sm font-semibold text-foreground">Категория</p>
           <select
             className="w-full rounded-md border border-border bg-secondary/40 px-3 py-2 text-sm"
             value={category}
@@ -364,7 +364,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
         </div>
 
         <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm font-semibold text-white">Теги</p>
+          <p className="text-sm font-semibold text-foreground">Теги</p>
           <Input
             value={tags}
             onChange={(e) => {
@@ -376,7 +376,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
         </div>
 
         <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm font-semibold text-white">Настройки</p>
+          <p className="text-sm font-semibold text-foreground">Настройки</p>
           <label className="flex items-center justify-between gap-2 text-sm">
             Разрешить комментарии
             <Switch
@@ -410,7 +410,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
         </div>
 
         <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm font-semibold text-white">SEO</p>
+          <p className="text-sm font-semibold text-foreground">SEO</p>
           <Input
             value={metaTitle}
             onChange={(e) => {
@@ -431,7 +431,7 @@ export function NewsEditor({ initial }: NewsEditorProps) {
         </div>
 
         <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm font-semibold text-white">Планирование</p>
+          <p className="text-sm font-semibold text-foreground">Планирование</p>
           <Input
             type="datetime-local"
             value={scheduledFor}

@@ -118,7 +118,7 @@ export function ResponseDetail({ response }: Props) {
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
               {answer.fieldLabel ?? answer.fieldId}
             </p>
-            <div className="mt-2 text-white">{renderAnswer(answer)}</div>
+            <div className="mt-2 text-foreground">{renderAnswer(answer)}</div>
           </div>
         ))}
         {!response.answers.length ? (

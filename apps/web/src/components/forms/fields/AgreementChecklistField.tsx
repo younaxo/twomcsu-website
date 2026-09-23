@@ -38,7 +38,7 @@ export function AgreementChecklistField({ field, value, onChange, disabled }: Pr
                 disabled={disabled}
                 onCheckedChange={() => toggle(item)}
               />
-              <span className="text-white">{item}</span>
+              <span className="text-foreground">{item}</span>
             </label>
           );
         })}

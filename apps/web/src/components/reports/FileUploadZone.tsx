@@ -59,14 +59,14 @@ export function FileUploadZone({
       <div
         {...getRootProps()}
         className={cn(
-          'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-white/[0.03] px-4 py-8 text-center transition',
+          'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/20 px-4 py-8 text-center transition',
           isDragActive && 'border-primary bg-primary/10',
           disabled && 'pointer-events-none opacity-50',
         )}
       >
         <input {...getInputProps()} />
         <Upload className="h-8 w-8 text-primary" />
-        <p className="text-sm text-white">Перетащите файлы или нажмите для выбора</p>
+        <p className="text-sm text-foreground">Перетащите файлы или нажмите для выбора</p>
         {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
       </div>
 
@@ -95,7 +95,7 @@ export function FileUploadZone({
                   <ImageIcon className="h-8 w-8 text-muted-foreground" />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-white">{file.name}</p>
+                  <p className="truncate text-sm text-foreground">{file.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {(file.size / 1024).toFixed(0)} КБ
                   </p>

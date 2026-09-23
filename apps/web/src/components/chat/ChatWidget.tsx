@@ -19,7 +19,7 @@ export function ChatWidget() {
     <Sheet open={isOpen} onOpenChange={setWidgetOpen}>
       <SheetContent
         side="right"
-        className="glass-strong flex w-full flex-col gap-0 border-white/10 p-0 sm:max-w-md"
+        className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
       >
         <SheetTitle className="sr-only">Чат TWOMC</SheetTitle>
         <div className="flex min-h-0 flex-1 flex-col">

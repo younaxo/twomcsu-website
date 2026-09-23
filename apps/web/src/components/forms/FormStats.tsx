@@ -17,7 +17,7 @@ interface Props {
   stats: FormStatsData;
 }
 
-const COLORS = ['#F57C00', '#FB8C00', '#FF9800', '#FFA726', '#FFB74D', '#FFCC80'];
+const COLORS = ['hsl(var(--primary))', '#FB8C00', '#FF9800', '#FFA726', '#FFB74D', '#FFCC80'];
 
 export function FormStats({ stats }: Props) {
   return (
@@ -46,7 +46,7 @@ export function FormStats({ stats }: Props) {
             return (
               <div key={field.fieldId} className="rounded-2xl border border-border bg-card p-4">
                 <div className="flex items-baseline justify-between">
-                  <h3 className="text-sm font-semibold text-white">{field.label}</h3>
+                  <h3 className="text-sm font-semibold text-foreground">{field.label}</h3>
                   <span className="text-xs text-muted-foreground">{field.count} ответов</span>
                 </div>
                 <div className="mt-3 h-56">
@@ -65,7 +65,7 @@ export function FormStats({ stats }: Props) {
                         <XAxis dataKey="name" stroke="#666" fontSize={12} />
                         <YAxis stroke="#666" fontSize={12} />
                         <Tooltip />
-                        <Bar dataKey="value" fill="#F57C00" />
+                        <Bar dataKey="value" fill="hsl(var(--primary))" />
                       </BarChart>
                     )}
                   </ResponsiveContainer>
@@ -77,7 +77,7 @@ export function FormStats({ stats }: Props) {
           if (field.type === FormFieldType.NUMBER || field.type === FormFieldType.CURRENCY_AMOUNT) {
             return (
               <div key={field.fieldId} className="rounded-2xl border border-border bg-card p-4">
-                <h3 className="text-sm font-semibold text-white">{field.label}</h3>
+                <h3 className="text-sm font-semibold text-foreground">{field.label}</h3>
                 <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
                   <StatCard label="Среднее" value={field.average ?? '—'} />
                   <StatCard label="Мин" value={field.min ?? '—'} />
@@ -89,7 +89,7 @@ export function FormStats({ stats }: Props) {
 
           return (
             <div key={field.fieldId} className="rounded-2xl border border-border bg-card p-4">
-              <h3 className="text-sm font-semibold text-white">{field.label}</h3>
+              <h3 className="text-sm font-semibold text-foreground">{field.label}</h3>
               <p className="mt-2 text-xs text-muted-foreground">{field.count} ответов</p>
             </div>
           );
@@ -103,7 +103,7 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-lg glass-light p-3 text-center">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-lg font-semibold text-white">{value}</p>
+      <p className="text-lg font-semibold text-foreground">{value}</p>
     </div>
   );
 }

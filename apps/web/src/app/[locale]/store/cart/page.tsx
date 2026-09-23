@@ -54,7 +54,7 @@ export default function CartPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Корзина</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Корзина</h1>
           <p className="text-sm text-muted-foreground">{items.length} позиций</p>
         </div>
         {items.length > 0 ? (
@@ -101,7 +101,7 @@ export default function CartPage() {
                   <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-medium text-white">{title(item)}</p>
+                        <p className="font-medium text-foreground">{title(item)}</p>
                         {item.giftToUsername ? (
                           <p className="text-xs text-primary">Подарок → {item.giftToUsername}</p>
                         ) : null}
@@ -159,7 +159,7 @@ export default function CartPage() {
                     </span>
                   </div>
                 ))}
-                <div className="flex justify-between border-t border-border pt-2 text-base font-semibold text-white">
+                <div className="flex justify-between border-t border-border pt-2 text-base font-semibold text-foreground">
                   <span>Итого</span>
                   <span>
                     <DisplayPrice amount={totals.total} />

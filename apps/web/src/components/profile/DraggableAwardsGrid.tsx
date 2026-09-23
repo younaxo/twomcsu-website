@@ -43,7 +43,7 @@ function SortableAward({ award }: { award: UserAward }) {
         transition,
       }}
       className={cn(
-        'glass-light glass-hover-orange flex cursor-grab items-center gap-2 rounded-xl border border-white/5 px-3 py-2 active:cursor-grabbing',
+        'glass-light flex cursor-grab items-center gap-2 rounded-xl px-3 py-2 active:cursor-grabbing',
         isDragging && 'z-10 opacity-80 shadow-lg',
       )}
       {...attributes}

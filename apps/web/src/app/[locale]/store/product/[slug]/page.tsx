@@ -149,7 +149,7 @@ export default function ProductPage() {
               <Image src={mainImage} alt={product.name} fill className="object-cover" unoptimized />
             ) : (
               <div
-                className="flex h-full items-center justify-center text-6xl font-semibold text-white/20"
+                className="flex h-full items-center justify-center text-6xl font-semibold text-foreground/20"
                 style={product.position ? { color: `${product.position.color}55` } : undefined}
               >
                 {product.name.slice(0, 1)}
@@ -181,7 +181,7 @@ export default function ProductPage() {
               {product.isNew ? <Badge>Новинка</Badge> : null}
               {product.isPopular ? <Badge variant="outline">Популярный</Badge> : null}
             </div>
-            <h1 className="text-3xl font-semibold text-white">{product.name}</h1>
+            <h1 className="text-3xl font-semibold text-foreground">{product.name}</h1>
             {product.description ? (
               <p className="text-muted-foreground">{product.description}</p>
             ) : null}
@@ -220,7 +220,7 @@ export default function ProductPage() {
 
           {allowQuickBuy ? (
             <div className="space-y-3 rounded-xl border border-border bg-card/50 p-4">
-              <p className="text-sm font-medium text-white">Быстрая покупка</p>
+              <p className="text-sm font-medium text-foreground">Быстрая покупка</p>
               <p className="text-xs text-muted-foreground">
                 Укажите Minecraft ник — без регистрации на сайте
               </p>
@@ -245,7 +245,7 @@ export default function ProductPage() {
           ) : null}
 
           {product.fullDescription ? (
-            <div className="prose prose-invert max-w-none rounded-xl border border-border bg-card/50 p-4 text-sm">
+            <div className="comment-markdown max-w-none rounded-card border border-border bg-card/50 p-4 text-sm">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{product.fullDescription}</ReactMarkdown>
             </div>
           ) : null}
@@ -254,7 +254,7 @@ export default function ProductPage() {
 
       {(boughtTogether.data?.length ?? 0) > 0 ? (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">С этим покупают</h2>
+          <h2 className="text-xl font-semibold text-foreground">С этим покупают</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {boughtTogether.data!.slice(0, 4).map((p) => (
               <ProductCard key={p.id} product={p} />

@@ -146,7 +146,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
   if (form.alreadyResponded && form.onePerUser) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center">
-        <h2 className="text-xl font-semibold text-white">Вы уже отправляли эту форму</h2>
+        <h2 className="text-xl font-semibold text-foreground">Вы уже отправляли эту форму</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Повторная отправка запрещена настройками формы.
         </p>
@@ -157,7 +157,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
   if (submitted) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center">
-        <h2 className="text-xl font-semibold text-white">Спасибо за ответ!</h2>
+        <h2 className="text-xl font-semibold text-foreground">Спасибо за ответ!</h2>
         {form.thankYouMessage ? (
           <div className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
             <MarkdownContent content={form.thankYouMessage} />
@@ -183,7 +183,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
       <header className="space-y-3 rounded-2xl border border-border bg-card p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">{form.title}</h1>
+            <h1 className="text-2xl font-bold text-foreground">{form.title}</h1>
             {form.description ? (
               <p className="mt-2 text-sm text-muted-foreground">{form.description}</p>
             ) : null}
@@ -193,7 +193,7 @@ export function FormRenderer({ form, inviteCode }: Props) {
           ) : null}
         </div>
         {form.descriptionHtml ? (
-          <div className="prose prose-invert prose-sm max-w-none">
+          <div className="comment-markdown max-w-none text-sm">
             <div dangerouslySetInnerHTML={{ __html: form.descriptionHtml }} />
           </div>
         ) : null}

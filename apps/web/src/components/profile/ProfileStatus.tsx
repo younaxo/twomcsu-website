@@ -15,8 +15,8 @@ export function ProfileStatus({ status, compact = false, className }: ProfileSta
       className={cn(
         'relative max-w-full overflow-hidden border text-left shadow-sm backdrop-blur-md',
         compact
-          ? 'inline-flex items-start gap-2.5 rounded-2xl border-white/10 bg-white/[0.045] px-2.5 py-2'
-          : 'flex items-center gap-3 rounded-2xl border-primary/20 bg-gradient-to-r from-primary/[0.12] via-white/[0.045] to-transparent px-4 py-3.5',
+          ? 'inline-flex items-start gap-2.5 rounded-2xl border-foreground/10 bg-card/[0.045] px-2.5 py-2'
+          : 'flex items-center gap-3 rounded-2xl border-primary/20 bg-gradient-to-r from-primary/[0.12] via-card/[0.045] to-transparent px-4 py-3.5',
         className,
       )}
     >

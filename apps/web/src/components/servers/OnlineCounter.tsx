@@ -61,7 +61,7 @@ export function OnlineCounter({
       <div>
         <p
           className={cn(
-            'font-semibold tabular-nums text-white transition-colors',
+            'font-semibold tabular-nums text-foreground transition-colors',
             size === 'lg' ? 'text-4xl sm:text-5xl' : 'text-2xl',
           )}
         >

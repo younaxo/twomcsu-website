@@ -95,7 +95,7 @@ export function AchievementShowcaseSettings() {
                   'flex items-center gap-3 rounded-xl border p-3 text-left transition-all',
                   isChosen
                     ? 'border-primary/50 bg-primary/10'
-                    : 'border-white/10 hover:border-white/20 hover:bg-white/[0.03]',
+                    : 'border-border hover:border-foreground/20 hover:bg-muted/40',
                 )}
               >
                 <AchievementIcon
@@ -110,10 +110,10 @@ export function AchievementShowcaseSettings() {
                 <div
                   className={cn(
                     'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all',
-                    isChosen ? 'border-primary bg-primary' : 'border-white/20',
+                    isChosen ? 'border-primary bg-primary' : 'border-input',
                   )}
                 >
-                  {isChosen ? <Check className="h-3 w-3 text-white" /> : null}
+                  {isChosen ? <Check className="h-3 w-3 text-primary-foreground" /> : null}
                 </div>
               </button>
             );

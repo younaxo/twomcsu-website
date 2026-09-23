@@ -62,7 +62,7 @@ export function ConditionalLogicBuilder({ currentField, otherFields, value, onCh
   ) => (
     <div className="space-y-2 rounded-lg glass-light p-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-white">{title}</span>
+        <span className="text-xs font-medium text-foreground">{title}</span>
         <Button
           type="button"
           size="sm"

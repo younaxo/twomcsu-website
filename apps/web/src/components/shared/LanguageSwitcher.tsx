@@ -43,9 +43,9 @@ export function LanguageSwitcher({ variant = 'compact', className }: LanguageSwi
           type="button"
           aria-label={t('label')}
           className={cn(
-            'inline-flex h-10 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/[0.05] hover:text-foreground',
+            'inline-flex h-10 items-center gap-1.5 rounded-xl px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground',
             variant === 'full' &&
-              'w-full justify-between border border-white/10 bg-white/[0.03] px-3 text-foreground',
+              'w-full justify-between border border-foreground/10 bg-foreground/[0.03] px-3 text-foreground',
             className,
           )}
         >

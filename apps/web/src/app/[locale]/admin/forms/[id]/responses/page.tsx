@@ -26,7 +26,7 @@ export default function AdminFormResponsesPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-white">
+          <h1 className="text-2xl font-semibold text-foreground">
             Ответы {form.data ? `— ${form.data.title}` : ''}
           </h1>
           <Link

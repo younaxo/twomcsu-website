@@ -16,8 +16,7 @@ export function AppToaster() {
       gap={12}
       toastOptions={{
         classNames: {
-          toast:
-            'group toast glass-strong rounded-2xl text-foreground shadow-[0_18px_48px_rgba(0,0,0,0.28)]',
+          toast: 'group toast glass-menu rounded-card text-foreground',
           title: 'text-sm font-semibold',
           description: 'text-[13px] font-medium text-muted-foreground',
         },

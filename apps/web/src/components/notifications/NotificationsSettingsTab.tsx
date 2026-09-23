@@ -70,11 +70,11 @@ export function NotificationsSettingsTab() {
   return (
     <div className="space-y-6">
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-lg font-medium text-white">Каналы доставки</h2>
+        <h2 className="text-lg font-medium text-foreground">Каналы доставки</h2>
 
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm text-white">На сайте</p>
+            <p className="text-sm text-foreground">На сайте</p>
             <p className="text-xs text-muted-foreground">Всегда доступно в колокольчике</p>
           </div>
           <Switch checked disabled />
@@ -82,7 +82,7 @@ export function NotificationsSettingsTab() {
 
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm text-white">Push</p>
+            <p className="text-sm text-foreground">Push</p>
             <p className="text-xs text-muted-foreground">Браузерные уведомления</p>
           </div>
           <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export function NotificationsSettingsTab() {
 
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm text-white">Email</p>
+            <p className="text-sm text-foreground">Email</p>
             <p className="text-xs text-muted-foreground">{user?.email ?? '—'}</p>
           </div>
           <Switch
@@ -108,7 +108,7 @@ export function NotificationsSettingsTab() {
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm text-white">Discord webhook</p>
+              <p className="text-sm text-foreground">Discord webhook</p>
               <p className="text-xs text-muted-foreground">Персональные уведомления в Discord</p>
             </div>
             <Switch
@@ -121,7 +121,7 @@ export function NotificationsSettingsTab() {
 
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm text-white">Звуковые</p>
+            <p className="text-sm text-foreground">Звуковые</p>
             <p className="text-xs text-muted-foreground">Звук при новых уведомлениях</p>
           </div>
           <Switch
@@ -135,7 +135,7 @@ export function NotificationsSettingsTab() {
       </section>
 
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-lg font-medium text-white">Режим отправки</h2>
+        <h2 className="text-lg font-medium text-foreground">Режим отправки</h2>
         <RadioGroup
           value={data.digestMode}
           onValueChange={(value) => void patch({ digestMode: value as DigestMode })}
@@ -170,7 +170,7 @@ export function NotificationsSettingsTab() {
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-medium text-white">Тихие часы</h2>
+            <h2 className="text-lg font-medium text-foreground">Тихие часы</h2>
             <p className="text-xs text-muted-foreground">
               Email, push и Discord не отправляются в этот период
             </p>
@@ -203,11 +203,11 @@ export function NotificationsSettingsTab() {
       </section>
 
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-lg font-medium text-white">Настройки по типам</h2>
+        <h2 className="text-lg font-medium text-foreground">Настройки по типам</h2>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-muted-foreground">
+              <tr className="border-b border-border text-muted-foreground">
                 <th className="px-2 py-2 font-medium">Тип</th>
                 {CHANNELS.map((channel) => (
                   <th key={channel} className="px-2 py-2 font-medium">
@@ -220,8 +220,8 @@ export function NotificationsSettingsTab() {
               {(Object.keys(NOTIFICATION_TYPE_LABELS) as NotificationType[]).map((type) => {
                 const typeSetting = data.typeSettings[type] ?? {};
                 return (
-                  <tr key={type} className="border-b border-white/5">
-                    <td className="px-2 py-2 text-neutral-200">{NOTIFICATION_TYPE_LABELS[type]}</td>
+                  <tr key={type} className="border-b border-border">
+                    <td className="px-2 py-2 text-foreground">{NOTIFICATION_TYPE_LABELS[type]}</td>
                     {CHANNELS.map((channel) => (
                       <td key={channel} className="px-2 py-2">
                         <Checkbox

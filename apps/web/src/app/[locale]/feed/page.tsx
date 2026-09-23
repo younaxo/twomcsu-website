@@ -14,7 +14,7 @@ export default function FeedPage() {
     <div className="mx-auto w-full max-w-3xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-white sm:text-3xl">Лента активности</h1>
+          <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Лента активности</h1>
           <p className="mt-1 text-sm text-muted-foreground">Что происходит у игроков twomc.su</p>
         </div>
         {isAuthenticated ? (

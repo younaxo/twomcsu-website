@@ -32,7 +32,7 @@ export function ActivityHeader({ user, type, createdAt, isPinned }: ActivityHead
           ) : (
             <Link
               href={`/users/${user.username}`}
-              className="text-sm font-medium text-white hover:underline"
+              className="text-sm font-medium text-foreground hover:underline"
             >
               {user.username}
             </Link>

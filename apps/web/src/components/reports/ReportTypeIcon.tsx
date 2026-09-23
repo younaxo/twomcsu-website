@@ -46,7 +46,7 @@ export function ReportTypeIcon({
   return (
     <span className={cn('inline-flex items-center gap-2', className)} style={{ color: meta.color }}>
       <Icon className={sizeClass} />
-      {showLabel ? <span className="text-sm text-white">{REPORT_TYPE_LABELS[type]}</span> : null}
+      {showLabel ? <span className="text-sm text-foreground">{REPORT_TYPE_LABELS[type]}</span> : null}
     </span>
   );
 }

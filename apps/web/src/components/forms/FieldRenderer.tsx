@@ -211,7 +211,7 @@ export function FieldRenderer({ field, slug, value, onChange, disabled }: Props)
       return <StatsDisplayField field={field} />;
     default:
       return (
-        <div className="rounded-md border border-white/10 p-3 text-xs text-muted-foreground">
+        <div className="rounded-md border border-border p-3 text-xs text-muted-foreground">
           Тип поля {field.type} пока не поддерживается
         </div>
       );

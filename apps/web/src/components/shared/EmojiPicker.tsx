@@ -60,7 +60,7 @@ export function EmojiPickerButton({ onSelect, disabled, className }: EmojiPicker
             <button
               type="button"
               disabled={disabled}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground disabled:opacity-50"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
               onClick={() => setOpen((value) => !value)}
               aria-label="Эмодзи"
             >
@@ -72,7 +72,7 @@ export function EmojiPickerButton({ onSelect, disabled, className }: EmojiPicker
       </TooltipProvider>
 
       {open ? (
-        <div className="absolute bottom-full right-0 z-50 mb-2 overflow-hidden rounded-xl border border-white/10 shadow-2xl">
+        <div className="absolute bottom-full right-0 z-50 mb-2 overflow-hidden rounded-xl border border-border shadow-2xl">
           <Picker
             data={data}
             theme="dark"

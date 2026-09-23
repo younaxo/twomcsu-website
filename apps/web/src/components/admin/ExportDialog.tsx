@@ -109,13 +109,13 @@ export function ExportDialog({
               <Label>Столбцы</Label>
               <button
                 type="button"
-                className="text-xs text-[#F57C00] hover:underline"
+                className="text-xs text-primary hover:underline"
                 onClick={() => toggleAll(!allSelected)}
               >
                 {allSelected ? 'Снять все' : 'Выбрать все'}
               </button>
             </div>
-            <div className="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-white/10 p-3">
+            <div className="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-border p-3">
               {columns.map((column) => (
                 <label
                   key={column.id}

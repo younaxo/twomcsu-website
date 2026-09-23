@@ -30,7 +30,7 @@ export default function VotePage() {
           <Vote className="h-6 w-6" />
           <span className="text-sm uppercase tracking-[0.2em]">Поддержать TWOMC</span>
         </div>
-        <h1 className="font-display relative mt-4 text-3xl text-white sm:text-5xl">
+        <h1 className="font-display relative mt-4 text-3xl text-foreground sm:text-5xl">
           Голосование за сервер
         </h1>
         <p className="relative mt-3 max-w-2xl text-muted-foreground">
@@ -93,7 +93,7 @@ export default function VotePage() {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <h2 className="font-semibold text-white">{site.name}</h2>
+                    <h2 className="font-semibold text-foreground">{site.name}</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {site.description ?? `Награда раз в ${site.cooldownHours} ч`}
                     </p>

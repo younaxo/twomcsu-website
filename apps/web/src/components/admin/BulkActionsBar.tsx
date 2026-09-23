@@ -28,13 +28,13 @@ export function BulkActionsBar({
   return (
     <div
       className={cn(
-        'fixed bottom-6 left-1/2 z-50 flex w-[min(100%-2rem,48rem)] -translate-x-1/2 items-center gap-3 rounded-2xl glass-strong border border-white/10 px-4 py-3 shadow-lg',
+        'glass-strong fixed bottom-6 left-1/2 z-50 flex w-[min(100%-2rem,48rem)] -translate-x-1/2 items-center gap-3 rounded-window px-4 py-3',
         className,
       )}
       role="toolbar"
       aria-label="Массовые действия"
     >
-      <span className="shrink-0 text-sm font-medium text-white">{countLabel}</span>
+      <span className="shrink-0 text-sm font-medium text-foreground">{countLabel}</span>
       <div className="flex flex-1 flex-wrap items-center justify-end gap-2">{actions}</div>
       <Button
         type="button"

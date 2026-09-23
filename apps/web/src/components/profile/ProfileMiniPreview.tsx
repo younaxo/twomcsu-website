@@ -47,11 +47,11 @@ function PreviewBody({ profile, onLogout }: { profile: MyProfile; onLogout: () =
 
   return (
     <div>
-      <div className="relative h-24 w-full overflow-hidden rounded-t-2xl bg-white/[0.045]">
+      <div className="relative h-24 w-full overflow-hidden rounded-t-2xl bg-secondary">
         {bannerUrl ? (
           <Image src={bannerUrl} alt="" fill className="object-cover" sizes="320px" unoptimized />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(24,24,26,0.96)] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
       </div>
 
       <div className="relative -mt-10 px-5 pb-3">
@@ -73,20 +73,20 @@ function PreviewBody({ profile, onLogout }: { profile: MyProfile; onLogout: () =
         </div>
 
         <div className="mb-3 grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-lg bg-white/5 px-2 py-1.5">
-            <p className="text-sm font-semibold text-white">{friendsCount.data?.count ?? '—'}</p>
+          <div className="rounded-lg bg-secondary px-2 py-1.5">
+            <p className="text-sm font-semibold text-foreground">{friendsCount.data?.count ?? '—'}</p>
             <p className="text-[10px] text-muted-foreground">Друзей</p>
           </div>
-          <div className="rounded-lg bg-white/5 px-2 py-1.5">
-            <p className="text-sm font-semibold text-white">
+          <div className="rounded-lg bg-secondary px-2 py-1.5">
+            <p className="text-sm font-semibold text-foreground">
               {profile.statistics?.playTime != null
                 ? Math.floor(profile.statistics.playTime / 60)
                 : '—'}
             </p>
             <p className="text-[10px] text-muted-foreground">Часов</p>
           </div>
-          <div className="rounded-lg bg-white/5 px-2 py-1.5">
-            <p className="text-sm font-semibold text-white">{profile.statistics?.coins ?? '—'}</p>
+          <div className="rounded-lg bg-secondary px-2 py-1.5">
+            <p className="text-sm font-semibold text-foreground">{profile.statistics?.coins ?? '—'}</p>
             <p className="text-[10px] text-muted-foreground">Рубинов</p>
           </div>
         </div>
@@ -115,7 +115,7 @@ function PreviewBody({ profile, onLogout }: { profile: MyProfile; onLogout: () =
               <Users className="h-4 w-4" />
               Друзья
               {incoming > 0 ? (
-                <span className="ml-auto rounded-full bg-destructive px-1.5 text-[10px] text-white">
+                <span className="ml-auto rounded-full bg-destructive-solid px-1.5 text-[10px] text-destructive-foreground">
                   {incoming}
                 </span>
               ) : null}
@@ -133,7 +133,7 @@ function PreviewBody({ profile, onLogout }: { profile: MyProfile; onLogout: () =
               Заказы
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-white/10" />
+          <DropdownMenuSeparator className="bg-muted" />
           <DropdownMenuItem onSelect={onLogout} className="cursor-pointer gap-2 text-destructive">
             <LogOut className="h-4 w-4" />
             Выйти
@@ -166,9 +166,9 @@ export function ProfileMiniPreview({ username, avatar, onLogout }: ProfileMiniPr
           <PreviewBody profile={profile.data} onLogout={onLogout} />
         ) : (
           <div className="space-y-3 p-4">
-            <div className="h-24 animate-pulse rounded-lg bg-white/10" />
-            <div className="h-8 w-32 animate-pulse rounded bg-white/10" />
-            <div className="h-20 animate-pulse rounded bg-white/10" />
+            <div className="h-24 animate-pulse rounded-lg bg-muted" />
+            <div className="h-8 w-32 animate-pulse rounded bg-muted" />
+            <div className="h-20 animate-pulse rounded bg-muted" />
           </div>
         )}
       </DropdownMenuContent>

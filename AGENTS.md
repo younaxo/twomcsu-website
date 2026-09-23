@@ -36,11 +36,13 @@
 
 ## Дизайн
 
-- Оранжевый акцент: #F57C00
-- Glass эффекты (glassmorphism)
+- Оранжевый акцент: семантический токен `--primary` (light `23 92% 40%` / dark `24 88% 52%`, HSL) в `apps/web/src/app/globals.css` — не хардкодить хекс в компонентах
+- Централизованная токен-система: canvas/surface/card/popover, primary/secondary/muted/accent, destructive/success/warning/info (у каждого есть text-safe значение по умолчанию и `-solid` вариант для заливки с белым текстом), border/separator/input/focus, control-fill/hover/active/disabled
+- Glass эффекты (glassmorphism) через утилиты `.glass-chip/.glass-light/.glass-medium/.glass-panel/.glass-strong/.glass-menu/.glass-heavy/.glass-orange` — только на функциональных слоях (шапка, сайдбар, футер, dropdown, modal, toast), не на обычных карточках с контентом
 - НЕ использовать оранжевый glow при hover кнопок
-- НЕ использовать scale при hover
-- Плавные transitions
+- НЕ использовать scale при hover/active
+- Плавные transitions (`duration-instant/fast/base/slow` токены)
+- Светлая и тёмная темы полностью поддерживаются (`next-themes`, класс `.dark`); все цвета берутся из токенов, а не хардкодятся под одну тему
 
 ## Роли пользователей (иерархия)
 

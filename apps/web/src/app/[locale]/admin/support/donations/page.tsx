@@ -59,7 +59,7 @@ export default function AdminDonationSupportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Проблемы с донатом</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Проблемы с донатом</h1>
         <p className="text-sm text-muted-foreground">
           Только владелец проекта. Проверка платёжных документов.
         </p>
@@ -108,7 +108,7 @@ export default function AdminDonationSupportPage() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-white/10 hover:bg-transparent">
+                <TableRow className="border-border hover:bg-transparent">
                   <TableHead>#</TableHead>
                   <TableHead>Автор</TableHead>
                   <TableHead>Дата</TableHead>
@@ -119,7 +119,7 @@ export default function AdminDonationSupportPage() {
                 {items.map((item) => (
                   <TableRow
                     key={item.id}
-                    className="cursor-pointer border-white/5 hover:bg-white/[0.04]"
+                    className="cursor-pointer border-border hover:bg-muted/40"
                     onClick={() => setSelected(item.reportNumber)}
                   >
                     <TableCell className="font-mono text-primary">{item.reportNumber}</TableCell>
@@ -177,7 +177,7 @@ export default function AdminDonationSupportPage() {
                 </p>
               </div>
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-white">Документы</h3>
+                <h3 className="text-sm font-medium text-foreground">Документы</h3>
                 {detail.data.attachments.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Файлы не прикреплены</p>
                 ) : (
@@ -192,7 +192,7 @@ export default function AdminDonationSupportPage() {
                         rel="noopener noreferrer"
                         className="block overflow-hidden rounded-xl glass-light"
                       >
-                        <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-sm">
+                        <div className="flex items-center gap-2 border-b border-foreground/10 px-3 py-2 text-sm">
                           <FileText className="h-4 w-4 text-red-400" />
                           <span className="truncate">{file.fileName}</span>
                         </div>

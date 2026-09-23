@@ -19,7 +19,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuditLog, useAuditLogStats, useExportAuditLog } from '@/hooks/admin';
 import type { AuditLogItem } from '@/hooks/admin';
-import { cn } from '@/lib/utils';
 
 const SEVERITY_LABELS: Record<string, string> = {
   info: 'Инфо',
@@ -27,14 +26,14 @@ const SEVERITY_LABELS: Record<string, string> = {
   critical: 'Критично',
 };
 
-function severityClass(severity?: string): string {
+function severityVariant(severity?: string): 'destructive' | 'warning' | 'info' {
   switch (severity) {
     case 'critical':
-      return 'border-red-500/40 bg-red-500/10 text-red-300';
+      return 'destructive';
     case 'warning':
-      return 'border-[#F57C00]/40 bg-[#F57C00]/10 text-[#F57C00]';
+      return 'warning';
     default:
-      return 'border-blue-500/30 bg-blue-500/10 text-blue-300';
+      return 'info';
   }
 }
 
@@ -53,7 +52,7 @@ function AuditRow({ item }: { item: AuditLogItem }) {
   return (
     <Fragment>
       <tr
-        className="cursor-pointer border-b border-white/5 hover:bg-white/5"
+        className="cursor-pointer border-b border-border hover:bg-muted/40"
         onClick={() => setExpanded((v) => !v)}
       >
         <td className="py-2.5 pr-2">
@@ -66,7 +65,7 @@ function AuditRow({ item }: { item: AuditLogItem }) {
         <td className="py-2.5 pr-2 text-sm text-muted-foreground">
           {format(new Date(item.createdAt), 'd MMM yyyy, HH:mm', { locale: ru })}
         </td>
-        <td className="py-2.5 pr-2 text-sm text-white">{item.actor.username}</td>
+        <td className="py-2.5 pr-2 text-sm text-foreground">{item.actor.username}</td>
         <td className="py-2.5 pr-2 text-sm">{item.action}</td>
         <td className="py-2.5 pr-2 text-sm text-muted-foreground">
           {item.targetType
@@ -74,13 +73,13 @@ function AuditRow({ item }: { item: AuditLogItem }) {
             : '—'}
         </td>
         <td className="py-2.5">
-          <Badge variant="outline" className={cn('border', severityClass(item.severity))}>
+          <Badge variant={severityVariant(item.severity)}>
             {SEVERITY_LABELS[item.severity ?? 'info'] ?? item.severity ?? 'info'}
           </Badge>
         </td>
       </tr>
       {expanded ? (
-        <tr className="border-b border-white/5 bg-white/[0.02]">
+        <tr className="border-b border-border bg-muted/30">
           <td colSpan={6} className="px-4 py-3 text-xs text-muted-foreground">
             <div className="grid gap-2 sm:grid-cols-2">
               {item.ipAddress ? <p>IP: {item.ipAddress}</p> : null}
@@ -88,7 +87,7 @@ function AuditRow({ item }: { item: AuditLogItem }) {
               {item.duration != null ? <p>Длительность: {item.duration} мс</p> : null}
             </div>
             {item.changes ? (
-              <pre className="mt-2 max-h-40 overflow-auto rounded-lg bg-black/20 p-2 text-[11px] text-white/80">
+              <pre className="mt-2 max-h-40 overflow-auto rounded-lg bg-secondary p-2 text-[11px] text-foreground">
                 {JSON.stringify(item.changes, null, 2)}
               </pre>
             ) : null}
@@ -210,7 +209,7 @@ export default function AdminAuditLogPage() {
             <div className="overflow-x-auto rounded-2xl border border-border bg-card">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-white/5 text-xs text-muted-foreground">
+                  <tr className="border-b border-border text-xs text-muted-foreground">
                     <th className="w-8 p-3" />
                     <th className="p-3">Время</th>
                     <th className="p-3">Кто</th>
@@ -262,7 +261,7 @@ export default function AdminAuditLogPage() {
             <>
               <div className="border border-border bg-card rounded-2xl p-4">
                 <p className="text-sm text-muted-foreground">Записей за 30 дней</p>
-                <p className="text-3xl font-semibold text-white">
+                <p className="text-3xl font-semibold text-foreground">
                   {(stats.data?.total ?? 0).toLocaleString('ru-RU')}
                 </p>
               </div>
@@ -280,14 +279,14 @@ export default function AdminAuditLogPage() {
                 />
               </div>
               <div className="border border-border bg-card rounded-2xl p-4">
-                <h3 className="mb-3 text-sm font-medium text-white">Топ администраторов</h3>
+                <h3 className="mb-3 text-sm font-medium text-foreground">Топ администраторов</h3>
                 <ul className="space-y-2">
                   {(stats.data?.topActors ?? []).map((row, i) => (
                     <li
                       key={row.actor?.id ?? i}
-                      className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2 text-sm"
+                      className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2 text-sm"
                     >
-                      <span className="text-white">{row.actor?.username ?? '—'}</span>
+                      <span className="text-foreground">{row.actor?.username ?? '—'}</span>
                       <span className="text-muted-foreground">{row.count}</span>
                     </li>
                   ))}

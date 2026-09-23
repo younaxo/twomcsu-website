@@ -31,7 +31,7 @@ export function ReportRulesCard({
 
   return (
     <div className={cn('space-y-4 rounded-2xl border border-border bg-card p-5', className)}>
-      <h2 className="text-lg font-semibold text-white">Правила обращения</h2>
+      <h2 className="text-lg font-semibold text-foreground">Правила обращения</h2>
 
       {empty ? (
         <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
@@ -39,7 +39,7 @@ export function ReportRulesCard({
           <p>Правила ещё не заполнены. Обратитесь к администрации.</p>
         </div>
       ) : (
-        <div className="prose prose-invert max-w-none text-sm">
+        <div className="comment-markdown max-w-none text-sm">
           {topic.contentHtml ? (
             <div dangerouslySetInnerHTML={{ __html: topic.contentHtml }} />
           ) : (
@@ -50,7 +50,7 @@ export function ReportRulesCard({
         </div>
       )}
 
-      <div className="flex items-start gap-3 border-t border-white/10 pt-4">
+      <div className="flex items-start gap-3 border-t border-border pt-4">
         <Checkbox
           id="report-rules-agree"
           checked={agreed}
@@ -58,7 +58,7 @@ export function ReportRulesCard({
         />
         <Label
           htmlFor="report-rules-agree"
-          className="cursor-pointer text-sm leading-snug text-neutral-200"
+          className="cursor-pointer text-sm leading-snug text-foreground"
         >
           Я ознакомлен с правилами и согласен
         </Label>

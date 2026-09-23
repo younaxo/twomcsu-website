@@ -26,7 +26,7 @@ export default function ServersPage() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-semibold text-white">Серверы</h1>
+          <h1 className="text-3xl font-semibold text-foreground">Серверы</h1>
           <p className="mt-1 text-sm text-muted-foreground">Онлайн обновляется каждые 30 секунд</p>
         </div>
         {overview.isLoading ? (

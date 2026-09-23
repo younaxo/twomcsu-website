@@ -86,14 +86,14 @@ export function QuickActionsMenu({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-lg">
-        <DialogHeader className="border-b border-white/5 px-4 py-3">
+        <DialogHeader className="border-b border-border px-4 py-3">
           <DialogTitle className="flex items-center gap-2 text-base">
-            <Command className="h-4 w-4 text-[#F57C00]" />
+            <Command className="h-4 w-4 text-primary" />
             {title}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="border-b border-white/5 px-4 py-3">
+        <div className="border-b border-border px-4 py-3">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -105,8 +105,8 @@ export function QuickActionsMenu({
             />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Нажмите <kbd className="rounded border border-white/10 px-1">Ctrl</kbd>+
-            <kbd className="rounded border border-white/10 px-1">K</kbd> для быстрого доступа
+            Нажмите <kbd className="rounded border border-border px-1">Ctrl</kbd>+
+            <kbd className="rounded border border-border px-1">K</kbd> для быстрого доступа
           </p>
         </div>
 
@@ -127,7 +127,7 @@ export function QuickActionsMenu({
                       <button
                         type="button"
                         className={cn(
-                          'flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-white/10',
+                          'flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent',
                           action.disabled && 'cursor-not-allowed opacity-50',
                         )}
                         disabled={action.disabled}
@@ -136,7 +136,7 @@ export function QuickActionsMenu({
                           setOpen(false);
                         }}
                       >
-                        <span className="text-white">{action.label}</span>
+                        <span className="text-foreground">{action.label}</span>
                         {action.shortcut ? (
                           <span className="text-xs text-muted-foreground">{action.shortcut}</span>
                         ) : null}

@@ -169,7 +169,7 @@ export function CurrencyConverter({
             <CardTitle className="text-sm text-muted-foreground">Рубины</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold text-white">
+            <p className="text-lg font-semibold text-foreground">
               1₽ = {rates.purchase.rubies.rate} {rates.purchase.rubies.symbol}
             </p>
           </CardContent>
@@ -179,7 +179,7 @@ export function CurrencyConverter({
             <CardTitle className="text-sm text-muted-foreground">Монеты</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold text-white">
+            <p className="text-lg font-semibold text-foreground">
               1₽ = {rates.purchase.coins.rate} {rates.purchase.coins.symbol}
             </p>
           </CardContent>
@@ -189,7 +189,7 @@ export function CurrencyConverter({
             <CardTitle className="text-sm text-muted-foreground">Обмен</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold text-white">
+            <p className="text-lg font-semibold text-foreground">
               1 💎 = {rates.exchange.rubies_to_coins} 🪙
             </p>
           </CardContent>
@@ -199,7 +199,7 @@ export function CurrencyConverter({
             <CardTitle className="text-sm text-muted-foreground">XP боевого пропуска</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold text-white">
+            <p className="text-lg font-semibold text-foreground">
               1 💎 = {rates.exchange.rubies_to_bp_xp} XP
             </p>
           </CardContent>
@@ -208,7 +208,7 @@ export function CurrencyConverter({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4 rounded-xl border border-border bg-card p-5">
-          <h3 className="text-lg font-semibold text-white">Купить валюту за рубли</h3>
+          <h3 className="text-lg font-semibold text-foreground">Купить валюту за рубли</h3>
 
           <Tabs value={buyType} onValueChange={(v) => setBuyType(v as CurrencyType)}>
             <TabsList className="grid w-full grid-cols-2">
@@ -262,7 +262,7 @@ export function CurrencyConverter({
           <div className="rounded-lg bg-secondary/50 p-4 text-sm">
             <p>
               Вы получите:{' '}
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-foreground">
                 {totalUnits.toLocaleString('ru-RU')} {buyLabel} {purchaseSymbol}
               </span>
               {bonus > 0 ? (
@@ -297,7 +297,7 @@ export function CurrencyConverter({
         <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <div className="flex items-center gap-2">
             <ArrowRightLeft className="h-5 w-5 text-muted-foreground" />
-            <h3 className="text-lg font-semibold text-white">Конвертер игровых валют</h3>
+            <h3 className="text-lg font-semibold text-foreground">Конвертер игровых валют</h3>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-end">

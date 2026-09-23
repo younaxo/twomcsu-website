@@ -1,7 +1,6 @@
 'use client';
 
 import { MarkdownContent } from '@/components/shared/MarkdownContent';
-import { cn } from '@/lib/utils';
 
 interface NewsContentProps {
   content: string;
@@ -9,15 +8,7 @@ interface NewsContentProps {
 }
 
 export function NewsContent({ content, className }: NewsContentProps) {
-  return (
-    <MarkdownContent
-      content={content}
-      className={cn(
-        'prose-headings:scroll-mt-24 prose-a:text-primary prose-img:rounded-xl',
-        className,
-      )}
-    />
-  );
+  return <MarkdownContent content={content} className={className} />;
 }
 
 export function extractToc(content: string): Array<{ id: string; text: string; level: 2 | 3 }> {

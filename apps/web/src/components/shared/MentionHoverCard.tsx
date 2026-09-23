@@ -174,7 +174,7 @@ function MentionCardBody({
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg bg-black/20 px-2 py-1.5">
+    <div className="rounded-lg bg-secondary px-2 py-1.5">
       <div className="font-semibold text-foreground">{value}</div>
       <div className="text-muted-foreground">{label}</div>
     </div>

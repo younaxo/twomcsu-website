@@ -40,7 +40,7 @@ export function ActivityComments({
   };
 
   return (
-    <div className="space-y-3 border-t border-white/10 pt-3">
+    <div className="space-y-3 border-t border-border pt-3">
       <div className="divide-y divide-white/5">
         {comments.length === 0 ? (
           <p className="py-2 text-sm text-muted-foreground">Пока нет комментариев</p>

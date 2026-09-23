@@ -55,7 +55,7 @@ export function EvidenceLinkCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'group flex gap-3 rounded-xl glass-light p-3 transition hover:bg-white/10',
+        'group flex gap-3 rounded-card glass-light p-3 transition duration-fast ease-out hover:bg-foreground/[0.05]',
         className,
       )}
     >
@@ -73,13 +73,13 @@ export function EvidenceLinkCard({
           </div>
         </div>
       ) : (
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-[#F57C00]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <EvidenceTypeIcon type={type} className="h-5 w-5" />
         </div>
       )}
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-white group-hover:text-[#F57C00]">
+        <p className="truncate text-sm font-medium text-foreground group-hover:text-primary">
           {label}
         </p>
         {link.title ? (

@@ -81,7 +81,7 @@ export default function AdminServersPage() {
       header: 'Название',
       cell: (server) => (
         <div>
-          <p className="font-medium text-white">{server.name}</p>
+          <p className="font-medium text-foreground">{server.name}</p>
           <p className="text-xs text-muted-foreground">{server.slug}</p>
         </div>
       ),

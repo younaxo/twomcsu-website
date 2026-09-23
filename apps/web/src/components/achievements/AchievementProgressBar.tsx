@@ -13,7 +13,7 @@ interface AchievementProgressBarProps {
 
 export function AchievementProgressBar({
   value,
-  color = '#F57C00',
+  color = 'hsl(var(--primary))',
   className,
   showLabel = false,
   current,
@@ -33,7 +33,7 @@ export function AchievementProgressBar({
           </span>
         </div>
       ) : null}
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${pct}%`, background: color }}

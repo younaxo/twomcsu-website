@@ -42,7 +42,7 @@ export function CookieConsentSettings() {
         <CardDescription>{t('categories.necessary.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.03] px-4 py-3">
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/30 px-4 py-3">
           <div>
             <p className="font-medium">{t('categories.necessary.title')}</p>
             <p className="text-sm text-muted-foreground">{t('categories.necessary.description')}</p>
@@ -54,7 +54,7 @@ export function CookieConsentSettings() {
         {toggleableKeys.map((key) => (
           <div
             key={key}
-            className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.03] px-4 py-3"
+            className="flex items-center justify-between gap-3 rounded-xl bg-muted/30 px-4 py-3"
           >
             <div>
               <p className="font-medium">{t(`categories.${key}.title`)}</p>

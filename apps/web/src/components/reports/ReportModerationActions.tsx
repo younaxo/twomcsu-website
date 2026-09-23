@@ -135,7 +135,6 @@ export function ReportModerationActions({
           size="sm"
           onClick={() => void take()}
           disabled={assign.isPending}
-          className="w-full bg-[#F57C00] text-black hover:bg-[#E65100]"
         >
           Взять себе
         </Button>
@@ -216,7 +215,7 @@ export function ReportModerationActions({
       />
 
       <Dialog open={statusOpen} onOpenChange={setStatusOpen}>
-        <DialogContent className="glass-strong border-white/10">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Изменить статус</DialogTitle>
             <DialogDescription>
@@ -241,7 +240,6 @@ export function ReportModerationActions({
             <Button
               onClick={() => void confirmStatus()}
               disabled={changeStatus.isPending || !pendingStatus}
-              className="bg-[#F57C00] text-black hover:bg-[#E65100]"
             >
               Подтвердить
             </Button>
@@ -250,7 +248,7 @@ export function ReportModerationActions({
       </Dialog>
 
       <Dialog open={lockOpen} onOpenChange={setLockOpen}>
-        <DialogContent className="glass-strong border-white/10">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Заблокировать сообщения</DialogTitle>
             <DialogDescription>
@@ -279,7 +277,7 @@ export function ReportModerationActions({
       </Dialog>
 
       <Dialog open={archiveOpen} onOpenChange={setArchiveOpen}>
-        <DialogContent className="glass-strong border-white/10">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Архивировать обращение</DialogTitle>
             <DialogDescription>
@@ -306,7 +304,7 @@ export function ReportModerationActions({
       </Dialog>
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent className="glass-strong border-white/10">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Удалить обращение</DialogTitle>
             <DialogDescription>

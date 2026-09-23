@@ -43,7 +43,7 @@ function StatCard({
       onClick={onClick}
       className={cn(
         'rounded-2xl border border-border bg-card p-5 text-left transition hover:bg-accent',
-        active && 'ring-1 ring-[#F57C00]/60',
+        active && 'ring-1 ring-primary/60',
         onClick ? 'cursor-pointer' : 'cursor-default',
       )}
     >
@@ -107,18 +107,15 @@ export default function ReportListPage() {
       <header className="rounded-2xl border border-border bg-card p-6 md:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <Mail className="h-12 w-12 shrink-0 text-[#F57C00]" strokeWidth={1.5} />
+            <Mail className="h-12 w-12 shrink-0 text-primary" strokeWidth={1.5} />
             <div>
-              <h1 className="text-2xl font-bold text-white md:text-3xl">Обращения</h1>
+              <h1 className="text-2xl font-bold text-foreground md:text-3xl">Обращения</h1>
               <p className="mt-1 text-sm text-muted-foreground md:text-base">
                 Обращения с вашим участием — созданные вами или где вы указаны как цель
               </p>
             </div>
           </div>
-          <Button
-            asChild
-            className="bg-[#F57C00] px-6 font-semibold uppercase tracking-wide text-black hover:bg-[#F57C00]/90"
-          >
+          <Button asChild className="px-6 font-semibold uppercase tracking-wide">
             <Link href="/report/new">
               <Plus className="mr-2 h-4 w-4" />
               Создать обращение
@@ -131,7 +128,7 @@ export default function ReportListPage() {
         <StatCard
           label="Всего"
           value={stats.total}
-          color="#F57C00"
+          color="hsl(var(--primary))"
           active={!status}
           loading={stats.isLoading}
           onClick={() => setStatusFilter('')}
@@ -169,7 +166,7 @@ export default function ReportListPage() {
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
-        <p className="mb-4 text-sm font-medium text-white">Фильтры</p>
+        <p className="mb-4 text-sm font-medium text-foreground">Фильтры</p>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           <div className="relative xl:col-span-2">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -279,7 +276,7 @@ export default function ReportListPage() {
           }
           className="border-border bg-card"
           action={
-            <Button asChild className="bg-[#F57C00] text-black hover:bg-[#F57C00]/90">
+            <Button asChild>
               <Link href="/report/new">Создать обращение</Link>
             </Button>
           }

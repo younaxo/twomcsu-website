@@ -115,7 +115,7 @@ export default function ServerDetailPage() {
 
         <TabsContent value="info" className="mt-4 space-y-3 rounded-xl border border-border p-4">
           <p className="text-sm text-muted-foreground">Тип: {server.data.type}</p>
-          <p className="whitespace-pre-wrap text-sm text-white">
+          <p className="whitespace-pre-wrap text-sm text-foreground">
             {server.data.description || 'Описание пока не добавлено'}
           </p>
         </TabsContent>

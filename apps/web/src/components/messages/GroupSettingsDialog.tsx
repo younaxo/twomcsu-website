@@ -86,7 +86,7 @@ export function GroupSettingsDialog({ conversation, onChanged, onLeft }: Props) 
         </DialogHeader>
 
         {canManage ? (
-          <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+          <div className="space-y-3 rounded-xl border border-foreground/10 bg-foreground/[0.03] p-3">
             <div className="flex items-center gap-2 text-sm font-medium">
               <UserPlus className="h-4 w-4" /> Добавить друга
             </div>
@@ -95,7 +95,7 @@ export function GroupSettingsDialog({ conversation, onChanged, onLeft }: Props) 
               <Link2 className="h-4 w-4" /> Создать ссылку на 24 часа
             </Button>
             {invite ? (
-              <div className="flex items-center gap-2 rounded-lg bg-black/20 p-2 text-xs">
+              <div className="flex items-center gap-2 rounded-lg bg-surface-sunken p-2 text-xs">
                 <span className="min-w-0 flex-1 truncate">{invite.url}</span>
                 <Button
                   size="icon"
@@ -114,7 +114,7 @@ export function GroupSettingsDialog({ conversation, onChanged, onLeft }: Props) 
 
         <div className="space-y-2">
           {conversation.members.map((member) => (
-            <div key={member.id} className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+            <div key={member.id} className="flex items-center gap-3 rounded-xl border border-foreground/5 bg-foreground/[0.03] p-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{member.user.username}</p>
                 <Badge variant="secondary" className="mt-1 text-[10px]">

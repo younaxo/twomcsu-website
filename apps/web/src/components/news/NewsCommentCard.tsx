@@ -67,7 +67,7 @@ export function NewsCommentCard({ comment, slug, depth = 0 }: NewsCommentCardPro
           <MarkdownContent
             content={comment.content}
             html={comment.contentHtml ?? undefined}
-            className="prose-sm"
+            className="text-sm"
           />
         )}
 

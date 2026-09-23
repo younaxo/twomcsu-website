@@ -63,8 +63,8 @@ export function ImageGalleryField({ field, slug, value, onChange, disabled }: Pr
       <div
         {...getRootProps()}
         className={cn(
-          'flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 p-6 text-center text-sm text-muted-foreground transition-colors',
-          isDragActive && 'border-[#F57C00] bg-[#F57C00]/5',
+          'flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground transition-colors',
+          isDragActive && 'border-primary bg-primary/5',
         )}
       >
         <input {...getInputProps()} />

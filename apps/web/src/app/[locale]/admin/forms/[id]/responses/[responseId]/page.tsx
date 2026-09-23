@@ -28,7 +28,7 @@ export default function AdminFormResponsePage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-white">Ответ</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Ответ</h1>
         <Button asChild variant="secondary">
           <Link href={`/admin/forms/${id}/responses`}>Назад</Link>
         </Button>

@@ -124,8 +124,8 @@ export default function AdminVotingPage() {
           <CardContent className="space-y-3 text-sm">
             <p className="text-muted-foreground">
               Он показывается только сейчас. Webhook:{' '}
-              <code className="break-all text-white">/voting/webhook/{secret.slug}</code>,
-              заголовок: <code className="text-white">x-vote-secret</code>.
+              <code className="break-all text-foreground">/voting/webhook/{secret.slug}</code>,
+              заголовок: <code className="text-foreground">x-vote-secret</code>.
             </p>
             <div className="flex gap-2">
               <Input readOnly value={secret.value} className="font-mono text-xs" />
@@ -256,10 +256,10 @@ export default function AdminVotingPage() {
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
-                <span className="rounded-full bg-white/5 px-2.5 py-1">
+                <span className="rounded-full bg-secondary px-2.5 py-1">
                   {site.rewardCoins} рубинов
                 </span>
-                <span className="rounded-full bg-white/5 px-2.5 py-1">
+                <span className="rounded-full bg-secondary px-2.5 py-1">
                   Раз в {site.cooldownHours} ч.
                 </span>
               </div>
@@ -281,7 +281,7 @@ export default function AdminVotingPage() {
         ))}
       </div>
       {!sites.length ? (
-        <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           Сайты голосования ещё не добавлены
         </div>
       ) : null}

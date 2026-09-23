@@ -124,14 +124,14 @@ export default function AdminDecorationsPage() {
             </Button>
           </div>
           {user ? (
-            <div className="rounded-xl border border-white/10 p-4">
+            <div className="rounded-xl border border-border p-4">
               <p className="font-medium">{user.username}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {user.ownedDecorations.length ? (
                   user.ownedDecorations.map((owned) => (
                     <span
                       key={owned.decorationId}
-                      className="inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm"
+                      className="inline-flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-sm"
                     >
                       <img
                         src={owned.decoration.imageUrl}

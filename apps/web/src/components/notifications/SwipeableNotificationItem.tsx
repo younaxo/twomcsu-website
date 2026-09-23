@@ -99,13 +99,13 @@ export function SwipeableNotificationItem({
     <div className="relative overflow-hidden rounded-xl">
       {/* Swipe right reveals delete; swipe left reveals read */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 flex w-24 items-center justify-center bg-destructive/80 text-white"
+        className="pointer-events-none absolute inset-y-0 left-0 flex w-24 items-center justify-center bg-destructive-solid/90 text-destructive-foreground"
         aria-hidden
       >
         <Trash2 className="h-5 w-5" />
       </div>
       <div
-        className="pointer-events-none absolute inset-y-0 right-0 flex w-24 items-center justify-center bg-emerald-500/80 text-white"
+        className="pointer-events-none absolute inset-y-0 right-0 flex w-24 items-center justify-center bg-success-solid/90 text-white"
         aria-hidden
       >
         <Check className="h-5 w-5" />
@@ -113,7 +113,7 @@ export function SwipeableNotificationItem({
 
       <div
         className={cn(
-          'relative touch-pan-y rounded-xl border border-white/10 bg-[rgba(30,30,40,0.55)] backdrop-blur-[20px] transition-transform',
+          'glass-light relative touch-pan-y rounded-card transition-transform duration-fast ease-out',
           !notification.isRead && 'border-primary/30 bg-primary/10',
           busy && 'opacity-70',
         )}
@@ -138,7 +138,7 @@ export function SwipeableNotificationItem({
             <div className="min-w-0 space-y-0.5">
               <p
                 className={cn(
-                  'truncate font-semibold text-white',
+                  'truncate font-semibold text-foreground',
                   compact ? 'text-sm' : 'text-base',
                 )}
               >

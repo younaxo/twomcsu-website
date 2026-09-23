@@ -44,7 +44,7 @@ export function DecorationPicker({
         <CardDescription>Выберите рамку или эффект из своей коллекции</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
-        <div className="flex items-center gap-5 rounded-xl border border-white/10 bg-black/20 p-4">
+        <div className="flex items-center gap-5 rounded-card border border-border bg-secondary p-4">
           <AvatarWithSkin user={profile} size="xl" />
           <div>
             <p className="font-medium">{profile.avatarDecoration?.name ?? 'Без украшения'}</p>
@@ -55,7 +55,7 @@ export function DecorationPicker({
           <p className="text-sm text-muted-foreground">Загрузка коллекции…</p>
         ) : null}
         {!owned.isLoading && !owned.data?.length ? (
-          <p className="rounded-xl border border-dashed border-white/10 p-5 text-sm text-muted-foreground">
+          <p className="rounded-card border border-dashed border-border p-5 text-sm text-muted-foreground">
             В коллекции пока нет украшений. Доступные варианты появятся в магазине.
           </p>
         ) : (
@@ -69,8 +69,8 @@ export function DecorationPicker({
                   onClick={() => void choose(active ? null : item.id)}
                   disabled={select.isPending}
                   className={cn(
-                    'relative rounded-xl border bg-black/20 p-3 text-left transition-colors hover:border-white/25',
-                    active ? 'border-primary bg-primary/10' : 'border-white/10',
+                    'relative rounded-card border bg-secondary p-3 text-left transition-colors duration-fast ease-out hover:border-primary/40',
+                    active ? 'border-primary bg-primary/10' : 'border-border',
                   )}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -81,7 +81,7 @@ export function DecorationPicker({
                   />
                   <span className="mt-2 block text-xs font-medium">{item.name}</span>
                   {active ? (
-                    <Check className="absolute right-2 top-2 h-5 w-5 rounded-full bg-primary p-1 text-white" />
+                    <Check className="absolute right-2 top-2 h-5 w-5 rounded-full bg-primary p-1 text-primary-foreground" />
                   ) : null}
                 </button>
               );

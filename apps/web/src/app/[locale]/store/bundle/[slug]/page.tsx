@@ -71,7 +71,7 @@ export default function BundlePage() {
         </div>
 
         <div className="space-y-4">
-          <h1 className="text-3xl font-semibold text-white">{bundle.name}</h1>
+          <h1 className="text-3xl font-semibold text-foreground">{bundle.name}</h1>
           {bundle.description ? (
             <p className="text-muted-foreground">{bundle.description}</p>
           ) : null}
@@ -86,7 +86,7 @@ export default function BundlePage() {
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-white">Что входит</h2>
+        <h2 className="text-xl font-semibold text-foreground">Что входит</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {bundle.items.map((item) => (
             <Link
@@ -106,7 +106,7 @@ export default function BundlePage() {
                 ) : null}
               </div>
               <div>
-                <p className="font-medium text-white">{item.product.name}</p>
+                <p className="font-medium text-foreground">{item.product.name}</p>
                 <p className="text-xs text-muted-foreground">×{item.quantity}</p>
               </div>
             </Link>

@@ -66,7 +66,7 @@ export default function AdminNotificationWebhooksPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Discord webhooks</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Discord webhooks</h1>
         <p className="text-sm text-muted-foreground">Глобальные вебхуки для событий уведомлений</p>
       </div>
 
@@ -87,7 +87,6 @@ export default function AdminNotificationWebhooksPage() {
         </div>
         <Button
           type="button"
-          className="bg-[#F57C00] text-black hover:bg-[#E65100]"
           disabled={create.isPending}
           onClick={() =>
             void create.mutateAsync().catch((error) => toast.error(extractErrorMessage(error)))
@@ -102,7 +101,7 @@ export default function AdminNotificationWebhooksPage() {
           <article key={webhook.id} className="rounded-2xl border border-border bg-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="font-medium text-white">{webhook.name}</h2>
+                <h2 className="font-medium text-foreground">{webhook.name}</h2>
                 <p className="text-xs text-muted-foreground">{webhook.eventTypes.join(', ')}</p>
               </div>
               <div className="flex items-center gap-3">

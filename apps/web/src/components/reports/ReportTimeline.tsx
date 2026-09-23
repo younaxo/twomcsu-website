@@ -32,12 +32,12 @@ export function ReportTimeline({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <h3 className="text-sm font-medium text-white">История</h3>
-      <ol className="relative space-y-4 border-l border-white/15 pl-4">
+      <h3 className="text-sm font-medium text-foreground">История</h3>
+      <ol className="relative space-y-4 border-l border-border pl-4">
         {items.map((item) => (
           <li key={item.id} className="relative">
             <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary" />
-            <p className="text-sm text-neutral-200">{item.label}</p>
+            <p className="text-sm text-foreground">{item.label}</p>
             <p className="text-xs text-muted-foreground">
               {format(new Date(item.at), 'dd.MM.yyyy HH:mm', { locale: ru })}
             </p>
@@ -48,7 +48,7 @@ export function ReportTimeline({
       {report.incidentDate ? (
         <div className="rounded-lg glass-light px-3 py-2 text-sm">
           <p className="text-muted-foreground">Дата инцидента</p>
-          <p className="text-white">
+          <p className="text-foreground">
             {format(new Date(report.incidentDate), 'dd.MM.yyyy HH:mm', { locale: ru })}
           </p>
         </div>
@@ -57,7 +57,7 @@ export function ReportTimeline({
       {report.server ? (
         <div className="rounded-lg glass-light px-3 py-2 text-sm">
           <p className="text-muted-foreground">Сервер</p>
-          <p className="text-white">{report.server}</p>
+          <p className="text-foreground">{report.server}</p>
         </div>
       ) : null}
     </div>

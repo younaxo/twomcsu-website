@@ -120,7 +120,7 @@ export function SiteFooter() {
           </p>
           <div className="flex flex-col gap-3 lg:items-end">
             <LanguageSwitcher variant="full" className="lg:w-auto" />
-            <div className="inline-flex items-center gap-2 self-end rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs">
+            <div className="inline-flex items-center gap-2 self-end rounded-full border border-foreground/10 bg-foreground/[0.03] px-3 py-1.5 text-xs">
               <span
                 className={cn('h-2 w-2 rounded-full', online ? 'bg-success' : 'bg-warning')}
                 aria-hidden
@@ -132,7 +132,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-white/[0.07] px-5 py-5 text-xs text-muted-foreground/70 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
+      <div className="flex flex-col gap-3 border-t border-foreground/[0.07] px-5 py-5 text-xs text-muted-foreground/70 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
         <div className="space-y-0.5">
           <p>
             © twomc.su {year}. {t('rights')}

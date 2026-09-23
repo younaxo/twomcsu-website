@@ -62,7 +62,7 @@ export function ActivitySettingsTab() {
     <div className="space-y-8">
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div>
-          <h3 className="text-base font-semibold text-white">Что показывать в моей ленте</h3>
+          <h3 className="text-base font-semibold text-foreground">Что показывать в моей ленте</h3>
           <p className="text-sm text-muted-foreground">
             Управляет созданием вашей публичной активности
           </p>
@@ -85,7 +85,7 @@ export function ActivitySettingsTab() {
 
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <div>
-          <h3 className="text-base font-semibold text-white">Приватность моей активности</h3>
+          <h3 className="text-base font-semibold text-foreground">Приватность моей активности</h3>
           <p className="text-sm text-muted-foreground">Кто видит ваши события</p>
         </div>
         <div className="space-y-5">
@@ -117,7 +117,7 @@ export function ActivitySettingsTab() {
       </section>
 
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
-        <h3 className="text-base font-semibold text-white">Уведомления</h3>
+        <h3 className="text-base font-semibold text-foreground">Уведомления</h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-4">
             <Label htmlFor="notifyOnComment">Уведомлять о комментариях</Label>

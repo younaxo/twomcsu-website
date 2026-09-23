@@ -34,7 +34,7 @@ export function ActivityFeed({
 
   return (
     <div className={cn('rounded-2xl border border-border bg-card p-4', className)}>
-      <h2 className="mb-3 text-sm font-medium text-white">{title}</h2>
+      <h2 className="mb-3 text-sm font-medium text-foreground">{title}</h2>
 
       {visible.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">{emptyMessage}</p>
@@ -48,13 +48,13 @@ export function ActivityFeed({
             return (
               <li
                 key={item.id}
-                className="flex gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3"
+                className="flex gap-3 rounded-xl border border-border bg-muted/40 p-3"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5">
-                  <Icon className="h-4 w-4 text-[#F57C00]" aria-hidden />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  <Icon className="h-4 w-4 text-primary" aria-hidden />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-white">{item.title}</p>
+                  <p className="text-sm font-medium text-foreground">{item.title}</p>
                   {item.description ? (
                     <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>
                   ) : null}

@@ -31,7 +31,7 @@ export function NewsFeaturedBanner({ news }: NewsFeaturedBannerProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 space-y-3 p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-white">
+            <span className="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
               Топ
             </span>
             <NewsCategoryBadge category={news.category} />

@@ -39,7 +39,7 @@ export function DashboardCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="mt-1 text-2xl font-semibold text-white">{value}</p>
+          <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
           {hasChange ? (
             <div
               className={cn(
@@ -62,8 +62,8 @@ export function DashboardCard({
           ) : null}
         </div>
         {Icon ? (
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5">
-            <Icon className="h-5 w-5 text-[#F57C00]" aria-hidden />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <Icon className="h-5 w-5 text-primary" aria-hidden />
           </div>
         ) : null}
       </div>
@@ -75,7 +75,7 @@ export function DashboardCard({
               <Line
                 type="monotone"
                 dataKey="value"
-                stroke="#F57C00"
+                stroke="hsl(var(--primary))"
                 strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}

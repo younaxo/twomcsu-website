@@ -136,7 +136,7 @@ export function TargetsInput({
               />
               <button
                 type="button"
-                className="text-xs text-[#F57C00] hover:underline"
+                className="text-xs text-primary hover:underline"
                 onClick={() => setManualMode(true)}
               >
                 или введите ник вручную

@@ -47,7 +47,7 @@ export default function ArchivedReportsPage() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Архив обращений</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Архив обращений</h1>
           <p className="text-sm text-muted-foreground">Только для администраторов</p>
         </div>
         <Button variant="secondary" asChild>

@@ -40,7 +40,7 @@ export function MuteDurationSelect({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-strong border-white/10">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Замутить {username}</DialogTitle>
         </DialogHeader>

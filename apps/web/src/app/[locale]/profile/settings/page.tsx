@@ -459,7 +459,7 @@ export default function ProfileSettingsPage() {
                 </SelectContent>
               </Select>
 
-              <div className="glass-light rounded-xl border border-white/5 px-4 py-3">
+              <div className="glass-light rounded-card px-4 py-3">
                 <p className="mb-2 text-xs text-muted-foreground">Так будет выглядеть в хедере:</p>
                 <div className="flex items-center gap-2">
                   <ColoredUsername

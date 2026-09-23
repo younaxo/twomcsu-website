@@ -16,7 +16,7 @@ const MAX_LINKS = 10;
 
 function TypeIcon({ url }: { url: string }) {
   const type = detectEvidenceLinkType(url);
-  const className = 'h-4 w-4 shrink-0 text-[#F57C00]';
+  const className = 'h-4 w-4 shrink-0 text-primary';
 
   switch (type) {
     case 'youtube':
@@ -83,7 +83,7 @@ export function EvidenceLinksInput({
         {rows.map((row, index) => (
           <div key={index} className="space-y-2 rounded-xl glass-light p-3">
             <div className="flex gap-2">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
                 <TypeIcon url={row.url} />
               </div>
               <div className="min-w-0 flex-1 space-y-2">

@@ -221,7 +221,7 @@ export default function AdminAchievementsPage() {
                 {achievements.map((a) => (
                   <TableRow
                     key={a.id}
-                    className="cursor-pointer hover:bg-white/[0.03]"
+                    className="cursor-pointer hover:bg-muted/40"
                     onClick={() => startEdit(a)}
                   >
                     <TableCell className="font-medium">

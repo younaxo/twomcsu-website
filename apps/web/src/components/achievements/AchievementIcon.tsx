@@ -44,7 +44,7 @@ export function AchievementIcon({
     >
       {isSecret ? (
         <div
-          className="flex h-full w-full items-center justify-center rounded-xl bg-neutral-800"
+          className="flex h-full w-full items-center justify-center rounded-xl bg-secondary"
           style={{ border: `2px solid ${color}66` }}
         >
           <Trophy className="text-muted-foreground" style={{ width: size * 0.45, height: size * 0.45 }} />

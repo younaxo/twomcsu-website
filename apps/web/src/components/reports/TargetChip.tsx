@@ -37,11 +37,11 @@ export function TargetChip(props: TargetChipProps) {
         </>
       ) : (
         <>
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
             <User className="h-4 w-4 text-muted-foreground" />
           </div>
-          <span className="text-sm font-medium text-white">{username}</span>
-          <Badge variant="outline" className="border-white/20 text-xs text-muted-foreground">
+          <span className="text-sm font-medium text-foreground">{username}</span>
+          <Badge variant="outline" className="border-border text-xs text-muted-foreground">
             Не зарегистрирован
           </Badge>
         </>
@@ -50,7 +50,7 @@ export function TargetChip(props: TargetChipProps) {
         <button
           type="button"
           onClick={props.onRemove}
-          className="ml-1 text-xs text-muted-foreground transition hover:text-white"
+          className="ml-1 text-xs text-muted-foreground transition hover:text-foreground"
         >
           ✕
         </button>

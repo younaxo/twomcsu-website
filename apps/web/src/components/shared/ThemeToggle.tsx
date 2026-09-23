@@ -25,7 +25,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       role="radiogroup"
       aria-label={t('label')}
       className={cn(
-        'inline-flex items-center gap-0.5 rounded-xl border border-white/[0.08] bg-white/[0.03] p-0.5',
+        'inline-flex items-center gap-0.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-0.5',
         className,
       )}
     >
@@ -42,7 +42,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             onClick={() => setTheme(value)}
             className={cn(
               'inline-flex h-8 w-8 items-center justify-center rounded-[10px] text-muted-foreground transition-colors',
-              active ? 'bg-white/[0.1] text-foreground' : 'hover:text-foreground',
+              active ? 'bg-foreground/[0.08] text-foreground' : 'hover:text-foreground',
             )}
           >
             <Icon className="h-4 w-4" aria-hidden />

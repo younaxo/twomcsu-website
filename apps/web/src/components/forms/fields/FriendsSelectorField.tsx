@@ -43,7 +43,7 @@ export function FriendsSelectorField({ field, value, onChange, disabled }: Props
                   disabled={disabled}
                   onCheckedChange={() => toggle(friend.user.username)}
                 />
-                <span className="text-white">{friend.user.username}</span>
+                <span className="text-foreground">{friend.user.username}</span>
               </label>
             );
           })}

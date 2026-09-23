@@ -31,7 +31,7 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-lg glass-light p-3 text-center">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-lg font-semibold text-white">{value}</p>
+      <p className="text-lg font-semibold text-foreground">{value}</p>
     </div>
   );
 }

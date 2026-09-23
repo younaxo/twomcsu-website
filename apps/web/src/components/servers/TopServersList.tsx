@@ -25,7 +25,7 @@ export function TopServersList({ servers }: TopServersListProps) {
               {index + 1}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-white">{server.name}</p>
+              <p className="truncate font-medium text-foreground">{server.name}</p>
               <ServerStatusBadge
                 online={server.online}
                 playerCount={server.playerCount}

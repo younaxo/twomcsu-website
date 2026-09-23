@@ -44,7 +44,7 @@ export function ActivityCommentCard({ comment, onDelete }: ActivityCommentCardPr
               size="sm"
             />
           ) : (
-            <span className="text-sm font-medium text-white">{comment.author.username}</span>
+            <span className="text-sm font-medium text-foreground">{comment.author.username}</span>
           )}
           <span className="text-xs text-muted-foreground">
             {formatActivityTime(comment.createdAt)}
@@ -53,7 +53,7 @@ export function ActivityCommentCard({ comment, onDelete }: ActivityCommentCardPr
         <MarkdownContent
           content={comment.content}
           html={comment.contentHtml ?? undefined}
-          className="mt-1 prose-sm text-muted-foreground"
+          className="mt-1 text-sm text-muted-foreground"
         />
       </div>
       {canDelete && onDelete ? (

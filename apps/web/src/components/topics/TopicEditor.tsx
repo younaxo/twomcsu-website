@@ -302,7 +302,7 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
               {attachments.map((file) => (
                 <li
                   key={file.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-white/10 px-3 py-2 text-sm"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2 text-sm"
                 >
                   <a
                     href={resolveMediaUrl(file.fileUrl) ?? file.fileUrl}

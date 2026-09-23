@@ -120,9 +120,9 @@ function ConversationList({
 }) {
   return (
     <aside
-      className={cn('min-h-0 border-r border-white/5', activeId && 'hidden lg:flex', 'flex-col')}
+      className={cn('min-h-0 border-r border-border', activeId && 'hidden lg:flex', 'flex-col')}
     >
-      <div className="flex h-16 items-center gap-2 border-b border-white/5 px-3">
+      <div className="flex h-16 items-center gap-2 border-b border-border px-3">
         <div className="relative min-w-0 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -144,7 +144,7 @@ function ConversationList({
               onClick={() => onSelect(conversation)}
               className={cn(
                 'mb-1 flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors',
-                activeId === conversation.id ? 'bg-primary/15' : 'hover:bg-white/[0.05]',
+                activeId === conversation.id ? 'bg-primary/15' : 'hover:bg-accent',
               )}
             >
               <ConversationAvatar conversation={conversation} />
@@ -206,7 +206,7 @@ function MessageAttachmentView({
       href={url}
       target="_blank"
       rel="noreferrer"
-      className="mt-2 flex max-w-sm items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-3 hover:bg-black/30"
+      className="mt-2 flex max-w-sm items-center gap-3 rounded-xl border border-border bg-secondary p-3 hover:bg-accent"
     >
       <File className="h-5 w-5 shrink-0" />
       <span className="min-w-0 flex-1 truncate text-sm">{attachment.fileName}</span>
@@ -252,7 +252,7 @@ function MessageBubble({
             'relative rounded-2xl border px-3.5 py-2.5',
             own
               ? 'rounded-br-md border-primary/20 bg-primary/15'
-              : 'rounded-bl-md border-white/10 bg-white/[0.06]',
+              : 'rounded-bl-md border-border bg-secondary',
           )}
         >
           {message.parent ? (
@@ -287,7 +287,7 @@ function MessageBubble({
           {!message.isDeleted ? (
             <div
               className={cn(
-                'absolute top-0 hidden -translate-y-1/2 items-center rounded-lg border border-white/10 bg-neutral-900 p-0.5 shadow-lg group-hover:flex',
+                'absolute top-0 hidden -translate-y-1/2 items-center rounded-lg border border-border bg-popover p-0.5 shadow-lg group-hover:flex',
                 own ? 'right-2' : 'left-2',
               )}
             >
@@ -302,7 +302,7 @@ function MessageBubble({
                     <button
                       key={emoji}
                       type="button"
-                      className="rounded p-1 text-lg hover:bg-white/10"
+                      className="rounded p-1 text-lg hover:bg-accent"
                       onClick={() => onReact(emoji)}
                     >
                       {COMMENT_EMOJI_CHARS[emoji]}
@@ -351,7 +351,7 @@ function MessageBubble({
                   'rounded-full border px-2 py-0.5 text-xs',
                   reaction.reactedByMe
                     ? 'border-primary/40 bg-primary/15'
-                    : 'border-white/10 bg-white/5',
+                    : 'border-border bg-secondary',
                 )}
               >
                 {COMMENT_EMOJI_CHARS[reaction.emoji as CommentEmoji] ?? reaction.emoji}{' '}
@@ -584,7 +584,7 @@ export function MessagesClient() {
       />
       {activeId && activeConversation ? (
         <section className="flex h-full min-h-0 flex-col">
-          <header className="flex h-16 shrink-0 items-center gap-3 border-b border-white/5 px-3 sm:px-4">
+          <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border px-3 sm:px-4">
             <Button
               size="icon"
               variant="ghost"
@@ -692,9 +692,9 @@ export function MessagesClient() {
             <div ref={listEndRef} />
           </div>
 
-          <footer className="shrink-0 border-t border-white/5 bg-black/10 p-3 sm:p-4">
+          <footer className="shrink-0 border-t border-border bg-surface-sunken p-3 sm:p-4">
             {reply || editing ? (
-              <div className="mb-2 flex items-center gap-2 rounded-xl border-l-2 border-primary bg-white/5 px-3 py-2 text-xs">
+              <div className="mb-2 flex items-center gap-2 rounded-xl border-l-2 border-primary bg-secondary px-3 py-2 text-xs">
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-primary">
                     {editing

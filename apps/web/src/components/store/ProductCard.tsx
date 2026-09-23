@@ -70,7 +70,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <Image src={imageUrl} alt={product.name} fill className="object-cover" unoptimized />
         ) : (
           <div
-            className="flex h-full items-center justify-center text-3xl font-semibold text-white/30"
+            className="flex h-full items-center justify-center text-3xl font-semibold text-foreground/30"
             style={accent ? { color: `${accent}66` } : undefined}
           >
             {product.name.slice(0, 1)}
@@ -101,7 +101,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div>
-          <h3 className="line-clamp-1 text-lg font-semibold text-white">{product.name}</h3>
+          <h3 className="line-clamp-1 text-lg font-semibold text-foreground">{product.name}</h3>
           {product.description ? (
             <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">
               {product.description}
@@ -119,7 +119,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           {variant ? (
             activeVariants.length > 1 ? (
-              <span className="text-sm font-medium text-white">
+              <span className="text-sm font-medium text-foreground">
                 от <DisplayPrice amount={Math.min(...activeVariants.map((v) => v.price))} />
               </span>
             ) : (

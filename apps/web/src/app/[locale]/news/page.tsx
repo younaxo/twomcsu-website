@@ -58,7 +58,7 @@ export default function NewsPage() {
       <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">Новости TWOMC</h1>
+            <h1 className="text-3xl font-bold text-foreground">Новости TWOMC</h1>
             <p className="mt-2 text-muted-foreground">Обновления, события и объявления</p>
           </div>
           <Button asChild variant="secondary" size="sm">
@@ -185,7 +185,7 @@ export default function NewsPage() {
 
         <aside className="space-y-4">
           <div className="rounded-2xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold text-white">Популярные теги</h2>
+            <h2 className="mb-3 text-sm font-semibold text-foreground">Популярные теги</h2>
             <div className="flex flex-wrap gap-2">
               {tags.data?.map((item) => (
                 <button
@@ -204,7 +204,7 @@ export default function NewsPage() {
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold text-white">Самые обсуждаемые</h2>
+            <h2 className="mb-3 text-sm font-semibold text-foreground">Самые обсуждаемые</h2>
             <ul className="space-y-2">
               {discussed.map((item) => (
                 <li key={item.id}>
@@ -212,7 +212,7 @@ export default function NewsPage() {
                     href={`/news/${item.slug}`}
                     className="block text-sm text-muted-foreground transition-opacity hover:opacity-80"
                   >
-                    <span className="text-white">{item.title}</span>
+                    <span className="text-foreground">{item.title}</span>
                     <span className="mt-0.5 block text-xs">{item.commentsCount} комм.</span>
                   </Link>
                 </li>

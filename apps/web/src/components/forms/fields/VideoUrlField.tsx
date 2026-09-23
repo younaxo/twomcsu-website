@@ -41,7 +41,7 @@ export function VideoUrlField({ field, value, onChange, disabled }: Props) {
         onChange={(e) => onChange({ fieldId: field.id, textValue: e.target.value })}
       />
       {embed ? (
-        <div className="aspect-video overflow-hidden rounded-lg border border-white/10">
+        <div className="aspect-video overflow-hidden rounded-lg border border-border">
           <iframe
             src={embed}
             title="Video preview"

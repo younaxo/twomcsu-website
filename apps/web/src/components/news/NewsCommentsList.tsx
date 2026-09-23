@@ -24,7 +24,7 @@ export function NewsCommentsList({ slug, total, allowComments }: NewsCommentsLis
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold text-white">Комментарии ({total})</h2>
+        <h2 className="text-xl font-semibold text-foreground">Комментарии ({total})</h2>
         <div className="flex gap-1">
           {(
             [

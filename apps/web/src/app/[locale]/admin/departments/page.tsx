@@ -454,7 +454,7 @@ export default function AdminDepartmentsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {selectedUser ? (
-            <div className="flex items-center justify-between rounded-md border border-white/10 px-3 py-2">
+            <div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
               <span className="text-sm font-medium">{selectedUser.username}</span>
               <Button variant="ghost" size="sm" onClick={() => setSelectedUser(null)}>
                 Сменить
@@ -473,7 +473,7 @@ export default function AdminDepartmentsPage() {
                   return (
                     <li
                       key={dept.id}
-                      className="flex items-center justify-between rounded-md border border-white/10 px-3 py-2"
+                      className="flex items-center justify-between rounded-md border border-border px-3 py-2"
                     >
                       <span
                         className="inline-flex items-center gap-2 text-sm font-medium"

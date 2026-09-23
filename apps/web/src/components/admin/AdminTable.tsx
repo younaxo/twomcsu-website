@@ -192,15 +192,15 @@ export function AdminTable<T>({
                   {col.sortable && onSortChange ? (
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1 hover:text-white"
+                      className="inline-flex items-center gap-1 hover:text-foreground"
                       onClick={() => handleSort(col.id)}
                     >
                       {col.header}
                       {sortColumn === col.id ? (
                         sortDirection === 'asc' ? (
-                          <ArrowUp className="h-3.5 w-3.5 text-[#F57C00]" />
+                          <ArrowUp className="h-3.5 w-3.5 text-primary" />
                         ) : (
-                          <ArrowDown className="h-3.5 w-3.5 text-[#F57C00]" />
+                          <ArrowDown className="h-3.5 w-3.5 text-primary" />
                         )
                       ) : (
                         <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />

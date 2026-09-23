@@ -235,7 +235,7 @@ export default function AdminUsersPage() {
           <div>
             <Link
               href={`/admin/users/${row.id}`}
-              className="font-medium text-white hover:text-[#F57C00]"
+              className="font-medium text-foreground hover:text-primary"
             >
               {row.username}
             </Link>

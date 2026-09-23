@@ -127,7 +127,7 @@ export default function StorePageClient() {
     <div className="space-y-8">
       <section className="rounded-[28px] border border-border bg-card p-6 sm:p-10">
         <span className="eyebrow">Магазин</span>
-        <h1 className="mb-3 mt-4 text-3xl font-semibold text-white sm:text-4xl">Магазин TWOMC</h1>
+        <h1 className="mb-3 mt-4 text-3xl font-semibold text-foreground sm:text-4xl">Магазин TWOMC</h1>
         <p className="max-w-xl leading-6 text-muted-foreground">
           Привилегии, ключи, валюта и наборы для сервера. Покупай себе или дари друзьям.
         </p>
@@ -148,7 +148,7 @@ export default function StorePageClient() {
               return (
                 <div
                   key={item.id}
-                  className="flex min-w-[180px] items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2.5"
+                  className="flex min-w-[180px] items-center gap-2 rounded-xl border border-border bg-muted/30 px-3 py-2.5"
                 >
                   <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md bg-secondary">
                     {img ? (
@@ -158,7 +158,7 @@ export default function StorePageClient() {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-medium text-white">{item.productName}</p>
+                    <p className="truncate text-xs font-medium text-foreground">{item.productName}</p>
                     <p className="truncate text-[10px] text-muted-foreground">
                       {item.username ?? 'Гость'}
                     </p>
@@ -221,7 +221,7 @@ export default function StorePageClient() {
 
       {tab === 'currency' ? (
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-white">Валюта</h2>
+          <h2 className="text-xl font-semibold text-foreground">Валюта</h2>
 
           {currencyProducts.isLoading ? (
             <Skeleton className="h-96 w-full" />
@@ -292,7 +292,7 @@ export default function StorePageClient() {
 
       {tab === 'all' && (bundles.data?.length ?? 0) > 0 ? (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">Наборы</h2>
+          <h2 className="text-xl font-semibold text-foreground">Наборы</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {bundles.data!.slice(0, 4).map((bundle) => (
               <BundleCard key={bundle.id} bundle={bundle} />

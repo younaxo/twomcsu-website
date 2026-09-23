@@ -298,8 +298,8 @@ function ToggleField({
   onCheckedChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-      <span className="text-sm text-white">{label}</span>
+    <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3">
+      <span className="text-sm text-foreground">{label}</span>
       <Switch checked={checked} onCheckedChange={onCheckedChange} />
     </div>
   );

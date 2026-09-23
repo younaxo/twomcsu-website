@@ -39,8 +39,8 @@ export function FieldPalette({ onAdd }: Props) {
             className={cn(
               'rounded-full px-3 py-1 text-xs transition-colors',
               openCategory === category.key
-                ? 'bg-[#F57C00] text-white'
-                : 'bg-white/[0.05] text-muted-foreground hover:bg-white/10',
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-control-fill text-muted-foreground hover:bg-control-hover',
             )}
           >
             {category.labelRu}
@@ -60,7 +60,7 @@ export function FieldPalette({ onAdd }: Props) {
                     <button
                       type="button"
                       onClick={() => onAdd(type)}
-                      className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.03] p-2 text-left text-xs text-white transition-colors hover:bg-white/10"
+                      className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-2 text-left text-xs text-foreground transition-colors hover:bg-control-hover"
                     >
                       <Icon className="h-4 w-4 shrink-0 text-primary" />
                       <span className="truncate">{meta.labelRu}</span>

@@ -65,7 +65,7 @@ export function FileUploadField({ field, slug, value, onChange, disabled }: Prop
           {urls.map((url) => (
             <li
               key={url}
-              className="flex items-center justify-between rounded-md border border-white/5 bg-white/[0.03] px-2 py-1 text-sm"
+              className="flex items-center justify-between rounded-md border border-border bg-muted/40 px-2 py-1 text-sm"
             >
               <a
                 href={url}

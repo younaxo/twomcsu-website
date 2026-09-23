@@ -22,7 +22,7 @@ function BalanceChip() {
   return (
     <Link
       href="/store"
-      className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-white/[0.05] px-3 text-sm font-semibold text-white transition-colors hover:bg-white/[0.08]"
+      className="inline-flex h-9 items-center gap-1.5 rounded-control bg-foreground/[0.045] px-3 text-sm font-semibold text-foreground transition-colors duration-fast ease-out hover:bg-foreground/[0.075]"
     >
       <Coins className="h-4 w-4 text-primary" aria-hidden />
       {coins != null ? coins.toLocaleString('ru-RU') : '—'}
@@ -70,10 +70,10 @@ export function SiteHeader() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'inline-flex h-9 items-center rounded-xl px-4 text-sm font-medium transition-[background-color,color,box-shadow] duration-200',
+                    'inline-flex h-9 items-center rounded-control px-4 text-sm font-medium transition-[background-color,color,box-shadow] duration-fast ease-out',
                     active
-                      ? 'bg-white/[0.1] font-semibold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.07),0_4px_12px_rgba(0,0,0,0.16)]'
-                      : 'text-neutral-400 hover:bg-white/[0.05] hover:text-white',
+                      ? 'bg-foreground/[0.08] font-semibold text-foreground shadow-[inset_0_0_0_1px_hsl(var(--foreground)/0.06)]'
+                      : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground',
                   )}
                 >
                   {item.label}
@@ -94,7 +94,7 @@ export function SiteHeader() {
             ) : null}
 
             {isLoading ? (
-              <div className="h-10 w-24 animate-pulse rounded-xl bg-white/[0.07]" />
+              <div className="h-10 w-24 animate-pulse rounded-control bg-muted" />
             ) : isAuthenticated && user ? (
               <ProfileMiniPreview
                 username={user.username}
@@ -105,7 +105,7 @@ export function SiteHeader() {
               <div className="flex items-center gap-1.5">
                 <Button
                   variant="ghost"
-                  className="px-3 text-muted-foreground hover:text-white"
+                  className="px-3 text-muted-foreground hover:text-foreground"
                   asChild
                 >
                   <Link href="/login">{tHeader('login')}</Link>

@@ -31,7 +31,7 @@ export function TopList({
 }: TopListProps) {
   return (
     <div className={cn('rounded-2xl border border-border bg-card p-4', className)}>
-      {title ? <h2 className="mb-3 text-sm font-medium text-white">{title}</h2> : null}
+      {title ? <h2 className="mb-3 text-sm font-medium text-foreground">{title}</h2> : null}
 
       {items.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">{emptyMessage}</p>
@@ -39,7 +39,7 @@ export function TopList({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/5 text-left text-xs text-muted-foreground">
+              <tr className="border-b border-border text-left text-xs text-muted-foreground">
                 <th className="pb-2 pr-2 font-medium">#</th>
                 <th className="pb-2 pr-2 font-medium">Название</th>
                 {valueLabel ? (
@@ -54,7 +54,7 @@ export function TopList({
                 const row = (
                   <tr
                     key={item.id}
-                    className="border-b border-white/5 last:border-0 hover:bg-white/5"
+                    className="border-b border-border last:border-0 hover:bg-accent"
                   >
                     <td className="py-2.5 pr-2 text-muted-foreground">{item.rank}</td>
                     <td className="py-2.5 pr-2">
@@ -68,7 +68,7 @@ export function TopList({
                           />
                         ) : null}
                         <div className="min-w-0">
-                          <p className="truncate font-medium text-white">{item.title}</p>
+                          <p className="truncate font-medium text-foreground">{item.title}</p>
                           {item.subtitle ? (
                             <p className="truncate text-xs text-muted-foreground">
                               {item.subtitle}
@@ -78,7 +78,7 @@ export function TopList({
                       </div>
                     </td>
                     <td className="py-2.5 text-right">
-                      <p className="font-medium text-white">{item.value}</p>
+                      <p className="font-medium text-foreground">{item.value}</p>
                       {item.secondaryValue ? (
                         <p className="text-xs text-muted-foreground">{item.secondaryValue}</p>
                       ) : null}

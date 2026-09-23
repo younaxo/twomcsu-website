@@ -87,8 +87,8 @@ export const MessageBubble = memo(function MessageBubble({
   return (
     <div
       className={cn(
-        'group relative rounded-xl px-2.5 py-2 transition-colors duration-200',
-        'glass-light hover:bg-[rgba(20,20,28,0.55)]',
+        'group relative rounded-xl px-2.5 py-2 transition-colors duration-fast ease-out',
+        'glass-light hover:bg-foreground/[0.05]',
         message.isPinned && 'border-l-2 border-amber-400/60',
       )}
     >
@@ -153,7 +153,7 @@ export const MessageBubble = memo(function MessageBubble({
                 />
               </UserContextMenu>
             ) : (
-              <span className="text-sm font-semibold text-white">
+              <span className="text-sm font-semibold text-foreground">
                 {message.author?.username ?? 'Система'}
               </span>
             )}
@@ -180,7 +180,7 @@ export const MessageBubble = memo(function MessageBubble({
             <MarkdownContent
               content={message.content}
               html={message.contentHtml}
-              className="prose-sm break-words"
+              className="text-sm break-words"
             />
           )}
 

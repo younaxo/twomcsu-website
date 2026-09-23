@@ -38,7 +38,7 @@ export function NewsTableOfContents({ items }: NewsTableOfContentsProps) {
 
   return (
     <nav className="rounded-2xl border border-border bg-card p-4">
-      <p className="mb-3 text-sm font-semibold text-white">Содержание</p>
+      <p className="mb-3 text-sm font-semibold text-foreground">Содержание</p>
       <ul className="space-y-1.5 text-sm">
         {items.map((item) => (
           <li key={item.id} className={cn(item.level === 3 && 'pl-3')}>

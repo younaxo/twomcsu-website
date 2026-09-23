@@ -138,7 +138,7 @@ export function CartDrawer() {
                     <div className="min-w-0 flex-1 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-white">
+                          <p className="truncate text-sm font-medium text-foreground">
                             {itemTitle(item)}
                           </p>
                           {item.giftToUsername ? (
@@ -204,7 +204,7 @@ export function CartDrawer() {
                       </span>
                     </div>
                   ))}
-                  <div className="flex justify-between text-base font-semibold text-white">
+                  <div className="flex justify-between text-base font-semibold text-foreground">
                     <span>Итого</span>
                     <span>
                       <DisplayPrice amount={totals.total} />

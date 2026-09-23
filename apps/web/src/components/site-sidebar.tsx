@@ -115,11 +115,11 @@ function NavButton({
   const content = (
     <span
       className={cn(
-        'relative flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-[background-color,color] duration-200',
+        'relative flex min-h-11 w-full items-center gap-3 rounded-control px-3 py-2.5 transition-[background-color,color] duration-fast ease-out',
         collapsed && 'justify-center px-2',
         active
-          ? 'bg-white/[0.09] text-foreground shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]'
-          : 'text-muted-foreground hover:bg-white/[0.05] hover:text-foreground',
+          ? 'bg-foreground/[0.07] text-foreground shadow-[inset_0_0_0_1px_hsl(var(--foreground)/0.05)]'
+          : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground',
         item.soon && 'opacity-70',
       )}
     >
@@ -180,7 +180,7 @@ function NavButton({
 
 function GroupTitle({ title, collapsed }: { title: string; collapsed?: boolean }) {
   if (collapsed) {
-    return <div className="mx-auto my-2 h-px w-8 bg-white/10" aria-hidden />;
+    return <div className="mx-auto my-2 h-px w-8 bg-foreground/10" aria-hidden />;
   }
   return (
     <p className="px-3 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -199,7 +199,7 @@ function SidebarTopActions({ collapsed }: { collapsed?: boolean }) {
     <Link
       href="/store"
       className={cn(
-        'flex h-10 items-center gap-1.5 rounded-xl bg-white/[0.05] text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.08]',
+        'flex h-10 items-center gap-1.5 rounded-control bg-foreground/[0.045] text-sm font-semibold text-foreground transition-colors duration-fast ease-out hover:bg-foreground/[0.075]',
         collapsed ? 'w-full justify-center' : 'w-full px-3',
       )}
     >
@@ -337,13 +337,13 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
         ) : null}
       </nav>
 
-      <div className="mt-auto shrink-0 space-y-1 border-t border-white/[0.07] px-2.5 py-3">
+      <div className="mt-auto shrink-0 space-y-1 border-t border-foreground/[0.07] px-2.5 py-3">
         {!collapsed ? (
           <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             {t('quickAccess')}
           </p>
         ) : (
-          <div className="mx-auto my-1 h-px w-8 bg-white/10" aria-hidden />
+          <div className="mx-auto my-1 h-px w-8 bg-foreground/10" aria-hidden />
         )}
         {quickAccess.map((item) => (
           <NavButton
@@ -381,7 +381,7 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
         </div>
 
         <div
-          className={cn('mx-auto my-1 h-px w-8 bg-white/10', !collapsed && 'mx-3 w-auto')}
+          className={cn('mx-auto my-1 h-px w-8 bg-foreground/10', !collapsed && 'mx-3 w-auto')}
           aria-hidden
         />
 
@@ -444,7 +444,7 @@ export function SiteSidebar() {
         className="glass-strong pointer-events-auto fixed bottom-3 left-3 top-3 z-40 hidden w-[72px] flex-col overflow-hidden rounded-[20px] lg:flex"
         aria-label={t('sidebarLabel')}
       >
-        <div className="flex h-[68px] shrink-0 items-center justify-center border-b border-white/[0.07] px-3">
+        <div className="flex h-[68px] shrink-0 items-center justify-center border-b border-foreground/[0.07] px-3">
           <Logo size="sm" showText={false} />
         </div>
         <div className="min-h-0 flex-1">
@@ -459,14 +459,14 @@ export function SiteSidebar() {
             <Button
               size="icon"
               variant="ghost"
-              className="h-10 w-10 rounded-xl bg-white/[0.05] text-foreground"
+              className="glass-chip h-10 w-10 rounded-control text-foreground"
               aria-label={th('openMenu')}
             >
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="glass-strong w-[min(100vw-2rem,280px)] p-0">
-            <SheetHeader className="border-b border-white/[0.07] px-4 py-4 text-left">
+          <SheetContent side="left" className="w-[min(100vw-2rem,280px)] p-0">
+            <SheetHeader className="border-b border-foreground/[0.07] px-4 py-4 text-left">
               <SheetTitle className="text-base">{th('menu')}</SheetTitle>
             </SheetHeader>
             <div className="h-[calc(100%-4rem)] overflow-y-auto">

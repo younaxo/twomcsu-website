@@ -32,7 +32,7 @@ export default function ModerationNewsCommentsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold text-white">Модерация комментариев к новостям</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Модерация комментариев к новостям</h1>
       <p className="text-sm text-muted-foreground">
         Укажите ID комментария для закрепления или удаления. Действия также доступны на странице
         новости.

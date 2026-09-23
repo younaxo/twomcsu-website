@@ -228,7 +228,7 @@ export function FormBuilder({ initial }: Props) {
 
       <div className="grid gap-4 lg:grid-cols-[280px_1fr_320px]">
         <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-          <h3 className="text-sm font-semibold text-white">Поля</h3>
+          <h3 className="text-sm font-semibold text-foreground">Поля</h3>
           <FieldPalette onAdd={addField} />
         </div>
 
@@ -260,7 +260,7 @@ export function FormBuilder({ initial }: Props) {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-4">
-          <h3 className="mb-3 text-sm font-semibold text-white">Свойства</h3>
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Свойства</h3>
           {selected ? (
             <FieldSettings
               field={selected}

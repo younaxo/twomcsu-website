@@ -107,7 +107,7 @@ export function UserContextMenu({
             </Button>
           )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="glass-strong w-56 border-white/10">
+        <DropdownMenuContent align="start" className="w-56">
           <DropdownMenuItem asChild>
             <Link href={`/users/${user.username}`} className="cursor-pointer gap-2">
               <User className="h-4 w-4" />
@@ -202,7 +202,7 @@ export function UserContextMenu({
                   <UserCog className="h-4 w-4" />
                   Изменить роль
                 </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className="glass-strong border-white/10">
+                <DropdownMenuSubContent>
                   <DropdownMenuItem disabled className="text-xs text-muted-foreground">
                     Выберите должность в админке
                   </DropdownMenuItem>
@@ -269,7 +269,7 @@ export function UserContextMenu({
       />
 
       <Dialog open={hardDeleteOpen} onOpenChange={setHardDeleteOpen}>
-        <DialogContent className="glass-strong border-white/10">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Полное удаление</DialogTitle>
             <DialogDescription>
@@ -312,7 +312,7 @@ export function UserContextMenu({
       </Dialog>
 
       <Dialog open={deleteAccountOpen} onOpenChange={setDeleteAccountOpen}>
-        <DialogContent className="glass-strong border-white/10">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Удалить аккаунт {user.username}?</DialogTitle>
             <DialogDescription>

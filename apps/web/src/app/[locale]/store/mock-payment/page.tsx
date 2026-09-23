@@ -50,7 +50,7 @@ function MockPaymentContent() {
     <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-border bg-card p-8 text-center">
       <div className="space-y-2">
         <p className="text-sm uppercase tracking-widest text-primary">Dev</p>
-        <h1 className="text-2xl font-semibold text-white">Оплата в разработке</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Оплата в разработке</h1>
         <p className="text-sm text-muted-foreground">
           Скоро подключим UnitPay, СБП и другие способы. Пока можно симулировать успешную оплату для
           теста выдачи.

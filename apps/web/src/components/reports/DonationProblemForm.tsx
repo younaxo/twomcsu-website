@@ -112,10 +112,10 @@ export function DonationProblemForm() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Проблема с донатом</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Проблема с донатом</h1>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4 text-sm text-neutral-200">
+      <div className="rounded-xl border border-border bg-card p-4 text-sm text-foreground">
         Обращения по донату рассматриваются руководством проекта. Заполните все поля максимально
         подробно.
       </div>
@@ -241,7 +241,6 @@ export function DonationProblemForm() {
             <Button
               type="submit"
               disabled={create.isPending}
-              className="bg-[#F57C00] text-black hover:bg-[#F57C00]/90"
             >
               Отправить
             </Button>

@@ -34,7 +34,7 @@ const TYPE_CONFIG: Record<
     href: '/report/new/admin',
     description: 'Жалоба на действия хелпера, модератора или администратора',
     icon: Shield,
-    color: '#F57C00',
+    color: 'hsl(var(--primary))',
     badges: ['Хелпер', 'Модератор', 'Администратор', 'Владелец'],
   },
   [ReportType.PUNISHMENT_APPEAL]: {
@@ -90,7 +90,7 @@ export function ReportTypeCard({ type }: { type: ReportType }) {
       >
         <Icon className="h-8 w-8" strokeWidth={1.5} />
       </div>
-      <h2 className="mb-2 text-lg font-semibold text-white group-hover:text-[#F57C00]">
+      <h2 className="mb-2 text-lg font-semibold text-foreground group-hover:text-primary">
         {REPORT_TYPE_LABELS[type]}
       </h2>
       <p className="mb-4 flex-1 text-sm text-muted-foreground">{config.description}</p>

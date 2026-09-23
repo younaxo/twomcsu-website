@@ -80,7 +80,7 @@ export default function ReportDetailsPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5 px-4 pb-10 pt-4">
-      <header className="sticky top-16 z-20 -mx-4 border-b border-white/5 glass-strong px-4 py-3 md:mx-0 md:rounded-2xl md:border">
+      <header className="sticky top-16 z-20 -mx-4 border-b border-border glass-strong px-4 py-3 md:mx-0 md:rounded-2xl md:border">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild className="shrink-0">
             <Link href={backHref}>
@@ -115,7 +115,7 @@ export default function ReportDetailsPage() {
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <ReportTypeIcon type={data.type} size="xl" />
               <div>
-                <h1 className="text-xl font-semibold text-white">
+                <h1 className="text-xl font-semibold text-foreground">
                   {REPORT_TYPE_LABELS[data.type]}
                 </h1>
                 <p className="text-sm text-muted-foreground">Основная информация</p>
@@ -132,20 +132,20 @@ export default function ReportDetailsPage() {
               </div>
               <div>
                 <dt className="text-muted-foreground">Создано</dt>
-                <dd className="text-white">
+                <dd className="text-foreground">
                   {format(new Date(data.createdAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
                 </dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Обновлено</dt>
-                <dd className="text-white">
+                <dd className="text-foreground">
                   {format(new Date(data.updatedAt), 'dd.MM.yyyy HH:mm', { locale: ru })}
                 </dd>
               </div>
               {data.incidentDate ? (
                 <div>
                   <dt className="text-muted-foreground">Инцидент</dt>
-                  <dd className="text-white">
+                  <dd className="text-foreground">
                     {format(new Date(data.incidentDate), 'dd.MM.yyyy HH:mm', { locale: ru })}
                   </dd>
                 </div>
@@ -153,7 +153,7 @@ export default function ReportDetailsPage() {
               {data.server ? (
                 <div>
                   <dt className="text-muted-foreground">Сервер</dt>
-                  <dd className="text-white">{data.server}</dd>
+                  <dd className="text-foreground">{data.server}</dd>
                 </div>
               ) : null}
               {data.assignedTo ? (
@@ -191,19 +191,19 @@ export default function ReportDetailsPage() {
               <dl className="grid gap-2 text-sm sm:grid-cols-2">
                 <div>
                   <dt className="text-muted-foreground">Тип</dt>
-                  <dd className="font-medium text-white">
+                  <dd className="font-medium text-foreground">
                     {PUNISHMENT_TYPE_LABELS[data.appealedPunishment.punishmentType]}
                   </dd>
                 </div>
                 {data.appealedPunishment.duration ? (
                   <div>
                     <dt className="text-muted-foreground">Длительность</dt>
-                    <dd className="text-white">{data.appealedPunishment.duration}</dd>
+                    <dd className="text-foreground">{data.appealedPunishment.duration}</dd>
                   </div>
                 ) : null}
                 <div className="sm:col-span-2">
                   <dt className="text-muted-foreground">Причина</dt>
-                  <dd className="whitespace-pre-wrap text-white">
+                  <dd className="whitespace-pre-wrap text-foreground">
                     {data.appealedPunishment.reason}
                   </dd>
                 </div>
@@ -212,21 +212,21 @@ export default function ReportDetailsPage() {
           ) : null}
 
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-medium text-white">
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-medium text-foreground">
               <FileText className="h-5 w-5 text-muted-foreground" />
               Описание
             </h2>
             {data.descriptionHtml ? (
               <HtmlWithImagePreview html={data.descriptionHtml} />
             ) : (
-              <p className="whitespace-pre-wrap text-sm text-neutral-100">{data.description}</p>
+              <p className="whitespace-pre-wrap text-sm text-foreground">{data.description}</p>
             )}
             {data.additionalText ? (
-              <div className="mt-4 border-t border-white/10 pt-4">
+              <div className="mt-4 border-t border-border pt-4">
                 <h3 className="mb-2 text-sm font-medium text-muted-foreground">
                   Дополнительная информация
                 </h3>
-                <p className="whitespace-pre-wrap text-sm text-neutral-200">
+                <p className="whitespace-pre-wrap text-sm text-foreground">
                   {data.additionalText}
                 </p>
               </div>
@@ -235,7 +235,7 @@ export default function ReportDetailsPage() {
 
           {hasEvidence ? (
             <section className="rounded-2xl border border-border bg-card p-5">
-              <h2 className="mb-3 flex items-center gap-2 text-lg font-medium text-white">
+              <h2 className="mb-3 flex items-center gap-2 text-lg font-medium text-foreground">
                 <Link2 className="h-5 w-5 text-muted-foreground" />
                 Доказательства
               </h2>
@@ -261,7 +261,7 @@ export default function ReportDetailsPage() {
                         href={file.fileUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="rounded-xl glass-light px-3 py-2 text-xs text-neutral-200 transition hover:opacity-80"
+                        className="rounded-xl glass-light px-3 py-2 text-xs text-foreground transition hover:opacity-80"
                       >
                         {file.fileName}
                       </a>
@@ -284,7 +284,7 @@ export default function ReportDetailsPage() {
           ) : null}
 
           <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
-            <h2 className="text-lg font-medium text-white">Переписка</h2>
+            <h2 className="text-lg font-medium text-foreground">Переписка</h2>
             <ReportMessagesList
               messages={data.messages}
               reportNumber={data.reportNumber}

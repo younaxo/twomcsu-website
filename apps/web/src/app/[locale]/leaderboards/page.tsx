@@ -25,7 +25,7 @@ function formatValue(metric: LeaderboardMetric, value: number) {
 
 function podiumTone(rank: number) {
   if (rank === 1) return 'border-amber-300/40 bg-amber-300/10 text-amber-200';
-  if (rank === 2) return 'border-slate-300/30 bg-slate-300/10 text-slate-200';
+  if (rank === 2) return 'border-border bg-muted text-foreground';
   return 'border-orange-700/30 bg-orange-700/10 text-orange-300';
 }
 
@@ -34,14 +34,14 @@ function PodiumCard({ entry, metric }: { entry: LeaderboardEntry; metric: Leader
     <Link
       href={`/users/${entry.user.username}`}
       className={cn(
-        'relative flex min-w-0 flex-col items-center rounded-3xl border p-5 text-center transition-colors hover:border-white/30',
+        'relative flex min-w-0 flex-col items-center rounded-3xl border p-5 text-center transition-colors hover:border-foreground/30',
         podiumTone(entry.rank),
         entry.rank === 1 && 'md:-translate-y-4',
       )}
     >
       <Crown className={cn('mb-4 h-7 w-7', entry.rank !== 1 && 'opacity-60')} />
       <AvatarWithSkin user={entry.user} size="xl" />
-      <p className="mt-5 truncate text-lg font-semibold text-white">{entry.user.username}</p>
+      <p className="mt-5 truncate text-lg font-semibold text-foreground">{entry.user.username}</p>
       <p className="font-display mt-1 text-2xl">{formatValue(metric, entry.value)}</p>
       <span className="mt-2 text-xs opacity-70">Место #{entry.rank}</span>
     </Link>
@@ -62,7 +62,7 @@ export default function LeaderboardsPage() {
           <Trophy className="h-7 w-7" />
           <span className="text-sm uppercase tracking-[0.2em]">Лучшие игроки TWOMC</span>
         </div>
-        <h1 className="font-display relative mt-4 text-3xl text-white sm:text-5xl">
+        <h1 className="font-display relative mt-4 text-3xl text-foreground sm:text-5xl">
           Таблицы лидеров
         </h1>
         <p className="relative mt-3 max-w-2xl text-muted-foreground">
@@ -81,7 +81,7 @@ export default function LeaderboardsPage() {
               'shrink-0 rounded-xl border px-4 py-2 text-sm transition-colors',
               metric === item
                 ? 'border-primary/50 bg-primary/15 text-primary'
-                : 'border-white/10 bg-white/[0.04] text-muted-foreground hover:text-white',
+                : 'border-border bg-secondary text-muted-foreground hover:text-foreground',
             )}
           >
             {leaderboardMetricLabels[item]}
@@ -115,19 +115,19 @@ export default function LeaderboardsPage() {
 
       {(leaderboard.data?.items.length ?? 0) > 3 ? (
         <Card className="overflow-hidden">
-          <CardContent className="divide-y divide-white/5 p-0">
+          <CardContent className="divide-y divide-border p-0">
             {leaderboard.data?.items.slice(3).map((entry) => (
               <Link
                 key={entry.user.id}
                 href={`/users/${entry.user.username}`}
-                className="grid grid-cols-[2rem_1fr_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.04] sm:grid-cols-[3rem_1fr_8rem_8rem_auto]"
+                className="grid grid-cols-[2rem_1fr_auto] items-center gap-3 px-4 py-3 transition-colors hover:bg-accent sm:grid-cols-[3rem_1fr_8rem_8rem_auto]"
               >
                 <span className="font-display text-center text-lg text-muted-foreground">
                   #{entry.rank}
                 </span>
                 <div className="flex min-w-0 items-center gap-3">
                   <AvatarWithSkin user={entry.user} size="sm" />
-                  <span className="truncate font-medium text-white">{entry.user.username}</span>
+                  <span className="truncate font-medium text-foreground">{entry.user.username}</span>
                 </div>
                 <span className="hidden items-center gap-1.5 text-sm text-muted-foreground sm:flex">
                   <Swords className="h-4 w-4" />

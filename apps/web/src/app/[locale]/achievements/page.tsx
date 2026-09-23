@@ -82,7 +82,7 @@ export default function AchievementsPage() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold">
-            <Trophy className="h-6 w-6 text-[#F57C00]" />
+            <Trophy className="h-6 w-6 text-primary" />
             Достижения
           </h1>
           {stats ? (

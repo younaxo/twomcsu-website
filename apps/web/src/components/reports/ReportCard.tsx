@@ -62,10 +62,10 @@ export function ReportCard({
           <div className="flex min-w-0 items-center gap-2">
             <ReportNumberBadge
               reportNumber={report.reportNumber}
-              className="text-base font-medium text-white"
+              className="text-base font-medium text-foreground"
               onClick={(e) => e.stopPropagation()}
             />
-            <span className="truncate text-base font-medium text-white">
+            <span className="truncate text-base font-medium text-foreground">
               · {REPORT_TYPE_LABELS[report.type]}
             </span>
           </div>
@@ -80,7 +80,7 @@ export function ReportCard({
             </Badge>
           ) : null}
           {roleLabel ? (
-            <span className="rounded-md bg-white/10 px-2 py-0.5 text-xs text-muted-foreground">
+            <span className="rounded-md bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
               {roleLabel}
             </span>
           ) : null}
@@ -91,11 +91,11 @@ export function ReportCard({
         </p>
 
         {targetsLabel ? (
-          <p className="truncate text-sm text-neutral-300">На игроков: {targetsLabel}</p>
+          <p className="truncate text-sm text-muted-foreground">На игроков: {targetsLabel}</p>
         ) : null}
 
         {report.assignedTo ? (
-          <p className="text-sm text-neutral-400">Обрабатывает: @{report.assignedTo.username}</p>
+          <p className="text-sm text-muted-foreground">Обрабатывает: @{report.assignedTo.username}</p>
         ) : null}
       </div>
 
@@ -109,7 +109,7 @@ export function ReportCard({
           <Clock className="h-4 w-4 shrink-0" />
           <span>{report.isOverdue ? 'Просрочено' : createdRelative}</span>
         </div>
-        <ChevronRight className="h-5 w-5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-white/70" />
+        <ChevronRight className="h-5 w-5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
       </div>
     </>
   );

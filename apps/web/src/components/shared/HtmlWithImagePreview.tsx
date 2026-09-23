@@ -27,7 +27,7 @@ export function HtmlWithImagePreview({
   return (
     <>
       <div
-        className={cn('prose prose-invert max-w-none text-sm [&_img]:cursor-zoom-in', className)}
+        className={cn('comment-markdown max-w-none text-sm [&_img]:cursor-zoom-in', className)}
         dangerouslySetInnerHTML={{ __html: html }}
         onClick={(event) => {
           const target = event.target as HTMLElement | null;

@@ -46,7 +46,7 @@ export function BookmarksGrid({
   return (
     <div className={cn('space-y-3', className)}>
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-medium text-white">Закладки</h2>
+        <h2 className="text-sm font-medium text-foreground">Закладки</h2>
         {onAdd ? (
           <Button type="button" variant="secondary" size="sm" onClick={onAdd}>
             <Plus className="mr-1.5 h-4 w-4" />
@@ -67,8 +67,8 @@ export function BookmarksGrid({
             const card = (
               <div className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-accent">
                 <div className="mb-3 flex items-start justify-between gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5">
-                    <Icon className="h-5 w-5 text-[#F57C00]" aria-hidden />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                    <Icon className="h-5 w-5 text-primary" aria-hidden />
                   </div>
                   <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                     {onReorder && index > 0 ? (
@@ -118,7 +118,7 @@ export function BookmarksGrid({
                     ) : null}
                   </div>
                 </div>
-                <p className="font-medium text-white">{bookmark.title}</p>
+                <p className="font-medium text-foreground">{bookmark.title}</p>
                 <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{bookmark.url}</p>
                 {external ? (
                   <ExternalLink className="absolute bottom-4 right-4 h-3.5 w-3.5 text-muted-foreground" />
@@ -151,7 +151,7 @@ export function BookmarksGrid({
             <button
               type="button"
               onClick={onAdd}
-              className="flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] text-sm text-muted-foreground transition-colors hover:border-white/20 hover:bg-white/5 hover:text-white"
+              className="flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/20 text-sm text-muted-foreground transition-colors hover:border-foreground/20 hover:bg-muted hover:text-foreground"
             >
               <Plus className="h-5 w-5" />
               Добавить закладку

@@ -71,14 +71,16 @@ export const ServerCard = memo(function ServerCard({
         </div>
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate text-2xl font-semibold tracking-tight text-white">
+            <h3 className="truncate text-2xl font-semibold tracking-tight text-foreground">
               {server.name}
             </h3>
             {server.category ? (
               <span
                 className="rounded-md px-2 py-0.5 text-xs font-medium"
                 style={{
-                  backgroundColor: `${server.category.color ?? '#F57C00'}22`,
+                  backgroundColor: server.category.color
+                    ? `${server.category.color}22`
+                    : 'hsl(var(--primary) / 0.13)',
                   color: server.category.color ?? '#A5B4FC',
                 }}
               >
@@ -97,12 +99,12 @@ export const ServerCard = memo(function ServerCard({
       <div className="space-y-3">
         <div className="flex items-end justify-between gap-3">
           <span className="text-sm text-muted-foreground">Онлайн</span>
-          <p className="tabular-nums text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          <p className="tabular-nums text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             {players}
             <span className="text-lg font-normal text-muted-foreground sm:text-xl"> / {max}</span>
           </p>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/[0.07]">
+        <div className="h-2 overflow-hidden rounded-full bg-muted">
           <div
             className={cn(
               'h-full rounded-full transition-all duration-500',

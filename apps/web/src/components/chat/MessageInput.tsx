@@ -147,7 +147,7 @@ export function MessageInput({
               </TooltipTrigger>
               <TooltipContent>Как форматировать</TooltipContent>
             </Tooltip>
-            <DialogContent className="border-white/10 bg-[rgba(15,15,20,0.9)] backdrop-blur-[30px] sm:max-w-md">
+            <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Как форматировать сообщения</DialogTitle>
               </DialogHeader>

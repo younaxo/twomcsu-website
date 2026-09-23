@@ -29,7 +29,6 @@ export function DiscordWebhookInput({
         <Button
           type="button"
           size="sm"
-          className="bg-[#F57C00] text-black hover:bg-[#E65100]"
           disabled={!enabled || !url.trim() || save.isPending}
           onClick={() =>
             void save

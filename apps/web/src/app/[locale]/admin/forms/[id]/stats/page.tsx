@@ -17,7 +17,7 @@ export default function AdminFormStatsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">
+          <h1 className="text-2xl font-semibold text-foreground">
             Статистика {form.data ? `— ${form.data.title}` : ''}
           </h1>
         </div>

@@ -37,7 +37,7 @@ export function TopicViewer({ topic }: TopicViewerProps) {
             ) : null}
           </div>
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <h1 className="text-3xl font-semibold text-white">{topic.title}</h1>
+            <h1 className="text-3xl font-semibold text-foreground">{topic.title}</h1>
             {isOwner ? (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/admin/topics/${topic.id}/edit`}>
@@ -52,15 +52,12 @@ export function TopicViewer({ topic }: TopicViewerProps) {
 
         <MarkdownContent
           content={topic.content}
-          className={cn(
-            'rounded-2xl border border-border bg-card p-6',
-            'prose-headings:scroll-mt-24 prose-a:text-primary',
-          )}
+          className="rounded-card border border-border bg-card p-6"
         />
 
         {topic.attachments.length > 0 ? (
           <section className="space-y-3">
-            <h2 className="text-lg font-medium text-white">Вложения</h2>
+            <h2 className="text-lg font-medium text-foreground">Вложения</h2>
             <ul className="space-y-2">
               {topic.attachments.map((file) => {
                 const url = resolveMediaUrl(file.fileUrl) ?? file.fileUrl;
@@ -70,7 +67,7 @@ export function TopicViewer({ topic }: TopicViewerProps) {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm transition-colors hover:bg-white/5"
+                      className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors duration-fast ease-out hover:bg-accent"
                     >
                       <Download className="h-4 w-4 shrink-0" />
                       <span>{file.fileName}</span>
@@ -88,14 +85,14 @@ export function TopicViewer({ topic }: TopicViewerProps) {
 
       {headings.length > 0 ? (
         <aside className="hidden lg:block">
-          <nav className="sticky top-24 rounded-xl glass-medium p-4">
-            <p className="mb-3 text-sm font-medium text-white">Содержание</p>
+          <nav className="glass-medium sticky top-24 rounded-card p-4">
+            <p className="mb-3 text-sm font-medium text-foreground">Содержание</p>
             <ul className="space-y-2 text-sm">
               {headings.map((heading) => (
                 <li key={heading.id} className={cn(heading.level === 3 && 'pl-3')}>
                   <a
                     href={`#${heading.id}`}
-                    className="text-muted-foreground transition-colors hover:text-white"
+                    className="text-muted-foreground transition-colors duration-fast ease-out hover:text-foreground"
                   >
                     {heading.text}
                   </a>

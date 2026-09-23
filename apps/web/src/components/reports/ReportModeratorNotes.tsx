@@ -145,11 +145,11 @@ export function ReportModeratorNotes({
                   </div>
                 ) : note.contentHtml ? (
                   <div
-                    className="prose prose-invert max-w-none text-sm"
+                    className="comment-markdown max-w-none text-sm"
                     dangerouslySetInnerHTML={{ __html: note.contentHtml }}
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap text-sm text-neutral-200">{note.content}</p>
+                  <p className="whitespace-pre-wrap text-sm text-foreground">{note.content}</p>
                 )}
               </article>
             );
@@ -157,7 +157,7 @@ export function ReportModeratorNotes({
         )}
       </div>
 
-      <div className="space-y-2 border-t border-white/5 pt-3">
+      <div className="space-y-2 border-t border-border pt-3">
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -170,7 +170,6 @@ export function ReportModeratorNotes({
             size="sm"
             onClick={() => void submit()}
             disabled={createNote.isPending || content.trim().length < 1}
-            className="bg-[#F57C00] text-black hover:bg-[#E65100]"
           >
             Добавить заметку
           </Button>

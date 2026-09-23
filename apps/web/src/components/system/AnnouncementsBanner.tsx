@@ -10,19 +10,19 @@ const STORAGE_KEY = 'twomc.dismissed-announcements';
 const typeStyles: Record<string, { icon: typeof Info; className: string }> = {
   info: {
     icon: Info,
-    className: 'border-sky-500/30 bg-sky-500/10 text-sky-100',
+    className: 'border-info/30 bg-info/10 text-info',
   },
   warning: {
     icon: AlertTriangle,
-    className: 'border-amber-500/30 bg-amber-500/10 text-amber-100',
+    className: 'border-warning/30 bg-warning/10 text-warning',
   },
   success: {
     icon: CheckCircle2,
-    className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100',
+    className: 'border-success/30 bg-success/10 text-success',
   },
   error: {
     icon: AlertCircle,
-    className: 'border-red-500/30 bg-red-500/10 text-red-100',
+    className: 'border-destructive/30 bg-destructive/10 text-destructive',
   },
 };
 
@@ -53,14 +53,14 @@ function AnnouncementItem({
   return (
     <div
       className={cn(
-        'border border-border bg-card flex items-start gap-3 rounded-xl border px-4 py-3',
+        'flex items-start gap-3 rounded-card border bg-card px-4 py-3',
         style.className,
       )}
     >
       <Icon className="mt-0.5 h-4 w-4 shrink-0 opacity-90" aria-hidden />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-white">{item.title}</p>
-        <p className="mt-0.5 text-sm text-white/80">{item.message}</p>
+        <p className="text-sm font-semibold text-foreground">{item.title}</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">{item.message}</p>
         {item.link ? (
           <a
             href={item.link}
@@ -75,7 +75,7 @@ function AnnouncementItem({
       {item.isDismissible ? (
         <button
           type="button"
-          className="rounded-md p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-control p-1 text-muted-foreground transition-colors duration-fast ease-out hover:bg-control-hover hover:text-foreground"
           aria-label="Закрыть"
           onClick={() => onDismiss(item.id)}
         >

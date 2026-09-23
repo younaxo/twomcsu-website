@@ -21,7 +21,7 @@ function verdictTone(status: ReportDetails['status']) {
     return {
       Icon: Info,
       accent: '#9ca3af',
-      iconClass: 'text-neutral-400',
+      iconClass: 'text-muted-foreground',
       gradient: 'from-neutral-500/15 via-transparent to-transparent',
     };
   }
@@ -52,7 +52,7 @@ export function ReportVerdictCard({ report }: { report: ReportDetails }) {
       <div className="mb-4 flex items-start gap-3">
         <Icon className={cn('h-12 w-12 shrink-0', tone.iconClass)} />
         <div className="min-w-0 flex-1">
-          <h2 className="text-xl font-semibold text-white">Вердикт по обращению</h2>
+          <h2 className="text-xl font-semibold text-foreground">Вердикт по обращению</h2>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             {report.assignedTo ? (
               <div className="flex items-center gap-2">
@@ -71,11 +71,11 @@ export function ReportVerdictCard({ report }: { report: ReportDetails }) {
 
       {report.verdictHtml ? (
         <div
-          className="prose prose-invert max-w-none text-sm"
+          className="comment-markdown max-w-none text-sm"
           dangerouslySetInnerHTML={{ __html: report.verdictHtml }}
         />
       ) : (
-        <p className="whitespace-pre-wrap text-sm text-neutral-100">{report.verdict}</p>
+        <p className="whitespace-pre-wrap text-sm text-foreground">{report.verdict}</p>
       )}
     </article>
   );

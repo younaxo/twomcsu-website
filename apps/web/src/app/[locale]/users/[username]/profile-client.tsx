@@ -191,7 +191,7 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
               unoptimized
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-r from-neutral-900 via-primary/15 to-neutral-900" />
+            <div className="h-full w-full bg-gradient-to-r from-secondary via-primary/15 to-secondary" />
           )}
 
           <div className="absolute right-3 top-3 flex items-center gap-2 sm:right-4 sm:top-4">
@@ -222,7 +222,7 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
             <span
               className={cn(
                 'absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-card',
-                profile.isOnlineInGame ? 'bg-emerald-400' : 'bg-neutral-500',
+                profile.isOnlineInGame ? 'bg-emerald-400' : 'bg-muted-foreground',
               )}
               aria-hidden
             />
@@ -248,7 +248,7 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
           {profile.customPosition ? (
             <p
               className="mt-1 text-sm italic leading-snug"
-              style={{ color: profile.customPosition.color ?? '#F57C00' }}
+              style={{ color: profile.customPosition.color ?? 'hsl(var(--primary))' }}
             >
               {profile.customPosition.name}
             </p>
@@ -403,7 +403,7 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
               <UserContextMenu
                 user={{ id: profile.id, username: profile.username, avatar: profile.avatar }}
               >
-                <Button variant="secondary" size="sm" className="glass-hover-orange gap-2">
+                <Button variant="secondary" size="sm" className="gap-2">
                   <Shield className="h-4 w-4" />
                   Модерация
                 </Button>
@@ -605,7 +605,7 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
       </Tabs>
 
       <section className="space-y-3 border-t border-border pt-6">
-        <h2 className="text-lg font-semibold text-white">Комментарии</h2>
+        <h2 className="text-lg font-semibold text-foreground">Комментарии</h2>
         <CommentsList
           profileUsername={profile.username}
           commentsEnabled={profile.commentsEnabled}
@@ -621,7 +621,7 @@ function HeaderStat({ label, value, tip }: { label: string; value: number | stri
     <Tooltip>
       <TooltipTrigger asChild>
         <div className="cursor-default">
-          <p className="text-lg font-semibold tabular-nums text-white sm:text-xl">
+          <p className="text-lg font-semibold tabular-nums text-foreground sm:text-xl">
             {typeof value === 'number' ? formatNumber(value) : value}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">{label}</p>
@@ -747,7 +747,7 @@ function ProfileWishlistSection({
             <div className="min-w-0 flex-1">
               <Link
                 href={`/store/product/${product.slug}`}
-                className="font-medium text-white hover:underline"
+                className="font-medium text-foreground hover:underline"
               >
                 {product.name}
               </Link>

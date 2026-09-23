@@ -41,7 +41,7 @@ export function BanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-strong border-white/10">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Забанить {username}</DialogTitle>
         </DialogHeader>

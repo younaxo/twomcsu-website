@@ -163,7 +163,7 @@ export default function AdminEmojisPage() {
 
       <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-white/10 text-muted-foreground">
+          <thead className="border-b border-border text-muted-foreground">
             <tr>
               <th className="px-4 py-3 font-medium">Превью</th>
               <th className="px-4 py-3 font-medium">Имя</th>
@@ -187,7 +187,7 @@ export default function AdminEmojisPage() {
               </tr>
             ) : (
               filtered.map((emoji) => (
-                <tr key={emoji.id} className="border-b border-white/5">
+                <tr key={emoji.id} className="border-b border-border">
                   <td className="px-4 py-3">
                     <Image
                       src={resolveMediaUrl(emoji.imageUrl) ?? emoji.imageUrl}
@@ -245,7 +245,7 @@ export default function AdminEmojisPage() {
           if (!next) resetForm();
         }}
       >
-        <DialogContent className="border-white/10 bg-[rgba(15,15,20,0.95)] sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editing ? 'Редактировать эмодзи' : 'Новый эмодзи'}</DialogTitle>
           </DialogHeader>

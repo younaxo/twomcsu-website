@@ -26,7 +26,7 @@ export function AchievementShowcase({ achievements, className }: AchievementShow
               <TooltipTrigger asChild>
                 <Link
                   href={`/achievements/${achievement.slug}`}
-                  className="flex flex-col items-center gap-1.5 rounded-xl p-2 transition-colors hover:bg-white/[0.04]"
+                  className="flex flex-col items-center gap-1.5 rounded-xl p-2 transition-colors hover:bg-foreground/[0.04]"
                   style={{
                     border: `1px solid ${color}33`,
                     background: `${color}08`,

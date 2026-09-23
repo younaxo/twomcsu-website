@@ -11,7 +11,7 @@ export function ActivityWidget() {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-white">Что сейчас происходит</h2>
+        <h2 className="text-lg font-semibold text-foreground">Что сейчас происходит</h2>
         <Link href="/feed" className="text-sm text-primary hover:underline">
           Все активности →
         </Link>

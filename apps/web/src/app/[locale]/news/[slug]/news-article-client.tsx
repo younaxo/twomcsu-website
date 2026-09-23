@@ -65,24 +65,24 @@ export function NewsArticleClient({ slug }: NewsArticleClientProps) {
   return (
     <div className="space-y-8">
       <nav className="text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-white">
+        <Link href="/" className="hover:text-foreground">
           Главная
         </Link>
         {' · '}
-        <Link href="/news" className="hover:text-white">
+        <Link href="/news" className="hover:text-foreground">
           Новости
         </Link>
         {' · '}
-        <Link href={`/news?category=${news.category}`} className="hover:text-white">
+        <Link href={`/news?category=${news.category}`} className="hover:text-foreground">
           {NEWS_CATEGORY_LABELS[news.category]}
         </Link>
         {' · '}
-        <span className="text-white">{news.title}</span>
+        <span className="text-foreground">{news.title}</span>
       </nav>
 
       <header className="space-y-4 rounded-2xl border border-border bg-card p-6 sm:p-8">
         <NewsCategoryBadge category={news.category} />
-        <h1 className="text-3xl font-bold text-white sm:text-4xl">{news.title}</h1>
+        <h1 className="text-3xl font-bold text-foreground sm:text-4xl">{news.title}</h1>
         {news.excerpt ? (
           <p className="text-lg italic text-muted-foreground">{news.excerpt}</p>
         ) : null}

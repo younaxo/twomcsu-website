@@ -40,7 +40,7 @@ export default function AdminNotificationBroadcastPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Рассылка уведомлений</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Рассылка уведомлений</h1>
         <p className="text-sm text-muted-foreground">Отправка всем пользователям или выбранным</p>
       </div>
 
@@ -98,11 +98,7 @@ export default function AdminNotificationBroadcastPage() {
           <Label>Ссылка</Label>
           <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder="/news" />
         </div>
-        <Button
-          type="submit"
-          disabled={broadcast.isPending || title.trim().length < 2}
-          className="bg-[#F57C00] text-black hover:bg-[#E65100]"
-        >
+        <Button type="submit" disabled={broadcast.isPending || title.trim().length < 2}>
           Отправить
         </Button>
       </form>

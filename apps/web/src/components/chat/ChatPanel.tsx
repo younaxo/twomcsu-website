@@ -214,9 +214,9 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
 
   return (
     <div className={cn('flex h-full min-h-0 flex-col', className)}>
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
-          <p className="text-sm font-semibold text-white">Чат TWOMC</p>
+          <p className="text-sm font-semibold text-foreground">Чат TWOMC</p>
           <p className="text-xs text-muted-foreground">
             {connected ? (
               <>
@@ -250,7 +250,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
             className="flex-1 space-y-1.5 overflow-y-auto px-3 py-3"
           >
             {pinnedMessages.length > 0 ? (
-              <div className="sticky top-0 z-10 -mx-1 mb-2 space-y-1.5 bg-[rgba(15,15,20,0.85)] px-1 pb-2 pt-1 backdrop-blur-sm">
+              <div className="sticky top-0 z-10 -mx-1 mb-2 space-y-1.5 bg-popover/95 px-1 pb-2 pt-1 backdrop-blur-sm">
                 {pinnedMessages.map((message) => (
                   <div
                     key={`pin-${message.id}`}
@@ -326,7 +326,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
             <p className="px-3 pb-1 text-xs text-muted-foreground">{typingLabel}</p>
           ) : null}
 
-          <div className="border-t border-white/10 px-3 py-3">
+          <div className="border-t border-border px-3 py-3">
             {!isAuthenticated ? (
               <p className="glass-light rounded-xl px-3 py-2 text-center text-sm text-muted-foreground">
                 <Link href="/login" className="text-primary hover:underline">
@@ -352,7 +352,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
         </div>
 
         {showOnline ? (
-          <aside className="max-h-40 shrink-0 overflow-y-auto border-t border-white/10 px-3 py-2">
+          <aside className="max-h-40 shrink-0 overflow-y-auto border-t border-border px-3 py-2">
             <p className="mb-2 text-xs font-medium text-muted-foreground">
               Онлайн ({onlineQuery.data?.length ?? 0})
             </p>
@@ -361,7 +361,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
                 <Link
                   key={u.id}
                   href={`/users/${u.username}`}
-                  className="glass-light rounded-lg px-2 py-1 text-xs transition-colors hover:bg-white/10"
+                  className="glass-light rounded-lg px-2 py-1 text-xs transition-colors hover:bg-accent"
                 >
                   {u.username}
                 </Link>

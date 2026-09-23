@@ -26,7 +26,7 @@ export function TopicsListPage({ title, description, category, hrefPrefix }: Top
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-semibold text-white">{title}</h1>
+        <h1 className="text-3xl font-semibold text-foreground">{title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
 

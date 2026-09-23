@@ -30,7 +30,7 @@ export function CopyableAddress({ address, port, className }: CopyableAddressPro
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background/40 px-3 py-1.5 font-mono text-sm text-white',
+        'inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background/40 px-3 py-1.5 font-mono text-sm text-foreground',
         className,
       )}
     >

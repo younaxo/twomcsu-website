@@ -30,12 +30,12 @@ export function RatingField({ field, value, onChange, disabled }: Props) {
               disabled={disabled}
               aria-label={`${star}`}
               onClick={() => onChange({ fieldId: field.id, numberValue: star })}
-              className="rounded-md p-1 transition-colors hover:bg-white/10 disabled:cursor-not-allowed"
+              className="rounded-md p-1 transition-colors hover:bg-control-hover disabled:cursor-not-allowed"
             >
               <Star
                 className={cn(
                   'h-6 w-6 transition-colors',
-                  active ? 'fill-[#F57C00] text-[#F57C00]' : 'text-muted-foreground',
+                  active ? 'fill-primary text-primary' : 'text-muted-foreground',
                 )}
               />
             </button>

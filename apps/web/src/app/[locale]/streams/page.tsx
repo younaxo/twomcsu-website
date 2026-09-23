@@ -40,7 +40,7 @@ function StreamCard({ channel }: { channel: StreamChannel }) {
       </div>
       <div className="p-4">
         <div className="flex items-center gap-2">
-          <h2 className="min-w-0 flex-1 truncate font-semibold text-white">
+          <h2 className="min-w-0 flex-1 truncate font-semibold text-foreground">
             {channel.displayName}
           </h2>
           {channel.isPartner ? <Star className="h-4 w-4 fill-primary text-primary" /> : null}
@@ -69,7 +69,7 @@ export default function StreamsPage() {
           <Radio className="h-6 w-6" />
           <span className="text-sm uppercase tracking-[0.2em]">TWOMC в эфире</span>
         </div>
-        <h1 className="font-display relative mt-4 text-3xl text-white sm:text-5xl">
+        <h1 className="font-display relative mt-4 text-3xl text-foreground sm:text-5xl">
           Стримы сообщества
         </h1>
         <p className="relative mt-3 max-w-2xl text-muted-foreground">
@@ -92,7 +92,7 @@ export default function StreamsPage() {
       ) : null}
       {live.length ? (
         <section className="space-y-4">
-          <h2 className="font-display text-2xl text-white">Сейчас в эфире</h2>
+          <h2 className="font-display text-2xl text-foreground">Сейчас в эфире</h2>
           <div className="grid gap-5 md:grid-cols-2">
             {live.map((item) => (
               <StreamCard key={item.id} channel={item} />
@@ -102,7 +102,7 @@ export default function StreamsPage() {
       ) : null}
       {partners.length ? (
         <section className="space-y-4">
-          <h2 className="font-display text-2xl text-white">Медиа-партнёры</h2>
+          <h2 className="font-display text-2xl text-foreground">Медиа-партнёры</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {partners.map((item) => (
               <StreamCard key={item.id} channel={item} />

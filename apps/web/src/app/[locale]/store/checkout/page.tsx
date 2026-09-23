@@ -63,7 +63,7 @@ export default function CheckoutPage() {
   return (
     <div className="mx-auto max-w-lg space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Оформление заказа</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Оформление заказа</h1>
         <p className="text-sm text-muted-foreground">Проверьте данные перед оплатой</p>
       </div>
 
@@ -80,7 +80,7 @@ export default function CheckoutPage() {
         <div className="space-y-4 rounded-xl border border-border bg-card p-5">
           <div className="space-y-1 text-sm">
             <p className="text-muted-foreground">Покупатель</p>
-            <p className="font-medium text-white">{user?.username}</p>
+            <p className="font-medium text-foreground">{user?.username}</p>
           </div>
 
           <div className="space-y-2 border-t border-border pt-4">
@@ -109,7 +109,7 @@ export default function CheckoutPage() {
           </div>
 
           {totals ? (
-            <div className="flex justify-between text-lg font-semibold text-white">
+            <div className="flex justify-between text-lg font-semibold text-foreground">
               <span>К оплате</span>
               <span>
                 <DisplayPrice amount={totals.total} />

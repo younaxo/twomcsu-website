@@ -31,7 +31,7 @@ export function PriceDisplay({ price, oldPrice, className, size = 'md' }: PriceD
 
   return (
     <div className={cn('flex flex-wrap items-baseline gap-2', className)}>
-      <span className={cn('font-semibold text-white', sizeClasses[size])}>
+      <span className={cn('font-semibold text-foreground', sizeClasses[size])}>
         {formatPrice(displayPrice, currency, symbol)}
       </span>
       {displayOld != null && oldPrice != null && oldPrice > price ? (

@@ -66,7 +66,7 @@ export function BundleCard({ bundle, className }: BundleCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="text-lg font-semibold text-white">{bundle.name}</h3>
+        <h3 className="text-lg font-semibold text-foreground">{bundle.name}</h3>
         {bundle.description ? (
           <p className="line-clamp-2 text-sm text-muted-foreground">{bundle.description}</p>
         ) : null}

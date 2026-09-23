@@ -68,7 +68,7 @@ export function FilterPanel({
   return (
     <div
       className={cn(
-        'space-y-4 rounded-2xl glass-medium border border-white/5 p-4',
+        'space-y-4 rounded-2xl glass-medium border border-foreground/5 p-4',
         className,
       )}
     >
@@ -134,7 +134,7 @@ export function FilterPanel({
           return (
             <div
               key={field.id}
-              className="flex min-w-[160px] items-center justify-between gap-3 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
+              className="flex min-w-[160px] items-center justify-between gap-3 rounded-lg border border-foreground/5 bg-foreground/[0.03] px-3 py-2"
             >
               <Label htmlFor={field.id} className="text-sm">
                 {field.label}
@@ -152,7 +152,7 @@ export function FilterPanel({
       </div>
 
       {onReset || onSave ? (
-        <div className="flex flex-wrap gap-2 border-t border-white/5 pt-3">
+        <div className="flex flex-wrap gap-2 border-t border-foreground/5 pt-3">
           {onReset ? (
             <Button type="button" variant="secondary" size="sm" onClick={onReset}>
               <X className="mr-1.5 h-4 w-4" />

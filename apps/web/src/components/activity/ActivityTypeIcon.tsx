@@ -46,7 +46,7 @@ export function activityAccentClass(type: ActivityType): string {
   switch (type) {
     case ActivityType.PURCHASE_MADE:
     case ActivityType.DONATOR_UPGRADED:
-      return 'border-l-[#F57C00]';
+      return 'border-l-primary';
     case ActivityType.ACHIEVEMENT_UNLOCKED:
     case ActivityType.MILESTONE_REACHED:
     case ActivityType.AWARD_GRANTED:
