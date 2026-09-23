@@ -65,6 +65,7 @@ export function ActivityCommentCard({ comment, onDelete }: ActivityCommentCardPr
               size="icon"
               className="h-8 w-8 shrink-0"
               onClick={() => onDelete(comment.id)}
+              aria-label="Удалить"
             >
               <Trash2 className="h-4 w-4" />
             </Button>

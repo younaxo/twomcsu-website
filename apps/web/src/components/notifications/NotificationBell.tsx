@@ -61,6 +61,7 @@ export function NotificationBell() {
               variant="ghost"
               size="icon"
               className="relative cursor-pointer text-muted-foreground hover:text-foreground"
+              aria-label="Уведомления"
             >
               <Bell className="h-4 w-4" />
               {count > 0 ? (

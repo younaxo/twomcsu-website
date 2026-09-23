@@ -317,6 +317,7 @@ export function TopicEditor({ topicId, initial }: TopicEditorProps) {
                     variant="ghost"
                     size="icon"
                     onClick={() => void onDeleteAttachment(file.id)}
+                    aria-label="Удалить вложение"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

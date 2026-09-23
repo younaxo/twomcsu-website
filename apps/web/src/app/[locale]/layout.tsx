@@ -74,6 +74,12 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className="min-h-screen antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-control focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2 focus:ring-offset-background"
+        >
+          Перейти к основному содержимому
+        </a>
         <NextIntlClientProvider locale={locale}>
           <ThemeProvider>
             <QueryProvider>
@@ -84,7 +90,11 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
                     <div className="flex min-h-screen flex-col transition-[padding-left] duration-300 ease-out lg:pl-[var(--sidebar-rail-width)]">
                       <SiteHeader />
                       <AnnouncementsBanner />
-                      <main className="mx-auto w-full max-w-[1480px] flex-1 px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8 xl:px-10">
+                      <main
+                        id="main-content"
+                        tabIndex={-1}
+                        className="mx-auto w-full max-w-[1480px] flex-1 px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8 xl:px-10 focus:outline-none"
+                      >
                         {children}
                       </main>
                       <SiteFooter />

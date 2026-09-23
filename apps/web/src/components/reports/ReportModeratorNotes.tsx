@@ -83,6 +83,7 @@ export function ReportModeratorNotes({
                             .mutateAsync(note.id)
                             .catch((error) => toast.error(extractErrorMessage(error)))
                         }
+                        aria-label={note.isPinned ? 'Открепить заметку' : 'Закрепить заметку'}
                       >
                         <Pin className="h-3.5 w-3.5" />
                       </Button>
@@ -95,6 +96,7 @@ export function ReportModeratorNotes({
                           setEditingId(note.id);
                           setEditText(note.content);
                         }}
+                        aria-label="Редактировать заметку"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
@@ -109,6 +111,7 @@ export function ReportModeratorNotes({
                             .then(() => toast.success('Заметка удалена'))
                             .catch((error) => toast.error(extractErrorMessage(error)))
                         }
+                        aria-label="Удалить заметку"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>

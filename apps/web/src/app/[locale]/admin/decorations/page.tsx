@@ -140,7 +140,7 @@ export default function AdminDecorationsPage() {
                       />
                       {owned.decoration.name}
                       <button onClick={() => void revoke(owned.decorationId)} aria-label="Отозвать">
-                        <Trash2 className="h-4 w-4 text-red-400" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </button>
                     </span>
                   ))

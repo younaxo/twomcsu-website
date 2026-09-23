@@ -166,6 +166,7 @@ export default function ProductPage() {
                     i === imageIdx ? 'border-primary' : 'border-border'
                   }`}
                   onClick={() => setImageIdx(i)}
+                  aria-label={`Изображение ${i + 1}`}
                 >
                   <Image src={src} alt="" fill className="object-cover" unoptimized />
                 </button>

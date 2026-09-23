@@ -44,8 +44,8 @@ export function DashboardCard({
             <div
               className={cn(
                 'mt-1.5 inline-flex items-center gap-1 text-xs font-medium',
-                isPositive && 'text-emerald-400',
-                isNegative && 'text-red-400',
+                isPositive && 'text-success',
+                isNegative && 'text-destructive',
                 isNeutral && 'text-muted-foreground',
               )}
             >

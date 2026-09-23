@@ -238,6 +238,7 @@ function MarkdownImage({ src, alt }: { src: string; alt: string }) {
           type="button"
           className="fixed inset-0 z-[100] flex items-center justify-center bg-overlay p-4"
           onClick={() => setOpen(false)}
+          aria-label="Закрыть просмотр изображения"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt={alt} className="max-h-full max-w-full rounded-xl" />

@@ -105,7 +105,12 @@ export default function AdminStoreBundlesPage() {
                     </Button>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => void remove(bundle)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => void remove(bundle)}
+                      aria-label="Удалить набор"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>

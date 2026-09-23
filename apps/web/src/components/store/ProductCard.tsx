@@ -136,6 +136,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 className="h-9 w-9 shrink-0"
                 disabled={addToCart.isPending}
                 onClick={(e) => void add(e)}
+                aria-label="Добавить в корзину"
               >
                 <ShoppingCart className="h-4 w-4" />
               </Button>

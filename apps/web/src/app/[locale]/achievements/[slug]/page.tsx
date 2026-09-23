@@ -124,7 +124,7 @@ export default function AchievementDetailPage({ params }: AchievementDetailPageP
             ) : null}
 
             {isUnlocked && achievement.progress?.completedAt ? (
-              <p className="flex items-center gap-1.5 text-sm text-emerald-400">
+              <p className="flex items-center gap-1.5 text-sm text-success">
                 <Calendar className="h-4 w-4" />
                 Получено{' '}
                 {format(new Date(achievement.progress.completedAt), 'dd MMMM yyyy', { locale: ru })}

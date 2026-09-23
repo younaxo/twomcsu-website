@@ -144,6 +144,7 @@ export default function AdminAwardsPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => void remove(award.id)}
+                          aria-label="Удалить награду"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

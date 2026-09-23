@@ -156,7 +156,12 @@ export default function AdminPromocodesPage() {
                     </Button>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => void remove(row)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => void remove(row)}
+                      aria-label="Удалить промокод"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>

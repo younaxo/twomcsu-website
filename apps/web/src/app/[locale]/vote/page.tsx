@@ -42,7 +42,7 @@ export default function VotePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <Card className="border border-border bg-card">
             <CardContent className="flex items-center gap-4 p-5">
-              <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+              <CheckCircle2 className="h-8 w-8 text-success" />
               <div>
                 <p className="text-2xl font-semibold">{voting.data.totalVotes}</p>
                 <p className="text-sm text-muted-foreground">Подтверждённых голосов</p>

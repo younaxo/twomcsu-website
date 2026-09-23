@@ -81,6 +81,7 @@ export function FileUploadField({ field, slug, value, onChange, disabled }: Prop
                 variant="ghost"
                 onClick={() => remove(url)}
                 disabled={disabled}
+                aria-label="Удалить файл"
               >
                 <X className="h-4 w-4" />
               </Button>

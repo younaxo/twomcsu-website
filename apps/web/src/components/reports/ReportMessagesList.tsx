@@ -94,6 +94,7 @@ function MessageCard({
                 variant="ghost"
                 className="h-8 w-8"
                 title={message.isPinned ? 'Открепить' : 'Закрепить'}
+                aria-label={message.isPinned ? 'Открепить' : 'Закрепить'}
                 onClick={() =>
                   void pin
                     .mutateAsync({
@@ -115,6 +116,7 @@ function MessageCard({
                 variant="ghost"
                 className="h-8 w-8"
                 title="Удалить"
+                aria-label="Удалить"
                 onClick={() =>
                   void softDelete
                     .mutateAsync({ reportNumber, messageId: message.id })
@@ -130,8 +132,9 @@ function MessageCard({
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="h-8 w-8 text-red-400"
+                className="h-8 w-8 text-destructive"
                 title="Удалить полностью"
+                aria-label="Удалить полностью"
                 onClick={() => {
                   if (!window.confirm('Удалить сообщение без следа?')) return;
                   void hardDelete
@@ -150,6 +153,7 @@ function MessageCard({
                 variant="ghost"
                 className="h-8 w-8"
                 title="Удалить своё сообщение"
+                aria-label="Удалить своё сообщение"
                 onClick={() =>
                   void ownDelete
                     .mutateAsync(message.id)

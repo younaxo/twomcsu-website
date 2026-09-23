@@ -12,9 +12,9 @@ function verdictTone(status: ReportDetails['status']) {
   if (status === 'REJECTED') {
     return {
       Icon: XCircle,
-      accent: '#ef4444',
-      iconClass: 'text-red-400',
-      gradient: 'from-red-500/15 via-transparent to-transparent',
+      accent: 'hsl(var(--destructive-solid))',
+      iconClass: 'text-destructive',
+      gradient: 'from-destructive/15 via-transparent to-transparent',
     };
   }
   if (status === 'CLOSED') {
@@ -27,9 +27,9 @@ function verdictTone(status: ReportDetails['status']) {
   }
   return {
     Icon: CheckCircle2,
-    accent: '#34d399',
-    iconClass: 'text-emerald-400',
-    gradient: 'from-emerald-500/15 via-transparent to-transparent',
+    accent: 'hsl(var(--success-solid))',
+    iconClass: 'text-success',
+    gradient: 'from-success/15 via-transparent to-transparent',
   };
 }
 

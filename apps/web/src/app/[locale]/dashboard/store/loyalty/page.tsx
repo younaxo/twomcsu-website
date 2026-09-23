@@ -126,7 +126,12 @@ export default function AdminLoyaltyPage() {
                   <TableCell>от {row.minPurchases}</TableCell>
                   <TableCell>{row.discountPercent}%</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => void remove(row.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => void remove(row.id)}
+                      aria-label="Удалить уровень лояльности"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>

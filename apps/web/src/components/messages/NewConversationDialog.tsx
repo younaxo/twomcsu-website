@@ -94,7 +94,12 @@ export function NewConversationDialog({ onCreated }: Props) {
             {directUser ? (
               <div className="flex items-center justify-between rounded-xl border border-border bg-secondary p-3">
                 <span className="font-medium">{directUser.username}</span>
-                <Button variant="ghost" size="icon" onClick={() => setDirectUser(null)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setDirectUser(null)}
+                  aria-label="Убрать пользователя"
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>

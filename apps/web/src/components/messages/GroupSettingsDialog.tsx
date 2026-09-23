@@ -104,6 +104,7 @@ export function GroupSettingsDialog({ conversation, onChanged, onLeft }: Props) 
                     void navigator.clipboard.writeText(invite.url);
                     toast.success('Ссылка скопирована');
                   }}
+                  aria-label="Копировать ссылку"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>

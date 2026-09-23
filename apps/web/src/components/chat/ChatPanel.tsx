@@ -220,7 +220,7 @@ export function ChatPanel({ className, compact }: ChatPanelProps) {
           <p className="text-xs text-muted-foreground">
             {connected ? (
               <>
-                <span className="text-emerald-400">●</span> {onlineQuery.data?.length ?? 0} онлайн
+                <span className="text-success">●</span> {onlineQuery.data?.length ?? 0} онлайн
               </>
             ) : isAuthenticated ? (
               'Подключение…'

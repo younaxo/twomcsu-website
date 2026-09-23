@@ -108,7 +108,7 @@ export const ServerCard = memo(function ServerCard({
           <div
             className={cn(
               'h-full rounded-full transition-all duration-500',
-              fill >= 80 ? 'bg-orange-400' : fill < 20 ? 'bg-emerald-400' : 'bg-primary',
+              fill >= 80 ? 'bg-orange-400' : fill < 20 ? 'bg-success' : 'bg-primary',
             )}
             style={{ width: `${online ? fill : 0}%` }}
           />
@@ -120,12 +120,12 @@ export const ServerCard = memo(function ServerCard({
             </span>
           ) : null}
           {free ? (
-            <span className="inline-flex items-center gap-1 text-xs text-emerald-300">
+            <span className="inline-flex items-center gap-1 text-xs text-success">
               <Leaf className="h-3.5 w-3.5" /> Свободно
             </span>
           ) : null}
           {peakHour ? (
-            <span className="inline-flex items-center gap-1 text-xs text-amber-300">
+            <span className="inline-flex items-center gap-1 text-xs text-warning">
               <Star className="h-3.5 w-3.5" /> Пик
             </span>
           ) : null}

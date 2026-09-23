@@ -73,7 +73,7 @@ export function ReportCard({
           {report.hasVerdict ? (
             <Badge
               variant="outline"
-              className="inline-flex items-center gap-1 border-emerald-500/30 bg-emerald-500/10 text-xs font-medium text-emerald-300"
+              className="inline-flex items-center gap-1 border-success/30 bg-success/10 text-xs font-medium text-success"
             >
               <Check className="h-3 w-3" />
               Вердикт
@@ -103,7 +103,7 @@ export function ReportCard({
         <div
           className={cn(
             'flex items-center gap-1.5 text-sm',
-            report.isOverdue ? 'text-red-400' : 'text-muted-foreground',
+            report.isOverdue ? 'text-destructive' : 'text-muted-foreground',
           )}
         >
           <Clock className="h-4 w-4 shrink-0" />

@@ -225,6 +225,7 @@ export default function ScheduledExportsPage() {
                         size="icon"
                         className="h-8 w-8"
                         onClick={() => openEdit(item)}
+                        aria-label="Редактировать расписание экспорта"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -239,6 +240,7 @@ export default function ScheduledExportsPage() {
                             onError: () => toast.error('Не удалось удалить'),
                           });
                         }}
+                        aria-label="Удалить расписание экспорта"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

@@ -134,7 +134,12 @@ export default function AdminStoreProductsPage() {
                       </Button>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => void remove(product)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => void remove(product)}
+                        aria-label="Удалить товар"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>

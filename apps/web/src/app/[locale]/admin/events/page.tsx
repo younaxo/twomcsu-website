@@ -318,11 +318,21 @@ export default function AdminEventsPage() {
               >
                 {event.status === 'PUBLISHED' ? 'Отменить' : 'Опубликовать'}
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => edit(event)}>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => edit(event)}
+                aria-label="Редактировать событие"
+              >
                 <Pencil className="h-4 w-4" />
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => void remove(event.id)}>
-                <Trash2 className="h-4 w-4 text-red-400" />
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => void remove(event.id)}
+                aria-label="Удалить событие"
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </CardContent>
           </Card>

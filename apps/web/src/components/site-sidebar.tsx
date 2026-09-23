@@ -287,7 +287,10 @@ function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate
   return (
     <div className="flex h-full min-h-0 flex-col">
       <SidebarTopActions collapsed={collapsed} />
-      <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2.5 py-2">
+      <nav
+        aria-label={t('sidebarLabel')}
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2.5 py-2"
+      >
         {mainGroups.map((group) => {
           const items =
             group.titleKey === 'groupCommunity' && isAuthenticated

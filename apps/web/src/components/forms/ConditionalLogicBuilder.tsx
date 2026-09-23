@@ -130,6 +130,7 @@ export function ConditionalLogicBuilder({ currentField, otherFields, value, onCh
             size="icon"
             variant="ghost"
             onClick={() => commit(key, rules.filter((_, i) => i !== index))}
+            aria-label="Удалить условие"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>

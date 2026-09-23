@@ -64,7 +64,7 @@ export function AchievementCard({
             </p>
             <AchievementRarityBadge rarity={rarity} />
             {isUnlocked && achievement.progress?.completedAt ? (
-              <span className="ml-auto text-xs text-emerald-400">
+              <span className="ml-auto text-xs text-success">
                 {format(new Date(achievement.progress.completedAt), 'dd.MM.yyyy', { locale: ru })}
               </span>
             ) : null}

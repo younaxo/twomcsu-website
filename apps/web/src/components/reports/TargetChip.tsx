@@ -51,6 +51,7 @@ export function TargetChip(props: TargetChipProps) {
           type="button"
           onClick={props.onRemove}
           className="ml-1 text-xs text-muted-foreground transition hover:text-foreground"
+          aria-label={`Убрать ${username}`}
         >
           ✕
         </button>

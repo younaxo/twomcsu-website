@@ -238,7 +238,7 @@ export default function AdminStreamsPage() {
                   {channel.isLive ? `В эфире · ${channel.viewerCount}` : 'Не в эфире'}
                 </span>
                 {channel.checkError ? (
-                  <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-amber-300">
+                  <span className="rounded-full bg-warning/15 px-2.5 py-1 text-warning">
                     {channel.checkError}
                   </span>
                 ) : null}

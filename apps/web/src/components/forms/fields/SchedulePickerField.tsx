@@ -58,6 +58,7 @@ export function SchedulePickerField({ field, value, onChange, disabled }: Props)
                           'block h-5 w-5 rounded transition-colors',
                           active ? 'bg-primary' : 'bg-control-fill hover:bg-control-hover',
                         )}
+                        aria-label={`${day}, ${h}:00`}
                       />
                     </td>
                   );

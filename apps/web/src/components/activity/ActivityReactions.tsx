@@ -105,6 +105,7 @@ export function ActivityReactions({
             disabled={disabled}
             className="h-8 w-8 rounded-full"
             title="Добавить реакцию"
+            aria-label="Добавить реакцию"
           >
             <Plus className="h-4 w-4" />
           </Button>

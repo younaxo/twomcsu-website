@@ -195,7 +195,13 @@ export const MessageBubble = memo(function MessageBubble({
         <div className="absolute right-1 top-1 hidden gap-0.5 group-hover:flex">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onReply?.(message)}>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => onReply?.(message)}
+                aria-label="Ответить"
+              >
                 <Reply className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -203,7 +209,13 @@ export const MessageBubble = memo(function MessageBubble({
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => void copy()}>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => void copy()}
+                aria-label="Копировать"
+              >
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -217,6 +229,7 @@ export const MessageBubble = memo(function MessageBubble({
                   variant="ghost"
                   className="h-7 w-7"
                   onClick={() => onPin?.(message.id, message.isPinned)}
+                  aria-label={message.isPinned ? 'Открепить' : 'Закрепить'}
                 >
                   <Pin className="h-3.5 w-3.5" />
                 </Button>
@@ -232,6 +245,7 @@ export const MessageBubble = memo(function MessageBubble({
                   variant="ghost"
                   className="h-7 w-7"
                   onClick={() => onDelete?.(message.id)}
+                  aria-label="Удалить"
                 >
                   <Trash2 className="h-3.5 w-3.5 text-destructive" />
                 </Button>

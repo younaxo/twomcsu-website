@@ -64,7 +64,7 @@ function PunishmentCard({
               className={cn(
                 'border-transparent text-xs',
                 punishment.isActive
-                  ? 'bg-red-500/20 text-red-300'
+                  ? 'bg-destructive/20 text-destructive'
                   : 'bg-muted text-muted-foreground',
               )}
             >

@@ -122,6 +122,7 @@ export default function AdminStoreCategoriesPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => void remove(row.id, row.name)}
+                      aria-label="Удалить категорию"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

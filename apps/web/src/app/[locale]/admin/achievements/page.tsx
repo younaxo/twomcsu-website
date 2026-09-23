@@ -245,6 +245,7 @@ export default function AdminAchievementsPage() {
                           e.stopPropagation();
                           void remove(a.id);
                         }}
+                        aria-label="Удалить достижение"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -301,6 +302,7 @@ export default function AdminAchievementsPage() {
                     variant="secondary"
                     size="icon"
                     onClick={() => iconInputRef.current?.click()}
+                    aria-label="Загрузить иконку"
                   >
                     <Upload className="h-4 w-4" />
                   </Button>

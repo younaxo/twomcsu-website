@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -193,7 +194,9 @@ export default function AdminDonationSupportPage() {
                         className="block overflow-hidden rounded-xl glass-light"
                       >
                         <div className="flex items-center gap-2 border-b border-foreground/10 px-3 py-2 text-sm">
-                          <FileText className="h-4 w-4 text-red-400" />
+                          <FileText
+                            className={cn('h-4 w-4', isPdf ? 'text-red-400' : 'text-muted-foreground')}
+                          />
                           <span className="truncate">{file.fileName}</span>
                         </div>
                         {isPdf ? (

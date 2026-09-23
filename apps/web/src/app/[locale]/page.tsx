@@ -68,12 +68,12 @@ export default function HomePage() {
                 <span
                   className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
                     networkOnline
-                      ? 'border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-300'
+                      ? 'border-success/20 bg-success/[0.08] text-success'
                       : 'border-border bg-muted text-muted-foreground'
                   }`}
                 >
                   <span
-                    className={`h-1.5 w-1.5 rounded-full ${networkOnline ? 'bg-emerald-400' : 'bg-muted-foreground'}`}
+                    className={`h-1.5 w-1.5 rounded-full ${networkOnline ? 'bg-success' : 'bg-muted-foreground'}`}
                   />
                   {overview.isLoading ? 'Проверяем' : networkOnline ? 'Онлайн' : 'Нет данных'}
                 </span>

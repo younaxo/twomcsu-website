@@ -217,6 +217,7 @@ export default function AdminEmojisPage() {
                         variant="ghost"
                         className="h-8 w-8"
                         onClick={() => openEdit(emoji)}
+                        aria-label="Редактировать эмодзи"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -226,6 +227,7 @@ export default function AdminEmojisPage() {
                         variant="ghost"
                         className="h-8 w-8 text-destructive"
                         onClick={() => void remove(emoji)}
+                        aria-label="Удалить эмодзи"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

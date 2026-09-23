@@ -83,6 +83,7 @@ export function ImageGalleryField({ field, slug, value, onChange, disabled }: Pr
                 onClick={() => remove(url)}
                 disabled={disabled}
                 className="absolute right-1 top-1 h-6 w-6 rounded-full bg-neutral-900/80"
+                aria-label="Удалить изображение"
               >
                 <X className="h-3.5 w-3.5" />
               </Button>

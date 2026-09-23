@@ -48,6 +48,7 @@ export function PlayerSelectorField({ field, value, onChange, disabled }: Props)
                     variant="ghost"
                     onClick={() => remove(username)}
                     className="h-5 w-5"
+                    aria-label={`Убрать ${username} из списка`}
                   >
                     <X className="h-3 w-3" />
                   </Button>

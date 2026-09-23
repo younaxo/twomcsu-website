@@ -52,6 +52,7 @@ export function QuantitySelector({
         className="h-8 w-8"
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - 1))}
+        aria-label="Уменьшить количество"
       >
         <Minus className="h-3.5 w-3.5" />
       </Button>
@@ -74,6 +75,7 @@ export function QuantitySelector({
         className="h-8 w-8"
         disabled={disabled || (max != null && value >= max)}
         onClick={() => onChange(clamp(value + 1))}
+        aria-label="Увеличить количество"
       >
         <Plus className="h-3.5 w-3.5" />
       </Button>

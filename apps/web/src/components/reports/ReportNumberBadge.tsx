@@ -30,6 +30,7 @@ export function ReportNumberBadge({ reportNumber, className, onClick }: ReportNu
       type="button"
       onClick={(event) => void copy(event)}
       title="Скопировать номер обращения"
+      aria-label={`Скопировать номер обращения ${reportNumber}`}
       className={cn(
         'group inline-flex items-center gap-1.5 rounded-md font-mono text-sm text-foreground/90 transition-opacity hover:opacity-80',
         className,

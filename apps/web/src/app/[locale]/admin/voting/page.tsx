@@ -114,10 +114,10 @@ export default function AdminVotingPage() {
         </p>
       </div>
       {secret ? (
-        <Card className="border-amber-500/30 bg-amber-500/5">
+        <Card className="border-warning/30 bg-warning/5">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <KeyRound className="h-5 w-5 text-amber-400" />
+              <KeyRound className="h-5 w-5 text-warning" />
               Сохраните новый секрет
             </CardTitle>
           </CardHeader>
@@ -252,7 +252,7 @@ export default function AdminVotingPage() {
                   onClick={() => void remove(site.id)}
                   aria-label="Удалить"
                 >
-                  <Trash2 className="h-4 w-4 text-red-400" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">

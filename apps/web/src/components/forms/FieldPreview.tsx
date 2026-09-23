@@ -65,6 +65,7 @@ export function FieldPreview({ field, selected, onSelect, onDelete }: Props) {
               event.stopPropagation();
               onSelect();
             }}
+            aria-label="Редактировать поле"
           >
             <Pencil className="h-4 w-4" />
           </Button>
@@ -76,6 +77,7 @@ export function FieldPreview({ field, selected, onSelect, onDelete }: Props) {
               event.stopPropagation();
               onDelete();
             }}
+            aria-label="Удалить поле"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

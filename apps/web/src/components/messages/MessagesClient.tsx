@@ -293,7 +293,7 @@ function MessageBubble({
             >
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost" className="h-7 w-7">
+                  <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Добавить реакцию">
                     <span className="text-sm">🙂</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -310,13 +310,13 @@ function MessageBubble({
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onReply}>
+              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onReply} aria-label="Ответить">
                 <Reply className="h-3.5 w-3.5" />
               </Button>
               {own || canDelete ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="ghost" className="h-7 w-7">
+                    <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Действия с сообщением">
                       <MoreHorizontal className="h-3.5 w-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -593,6 +593,7 @@ export function MessagesClient() {
                 setActiveId(null);
                 window.history.replaceState(null, '', '/messages');
               }}
+              aria-label="Назад к диалогам"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -714,6 +715,7 @@ export function MessagesClient() {
                     setEditing(null);
                     setText('');
                   }}
+                  aria-label={editing ? 'Отменить редактирование' : 'Отменить ответ'}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -737,6 +739,7 @@ export function MessagesClient() {
                 className="shrink-0"
                 onClick={() => fileRef.current?.click()}
                 disabled={sendFile.isPending}
+                aria-label="Прикрепить файл"
               >
                 <Paperclip className="h-5 w-5" />
               </Button>
@@ -758,6 +761,7 @@ export function MessagesClient() {
                 className="shrink-0"
                 onClick={() => void submit()}
                 disabled={!text.trim() || send.isPending || edit.isPending}
+                aria-label="Отправить"
               >
                 <Send className="h-4 w-4" />
               </Button>

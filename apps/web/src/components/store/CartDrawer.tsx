@@ -151,6 +151,7 @@ export function CartDrawer() {
                           size="icon"
                           className="h-7 w-7 shrink-0"
                           onClick={() => void remove(item.id)}
+                          aria-label="Удалить из корзины"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>

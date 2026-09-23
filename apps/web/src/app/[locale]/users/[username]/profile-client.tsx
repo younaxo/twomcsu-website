@@ -173,7 +173,7 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
   return (
     <div className="space-y-6">
       {ownerPrivacyNote ? (
-        <div className="border border-border bg-card rounded-xl border border-orange-500/30 px-4 py-3 text-sm text-orange-200">
+        <div className="rounded-card border border-info/30 bg-info/10 px-4 py-3 text-sm text-info">
           {ownerPrivacyNote}
         </div>
       ) : null}
@@ -222,7 +222,7 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
             <span
               className={cn(
                 'absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-card',
-                profile.isOnlineInGame ? 'bg-emerald-400' : 'bg-muted-foreground',
+                profile.isOnlineInGame ? 'bg-success' : 'bg-muted-foreground',
               )}
               aria-hidden
             />
@@ -299,7 +299,7 @@ export function ProfileClient({ username, initial, initialRestricted = null }: P
           <p className="mt-2 text-sm text-muted-foreground">
             {profile.isOnlineInGame && profile.currentServer ? (
               <>
-                <span className="text-emerald-400">●</span> Играет на{' '}
+                <span className="text-success">●</span> Играет на{' '}
                 <Link
                   href={`/servers/${profile.currentServer}`}
                   className="text-primary hover:underline"

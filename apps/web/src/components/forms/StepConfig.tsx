@@ -32,6 +32,7 @@ export function StepConfig({ steps, onChange }: Props) {
             size="icon"
             variant="ghost"
             onClick={() => onChange(steps.filter((_, i) => i !== index))}
+            aria-label="Удалить шаг"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

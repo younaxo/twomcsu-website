@@ -107,11 +107,21 @@ export default function EventsPage() {
 
       <Card className="overflow-hidden border border-border">
         <div className="flex items-center justify-between border-b border-border p-4">
-          <Button variant="ghost" size="icon" onClick={() => setMonth(subMonths(month, 1))}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMonth(subMonths(month, 1))}
+            aria-label="Предыдущий месяц"
+          >
             <ChevronLeft className="h-5 w-5" />
           </Button>
           <h2 className="text-xl capitalize">{format(month, 'LLLL yyyy', { locale: ru })}</h2>
-          <Button variant="ghost" size="icon" onClick={() => setMonth(addMonths(month, 1))}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMonth(addMonths(month, 1))}
+            aria-label="Следующий месяц"
+          >
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>

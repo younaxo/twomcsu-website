@@ -97,7 +97,13 @@ export function MessageInput({
           <span className="truncate text-muted-foreground">
             Ответ на {replyTo.author?.username}: {replyTo.content.slice(0, 60)}
           </span>
-          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={onCancelReply}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-6 w-6"
+            onClick={onCancelReply}
+            aria-label="Отменить ответ"
+          >
             <X className="h-3.5 w-3.5" />
           </Button>
         </div>

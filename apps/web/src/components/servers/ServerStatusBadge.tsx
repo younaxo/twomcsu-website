@@ -20,18 +20,18 @@ export function ServerStatusBadge({
       <span
         className={cn(
           'relative flex h-2.5 w-2.5',
-          online && 'after:absolute after:inset-0 after:animate-ping after:rounded-full after:bg-emerald-400/60',
+          online && 'after:absolute after:inset-0 after:animate-ping after:rounded-full after:bg-success/60',
         )}
         aria-hidden
       >
         <span
           className={cn(
             'relative h-2.5 w-2.5 rounded-full',
-            online ? 'bg-emerald-400' : 'bg-red-500',
+            online ? 'bg-success' : 'bg-destructive',
           )}
         />
       </span>
-      <span className={online ? 'text-emerald-400' : 'text-red-400'}>
+      <span className={online ? 'text-success' : 'text-destructive'}>
         {online ? 'Онлайн' : 'Оффлайн'}
       </span>
       {showCount && online && typeof playerCount === 'number' ? (
